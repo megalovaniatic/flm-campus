@@ -1,0 +1,29 @@
+{
+  "name": "flm-campus",
+  "private": true,
+  "version": "1.0.0",
+  "description": "FLM Campus — plataforma interna de formación, información y vida de empresa de FLM.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @flm/web",
+    "dev:api": "npm run dev -w @flm/api",
+    "build": "npm run build -w @flm/web",
+    "build:demo": "npm run build:demo -w @flm/web",
+    "build:api": "npm run build -w @flm/api",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint:content": "npm run validate -w @flm/content",
+    "check": "npm run typecheck && npm run test && npm run lint:content"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.5"
+  }
+}

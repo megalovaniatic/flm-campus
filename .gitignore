@@ -1,0 +1,31 @@
+# Dependencias y compilaciones
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Entorno y secretos (nunca se versionan)
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Datos de la API (base de datos, archivos subidos y copias)
+apps/api/data/
+apps/api/storage/
+apps/api/backups/
+*.sqlite
+*.sqlite-*
+*.db
+
+# Material de investigación descargado de terceros
+research/downloads/
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.log

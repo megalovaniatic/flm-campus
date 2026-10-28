@@ -1,0 +1,85 @@
+.footer {
+  margin-top: var(--section-gap);
+  border-top: 1px solid var(--line);
+  background: var(--surface-2);
+}
+
+.inner {
+  display: grid;
+  gap: var(--space-10);
+  padding-block: var(--space-12) var(--space-8);
+}
+
+.brand {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+
+.motto {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: var(--text-2xl);
+  font-variation-settings: 'opsz' 36;
+  color: var(--ink);
+}
+
+.offices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--space-6);
+  list-style: none;
+  padding: 0;
+}
+
+.city {
+  font-weight: 650;
+  margin-bottom: 4px;
+}
+
+.line {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+.line a {
+  color: inherit;
+}
+
+.bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--line);
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  list-style: none;
+  padding: 0;
+}
+
+.links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: var(--text-sm);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.links a:hover {
+  text-decoration: underline;
+}
+
+.note {
+  font-size: var(--text-xs);
+  color: var(--ink-3);
+}

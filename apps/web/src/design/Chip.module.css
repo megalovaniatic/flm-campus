@@ -1,0 +1,104 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 28px;
+  padding: 0 0.7rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  letter-spacing: 0.005em;
+}
+
+.sm {
+  height: 24px;
+  padding: 0 0.55rem;
+  font-size: 0.72rem;
+}
+
+.icon {
+  display: inline-flex;
+}
+
+.neutral {
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+  color: var(--ink-2);
+}
+
+.info {
+  background: var(--info-soft);
+  color: var(--ink);
+}
+
+.success {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.warning {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.brand {
+  background: var(--flm-marino);
+  color: #fff;
+}
+
+.inverse {
+  background: transparent;
+  color: var(--ink-2);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+/* Etiqueta de área */
+.area {
+  --area: var(--area-fiscal);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 28px;
+  padding: 0 0.75rem 0 0.6rem;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--area) 9%, transparent);
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.area[data-area='laboral'] {
+  --area: var(--area-laboral);
+}
+
+.area[data-area='mercantil'] {
+  --area: var(--area-mercantil);
+}
+
+.area[data-area='contable'] {
+  --area: var(--area-contable);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--area);
+  flex: none;
+}
+
+.areaSolid {
+  background: var(--area);
+  color: #fff;
+}
+
+.areaSolid .dot {
+  background: #fff;
+}

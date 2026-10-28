@@ -1,0 +1,200 @@
+/* FLM Campus · Composición, tipografía editorial y utilidades compartidas */
+
+/* Variables por área: --area (color plano) y --area-fill (relleno; Contable = degradado) */
+[data-area] {
+  --area: var(--area-fiscal);
+  --area-fill: var(--area);
+}
+
+[data-area='laboral'] {
+  --area: var(--area-laboral);
+}
+
+[data-area='mercantil'] {
+  --area: var(--area-mercantil);
+}
+
+[data-area='contable'] {
+  --area: var(--area-contable);
+  --area-fill: var(--area-contable-fill);
+}
+
+.container {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.reading {
+  max-width: var(--reading-max);
+}
+
+.serif {
+  font-family: var(--font-serif);
+  font-optical-sizing: auto;
+}
+
+.display {
+  font-family: var(--font-serif);
+  font-weight: 380;
+  font-variation-settings: 'opsz' 72;
+  letter-spacing: -0.022em;
+  line-height: 1.04;
+  text-wrap: balance;
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--flm-vino-texto);
+}
+
+.lede {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  line-height: 1.45;
+  color: var(--ink-2);
+  font-variation-settings: 'opsz' 24;
+}
+
+.meta {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+}
+
+@media (max-width: 720px) {
+  .card {
+    border-radius: var(--radius-lg);
+  }
+}
+
+.page {
+  padding-block: clamp(1.5rem, 1rem + 2.5vw, 3.5rem) var(--section-gap);
+}
+
+.section {
+  margin-top: var(--section-gap);
+}
+
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.section-title {
+  font-family: var(--font-serif);
+  font-weight: 420;
+  font-variation-settings: 'opsz' 60;
+  font-size: var(--text-3xl);
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+}
+
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  font-size: var(--text-sm);
+  text-decoration: none;
+  color: var(--ink);
+  min-height: 44px;
+}
+
+.link-arrow svg {
+  transition: transform var(--dur-quick) var(--ease-standard);
+}
+
+.link-arrow:hover svg {
+  transform: translateX(3px);
+}
+
+/* Texto enriquecido de lectura (formaciones y actualidad) */
+.prose {
+  font-family: var(--font-serif);
+  font-size: var(--text-reading);
+  line-height: var(--leading-reading);
+  font-variation-settings: 'opsz' 18;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  color: var(--ink);
+}
+
+.prose p + p {
+  margin-top: 1em;
+}
+
+.prose strong {
+  font-weight: 640;
+}
+
+.prose a {
+  color: var(--ink);
+  text-decoration-color: var(--flm-rojo);
+  text-decoration-thickness: 1.5px;
+}
+
+.prose a:hover {
+  text-decoration-thickness: 2.5px;
+}
+
+.term {
+  font-weight: 560;
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in srgb, var(--ink) 50%, transparent);
+  text-underline-offset: 0.22em;
+  cursor: help;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+}
+
+/* Red dot: el punto final de la marca */
+.red-dot {
+  display: inline-block;
+  width: 0.24em;
+  height: 0.24em;
+  border-radius: 50%;
+  background: var(--flm-rojo);
+  margin-left: 0.04em;
+  vertical-align: baseline;
+}
+
+/* Logotipo en modo oscuro: placa clara en cápsula (no hay versión negativa oficial) */
+.logo-plate {
+  display: inline-flex;
+  align-items: center;
+}
+
+:root[data-theme='dark'] .logo-plate {
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  background: #f8f6f2;
+}
+
+.visually-hidden-focusable:not(:focus):not(:focus-within) {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+}

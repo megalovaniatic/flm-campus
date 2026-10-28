@@ -1,0 +1,84 @@
+.bar {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .bar {
+    display: block;
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: var(--z-nav);
+    padding-bottom: env(safe-area-inset-bottom);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: saturate(1.4) blur(16px);
+    -webkit-backdrop-filter: saturate(1.4) blur(16px);
+    border-top: 1px solid var(--line);
+  }
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  list-style: none;
+  padding: 0 4px;
+  margin: 0 auto;
+  max-width: 34rem;
+}
+
+.tab {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 6px 0 8px;
+  min-height: 60px;
+  text-decoration: none;
+  color: var(--ink-2);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.iconWrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 34px;
+}
+
+.circle {
+  position: absolute;
+  inset: 0 3px;
+  border-radius: var(--radius-pill);
+  background: var(--flm-marino);
+}
+
+:root[data-theme='dark'] .circle {
+  background: var(--flm-crema);
+}
+
+.icon {
+  position: relative;
+  transition: color var(--dur-quick) var(--ease-standard);
+}
+
+.tab[aria-current='page'] .icon {
+  color: #fff;
+}
+
+:root[data-theme='dark'] .tab[aria-current='page'] .icon {
+  color: var(--flm-marino);
+}
+
+.iconWrap > span:last-child {
+  position: relative;
+}
+
+.label {
+  font-size: 0.6875rem;
+  font-weight: 560;
+  letter-spacing: 0.01em;
+}
+
+.tab[aria-current='page'] .label {
+  color: var(--ink);
+  font-weight: 700;
+}

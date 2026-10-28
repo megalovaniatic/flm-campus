@@ -1,0 +1,129 @@
+.empty {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  padding: clamp(2rem, 1rem + 4vw, 4rem) var(--space-6);
+  border-radius: var(--radius-xl);
+  border: 1px dashed var(--line-strong);
+  background: var(--surface-2);
+}
+
+.emptyIcon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--surface-sunken);
+  color: var(--ink-2);
+}
+
+.empty[data-tone='error'] .emptyIcon {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.emptyIcon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.emptyTitle {
+  font-size: var(--text-xl);
+  font-weight: 600;
+}
+
+.emptyText {
+  max-width: 36rem;
+  color: var(--ink-2);
+}
+
+.emptyAction {
+  margin-top: var(--space-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: center;
+}
+
+.skeleton {
+  display: block;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--ink) 6%, transparent) 25%, color-mix(in srgb, var(--ink) 11%, transparent) 50%, color-mix(in srgb, var(--ink) 6%, transparent) 75%);
+  background-size: 300% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: 0 0;
+  }
+}
+
+.kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.6em;
+  height: 1.6em;
+  padding: 0 0.35em;
+  border-radius: 6px;
+  border: 1px solid var(--line-strong);
+  border-bottom-width: 2px;
+  background: var(--surface);
+  font-family: var(--font-sans);
+  font-size: 0.75em;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.notice {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--info-soft);
+  font-size: var(--text-sm);
+}
+
+.notice[data-tone='warning'] {
+  background: var(--warning-soft);
+}
+
+.notice[data-tone='danger'] {
+  background: var(--danger-soft);
+}
+
+.notice[data-tone='success'] {
+  background: var(--success-soft);
+}
+
+.noticeIcon {
+  flex: none;
+  margin-top: 1px;
+  color: var(--ink-2);
+}
+
+.notice[data-tone='warning'] .noticeIcon {
+  color: var(--warning);
+}
+
+.notice[data-tone='danger'] .noticeIcon {
+  color: var(--danger);
+}
+
+.notice[data-tone='success'] .noticeIcon {
+  color: var(--success);
+}
+
+.noticeTitle {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.noticeText {
+  color: var(--ink-2);
+}

@@ -1,0 +1,130 @@
+{
+  "biblioteca": {
+    "alt": "Sala de reuniones de FLM con la biblioteca jurídica al fondo",
+    "width": 3000,
+    "height": 2000,
+    "sizes": [
+      480,
+      960,
+      1600,
+      2400
+    ],
+    "placeholder": "data:image/webp;base64,UklGRmwAAABXRUJQVlA4IGAAAABQBACdASoYABAAPu1iqk2ppaQiMAgBMB2JZACdMoR3ACHT5hF7Axz2bAnwAPyB7UORBvKJxdGCQ6mlJa0RI/QYr/d0nVoS2qFGIBY0cOd0vYZSbtf6Okb5SZ7gm9gtAAA="
+  },
+  "biblioteca-mesa": {
+    "alt": "Mesa de reuniones de FLM frente a las estanterías de la biblioteca",
+    "width": 3000,
+    "height": 2000,
+    "sizes": [
+      480,
+      960,
+      1600,
+      2400
+    ],
+    "placeholder": "data:image/webp;base64,UklGRnIAAABXRUJQVlA4IGYAAAAwBACdASoYABAAPu1iqU2ppaOiMAgBMB2JYgCdH8ADAhVmXvv367F8gsgA+5pOy/X3YLvg4W2Mn4kxVlCbkOgg8gmqtLHBPD0ddc6HpVKfmqLpTIWdBFAOAmIs4uEtpgq0OKAAAAA="
+  },
+  "fachada": {
+    "alt": "Fachada del edificio de la sede de FLM en Barcelona, con ventanales en zigzag",
+    "width": 3000,
+    "height": 2000,
+    "sizes": [
+      480,
+      960,
+      1600,
+      2400
+    ],
+    "placeholder": "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAACwAwCdASoYABAAPu1Ct1apoqakGAEwHYlnALsAEGeR5KC3iwhJAAD+nsYxJ04vYjkF3+BC1Xmos2f1Lg4EEbZ3IiQAAA=="
+  },
+  "fachada-arbol": {
+    "alt": "Ventanales del edificio de FLM entre los árboles de la calle",
+    "width": 2000,
+    "height": 3000,
+    "sizes": [
+      480,
+      960,
+      1600
+    ],
+    "placeholder": "data:image/webp;base64,UklGRogAAABXRUJQVlA4IHwAAADwBQCdASoYACQAPuVcpk2pJSOiOrM4ASAciWcAxcgHyRnBGIFaOk22+CMF+uhgd7rd1sBLilMNzAD90kS55qd9iUhv5okF4W7k6Ci0MTYdmTeXdloSlM0lSIyNUR6Is14pxxjRpoNtfGIyn6PyxA4c1/Hj/h5Cn1+DTgAA"
+  },
+  "edificio-cielo": {
+    "alt": "Edificio de la sede de FLM en Barcelona bajo un cielo de nubes",
+    "width": 3000,
+    "height": 2000,
+    "sizes": [
+      480,
+      960,
+      1600,
+      2400
+    ],
+    "placeholder": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAQBACdASoYABAAPu1qrU8ppiQiMAgBMB2JZQAAUz4Hv7p0SIcq7anBIAD+VGemelmvF3i+XVTd4PPdJyBB2N7rzKSrM7VFVR9IAA=="
+  },
+  "eixample": {
+    "alt": "Edificio modernista del Eixample frente a la sede de FLM",
+    "width": 3000,
+    "height": 2000,
+    "sizes": [
+      480,
+      960,
+      1600,
+      2400
+    ],
+    "placeholder": "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAABQBACdASoYABAAPu1Ct1apoqakGAEwHYlmAJ0yhHcAfRxgJ21RNCIIQ48AAP6HZ0vUL2Vq1HzUMhAtkD0we7akxLPHEUhnIqlKNExPKv5gfvwrZOHZ5HPVEAA="
+  },
+  "recepcion": {
+    "alt": "Recepción de la oficina de FLM con personas en movimiento",
+    "width": 3000,
+    "height": 2000,
+    "sizes": [
+      480,
+      960,
+      1600,
+      2400
+    ],
+    "placeholder": "data:image/webp;base64,UklGRnQAAABXRUJQVlA4IGgAAAAQBACdASoYABAAPu1iqU2ppaOiMAgBMB2JagCdMoABDL/HMuLQTUoxwAD+nqBL+X94o0OIDAiY+Srq7OWMwBURHY3l56E6AlIh2LU5oyYqNFSpQWaYlzHwg05ElfJt9aaiWmD8OhAAAA=="
+  },
+  "libreta": {
+    "alt": "Libreta burdeos con el logotipo de FLM y un bolígrafo sobre una mesa de madera",
+    "width": 3000,
+    "height": 2000,
+    "sizes": [
+      480,
+      960,
+      1600,
+      2400
+    ],
+    "placeholder": "data:image/webp;base64,UklGRmoAAABXRUJQVlA4IF4AAADwAwCdASoYABAAPu1iqU2ppaQiMAgBMB2JZgCdMoADTBFiEqecbSAAAP7N/jIHNXXhZrHOqSMNMz567ntSmljxvorelyqr9g2YW/vxtifblKEHsL1bsk7FZq304AAA"
+  },
+  "libreta-mesa": {
+    "alt": "Libreta de FLM sobre la mesa de una sala de reuniones",
+    "width": 3000,
+    "height": 2000,
+    "sizes": [
+      480,
+      960,
+      1600,
+      2400
+    ],
+    "placeholder": "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAADwAwCdASoYABAAPu1iqU2ppaQiMAgBMB2JZgCdABIkrtCTvi8P+iRgAP6E+LgSmCODUHCMJRoPpA3MDEDzymHvSYGdtkC4Pu7bE+GCdoHX56CAAAA="
+  },
+  "desayuno-mercantil": {
+    "alt": "Desayuno Mercantil en la Sala Biblioteca de FLM: el equipo sigue la presentación «La información es poder»",
+    "width": 1290,
+    "height": 2152,
+    "sizes": [
+      480,
+      960
+    ],
+    "placeholder": "data:image/webp;base64,UklGRs4AAABXRUJQVlA4IMIAAAAwBwCdASoYACgAPt1YpE2opSOiOrZoARAbiWoArDL/9NBf8u1wNJIrWWM6BiRdtE5JxoaVC+/ObPpAFzcmp9KyWrAA9x7itWk8W10ZrLzom2KeUejR4hNvsQGL8KsS4gYb7hpGamWnga4jkpEibY1iPvQzJV3NSN25Q01TK1vFVC1XQuZJ91Dlf3v7IlQRGVUbddwIpsmFbpKO3RrPJ+SWF6MQzmuB5jnBS6jcu8Q/KKvN2pY9wOATaBq3NxKvmAAAAA=="
+  },
+  "web-nueva": {
+    "alt": "Portada de la nueva web corporativa flmexperts.com",
+    "width": 1864,
+    "height": 966,
+    "sizes": [
+      480,
+      960,
+      1600
+    ],
+    "placeholder": "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAABwAwCdASoYAAwAPu1iqU2ppaOiMAgBMB2JTI8p2ZJtPRJtG2AA/u5L50OncR23lL2tOaNtk/GMx57Ep3AXNwPY5whZAAAA"
+  }
+}

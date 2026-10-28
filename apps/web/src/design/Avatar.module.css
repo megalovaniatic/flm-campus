@@ -1,0 +1,34 @@
+.avatar {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  border-radius: 50%;
+  overflow: hidden;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #fff;
+  user-select: none;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar[data-tone='rojo'] {
+  background: var(--flm-rojo-oscuro);
+}
+
+.avatar[data-tone='burdeos'] {
+  background: var(--flm-burdeos);
+}
+
+.avatar[data-tone='marino'] {
+  background: var(--flm-marino);
+}
+
+.avatar[data-tone='gris'] {
+  background: var(--flm-gris);
+}

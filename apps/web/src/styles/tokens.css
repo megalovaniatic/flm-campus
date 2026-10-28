@@ -1,0 +1,184 @@
+/*
+ * FLM Campus · Tokens de diseño
+ *
+ * Colores de marca VERIFICADOS (no modificar):
+ *   - Logotipo oficial (archivos PNG de FLM): rojo #E53327 · marino #172641 · degradado rojo → burdeos → marino.
+ *   - Cápsula oficial «LABORAL»: burdeos #84343D.
+ *   - Web corporativa flmexperts.com (variables.css): rojo #E22F29 · rojo oscuro #90101A · azul #1F2F4A ·
+ *     negro #081225 · crema #EFEBE4 · gris #4F5661.
+ *   - Fondo abstracto de redes: rojo vivo #FD1910 · vino #6C131C · azul profundo #002149 · noche #151024.
+ * El resto de valores son decisiones de diseño del campus (superficies, tintes de accesibilidad, escalas).
+ */
+
+:root {
+  /* ── Marca ─────────────────────────────────────────────────────────── */
+  --flm-rojo: #e53327;
+  --flm-rojo-web: #e22f29;
+  --flm-rojo-oscuro: #90101a;
+  --flm-burdeos: #84343d;
+  --flm-marino: #172641;
+  --flm-azul: #1f2f4a;
+  --flm-negro: #081225;
+  --flm-crema: #efebe4;
+  --flm-gris: #4f5661;
+  --flm-rojo-vivo: #fd1910;
+  --flm-vino: #6c131c;
+  --flm-azul-profundo: #002149;
+  --flm-noche: #151024;
+
+  /* Degradado del logotipo (muestreado en el archivo oficial) */
+  --flm-gradient: linear-gradient(90deg, #e53327 0%, #b8302d 30%, #792c35 58%, #3f293c 82%, #172641 100%);
+  --flm-gradient-diagonal: linear-gradient(135deg, #e53327 0%, #b8302d 28%, #792c35 56%, #3f293c 80%, #172641 100%);
+
+  /* ── Áreas: meseta de color de cada cápsula oficial; Contable = la rampa completa ── */
+  --area-fiscal: var(--flm-rojo);
+  --area-laboral: var(--flm-burdeos);
+  --area-mercantil: var(--flm-marino);
+  --area-contable: var(--flm-marino);
+  --area-contable-fill: var(--flm-gradient);
+  --flm-vino-texto: var(--flm-vino);
+
+  /* ── Calendario ────────────────────────────────────────────────────── */
+  --cal-cumpleanos: var(--flm-rojo);
+  --cal-aniversario: var(--flm-burdeos);
+  --cal-encuentro: var(--flm-marino);
+  --cal-festivo: var(--flm-gris);
+
+  /* ── Superficies y texto (tema claro) ──────────────────────────────── */
+  --paper: #f8f6f2;
+  --surface: #ffffff;
+  --surface-2: #fbfaf7;
+  --surface-sunken: var(--flm-crema);
+  --surface-inverse: var(--flm-marino);
+  --ink: var(--flm-marino);
+  --ink-2: var(--flm-gris);
+  --ink-3: #6b7280;
+  --ink-inverse: #f6f3ee;
+  --line: rgb(23 38 65 / 0.12);
+  --line-strong: rgb(23 38 65 / 0.24);
+  --accent: var(--flm-rojo);
+  /* Rojo para texto pequeño: el rojo oscuro de la web cumple 4,5:1 sobre papel. */
+  --accent-text: var(--flm-rojo-oscuro);
+  --focus: #1f6feb;
+  --focus-ring: 0 0 0 3px var(--paper), 0 0 0 5px var(--flm-marino);
+  --success: #1d6b45;
+  --success-soft: #e3f1ea;
+  --warning: #8a5a00;
+  --warning-soft: #fbf0d9;
+  --danger: var(--flm-rojo-oscuro);
+  --danger-soft: #fbe6e4;
+  --info-soft: #e7ebf3;
+  --scrim: rgb(8 18 37 / 0.48);
+
+  /* ── Tipografía ────────────────────────────────────────────────────── */
+  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Newsreader Variable', 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-num: 'Inter Variable', 'Inter', system-ui, sans-serif;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: clamp(1.375rem, 1.2rem + 0.6vw, 1.625rem);
+  --text-3xl: clamp(1.625rem, 1.3rem + 1.2vw, 2.25rem);
+  --text-4xl: clamp(2rem, 1.45rem + 2.1vw, 3.25rem);
+  --text-5xl: clamp(2.5rem, 1.6rem + 3.6vw, 4.75rem);
+  --text-6xl: clamp(2.875rem, 1.5rem + 5.6vw, 6.75rem);
+  --text-reading: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
+
+  --leading-tight: 1.04;
+  --leading-snug: 1.2;
+  --leading-normal: 1.5;
+  --leading-reading: 1.62;
+  --tracking-display: -0.035em;
+  --tracking-tight: -0.02em;
+  --tracking-eyebrow: 0.14em;
+
+  /* ── Espacio, radios y sombras ─────────────────────────────────────── */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --section-gap: clamp(3.5rem, 2rem + 6vw, 7.5rem);
+  --gutter: clamp(1rem, 0.5rem + 2.4vw, 2.5rem);
+  --content-max: 82rem;
+  --reading-max: 42rem;
+
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-2xl: 40px;
+  --radius-pill: 999px;
+
+  --shadow-1: 0 1px 2px rgb(23 38 65 / 0.06), 0 1px 1px rgb(23 38 65 / 0.04);
+  --shadow-2: 0 2px 6px rgb(23 38 65 / 0.06), 0 8px 24px -8px rgb(23 38 65 / 0.12);
+  --shadow-3: 0 4px 12px rgb(23 38 65 / 0.08), 0 24px 56px -16px rgb(23 38 65 / 0.22);
+  --shadow-focus: var(--focus-ring);
+
+  /* ── Movimiento ────────────────────────────────────────────────────── */
+  --dur-instant: 90ms;
+  --dur-quick: 160ms;
+  --dur-base: 260ms;
+  --dur-slow: 420ms;
+  --dur-signature: 900ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --ease-spring: cubic-bezier(0.34, 1.36, 0.64, 1);
+
+  /* ── Capas ─────────────────────────────────────────────────────────── */
+  --z-nav: 40;
+  --z-overlay: 60;
+  --z-toast: 80;
+  --z-skip: 100;
+
+  color-scheme: light;
+}
+
+/* ── Tema oscuro: el marino y el negro de FLM como base ───────────────── */
+:root[data-theme='dark'] {
+  --paper: var(--flm-negro);
+  --surface: #0e1a31;
+  --surface-2: #12203a;
+  --surface-sunken: #0b1529;
+  --surface-inverse: var(--flm-crema);
+  --ink: #f3efe8;
+  --ink-2: #b7bcc6;
+  --ink-3: #8f96a3;
+  --ink-inverse: var(--flm-marino);
+  --line: rgb(239 235 228 / 0.12);
+  --line-strong: rgb(239 235 228 / 0.24);
+  --accent: #f0493d;
+  --accent-text: #ff8a7f;
+  --focus-ring: 0 0 0 3px var(--paper), 0 0 0 5px #f3efe8;
+  --success: #7fd3a8;
+  --success-soft: rgb(127 211 168 / 0.12);
+  --warning: #f1c46b;
+  --warning-soft: rgb(241 196 107 / 0.12);
+  --danger: #ff8a7f;
+  --danger-soft: rgb(255 138 127 / 0.12);
+  --info-soft: rgb(183 188 198 / 0.1);
+  --scrim: rgb(0 0 0 / 0.6);
+  --area-mercantil: #8fa3c7;
+  --area-contable: #c9cfdb;
+  --area-laboral: #c9707a;
+  --flm-vino-texto: #f0a39a;
+  --cal-encuentro: #8fa3c7;
+  --cal-festivo: #a3aab6;
+  --cal-aniversario: #c9707a;
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-2: 0 2px 6px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.5);
+  --shadow-3: 0 4px 12px rgb(0 0 0 / 0.35), 0 24px 56px -16px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}

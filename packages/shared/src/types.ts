@@ -1,0 +1,461 @@
+import type { AreaId } from './areas';
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Personas y roles
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+export type Role = 'empleado' | 'autor' | 'admin';
+
+export type Department =
+  | 'Fiscal'
+  | 'Laboral'
+  | 'Mercantil'
+  | 'Contable'
+  | 'Dirección'
+  | 'Administración'
+  | 'Comunicación'
+  | 'Sistemas';
+
+export type Office = 'Barcelona' | 'Vic' | 'Granollers';
+
+export interface Person {
+  id: string;
+  /** Correo corporativo; siempre @flmexperts.com. */
+  email: string;
+  name: string;
+  position: string;
+  department: Department;
+  office: Office;
+  role: Role;
+  /** Ruta a la fotografía aportada; si no hay, se muestran las iniciales. */
+  photo?: string;
+  /** Fecha de incorporación (AAAA-MM-DD). Genera los aniversarios FLM. Si no consta, no se calcula. */
+  startDate?: string;
+  /** Día y mes de cumpleaños (MM-DD). Opcional y sin año, por minimización de datos. */
+  birthday?: string;
+  /** Si la persona acepta que su cumpleaños aparezca en el calendario. */
+  showBirthday: boolean;
+  status: 'activa' | 'inactiva';
+  /** Persona ficticia creada solo para la demostración. */
+  fictional?: boolean;
+  /** De dónde procede la información pública de una persona real. */
+  publicSource?: string;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Flujo editorial
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+export type EditorialStatus = 'borrador' | 'en-revision' | 'publicado' | 'archivado';
+
+export type ContentType = 'formacion' | 'test' | 'noticia' | 'documento' | 'evento' | 'comunicado';
+
+export interface EditorialMeta {
+  status: EditorialStatus;
+  authorId: string;
+  /** Fecha de primera publicación (ISO). */
+  publishedAt?: string;
+  /** Fecha de la última actualización relevante (ISO). */
+  updatedAt?: string;
+  /** Revisión editorial y jurídica del contenido. */
+  review: {
+    state: 'pendiente' | 'revisado';
+    reviewerName?: string;
+    reviewedAt?: string;
+    note?: string;
+  };
+  /** Comentario del administrador al devolver un borrador. */
+  returnComment?: string;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Formaciones
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * Texto con formato ligero:
+ *  **negrita**, *cursiva*, [[término clave]] (enlaza con el glosario de la formación)
+ *  y [texto](https://enlace).
+ */
+export type RichText = string;
+
+export interface SourceRef {
+  label: string;
+  url: string;
+  /** Fecha de consulta o de publicación (AAAA-MM-DD). */
+  date?: string;
+  kind?: 'norma' | 'jurisprudencia' | 'criterio' | 'documento' | 'web';
+}
+
+export interface KeyTerm {
+  term: string;
+  definition: RichText;
+}
+
+export type Block =
+  | { type: 'heading'; text: string; id?: string }
+  | { type: 'paragraph'; text: RichText }
+  | { type: 'list'; ordered?: boolean; items: RichText[] }
+  | { type: 'callout'; tone: 'clave' | 'atencion' | 'consejo' | 'norma'; title?: string; text: RichText; refs?: SourceRef[] }
+  | { type: 'quote'; text: RichText; cite?: string }
+  | { type: 'example'; title: string; scenario: RichText; steps: ExampleStep[]; conclusion: RichText }
+  | { type: 'table'; caption?: string; columns: string[]; rows: RichText[][]; numeric?: number[] }
+  | { type: 'widget'; widget: WidgetSpec; caption?: string }
+  | { type: 'figure'; src: string; alt: string; caption?: string };
+
+export interface ExampleStep {
+  label: RichText;
+  /** Fórmula o asiento mostrado en tipografía tabular. */
+  formula?: string;
+  result?: string;
+}
+
+/** Componentes interactivos que acompañan a las explicaciones. */
+export type WidgetSpec =
+  | { kind: 'recargo-extemporaneo'; cuota: number }
+  | { kind: 'indemnizacion-despido'; salarioAnual: number; inicio: string; fin: string }
+  | { kind: 'disolucion-perdidas'; capital: number; patrimonioNeto: number; prestamoParticipativo?: number }
+  | { kind: 'calendario-cuentas'; cierre: string }
+  | { kind: 'amortizacion'; coste: number; vidaUtil: number; coeficienteFiscalMax: number; valorResidual?: number }
+  | { kind: 'periodificacion'; importe: number; inicio: string; meses: number; cierre: string; concepto: string }
+  | { kind: 'cuentas-t'; title?: string; entries: JournalEntry[] }
+  | { kind: 'arbol-decision'; title: string; start: string; nodes: DecisionNode[] }
+  | { kind: 'linea-tiempo'; title?: string; items: TimelineItem[] }
+  | { kind: 'tarjetas-verdad'; title?: string; cards: TruthCard[] }
+  | { kind: 'comparativa'; title?: string; columns: string[]; rows: { label: string; values: RichText[] }[] }
+  | { kind: 'clasificador'; title: string; prompt: string; categories: string[]; items: ClassifierItem[] }
+  | { kind: 'grafico'; chart: ChartSpec };
+
+export interface JournalEntry {
+  date?: string;
+  concept: string;
+  lines: { account: string; name: string; debit?: number; credit?: number }[];
+}
+
+export interface DecisionNode {
+  id: string;
+  question?: string;
+  options?: { label: string; next: string }[];
+  /** Nodo final: recomendación. */
+  outcome?: { title: string; text: RichText; tone: 'derivar' | 'resolver' | 'atencion' };
+}
+
+export interface TimelineItem {
+  date: string;
+  title: string;
+  text?: RichText;
+  tone?: 'hito' | 'plazo' | 'pendiente';
+}
+
+export interface TruthCard {
+  claim: string;
+  verdict: 'verdadero' | 'falso' | 'depende';
+  explanation: RichText;
+}
+
+export interface ClassifierItem {
+  label: string;
+  answer: string;
+  explanation: RichText;
+}
+
+export interface ChartSpec {
+  type: 'barras' | 'lineas' | 'escalones';
+  title: string;
+  unit?: string;
+  xLabel?: string;
+  yLabel?: string;
+  series: { name: string; values: { x: string | number; y: number }[] }[];
+}
+
+export interface QuizOption {
+  id: string;
+  text: RichText;
+  /** Por qué esta opción es incorrecta (vacío en la correcta). */
+  feedback?: RichText;
+}
+
+export interface QuizQuestion {
+  id: string;
+  prompt: RichText;
+  options: QuizOption[];
+  correctOptionId: string;
+  /** Explicación de la respuesta correcta. */
+  explanation: RichText;
+  /** Referencia breve a la sección o norma. */
+  ref?: string;
+}
+
+export interface Quiz {
+  id: string;
+  title: string;
+  questions: QuizQuestion[];
+  /** Aciertos mínimos para superar el test. */
+  passMark: number;
+}
+
+export interface Formation {
+  id: string;
+  slug: string;
+  area: AreaId;
+  title: string;
+  /** Introducción práctica: por qué importa, con una situación real de cliente. */
+  intro: RichText;
+  /** Frase corta para tarjetas. */
+  summary: string;
+  readingMinutes: number;
+  outcomes: string[];
+  blocks: Block[];
+  keyTerms: KeyTerm[];
+  takeaway: RichText;
+  sources: SourceRef[];
+  quiz: Quiz;
+  /** Documentos originales descargables vinculados (ids de la biblioteca). */
+  documentIds?: string[];
+  /** Versión de contenido: un cambio de versión mayor obliga a confirmar de nuevo la lectura. */
+  version: number;
+  editorial: EditorialMeta;
+  /** Vigencia normativa comprobada a esta fecha (AAAA-MM-DD). */
+  verifiedAt: string;
+}
+
+export interface SectorAssessment {
+  id: string;
+  area: AreaId;
+  title: string;
+  intro: string;
+  quiz: Quiz;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Progreso de aprendizaje
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+export interface QuizAttempt {
+  id: string;
+  quizId: string;
+  /** Versión de la formación en el momento del intento. */
+  version: number;
+  at: string;
+  answers: Record<string, string>;
+  correct: number;
+  total: number;
+  passed: boolean;
+}
+
+export interface FormationProgress {
+  formationId: string;
+  /** Lectura confirmada al llegar al final de la formación. */
+  readAt?: string;
+  readVersion?: number;
+  attempts: QuizAttempt[];
+}
+
+export type FormationStatus = 'sin-empezar' | 'leida' | 'test-intentado' | 'test-superado' | 'completada';
+
+export interface Assignment {
+  id: string;
+  formationId: string;
+  /** Persona o «todos» (incluidas futuras altas). */
+  target: { kind: 'persona'; personId: string } | { kind: 'todos' };
+  dueDate?: string;
+  assignedBy: string;
+  assignedAt: string;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Biblioteca
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+export type NewsKind = 'legislacion' | 'jurisprudencia' | 'criterio' | 'aviso-interno';
+
+export interface NewsItem {
+  id: string;
+  slug: string;
+  area: AreaId;
+  kind: NewsKind;
+  headline: string;
+  /** 1. La novedad, en una frase. */
+  oneLiner: RichText;
+  /** 2. A quién afecta. */
+  affects: RichText;
+  /** 3. Qué debemos hacer. */
+  action: RichText;
+  /** 4. Un ejemplo sencillo. */
+  example: RichText;
+  /** 5. Fuente y fecha. */
+  source: { label: string; url: string; publishedOn: string; effectiveOn?: string };
+  /** Matices relevantes. */
+  nuance?: RichText;
+  urgency: 'alta' | 'media' | 'informativa';
+  date: string;
+  editorial: EditorialMeta;
+}
+
+export interface DocumentVersion {
+  version: number;
+  file: string;
+  sizeKb: number;
+  pages?: number;
+  uploadedAt: string;
+  uploadedBy: string;
+  note?: string;
+}
+
+export interface LibraryDocument {
+  id: string;
+  title: string;
+  area: AreaId | 'general';
+  /** Quién emite el documento original (FLM, ICAC, AEAT...). */
+  issuer: string;
+  date: string;
+  summary: string;
+  kind: 'nota-informativa' | 'boletin' | 'publicacion-oficial' | 'presentacion' | 'material-evento';
+  versions: DocumentVersion[];
+  tags: string[];
+  /** Si el documento se puede incluir en la demostración pública. */
+  publicDemo: boolean;
+  /** Aviso editorial visible (p. ej. contenido que puede haber quedado desfasado). */
+  notice?: string;
+  editorial: EditorialMeta;
+}
+
+export interface Reading {
+  id: string;
+  area: AreaId;
+  title: string;
+  authors: string;
+  edition: string;
+  publisher: string;
+  isbn?: string;
+  summary: string;
+  practicalValue: string;
+  audience: string;
+  format: string;
+  url: string;
+  verifiedAt: string;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Vida de empresa
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+export type EventIcon =
+  | 'estrella'
+  | 'trofeo'
+  | 'cafe'
+  | 'calendario'
+  | 'formacion'
+  | 'megafono'
+  | 'web'
+  | 'boletin'
+  | 'brindis'
+  | 'resenas'
+  | 'video'
+  | 'idea';
+
+export interface EventSession {
+  /** Inicio en hora local de Madrid: «AAAA-MM-DD» (todo el día) o «AAAA-MM-DDTHH:mm». */
+  start: string;
+  /** Fin opcional en hora local de Madrid. */
+  end?: string;
+  label?: string;
+  location?: string;
+}
+
+export interface CampusEvent {
+  id: string;
+  slug: string;
+  kind: 'evento' | 'comunicado';
+  category: 'formacion-interna' | 'desayuno' | 'encuentro' | 'reconocimiento' | 'celebracion' | 'iniciativa' | 'comunicacion';
+  title: string;
+  summary: string;
+  body?: RichText;
+  icon: EventIcon;
+  image?: { src: string; alt: string; credit?: string };
+  /** Sesiones confirmadas. Si está vacío, el evento está pendiente de fecha. */
+  sessions: EventSession[];
+  /** Texto cuando la fecha no está confirmada. */
+  pendingDateNote?: string;
+  /** Reclasificación manual por administración. */
+  manualPhase?: 'proximo' | 'historico';
+  archived?: boolean;
+  department?: string;
+  links?: { label: string; url: string; example?: boolean }[];
+  materials?: { label: string; documentId: string }[];
+  /** Resumen posterior del evento (histórico). */
+  recap?: RichText;
+  editorial: EditorialMeta;
+}
+
+export type EventPhase = 'en-curso' | 'proximo' | 'historico' | 'archivado';
+
+export interface Holiday {
+  date: string;
+  name: string;
+  scope: 'nacional' | 'autonomico' | 'local';
+  /** Oficinas a las que aplica; vacío = todas. */
+  offices: Office[];
+  source: string;
+}
+
+export type CalendarKind = 'cumpleanos' | 'aniversario' | 'encuentro' | 'festivo';
+
+export interface CalendarEntry {
+  id: string;
+  date: string;
+  kind: CalendarKind;
+  title: string;
+  detail?: string;
+  personId?: string;
+  years?: number;
+  eventId?: string;
+  time?: string;
+  offices?: Office[];
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Reconocimientos
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+export type BadgeFamily = 'trayectoria' | 'aprendizaje' | 'contribucion';
+
+export interface Badge {
+  id: string;
+  family: BadgeFamily;
+  title: string;
+  description: string;
+  earnedAt?: string;
+  /** Valor principal que muestra la insignia (años, área...). */
+  mark: string;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Datos semilla (los exporta @flm/content; los consumen la demo y la API)
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+export interface SeedData {
+  people: Person[];
+  formations: Formation[];
+  assessments: SectorAssessment[];
+  news: NewsItem[];
+  documents: LibraryDocument[];
+  readings: Reading[];
+  events: CampusEvent[];
+  holidays: Holiday[];
+  assignments: Assignment[];
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Auditoría
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+export interface AuditRecord {
+  id: string;
+  at: string;
+  actorId: string;
+  action: string;
+  entity: string;
+  entityId?: string;
+  detail?: string;
+}
