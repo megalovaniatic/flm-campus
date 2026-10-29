@@ -95,6 +95,7 @@ function ChoiceGroup<T extends string>({ name, legend, description, value, onCha
                   <Icon size={16} aria-hidden="true" />
                   {c.label}
                 </span>
+                <span className="sr-only">. </span>
                 <span className={styles.choiceHint}>{c.hint}</span>
               </span>
               <span className={styles.check} aria-hidden="true">
@@ -606,7 +607,7 @@ export default function SettingsPage() {
         size="sm"
         footer={
           <>
-            <Button variant="ghost" onClick={() => setConfirm(false)}>
+            <Button variant="ghost" data-autofocus onClick={() => setConfirm(false)}>
               Cancelar
             </Button>
             <Button variant="danger" icon={<RotateCcw />} onClick={confirmReset}>

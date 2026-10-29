@@ -129,8 +129,16 @@
   height: 28px;
   flex: none;
   border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--ink) 22%, transparent);
+  /* Apagado: pista ≥ 3:1 frente al fondo y frente a la bola blanca (WCAG 1.4.11) */
+  background: color-mix(in srgb, var(--ink) 55%, transparent);
   transition: background-color var(--dur-base) var(--ease-standard);
+}
+
+/* Zona táctil de 44 px sin cambiar el dibujo del interruptor */
+.switch::before {
+  content: '';
+  position: absolute;
+  inset: -8px -2px;
 }
 
 .switch[aria-checked='true'] {

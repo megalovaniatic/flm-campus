@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { ArrowRight, BookOpen, ChevronDown, ChevronRight, Clock3, FileText, Hourglass, ListTree, NotebookText, Target } from 'lucide-react';
+import { ArrowRight, BookOpen, Check, ChevronDown, ChevronRight, Clock3, FileText, Hourglass, ListTree, NotebookText, Target } from 'lucide-react';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useParams, useSearchParams } from 'react-router';
 import {
@@ -15,7 +15,7 @@ import {
   type Formation,
   type KeyTerm,
 } from '@flm/shared';
-import { ActionButton, AreaTag, Avatar, ButtonLink, Chip, Dialog, EmptyState, Notice, StatusGlyph, toast, type ActionStatus } from '@/design';
+import { ActionButton, AreaTag, Avatar, ButtonLink, Chip, Dialog, EmptyState, Notice, StatusGlyph, type ActionStatus } from '@/design';
 import { useDocuments } from '@/data/selectors';
 import { useDemo } from '@/data/store';
 import { MESSAGES } from '@/lib/messages';
@@ -136,6 +136,7 @@ function SectionView({ s }: { s: ReadingSection }) {
       {s.title && (
         <h2 id={`${s.id}-t`} className={styles.h2} tabIndex={-1} data-focus-target>
           <span className={styles.h2Num}>Apartado {s.number}</span>
+          <span className="sr-only">. </span>
           <span className={styles.h2Text}>{s.title}</span>
         </h2>
       )}
@@ -238,7 +239,14 @@ function Finish({ f }: { f: Formation }) {
   const [celebrate, setCelebrate] = useState(false);
   const [announce, setAnnounce] = useState('');
   const timer = useRef<number | undefined>(undefined);
+  const row = useRef<HTMLDivElement>(null);
   useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  // Tras confirmar, el botón se convierte en un estado: el foco pasa al siguiente paso («Hacer el test»)
+  // en lugar de perderse al principio de la página.
+  useEffect(() => {
+    if (st === 'success') row.current?.querySelector<HTMLElement>('a')?.focus();
+  }, [st]);
 
   const onConfirm = () => {
     if (st === 'pending') return;
@@ -248,8 +256,8 @@ function Finish({ f }: { f: Formation }) {
       confirmRead(f.id, f.version);
       setSt('success');
       setCelebrate(willComplete);
+      // Un solo anuncio, con el siguiente paso (sin aviso emergente que lo repita)
       setAnnounce(willComplete ? 'Formación completada.' : 'Lectura confirmada. Ya puedes hacer el test final.');
-      toast.success(willComplete ? 'Formación completada' : 'Lectura confirmada', __DEMO__ ? MESSAGES.demoSimulated : undefined);
     }, 420);
   };
 
@@ -269,17 +277,23 @@ function Finish({ f }: { f: Formation }) {
           ? `Confirmaste la lectura el ${formatLongDate(readDay)}. ${nextStepHint(progress, f)}`
           : 'Cuando hayas llegado hasta aquí, confirma la lectura. Después, haz el test final: tres preguntas; se supera con dos aciertos.'}
       </p>
-      <div className={styles.finishRow}>
-        <ActionButton
-          status={readCurrent ? 'success' : st}
-          label="Marcar la lectura como terminada"
-          pendingLabel="Confirmando…"
-          successLabel="Lectura confirmada"
-          icon={<BookOpen />}
-          variant={readCurrent ? 'secondary' : 'primary'}
-          disabled={readCurrent}
-          onClick={onConfirm}
-        />
+      <div className={styles.finishRow} ref={row}>
+        {readCurrent ? (
+          // Ya confirmada: es un estado, no un botón apagado (se anuncia una sola vez).
+          <span className={styles.readDone}>
+            <Check size={18} aria-hidden="true" /> Lectura confirmada
+          </span>
+        ) : (
+          <ActionButton
+            status={st}
+            label="Marcar la lectura como terminada"
+            pendingLabel="Confirmando…"
+            successLabel="Lectura confirmada"
+            icon={<BookOpen />}
+            variant="primary"
+            onClick={onConfirm}
+          />
+        )}
         <ButtonLink to={`${formationPath(f)}/test`} variant={readCurrent && status !== 'completada' ? 'primary' : 'secondary'} iconRight={<ArrowRight />}>
           {status === 'completada' ? 'Repetir el test' : 'Hacer el test'}
         </ButtonLink>

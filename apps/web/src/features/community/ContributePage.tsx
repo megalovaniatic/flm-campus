@@ -97,7 +97,7 @@ function Kicker({ icon, children }: { icon: ReactNode; children: ReactNode }) {
 
 /** Participa: propuestas por correo, vídeos, redes oficiales y concurso de reseñas. */
 export default function ContributePage() {
-  usePageTitle('Participa');
+  usePageTitle('Formas de participar');
   const { hash } = useLocation();
   const reduce = useReducedMotionPref();
   const today = useToday();
@@ -128,9 +128,9 @@ export default function ContributePage() {
   return (
     <div className="container page">
       <PageHeader
-        crumbs={[{ label: 'Participar', to: '/participar' }, { label: 'Participa' }]}
+        crumbs={[{ label: 'Participar', to: '/participar' }, { label: 'Formas de participar' }]}
         eyebrow="Vida de empresa"
-        title="Participa"
+        title="Formas de participar"
         lede="Propón temas y mejoras, ponle voz a FLM en vídeo y apoya a la firma en redes. Te preparamos el correo; tú decides si lo envías."
       />
 
@@ -188,6 +188,7 @@ export default function ContributePage() {
                         {on ? <Check size={14} strokeWidth={3} /> : <Plus size={14} strokeWidth={2.5} />}
                       </span>
                       <span className={styles.formatTitle}>{f.title}</span>
+                      <span className="sr-only">{/[?!.]$/.test(f.title) ? ' ' : '. '}</span>
                       <span className={styles.formatText}>{f.text}</span>
                     </label>
                   </li>
@@ -239,6 +240,7 @@ export default function ContributePage() {
                   </span>
                   <span className={styles.socialText}>
                     <span className={styles.socialLabel}>{s.label}</span>
+                    <span className="sr-only">: </span>
                     <span className={styles.socialName}>{s.name}</span>
                   </span>
                   <ArrowUpRight size={16} aria-hidden="true" className={styles.socialArrow} />

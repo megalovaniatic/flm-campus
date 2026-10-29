@@ -31,6 +31,8 @@
   --cover-w: clamp(7.25rem, 31vw, 8.75rem);
   --row-top: 1.5rem;
   display: grid;
+  /* minmax(0, 1fr): sin él, la balda (max-content) ensancha la columna y la página se desborda en móvil */
+  grid-template-columns: minmax(0, 1fr);
   gap: clamp(2.5rem, 2rem + 2vw, 4rem);
 }
 

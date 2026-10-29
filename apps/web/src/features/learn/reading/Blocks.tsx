@@ -56,7 +56,12 @@ function Callout({ block }: { block: CalloutBlock }) {
       <div role="note" aria-labelledby={id} className={styles.explain}>
         <h3 id={id} className={styles.explainTitle}>
           <span className={styles.explainKicker}>Explicamos</span>
-          {block.title && <span className={styles.explainTerm}>{block.title}</span>}
+          {block.title && (
+            <>
+              <span className="sr-only">: </span>
+              <span className={styles.explainTerm}>{block.title}</span>
+            </>
+          )}
         </h3>
         <div className={styles.explainText}>
           <RichParagraphs text={block.text} />

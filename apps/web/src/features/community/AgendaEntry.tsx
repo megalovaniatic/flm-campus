@@ -144,7 +144,12 @@ function SessionList({ sessions, next, now, places }: { sessions: EventSession[]
             <span className={styles.sLabel}>
               {s.label ?? `Sesión ${i + 1}`}
               {places.length > 1 && s.location ? <span className={styles.sPlace}> · {s.location}</span> : null}
-              {state !== 'future' && <span className={styles.sState}>{state === 'past' ? 'Celebrada' : 'Próxima'}</span>}
+              {state !== 'future' && (
+                <>
+                  <span className="sr-only">, </span>
+                  <span className={styles.sState}>{state === 'past' ? 'Celebrada' : 'Próxima'}</span>
+                </>
+              )}
             </span>
             <span className={styles.sHours} data-different={!!hours && hours !== usual}>
               {hours ?? 'Todo el día'}

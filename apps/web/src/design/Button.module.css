@@ -31,6 +31,18 @@
   transform: scale(0.97);
 }
 
+/* Pantallas estrechas (320 px o zoom del 400 %): un texto largo pasa a dos líneas
+   en lugar de salirse de la pantalla y quedar recortado (WCAG 1.4.10). */
+@media (max-width: 479px) {
+  .button {
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.2;
+    padding-block: 0.35rem;
+  }
+}
+
 .button:disabled,
 .button[aria-disabled='true'] {
   opacity: 0.5;

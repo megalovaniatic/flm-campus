@@ -26,7 +26,9 @@ export function useNotices(): Notice[] {
     if (!me) return [];
     const today = madridDateKey();
     const out: Notice[] = [];
-    for (const a of assignments) {
+    const left = (days: number) => (days === 0 ? ' (vence hoy)' : days === 1 ? ' (queda 1 día)' : ` (quedan ${days} días)`);
+    // La obligatoria que vence antes, primero.
+    for (const a of [...assignments].sort((x, y) => (x.dueDate ?? '9999').localeCompare(y.dueDate ?? '9999'))) {
       if (a.target.kind === 'persona' && a.target.personId !== me.id) continue;
       const f = formations.find((x) => x.id === a.formationId);
       if (!f || formationStatus(progress[f.id], f) === 'completada') continue;
@@ -35,7 +37,7 @@ export function useNotices(): Notice[] {
         id: `as-${a.id}`,
         icon: GraduationCap,
         title: `Formación obligatoria: ${f.title}`,
-        body: a.dueDate ? `Complétala antes del ${formatShortDate(a.dueDate, false)}${days !== undefined && days >= 0 ? ` (quedan ${days} días)` : ''}.` : 'Asignada por administración.',
+        body: a.dueDate ? `Complétala antes del ${formatShortDate(a.dueDate, false)}${days !== undefined && days >= 0 ? left(days) : ''}.` : 'Asignada por administración.',
         href: `/aprender/${f.area}/${f.slug}`,
       });
     }
@@ -97,6 +99,7 @@ export function NoticesButton() {
                     </span>
                     <span>
                       <span className={styles.title}>{n.title}</span>
+                      <span className="sr-only">. </span>
                       <span className={styles.body}>{n.body}</span>
                     </span>
                   </Link>

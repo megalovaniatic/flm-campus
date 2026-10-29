@@ -118,7 +118,7 @@ function Milestone({ hito, hoy, index }: { hito: Hito; hoy: string; index: numbe
   const year = hito.date.slice(0, 4);
   let chip: { text: string; tone: string } | null = null;
   if (hito.kind === 'plazo') chip = { text: STATUS_TEXT(estado, dias), tone: estado === 'vencido' ? 'danger' : estado === 'en-plazo' ? 'neutral' : 'warning' };
-  if (hito.kind === 'inicio') chip = { text: dias < 0 ? 'Ejercicio cerrado' : dias === 0 ? 'Cierra hoy' : `Cierra en ${dias} días`, tone: 'neutral' };
+  if (hito.kind === 'inicio') chip = { text: dias < 0 ? 'Ejercicio cerrado' : dias === 0 ? 'Cierra hoy' : dias === 1 ? 'Cierra mañana' : `Cierra en ${dias} días`, tone: 'neutral' };
   if (hito.kind === 'consecuencia') chip = { text: 'Si no hay depósito', tone: 'neutral' };
   return (
     <motion.li

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react';
-import type { ButtonHTMLAttributes, ReactNode, Ref } from 'react';
+import type { ButtonHTMLAttributes, MouseEvent, ReactNode, Ref } from 'react';
 import { Link, type LinkProps } from 'react-router';
 import { Check, LoaderCircle } from 'lucide-react';
 import styles from './Button.module.css';
@@ -73,18 +73,28 @@ export interface ActionButtonProps extends Omit<ButtonProps, 'children'> {
  * Botón con respuesta de guardado/publicación: la cápsula se contrae en un círculo
  * con indicador mientras trabaja y vuelve a abrirse con la confirmación.
  */
-export function ActionButton({ status, label, pendingLabel = 'Guardando…', successLabel = 'Guardado', icon, variant, size, className, disabled, ...rest }: ActionButtonProps) {
+export function ActionButton({ status, label, pendingLabel = 'Guardando…', successLabel = 'Guardado', icon, variant, size, className, disabled, onClick, ...rest }: ActionButtonProps) {
   const text = status === 'pending' ? pendingLabel : status === 'success' ? successLabel : label;
+  const pending = status === 'pending';
   return (
     <motion.button
       layout
       transition={{ layout: { type: 'spring', stiffness: 420, damping: 34 } }}
       type="button"
       aria-live="polite"
-      aria-busy={status === 'pending'}
-      disabled={disabled || status === 'pending'}
+      aria-busy={pending}
+      // Mientras trabaja no se usa «disabled»: el botón perdería el foco y el teclado volvería al principio.
+      aria-disabled={pending || undefined}
+      disabled={disabled}
       data-status={status}
       className={classes({ variant, size }, [styles.action, className].filter(Boolean).join(' '))}
+      onClick={(e: MouseEvent<HTMLButtonElement>) => {
+        if (pending) {
+          e.preventDefault();
+          return;
+        }
+        onClick?.(e);
+      }}
       {...(rest as object)}
     >
       <AnimatePresence mode="popLayout" initial={false}>

@@ -318,6 +318,7 @@ export default function CalendarPage() {
                   {head}
                   {rest.length > 0 && <span className={styles.filterRest}>{` ${rest.join(' ')}`}</span>}
                 </span>
+                <span className="sr-only">: </span>
                 <span className={styles.filterCount}>
                   {counts[k]}
                   <span className="sr-only"> en {monthName(cursor.m)}</span>

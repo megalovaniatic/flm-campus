@@ -13,6 +13,7 @@ import {
   monthShort,
   nextSession,
   plainText,
+  sessionEnd,
   sessionStart,
   timeOf,
   type CalendarEntry,
@@ -79,7 +80,12 @@ function NextStepCard() {
       <div className={styles.nextMeta}>
         <AreaTag area={f.area} size="sm" />
         <span className="meta">{f.readingMinutes} min</span>
-        {next.due && <span className={styles.due}>Antes del {formatShortDate(next.due, false)}{days !== undefined && days >= 0 ? ` · quedan ${days} días` : ''}</span>}
+        {next.due && (
+          <span className={styles.due}>
+            Antes del {formatShortDate(next.due, false)}
+            {days === undefined || days < 0 ? '' : days === 0 ? ' · vence hoy' : days === 1 ? ' · queda 1 día' : ` · quedan ${days} días`}
+          </span>
+        )}
       </div>
       <div className={styles.nextFoot}>
         <StatusGlyph status={status} />
@@ -170,12 +176,15 @@ function PathsCard() {
         <span className={styles.pathHead}>
           <BookOpen size={18} aria-hidden="true" /> Aprender
         </span>
+        <span className="sr-only">: </span>
         <span className={styles.pathBody}>
-          <ProgressRing value={completed} total={formations.length} size={44} stroke={4} label="Formaciones completadas" />
+          <ProgressRing value={completed} total={formations.length} size={44} stroke={4} label="Formaciones completadas" decorative />
           <span>
             <strong className={styles.pathNum}>
               {completed}/{formations.length || 12}
             </strong>
+            {/* Espacio duro: un espacio normal se pierde entre bloques y el nombre quedaría «1/12formaciones». */}
+            <span className="sr-only">{' '}</span>
             <span className={styles.pathSub}>formaciones completadas</span>
           </span>
         </span>
@@ -184,8 +193,10 @@ function PathsCard() {
         <span className={styles.pathHead}>
           <Library size={18} aria-hidden="true" /> Consultar
         </span>
+        <span className="sr-only">: </span>
         <span className={styles.pathBody}>
           <strong className={styles.pathNum}>{recentNews.length}</strong>
+          <span className="sr-only">{' '}</span>
           <span className={styles.pathSub}>{recentNews.length === 1 ? 'novedad en el último mes' : 'novedades en el último mes'}</span>
         </span>
       </Link>
@@ -193,6 +204,7 @@ function PathsCard() {
         <span className={styles.pathHead}>
           <Users size={18} aria-hidden="true" /> Participar
         </span>
+        <span className="sr-only">: </span>
         <span className={styles.pathBody}>
           {upcoming ? (
             <>
@@ -202,9 +214,17 @@ function PathsCard() {
               </span>
               <span>
                 <strong className={styles.pathEvent}>{upcoming.s!.label ? `${upcoming.e.title.split(':')[0]} · ${upcoming.s!.label}` : upcoming.e.title}</strong>
+                <span className="sr-only">. </span>
                 <span className={styles.pathSub}>
-                  Próximo · {formatShortDate(madridDateKey(sessionStart(upcoming.s!)), false)}
-                  {timeOf(upcoming.s!.start) ? `, ${timeOf(upcoming.s!.start)}` : ''}
+                  {sessionStart(upcoming.s!).getTime() <= Date.now() ? (
+                    // Ya empezó (p. ej., un comunicado vigente un mes): no es «Próximo».
+                    <>En curso{upcoming.s!.end ? ` · hasta el ${formatShortDate(madridDateKey(sessionEnd(upcoming.s!)), false)}` : ''}</>
+                  ) : (
+                    <>
+                      Próximo · {formatShortDate(madridDateKey(sessionStart(upcoming.s!)), false)}
+                      {timeOf(upcoming.s!.start) ? `, ${timeOf(upcoming.s!.start)}` : ''}
+                    </>
+                  )}
                 </span>
               </span>
             </>

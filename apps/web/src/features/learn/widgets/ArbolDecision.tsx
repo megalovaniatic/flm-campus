@@ -24,7 +24,7 @@ export function ArbolDecision({ spec, headingLevel = 3 }: { spec: Spec; headingL
   const [history, setHistory] = useState<{ id: string; choice: number }[]>([]);
   const { t, reduce } = useTransition();
   const headingRef = useRef<HTMLHeadingElement>(null);
-  const first = useRef(true);
+  const first = useRef<string | null>(null);
   const uid = useId();
   const Sub = `h${Math.min(6, headingLevel + 1)}` as 'h4';
 
@@ -36,11 +36,13 @@ export function ArbolDecision({ spec, headingLevel = 3 }: { spec: Spec; headingL
   const total = history.length + remaining + 1;
   const done = history.length + (isOutcome ? 1 : 0);
 
+  // Solo al avanzar o reiniciar: con un indicador «primera vez», el doble montaje de StrictMode
+  // movía el foco (y la página) hasta el árbol nada más abrir la formación.
   useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
+    const step = `${history.length}|${currentId}`;
+    const before = first.current;
+    first.current = step;
+    if (before === null || before === step) return;
     const id = window.setTimeout(() => headingRef.current?.focus({ preventScroll: false }), reduce ? 0 : 260);
     return () => window.clearTimeout(id);
   }, [history.length, currentId, reduce]);

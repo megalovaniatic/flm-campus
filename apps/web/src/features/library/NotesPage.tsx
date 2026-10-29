@@ -161,6 +161,7 @@ export default function NotesPage() {
               <section key={g.key} className={lib.month} aria-labelledby={`mes-${g.key}`}>
                 <h2 id={`mes-${g.key}`} className={lib.monthTitle}>
                   {g.title}
+                  <span className="sr-only">, </span>
                   <span className={lib.monthCount}>{plural(g.items.length, 'documento', 'documentos')}</span>
                 </h2>
                 <ul role="list" className={styles.list}>

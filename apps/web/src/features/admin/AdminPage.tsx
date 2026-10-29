@@ -122,7 +122,7 @@ export default function AdminPage() {
       {__DEMO__ && (
         <div className={styles.sim}>
           <Notice icon={<FlaskConical size={18} />} title="Simulación">
-            {MESSAGES.demoSimulated}
+            En la demostración pública, los cambios de administración solo se guardan en tu navegador; en la versión interna los ejecuta el servidor con permisos.
           </Notice>
         </div>
       )}

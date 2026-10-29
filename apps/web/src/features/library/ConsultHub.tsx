@@ -38,6 +38,15 @@ export default function ConsultHub() {
   const [params, update] = useLibraryParams();
   const [q, setQ] = useSearchText(params, update);
   const resultsTitle = useRef<HTMLHeadingElement>(null);
+  /** Al elegir una sugerencia, el título de resultados recibe el foco en cuanto aparece. */
+  const focusResults = useRef(false);
+  const setResultsTitle = (el: HTMLHeadingElement | null) => {
+    resultsTitle.current = el;
+    if (el && focusResults.current) {
+      focusResults.current = false;
+      el.focus();
+    }
+  };
 
   const tokens = useMemo(() => queryTokens(q), [q]);
   const searching = tokens.length > 0;
@@ -103,7 +112,15 @@ export default function ConsultHub() {
               <ul role="list" aria-labelledby="sugerencias" className={styles.suggestList}>
                 {suggestions.map((s) => (
                   <li key={s}>
-                    <button type="button" className={styles.suggestion} onClick={() => setQ(s)}>
+                    <button
+                      type="button"
+                      className={styles.suggestion}
+                      onClick={() => {
+                        // La sugerencia desaparece al buscar: el foco pasa a los resultados en lugar de perderse.
+                        focusResults.current = true;
+                        setQ(s);
+                      }}
+                    >
                       {s}
                     </button>
                   </li>
@@ -128,8 +145,9 @@ export default function ConsultHub() {
             exit={{ opacity: 0, y: 6, transition: { duration: 0.12 } }}
             transition={{ duration: 0.26, ease: EASE }}
           >
-            <h2 id="h-resultados" ref={resultsTitle} tabIndex={-1} className={styles.resultsTitle}>
-              Resultados para «{query}»<span className={styles.resultsCount}>{plural(total, 'resultado', 'resultados')}</span>
+            <h2 id="h-resultados" ref={setResultsTitle} tabIndex={-1} className={styles.resultsTitle}>
+              Resultados para «{query}»<span className="sr-only">: </span>
+              <span className={styles.resultsCount}>{plural(total, 'resultado', 'resultados')}</span>
             </h2>
             {total === 0 ? (
               <EmptyState icon={<SearchX />} title={MESSAGES.emptySearch.title} action={<Button variant="secondary" onClick={() => setQ('')}>Borrar la búsqueda</Button>}>

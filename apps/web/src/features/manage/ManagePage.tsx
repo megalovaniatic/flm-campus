@@ -296,6 +296,7 @@ function ReviewQueue({ rows, handlers }: { rows: ContentRow[]; handlers: RowHand
       <div className={styles.queueHead}>
         <h2 id="h-cola" className={styles.queueTitle}>
           <Inbox size={20} aria-hidden="true" /> Pendiente de tu revisión
+          <span className="sr-only">: </span>
           <span className={styles.queueCount}>{rows.length}</span>
         </h2>
         <p className={styles.queueSub}>{rows.length ? 'Lo más antiguo primero. Revisa, publica o devuelve con un comentario.' : 'Nada pendiente.'}</p>
@@ -559,7 +560,7 @@ export default function ManagePage() {
       {__DEMO__ && (
         <div className={styles.sim}>
           <Notice icon={<FlaskConical size={18} />} title="Simulación">
-            {MESSAGES.demoSimulated} Cambia de perfil en tu avatar («Ver la demo como») para recorrer el flujo de autoría y de administración.
+            En la demostración pública, lo que hagas aquí solo se guarda en tu navegador; en la versión interna lo ejecuta el servidor con permisos. Cambia de perfil en tu avatar («Ver la demo como») para recorrer el flujo de autoría y de administración.
           </Notice>
         </div>
       )}
@@ -709,7 +710,7 @@ export default function ManagePage() {
         description={removing?.revisionOf ? 'Se pierden los cambios de la revisión. La versión publicada no cambia.' : `«${removing?.title ?? ''}» nunca se ha publicado. Esta acción no se puede deshacer.`}
         footer={
           <>
-            <Button variant="ghost" onClick={() => setRemoving(null)}>
+            <Button variant="ghost" data-autofocus onClick={() => setRemoving(null)}>
               Cancelar
             </Button>
             <Button

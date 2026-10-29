@@ -21,7 +21,7 @@ const PAGES: [string, string, string][] = [
   ['Lecturas recomendadas', 'La estantería del campus', '/consultar/lecturas'],
   ['Agenda', 'Eventos y comunicados de FLM', '/participar/agenda'],
   ['Calendario', 'Cumpleaños, aniversarios, encuentros y festivos', '/participar/calendario'],
-  ['Participa', 'Propón temas, mejoras y vídeos', '/participar/contribuye'],
+  ['Formas de participar', 'Propón temas, mejoras y vídeos', '/participar/contribuye'],
   ['Mi perfil', 'Progreso, resultados y reconocimientos', '/perfil'],
   ['Ajustes', 'Tema, movimiento y preferencias', '/perfil/ajustes'],
   ['Gestión de contenidos', 'Crear, revisar y publicar', '/gestion'],

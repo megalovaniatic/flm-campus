@@ -175,11 +175,11 @@ time {
   scroll-behavior: auto !important;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  :root:not([data-motion='reduce']) {
-    scroll-behavior: smooth;
-  }
-}
+/*
+ * Sin «scroll-behavior: smooth» global: hacía deslizarse cada cambio de página (≈ 450 ms).
+ * Los saltos dentro de una página (índices, términos, apartados) ya piden el desplazamiento
+ * suave en su propio código y respetan el movimiento reducido.
+ */
 
 /* Alto contraste forzado (Windows) */
 @media (forced-colors: active) {

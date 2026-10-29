@@ -142,6 +142,7 @@ export default function NewsList() {
               <section key={g.key} className={lib.month} aria-labelledby={`mes-${g.key}`}>
                 <h2 id={`mes-${g.key}`} className={lib.monthTitle}>
                   {g.title}
+                  <span className="sr-only">, </span>
                   <span className={lib.monthCount}>{plural(g.items.length, 'novedad', 'novedades')}</span>
                 </h2>
                 <ul role="list" className={styles.grid}>

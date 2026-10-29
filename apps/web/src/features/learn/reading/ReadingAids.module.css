@@ -38,6 +38,13 @@
   }
 }
 
+/* En móvil, la píldora «Te quedan N min» taparía el texto bajo la cabecera: queda solo el filete */
+@media (max-width: 720px) {
+  .left {
+    display: none;
+  }
+}
+
 /* ── Índice ─────────────────────────────────────────────────────────── */
 
 .toc {

@@ -285,11 +285,13 @@
   gap: var(--space-3);
 }
 
+/* En pantallas estrechas los botones de mover y eliminar bajan de línea en lugar de desbordar */
 .itemHead {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--space-2) var(--space-3);
   min-width: 0;
 }
 
@@ -302,6 +304,7 @@
   display: inline-flex;
   gap: 2px;
   flex: none;
+  margin-left: auto;
 }
 
 .inlineItem {

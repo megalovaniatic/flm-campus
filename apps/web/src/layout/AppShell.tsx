@@ -19,14 +19,14 @@ export function AppShell() {
   const userId = useDemo((s) => s.userId);
   const location = useLocation();
   const mainRef = useRef<HTMLElement>(null);
-  const first = useRef(true);
+  // Ruta anterior: solo se mueve el foco cuando la ruta cambia de verdad
+  // (un indicador «primera vez» falla con el doble montaje de StrictMode en desarrollo).
+  const prevPath = useRef(location.pathname);
 
   // Al cambiar de página, el foco pasa al contenido principal y se anuncia el título.
   useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
+    if (prevPath.current === location.pathname) return;
+    prevPath.current = location.pathname;
     const id = window.setTimeout(() => {
       mainRef.current?.focus({ preventScroll: true });
     }, 60);
@@ -37,7 +37,18 @@ export function AppShell() {
 
   return (
     <MotionConfig reducedMotion={reduce ? 'always' : 'user'}>
-      <a className="skip-link" href="#contenido">
+      <a
+        className="skip-link"
+        href="#contenido"
+        onClick={(e) => {
+          // Con rutas en el hash, «#contenido» se leería como una página (404): el foco se mueve a mano.
+          e.preventDefault();
+          const main = mainRef.current;
+          if (!main) return;
+          main.focus({ preventScroll: true });
+          main.scrollIntoView({ block: 'start' });
+        }}
+      >
         Saltar al contenido
       </a>
       {__DEMO__ && <DemoBand />}

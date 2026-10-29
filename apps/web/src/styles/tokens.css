@@ -29,6 +29,10 @@
   /* Degradado del logotipo (muestreado en el archivo oficial) */
   --flm-gradient: linear-gradient(90deg, #e53327 0%, #b8302d 30%, #792c35 58%, #3f293c 82%, #172641 100%);
   --flm-gradient-diagonal: linear-gradient(135deg, #e53327 0%, #b8302d 28%, #792c35 56%, #3f293c 80%, #172641 100%);
+  /* Paradas del degradado en trazos SVG (anillos de progreso, «El escalón»). En oscuro se aclaran. */
+  --ring-1: #e53327;
+  --ring-2: #792c35;
+  --ring-3: #172641;
 
   /* ── Áreas: meseta de color de cada cápsula oficial; Contable = la rampa completa ── */
   --area-fiscal: var(--flm-rojo);
@@ -175,6 +179,10 @@
   --area-contable: #c9cfdb;
   --area-laboral: #c9707a;
   --flm-vino-texto: #f0a39a;
+  /* El burdeos y el marino del degradado no se ven sobre el negro de FLM: versión aclarada */
+  --ring-1: #f0493d;
+  --ring-2: #c9707a;
+  --ring-3: #8fa3c7;
   --cal-encuentro: #8fa3c7;
   --cal-festivo: #a3aab6;
   --cal-aniversario: #c9707a;

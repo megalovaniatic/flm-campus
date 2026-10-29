@@ -64,7 +64,12 @@ export function Tabs<T extends string>({ label, options, value, onChange, panelI
             <span className={styles.content}>
               {o.icon && <span aria-hidden="true">{o.icon}</span>}
               {o.label}
-              {o.count !== undefined && <span className={styles.count}>{o.count}</span>}
+              {o.count !== undefined && (
+                <>
+                  <span className="sr-only">: </span>
+                  <span className={styles.count}>{o.count}</span>
+                </>
+              )}
             </span>
           </button>
         );

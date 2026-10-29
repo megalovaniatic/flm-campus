@@ -176,6 +176,7 @@ export function Recognitions({ badges, upcoming, fresh }: { badges: Badge[]; upc
               <div>
                 <h3 id={`fam-${family.id}`} className={styles.familyTitle}>
                   {family.title}
+                  <span className="sr-only">: </span>
                   <span className={styles.count}>
                     {earned.length}
                     <span className="sr-only"> {earned.length === 1 ? 'reconocimiento' : 'reconocimientos'}</span>

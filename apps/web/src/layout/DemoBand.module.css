@@ -61,6 +61,19 @@
   background: rgb(255 255 255 / 0.22);
 }
 
+/* En pantallas táctiles, zona de pulsación de 44 px sin engrosar la banda */
+@media (pointer: coarse) {
+  .reset {
+    position: relative;
+  }
+
+  .reset::before {
+    content: '';
+    position: absolute;
+    inset: -7px -4px;
+  }
+}
+
 @media (max-width: 720px) {
   .hide,
   .role {

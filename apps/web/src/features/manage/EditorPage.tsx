@@ -453,6 +453,17 @@ function Editor({ type, workingId, baseId, initialForm, baseForm, savedAt: initi
   }
 
   const ctx: EditorContext = { me, role, isAdmin, today: madridDateKey(), isRevision, publishedId: liveRow && (type === 'evento' || type === 'comunicado') && liveRow.status === 'publicado' ? liveRow.id : undefined };
+  // El asterisco de cada etiqueta es decorativo (aria-hidden): los lectores de pantalla ya anuncian «obligatorio»
+  const requiredNote = (
+    <p className={styles.requiredNote}>
+      Los campos marcados con{' '}
+      <span className={styles.requiredMark} aria-hidden="true">
+        *
+      </span>
+      <span className="sr-only">asterisco</span> son obligatorios.
+    </p>
+  );
+
   const editorEl = (() => {
     switch (form.type) {
       case 'noticia':
@@ -571,6 +582,7 @@ function Editor({ type, workingId, baseId, initialForm, baseForm, savedAt: initi
         compact ? (
           <div id={panelId} role="tabpanel" aria-label={tab === 'editar' ? 'Editar' : 'Vista previa'} className={styles.panel}>
             <form className={styles.form} hidden={tab !== 'editar'} noValidate onSubmit={(e) => e.preventDefault()}>
+              {requiredNote}
               {editorEl}
               <div className={styles.endActions}>
                 <p className={styles.endTitle}>Siguiente paso</p>
@@ -585,6 +597,7 @@ function Editor({ type, workingId, baseId, initialForm, baseForm, savedAt: initi
         ) : (
           <div className={styles.workspace}>
             <form className={styles.form} noValidate onSubmit={(e) => e.preventDefault()} aria-label={`Formulario de ${meta.lower}`}>
+              {requiredNote}
               {editorEl}
               <div className={styles.endActions}>
                 <p className={styles.endTitle}>Siguiente paso</p>
@@ -626,7 +639,7 @@ function Editor({ type, workingId, baseId, initialForm, baseForm, savedAt: initi
         size="sm"
         footer={
           <>
-            <Button variant="ghost" onClick={() => setDeleteOpen(false)}>
+            <Button variant="ghost" data-autofocus onClick={() => setDeleteOpen(false)}>
               Cancelar
             </Button>
             <Button variant="danger" icon={<Trash />} onClick={onDelete}>
@@ -643,7 +656,7 @@ function Editor({ type, workingId, baseId, initialForm, baseForm, savedAt: initi
         description={MESSAGES.unsavedChanges}
         footer={
           <>
-            <Button variant="ghost" onClick={() => blocker.reset?.()}>
+            <Button variant="ghost" data-autofocus onClick={() => blocker.reset?.()}>
               Seguir editando
             </Button>
             <Button variant="secondary" onClick={() => blocker.proceed?.()}>

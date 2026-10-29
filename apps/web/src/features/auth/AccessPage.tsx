@@ -89,13 +89,12 @@ function PrivateAccess({ demo, onSignedIn }: { demo: boolean; onSignedIn: (userI
   const [result, setResult] = useState<{ tone: 'info' | 'danger' | 'success'; text: string }>();
   const [busy, setBusy] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
-  const first = useRef(true);
+  // Vista anterior: el foco solo se mueve al cambiar de vista (seguro con el doble montaje de StrictMode).
+  const prevView = useRef(view);
 
   useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
+    if (prevView.current === view) return;
+    prevView.current = view;
     heading.current?.focus();
   }, [view]);
 

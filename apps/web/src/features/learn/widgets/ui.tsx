@@ -112,12 +112,11 @@ export function ExternalLink({ href, children, className }: { href: string; chil
 /** Región viva educada que anuncia el resultado cuando deja de cambiar (no en la carga inicial). */
 export function LiveRegion({ message, delay = 650 }: { message: string; delay?: number }) {
   const [out, setOut] = useState('');
-  const first = useRef(true);
+  // Mensaje inicial: no se anuncia (comparar con él es seguro con el doble montaje de StrictMode).
+  const initial = useRef(message);
   useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
+    if (message === initial.current) return;
+    initial.current = '\u0000';
     const t = window.setTimeout(() => setOut(message), delay);
     return () => window.clearTimeout(t);
   }, [message, delay]);

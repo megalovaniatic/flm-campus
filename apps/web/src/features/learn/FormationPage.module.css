@@ -631,7 +631,22 @@
 .finishRow {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-3);
+}
+
+/* Estado «Lectura confirmada»: cápsula de estado, no un botón desactivado */
+.readDone {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0 1.1rem;
+  border-radius: var(--radius-pill);
+  background: var(--success-soft);
+  color: var(--success);
+  font-weight: 650;
+  font-size: var(--text-sm);
 }
 
 .finishStatus {

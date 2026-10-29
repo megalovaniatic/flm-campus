@@ -26,7 +26,7 @@ function BlockFields({ b, i, update, err }: { b: EditorBlock; i: number; update:
     case 'heading':
       return (
         <Slot path={path('text')}>
-          <TextField label="Título de la sección" value={b.text} onChange={(e) => patch({ text: e.target.value })} error={err(path('text'))} placeholder="Qué cambia y desde cuándo" />
+          <TextField label="Título de la sección" value={b.text} onChange={(e) => patch({ text: e.target.value })} error={err(path('text'))} placeholder="p. ej., Qué cambia y desde cuándo" />
         </Slot>
       );
     case 'paragraph':
@@ -65,7 +65,7 @@ function BlockFields({ b, i, update, err }: { b: EditorBlock; i: number; update:
       return (
         <>
           <Slot path={path('title')}>
-            <TextField label="Título del ejemplo" value={b.title} onChange={(e) => patch({ title: e.target.value })} error={err(path('title'))} placeholder="Una sociedad que presenta fuera de plazo" />
+            <TextField label="Título del ejemplo" value={b.title} onChange={(e) => patch({ title: e.target.value })} error={err(path('title'))} placeholder="p. ej., Una sociedad que presenta fuera de plazo" />
           </Slot>
           <Slot path={path('scenario')}>
             <TextArea label="Planteamiento" rows={3} value={b.scenario} onChange={(e) => patch({ scenario: e.target.value })} error={err(path('scenario'))} hint="El caso del cliente, con datos realistas y cifras redondas." />
@@ -91,8 +91,8 @@ function BlockFields({ b, i, update, err }: { b: EditorBlock; i: number; update:
                       </div>
                       <TextField label={`Qué se hace en el paso ${j + 1}`} value={s.label} onChange={(e) => patch({ steps: b.steps.map((x) => (x.id === s.id ? { ...x, label: e.target.value } : x)) })} />
                       <div className={styles.grid2}>
-                        <TextField label="Cálculo (opcional)" value={s.formula} onChange={(e) => patch({ steps: b.steps.map((x) => (x.id === s.id ? { ...x, formula: e.target.value } : x)) })} placeholder="1.000 € × 5 %" />
-                        <TextField label="Resultado (opcional)" value={s.result} onChange={(e) => patch({ steps: b.steps.map((x) => (x.id === s.id ? { ...x, result: e.target.value } : x)) })} placeholder="50 €" />
+                        <TextField label="Cálculo (opcional)" value={s.formula} onChange={(e) => patch({ steps: b.steps.map((x) => (x.id === s.id ? { ...x, formula: e.target.value } : x)) })} placeholder="p. ej., 1.000 € × 5 %" />
+                        <TextField label="Resultado (opcional)" value={s.result} onChange={(e) => patch({ steps: b.steps.map((x) => (x.id === s.id ? { ...x, result: e.target.value } : x)) })} placeholder="p. ej., 50 €" />
                       </div>
                     </motion.li>
                   ))}
@@ -128,7 +128,7 @@ export function FormationEditor({ value: f, update, err }: EditorProps<Formation
           </Slot>
         </div>
         <Slot path="title">
-          <TextField label="Título" required value={f.title} onChange={(e) => set('title', e.target.value)} error={err('title')} placeholder="Cuándo derivar un cliente a Mercantil" />
+          <TextField label="Título" required value={f.title} onChange={(e) => set('title', e.target.value)} error={err('title')} placeholder="p. ej., Cuándo derivar un cliente a Mercantil" />
         </Slot>
         <Slot path="summary">
           <TextArea label="Resumen para las tarjetas" required rows={2} maxLength={220} value={f.summary} onChange={(e) => set('summary', e.target.value)} error={err('summary')} hint="Una frase que invite a leerla." />
@@ -151,7 +151,7 @@ export function FormationEditor({ value: f, update, err }: EditorProps<Formation
                 {f.outcomes.map((o, i) => (
                   <motion.li key={o.id} {...itemMotion} className={styles.inlineItem}>
                     <Slot path={`outcomes.${i}`} className={styles.grow}>
-                      <TextField label={`Resultado ${i + 1}`} value={o.text} onChange={(e) => update((p) => ({ ...p, outcomes: p.outcomes.map((x) => (x.id === o.id ? { ...x, text: e.target.value } : x)) }))} error={err(`outcomes.${i}`)} placeholder="Identificar cuándo un caso fiscal tiene una derivada mercantil" />
+                      <TextField label={`Resultado ${i + 1}`} value={o.text} onChange={(e) => update((p) => ({ ...p, outcomes: p.outcomes.map((x) => (x.id === o.id ? { ...x, text: e.target.value } : x)) }))} error={err(`outcomes.${i}`)} placeholder="p. ej., Identificar cuándo un caso fiscal tiene una derivada mercantil" />
                     </Slot>
                     <ItemTools label={`el resultado ${i + 1}`} index={i} count={f.outcomes.length} min={2} onMove={(to) => update((p) => ({ ...p, outcomes: move(p.outcomes, i, to) }))} onRemove={() => update((p) => ({ ...p, outcomes: p.outcomes.filter((x) => x.id !== o.id) }))} />
                   </motion.li>
@@ -249,7 +249,7 @@ export function FormationEditor({ value: f, update, err }: EditorProps<Formation
                   <ItemTools label={`la fuente ${i + 1}`} index={i} count={f.sources.length} min={1} onMove={(to) => update((p) => ({ ...p, sources: move(p.sources, i, to) }))} onRemove={() => update((p) => ({ ...p, sources: p.sources.filter((x) => x.id !== s.id) }))} />
                 </div>
                 <Slot path={`sources.${i}.label`}>
-                  <TextField label="Nombre" value={s.label} onChange={(e) => update((p) => ({ ...p, sources: p.sources.map((x) => (x.id === s.id ? { ...x, label: e.target.value } : x)) }))} error={err(`sources.${i}.label`)} placeholder="Real Decreto 1007/2023, art. 3" />
+                  <TextField label="Nombre" value={s.label} onChange={(e) => update((p) => ({ ...p, sources: p.sources.map((x) => (x.id === s.id ? { ...x, label: e.target.value } : x)) }))} error={err(`sources.${i}.label`)} placeholder="p. ej., Real Decreto 1007/2023, art. 3" />
                 </Slot>
                 <div className={styles.grid2}>
                   <Slot path={`sources.${i}.url`}>

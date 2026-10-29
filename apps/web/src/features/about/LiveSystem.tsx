@@ -149,6 +149,7 @@ function LiveColors() {
                       <span className={styles.swatch} style={{ background: `var(${t.token})` }} aria-hidden="true" />
                       <span>
                         <span className={styles.tokenName}>{t.name}</span>
+                        <span className="sr-only">: </span>
                         <span className={styles.tokenUse}>{t.use}</span>
                       </span>
                     </span>

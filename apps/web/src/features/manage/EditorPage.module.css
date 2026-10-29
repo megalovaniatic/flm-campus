@@ -142,6 +142,17 @@
   min-width: 0;
 }
 
+.requiredNote {
+  margin-bottom: calc(var(--space-2) * -1);
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+.requiredMark {
+  font-weight: 700;
+  color: var(--accent-text);
+}
+
 .previewPane {
   position: sticky;
   top: calc(72px + 6.5rem);

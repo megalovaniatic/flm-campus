@@ -36,10 +36,11 @@
 | `--paper` | `#F8F6F2` | `#081225` | Fondo general |
 | `--surface` / `--surface-2` | `#FFFFFF` / `#FBFAF7` | `#0E1A31` / `#12203A` | Tarjetas y capas |
 | `--surface-sunken` | crema | `#0B1529` | Zonas hundidas |
-| `--ink` / `--ink-2` / `--ink-3` | marino / gris / `#6B7280` | `#F3EFE8` / `#B7BCC6` / `#8F96A3` | Texto |
+| `--ink` / `--ink-2` / `--ink-3` | marino / gris / `#5C636E` | `#F3EFE8` / `#B7BCC6` / `#8F96A3` | Texto (`--ink-3` ≥ 4,5:1 también sobre la crema) |
 | `--line` / `--line-strong` | marino 12 % / 24 % | crema 12 % / 24 % | Bordes y separadores |
 | `--accent-text` | rojo oscuro | `#FF8A7F` | Texto de acento pequeño |
 | `--success`, `--warning`, `--danger` (+ `-soft`) | verdes, ámbar, rojo oscuro | tintes claros | Estados |
+| `--ring-1` / `--ring-2` / `--ring-3` | `#E53327` / `#792C35` / `#172641` | `#F0493D` / `#C9707A` / `#8FA3C7` | Paradas del degradado en trazos SVG (`ProgressRing`, «El escalón»). En oscuro se aclaran porque el burdeos y el marino desaparecen sobre el fondo marino. Algunas vistas (consultas, noticia) los redefinen localmente con cinco paradas para sus anillos de etapa |
 
 Contrastes clave (WCAG 2.2): marino sobre papel ≈ 13,8:1 · gris sobre papel ≈ 7:1 · rojo oscuro sobre papel ≈ 8,4:1 · blanco sobre marino ≈ 15,1:1 · rojo FLM sobre blanco 4,3:1 (solo texto grande o gráficos).
 
@@ -115,7 +116,7 @@ Círculo de dos mitades: izquierda lectura, derecha test (trama si intentado, ll
 Círculo con fotografía aportada o iniciales de dos letras (nunca fotos inventadas). Tonos de marca deterministas por nombre. `decorative` cuando el nombre ya está escrito al lado.
 
 ### ProgressRing
-Anillo con el degradado oficial; `aria-label` «Formaciones completadas: 2 de 12». Animación de trazo con movimiento reducido respetado.
+Anillo con el degradado oficial (tokens `--ring-*`, aclarados en tema oscuro); `aria-label` «Formaciones completadas: 2 de 12». Animación de trazo con movimiento reducido respetado.
 
 ### Picture
 Fotografías reales en AVIF/WebP con `srcset`, dimensiones explícitas (sin saltos de diseño) y marcador difuminado (LQIP). `decorative` cuando el texto ya lo explica.
@@ -127,7 +128,7 @@ Fotografías reales en AVIF/WebP con `srcset`, dimensiones explícitas (sin salt
 Región `aria-live="polite"`; se pausa con el puntero o el foco; acción opcional («Deshacer», «Reintentar»). API: `toast.success|error|info(título, descripción?, acción?)`.
 
 ### Campos: TextField · TextArea · SelectField · Checkbox · Switch
-Etiqueta siempre visible, ayuda (`aria-describedby`), error con icono y `role="alert"`, contador en áreas de texto, altura mínima 48 px, `Switch` con `role="switch"`.
+Etiqueta siempre visible, ayuda (`aria-describedby`), error con icono y `role="alert"`, contador en áreas de texto, altura mínima 48 px, `Switch` con `role="switch"`. Los obligatorios llevan `required` (lo anuncia el lector de pantalla) y un asterisco decorativo; todo formulario con más de un campo explica el asterisco al principio («Los campos marcados con * son obligatorios»).
 
 ### Tabs
 Patrón ARIA *tabs* con tabindex itinerante, flechas, Inicio y Fin. La cápsula activa se desliza (`layoutId`).

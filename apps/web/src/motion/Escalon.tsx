@@ -58,12 +58,11 @@ export function Escalon({ read, passed, label = 'Formación completada', play = 
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={complete ? label : passed ? 'Test superado' : read ? 'Formación leída' : 'En curso'} style={{ maxWidth: '100%', height: 'auto', overflow: 'visible' }}>
       <defs>
+        {/* Tres paradas (--ring-*) reproducen el degradado oficial en claro y lo aclaran en oscuro. */}
         <linearGradient id={`g${id}`} x1="0" y1="0" x2={width} y2="0" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#e53327" />
-          <stop offset="0.3" stopColor="#b8302d" />
-          <stop offset="0.58" stopColor="#792c35" />
-          <stop offset="0.82" stopColor="#3f293c" />
-          <stop offset="1" stopColor="#172641" />
+          <stop offset="0" style={{ stopColor: 'var(--ring-1, #e53327)' }} />
+          <stop offset="0.58" style={{ stopColor: 'var(--ring-2, #792c35)' }} />
+          <stop offset="1" style={{ stopColor: 'var(--ring-3, #172641)' }} />
         </linearGradient>
       </defs>
       <g fill={`url(#g${id})`}>
@@ -79,16 +78,17 @@ export function Escalon({ read, passed, label = 'Formación completada', play = 
       {/* Círculo 3: completada → cápsula */}
       {open > 0 ? (
         <g>
-          <rect x={c3[0] - r} y={c3[1] - r} width={capW} height={size} rx={r} fill="var(--flm-marino)" />
+          {/* Cápsula en la superficie inversa: marino en claro y crema en oscuro (sobre el negro de FLM no se veía). */}
+          <rect x={c3[0] - r} y={c3[1] - r} width={capW} height={size} rx={r} fill="var(--surface-inverse)" />
           <g opacity={segment(t, 0.86, 1)} transform={`translate(${c3[0] - r + size * 0.42} ${c3[1]})`}>
-            <path d={`M ${-size * 0.13} 0 l ${size * 0.09} ${size * 0.09} l ${size * 0.18} ${-size * 0.18}`} fill="none" stroke="#fff" strokeWidth={size * 0.06} strokeLinecap="round" strokeLinejoin="round" />
-            <text x={size * 0.3} y={size * 0.11} fill="#fff" fontFamily="var(--font-sans)" fontWeight="650" fontSize={size * 0.3}>
+            <path d={`M ${-size * 0.13} 0 l ${size * 0.09} ${size * 0.09} l ${size * 0.18} ${-size * 0.18}`} fill="none" stroke="var(--ink-inverse)" strokeWidth={size * 0.06} strokeLinecap="round" strokeLinejoin="round" />
+            <text x={size * 0.3} y={size * 0.11} fill="var(--ink-inverse)" fontFamily="var(--font-sans)" fontWeight="650" fontSize={size * 0.3}>
               {label}
             </text>
           </g>
         </g>
       ) : (
-        <circle cx={c3[0]} cy={c3[1]} r={r - 1} fill={complete && rise > 0.98 ? 'var(--flm-marino)' : 'none'} stroke="var(--line-strong)" strokeWidth="2" />
+        <circle cx={c3[0]} cy={c3[1]} r={r - 1} fill={complete && rise > 0.98 ? 'var(--surface-inverse)' : 'none'} stroke="var(--line-strong)" strokeWidth="2" />
       )}
     </svg>
   );

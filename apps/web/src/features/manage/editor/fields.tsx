@@ -119,7 +119,12 @@ export function ChoiceGroup<T extends string>({
                   </span>
                 )}
                 <span className={styles.choiceLabel}>{o.label}</span>
-                {o.description && <span className={styles.choiceDesc}>{o.description}</span>}
+                {o.description && (
+                  <>
+                    <span className="sr-only">. </span>
+                    <span className={styles.choiceDesc}>{o.description}</span>
+                  </>
+                )}
               </span>
             </label>
           );

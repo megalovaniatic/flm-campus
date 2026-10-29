@@ -256,14 +256,21 @@ function QuestionView({ q, index, total, round, chosen, checked, error, autoFocu
 
 function ResultView({ grade, passedLabel, children, actions, firstView }: { grade: GradeResult; passedLabel: string; children: ReactNode; actions: ReactNode; firstView: boolean }) {
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const titleId = useId();
   const reduce = useReducedMotionPref();
   useEffect(() => {
-    titleRef.current?.focus({ preventScroll: true });
+    const title = titleRef.current;
+    if (!title) return;
+    title.focus({ preventScroll: true });
+    // El resultado sustituye a la última pregunta, que solía estar desplazada: si la cifra
+    // quedaría bajo la cabecera fija o fuera de la vista, se trae el resultado entero a la vista.
+    const top = title.getBoundingClientRect().top;
+    if (top < 96 || top > window.innerHeight * 0.6) sectionRef.current?.scrollIntoView({ block: 'start', behavior: 'auto' });
   }, []);
   const rise = (delay: number) => (firstView && !reduce ? { initial: { y: '105%' }, animate: { y: '0%' }, transition: { duration: 0.6, ease: EASE, delay } } : {});
   return (
-    <motion.section className={styles.result} aria-labelledby={titleId} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.24 }}>
+    <motion.section ref={sectionRef} className={styles.result} aria-labelledby={titleId} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.24 }}>
       <p className={styles.resultKicker}>Resultado</p>
       <h2 id={titleId} ref={titleRef} tabIndex={-1} className={styles.resultTitle}>
         <span className={styles.score} aria-hidden="true">
@@ -532,7 +539,7 @@ export function QuizEngine({ quiz, variant, signature, onFinish, renderResult, r
             <Button variant="secondary" onClick={() => blocker.proceed?.()}>
               Salir sin guardar
             </Button>
-            <Button variant="primary" onClick={() => blocker.reset?.()}>
+            <Button variant="primary" data-autofocus onClick={() => blocker.reset?.()}>
               Seguir con el test
             </Button>
           </>

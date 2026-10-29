@@ -12,11 +12,12 @@
   background: color-mix(in srgb, var(--ink) 7%, transparent);
 }
 
+/* Cápsula también con un solo dígito: en la gramática de la marca el círculo es persona o estado */
 .badge {
   position: absolute;
   top: 6px;
-  right: 5px;
-  min-width: 18px;
+  right: 1px;
+  min-width: 24px;
   height: 18px;
   padding: 0 5px;
   border-radius: var(--radius-pill);

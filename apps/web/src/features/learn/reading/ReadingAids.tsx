@@ -92,7 +92,12 @@ export function Toc({ items, active, onGo, hrefFor, layoutKey }: { items: TocIte
               <span className={styles.tocMark} aria-hidden="true">
                 {on && <motion.span layoutId={layoutKey} className={styles.tocDot} transition={{ type: 'spring', stiffness: 520, damping: 38 }} />}
               </span>
-              {it.number !== undefined && <span className={styles.tocNum}>{it.number}</span>}
+              {it.number !== undefined && (
+                <>
+                  <span className={styles.tocNum}>{it.number}</span>
+                  <span className="sr-only">. </span>
+                </>
+              )}
               <span className={styles.tocLabel}>{it.label}</span>
             </a>
           </li>

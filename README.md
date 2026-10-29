@@ -4,7 +4,7 @@
 
 Plataforma interna de FLM (asesoría fiscal, laboral, mercantil y contable · Barcelona, Vic y Granollers) para **aprender** (formaciones por área con test y evaluaciones sectoriales), **consultar** (actualidad, notas informativas originales y lecturas recomendadas) y **participar** (agenda, calendario y aportaciones), con perfiles, gestión de contenidos y administración.
 
-- **Demostración pública**: GitHub Pages (ver la sección «Demo» más abajo). Abre directamente con un perfil de demostración, sin iniciar sesión.
+- **Demostración pública**: https://megalovaniatic.github.io/flm-campus/ — abre directamente con un perfil de demostración, sin iniciar sesión.
 - **Concepto creativo**: «Círculo de confianza» — *Lo que sabe uno, lo sabemos todos.*
 
 ## Estado: qué es operativo, qué es demostración y qué requiere configuración
@@ -88,7 +88,16 @@ Ejecuta comprobación de tipos de todos los paquetes, pruebas unitarias (reglas 
 
 ## Demo
 
-Enlace público: se indica en la descripción del repositorio y en la pestaña *Environments › github-pages*.
+**https://megalovaniatic.github.io/flm-campus/**
+
+Enlaces directos de ejemplo:
+
+- Una formación: https://megalovaniatic.github.io/flm-campus/#/aprender/fiscal/recargos-presentacion-fuera-de-plazo
+- Notas informativas: https://megalovaniatic.github.io/flm-campus/#/consultar/notas
+- Agenda: https://megalovaniatic.github.io/flm-campus/#/participar/agenda
+- Sobre el campus (concepto y sistema de diseño): https://megalovaniatic.github.io/flm-campus/#/sobre
+
+En la demo puedes cambiar de perfil desde el avatar › «Ver la demo como» (Empleado, Autor, Administrador) y restablecerla desde la banda superior. Todo lo que hagas se guarda solo en tu navegador.
 
 ## Créditos y licencias
 

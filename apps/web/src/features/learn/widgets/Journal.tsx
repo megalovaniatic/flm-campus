@@ -15,8 +15,18 @@ export function JournalEntryView({ entry, number, compact, className }: { entry:
   return (
     <table className={cx(styles.journal, compact && styles.compact, className)}>
       <caption className={styles.caption}>
-        {number !== undefined && <span className={styles.num}>Asiento {number}</span>}
-        {date && <span className={styles.date}>{date}</span>}
+        {number !== undefined && (
+          <>
+            <span className={styles.num}>Asiento {number}</span>
+            <span className="sr-only">, </span>
+          </>
+        )}
+        {date && (
+          <>
+            <span className={styles.date}>{date}</span>
+            <span className="sr-only">: </span>
+          </>
+        )}
         <span className={styles.concept}>{entry.concept}</span>
       </caption>
       <thead>

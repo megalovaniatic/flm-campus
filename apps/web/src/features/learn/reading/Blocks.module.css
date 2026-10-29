@@ -320,6 +320,12 @@
   white-space: nowrap;
 }
 
+/* Las cabeceras de columnas numéricas pueden partirse: así la tabla cabe en la columna
+   de lectura de escritorio sin desplazamiento horizontal (las cifras siguen sin partirse). */
+.table thead th[data-num] {
+  white-space: normal;
+}
+
 .scrollHint {
   margin-top: var(--space-2);
   font-size: var(--text-xs);

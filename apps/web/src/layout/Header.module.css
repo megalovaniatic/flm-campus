@@ -171,3 +171,12 @@
     font-size: 1rem;
   }
 }
+
+/* Pantallas muy estrechas (320 px o zoom del 400 %): sin el filete ni la palabra «Campus»,
+   para que el avatar no quede recortado (WCAG 1.4.10). El enlace conserva su nombre accesible. */
+@media (max-width: 359px) {
+  .rule,
+  .campus {
+    display: none;
+  }
+}

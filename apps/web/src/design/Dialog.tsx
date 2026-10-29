@@ -33,6 +33,9 @@ export function Dialog({ open, onClose, title, description, children, footer, va
     if (open && !d.open) {
       returnFocus.current = document.activeElement as HTMLElement | null;
       d.showModal();
+      // Foco inicial en la acción segura marcada con data-autofocus («Cancelar», «Seguir con el test»);
+      // sin marca, el navegador enfoca el primer control
+      d.querySelector<HTMLElement>('[data-autofocus]')?.focus();
     } else if (!open && d.open) {
       d.close();
       returnFocus.current?.focus?.();
@@ -65,7 +68,7 @@ export function Dialog({ open, onClose, title, description, children, footer, va
               </div>
             )}
           </div>
-          <IconButton label="Cerrar" icon={<X />} onClick={onClose} variant="soft" size="sm" />
+          <IconButton label="Cerrar" icon={<X />} onClick={onClose} variant="soft" />
         </header>
         {children && <div className={styles.body}>{children}</div>}
         {footer && <footer className={styles.footer}>{footer}</footer>}

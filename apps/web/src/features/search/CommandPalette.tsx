@@ -27,6 +27,8 @@ export function CommandPalette() {
   const navigate = useNavigate();
   const dialog = useRef<HTMLDialogElement>(null);
   const input = useRef<HTMLInputElement>(null);
+  /** Elemento con el foco antes de abrir: al cerrar, el foco vuelve a él. */
+  const opener = useRef<HTMLElement | null>(null);
   const [q, setQ] = useState('');
   const [active, setActive] = useState(0);
   const listId = useId();
@@ -52,11 +54,18 @@ export function CommandPalette() {
     const d = dialog.current;
     if (!d) return;
     if (isOpen && !d.open) {
+      opener.current = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null;
       d.showModal();
       setQ('');
       setActive(0);
       input.current?.focus();
-    } else if (!isOpen && d.open) d.close();
+    } else if (!isOpen && d.open) {
+      d.close();
+      // Si el diálogo no ha devuelto el foco (p. ej., al abrirlo con Ctrl K), se devuelve a mano.
+      const back = opener.current;
+      opener.current = null;
+      if (back?.isConnected && (document.activeElement === document.body || document.activeElement === null)) back.focus();
+    }
   }, [isOpen]);
 
   useEffect(() => setActive(0), [q]);
@@ -76,6 +85,10 @@ export function CommandPalette() {
     } else if (e.key === 'Enter' && results[active]) {
       e.preventDefault();
       go(results[active]!.href);
+    } else if (e.key === 'Escape') {
+      // En un campo de búsqueda, Esc solo borraba el texto: como indica la ayuda, cierra a la primera.
+      e.preventDefault();
+      close();
     }
   };
 
@@ -189,7 +202,7 @@ export function CommandPalette() {
           </span>
         </p>
         <p className="sr-only" role="status" aria-live="polite">
-          {q ? `${results.length} resultados` : ''}
+          {q && results.length > 0 ? `${results.length} ${results.length === 1 ? 'resultado' : 'resultados'}` : ''}
         </p>
       </div>
     </dialog>

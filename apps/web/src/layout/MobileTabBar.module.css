@@ -18,7 +18,8 @@
 
 .list {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  /* minmax(0, 1fr): a 320 px (o con zoom del 400 %) las cinco pestañas caben y «Perfil» no se recorta */
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   list-style: none;
   padding: 0 4px;
   margin: 0 auto;

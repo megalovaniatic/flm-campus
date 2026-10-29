@@ -76,8 +76,8 @@ function SessionCard({ s, i, count, f, update, err }: { s: SessionForm; i: numbe
         </Slot>
       </div>
       <div className={styles.grid2}>
-        <TextField label="Etiqueta (opcional)" value={s.label} onChange={(e) => patch({ label: e.target.value })} placeholder={f.type === 'evento' ? 'ChatGPT · sesión 1' : 'Último día para participar'} />
-        <TextField label="Lugar (opcional)" value={s.location} onChange={(e) => patch({ location: e.target.value })} placeholder="Sala Biblioteca · Barcelona" />
+        <TextField label="Etiqueta (opcional)" value={s.label} onChange={(e) => patch({ label: e.target.value })} placeholder={f.type === 'evento' ? 'p. ej., ChatGPT · sesión 1' : 'p. ej., Último día para participar'} />
+        <TextField label="Lugar (opcional)" value={s.location} onChange={(e) => patch({ location: e.target.value })} placeholder="p. ej., Sala Biblioteca · Barcelona" />
       </div>
     </motion.li>
   );
@@ -99,7 +99,7 @@ function LinkCard({ l, i, count, update, err }: { l: LinkForm; i: number; count:
       </div>
       <div className={styles.grid2}>
         <Slot path={`links.${i}.label`}>
-          <TextField label="Texto del enlace" value={l.label} onChange={(e) => patch({ label: e.target.value })} error={err(`links.${i}.label`)} placeholder="Formulario de votación" />
+          <TextField label="Texto del enlace" value={l.label} onChange={(e) => patch({ label: e.target.value })} error={err(`links.${i}.label`)} placeholder="p. ej., Formulario de votación" />
         </Slot>
         <Slot path={`links.${i}.url`}>
           <TextField label="Dirección" type="url" inputMode="url" value={l.url} onChange={(e) => patch({ url: e.target.value })} error={err(`links.${i}.url`)} placeholder="https://" />
@@ -124,7 +124,7 @@ export function EventEditor({ value: f, update, err, ctx }: EditorProps<EventFor
     <>
       <Section title={isEvent ? 'El evento' : 'El comunicado'} description={isEvent ? 'Encuentros, formaciones internas, desayunos y celebraciones de la firma.' : 'Avisos para toda la firma: iniciativas, novedades internas, campañas.'}>
         <Slot path="title">
-          <TextField label="Título" required value={f.title} onChange={(e) => set('title', e.target.value)} error={err('title')} placeholder={isEvent ? 'Desayuno Laboral' : 'Ya está en línea la nueva web'} />
+          <TextField label="Título" required value={f.title} onChange={(e) => set('title', e.target.value)} error={err('title')} placeholder={isEvent ? 'p. ej., Desayuno Laboral' : 'p. ej., Ya está en línea la nueva web'} />
         </Slot>
         <div className={styles.grid2}>
           <SelectField label="Categoría" value={f.category} onChange={(e) => set('category', e.target.value as CampusEvent['category'])} options={(Object.keys(CATEGORY_LABEL) as CampusEvent['category'][]).map((c) => ({ value: c, label: CATEGORY_LABEL[c] }))} />
@@ -156,7 +156,7 @@ export function EventEditor({ value: f, update, err, ctx }: EditorProps<EventFor
         <AnimatePresence mode="popLayout" initial={false}>
           {f.pendingDate ? (
             <motion.div key="pending" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-              <TextField label="Nota sobre la fecha (opcional)" value={f.pendingDateNote} onChange={(e) => set('pendingDateNote', e.target.value)} placeholder="Fecha pendiente de programar" />
+              <TextField label="Nota sobre la fecha (opcional)" value={f.pendingDateNote} onChange={(e) => set('pendingDateNote', e.target.value)} placeholder="p. ej., Fecha pendiente de programar" />
             </motion.div>
           ) : (
             <motion.div key="sessions" className={styles.stack} initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>

@@ -197,6 +197,7 @@ function FormationsTable({ groups }: { groups: ReturnType<typeof useFormationGro
                       <span className={styles.areaDot} aria-hidden="true" />
                       {AREAS[g.area].name}
                     </span>
+                    <span className="sr-only">: </span>
                     <span className={styles.groupCount}>
                       {g.completed} de {g.rows.length} completadas
                     </span>
@@ -206,6 +207,7 @@ function FormationsTable({ groups }: { groups: ReturnType<typeof useFormationGro
                   <tr role="row" key={r.formation.id}>
                     <th role="rowheader" scope="row" className={styles.titleCell}>
                       <Link to={`/aprender/${r.formation.area}/${r.formation.slug}`}>{r.formation.title}</Link>
+                      <span className="sr-only">. </span>
                       <span className={styles.cellMeta}>
                         {r.formation.readingMinutes} min · versión {r.formation.version}
                       </span>

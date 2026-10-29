@@ -77,7 +77,8 @@ export function Arrival({ firstName, aside }: { firstName: string; aside?: React
       ['.a-phrase-0', { backgroundSize: ['0% 3px', '100% 3px'] }, { duration: 0.2, ease: [0.65, 0, 0.35, 1], at: 0.72 }],
       ['.a-phrase-1', { backgroundSize: ['0% 3px', '100% 3px'] }, { duration: 0.24, ease: [0.65, 0, 0.35, 1], at: 0.93 }],
       ['.a-phrase-2', { backgroundSize: ['0% 3px', '100% 3px'] }, { duration: 0.16, ease: [0.65, 0, 0.35, 1], at: 1.18 }],
-      ['.a-dot', { scale: [0, 1] }, { type: 'spring', stiffness: 520, damping: 22, at: 1.3 }],
+      // Muelle de la especificación (520/26): con 22 rebotaba y la llegada pasaba de 1,9 s.
+      ['.a-dot', { scale: [0, 1] }, { type: 'spring', stiffness: 520, damping: 26, at: 1.2 }],
       ['.a-card', { opacity: [0, 1], y: [16, 0] }, { duration: 0.34, delay: stagger(0.07), ease: [0.22, 1, 0.36, 1], at: 0.82 }],
     ]);
     const finish = () => seq.complete();

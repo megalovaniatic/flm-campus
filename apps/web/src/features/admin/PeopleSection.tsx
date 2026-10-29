@@ -425,7 +425,7 @@ export function PeopleSection() {
         description={d ? `${d.p.name} no podrá entrar en el campus y se cerrarán todas sus sesiones. Podrás reactivarla más adelante.` : undefined}
         footer={
           <>
-            <Button variant="ghost" onClick={close}>
+            <Button variant="ghost" data-autofocus onClick={close}>
               Cancelar
             </Button>
             <Button variant="danger" icon={<UserX />} onClick={confirm}>
@@ -443,7 +443,7 @@ export function PeopleSection() {
         description={d ? `${d.p.name} tendrá que volver a iniciar sesión en todos sus dispositivos. Útil si ha perdido un equipo o sospecha de un acceso indebido.` : undefined}
         footer={
           <>
-            <Button variant="ghost" onClick={close}>
+            <Button variant="ghost" data-autofocus onClick={close}>
               Cancelar
             </Button>
             <Button icon={<LogOut />} onClick={confirm}>
@@ -483,7 +483,7 @@ export function PeopleSection() {
               <li>Se cierran sus sesiones; los intentos de test se desvinculan y quedan solo como agregados anónimos.</li>
               <li>Queda constancia en la auditoría, sin datos personales en el detalle.</li>
             </ul>
-            <TextField label={`Para confirmar, escribe «${d.p.name}»`} value={confirmName} onChange={(e) => setConfirmName(e.target.value)} autoComplete="off" spellCheck={false} hint="Es la confirmación explícita que exige la política de retención." />
+            <TextField label={`Para confirmar, escribe «${d.p.name}»`} value={confirmName} onChange={(e) => setConfirmName(e.target.value)} autoComplete="off" spellCheck={false} hint="Es la confirmación explícita que exige la política de retención." data-autofocus />
             {__DEMO__ && <p className={styles.dialogNote}>En esta demostración puedes recuperarlo con «Restablecer», en la banda superior.</p>}
           </form>
         )}
