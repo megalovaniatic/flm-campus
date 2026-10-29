@@ -14,4 +14,3 @@ export * from './StatusGlyph';
 export * from './PageHeader';
 export * from './Spotlight';
 export * from './PhotoCapsule';
-export * from './Mascot';

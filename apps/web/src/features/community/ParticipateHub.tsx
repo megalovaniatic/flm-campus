@@ -2,7 +2,7 @@ import { ArrowRight, Lightbulb, MessageSquareText, Video, Workflow } from 'lucid
 import { useMemo, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import type { CampusEvent } from '@flm/shared';
-import { ButtonLink, LinkedInGlyph, Mascot, PageHeader, PhaseChip } from '@/design';
+import { ButtonLink, LinkedInGlyph, PageHeader, PhaseChip, PhotoCapsule } from '@/design';
 import { useEvents } from '@/data/selectors';
 import { usePageTitle } from '@/lib/preferences';
 import { Rich } from '@/lib/rich';
@@ -114,7 +114,7 @@ export default function ParticipateHub() {
           </>
         }
         lede="«Aprender juntos para asesorar mejor.»"
-        aside={<Mascot name="buho-equipo" />}
+        media={<PhotoCapsule name="equipo-puzle" aspect="2 / 1" width="clamp(18rem, 30vw, 27rem)" position="50% 45%" sizes="(min-width: 861px) 27rem, 92vw" priority mobile="full" />}
       />
 
       <div className={styles.top}>

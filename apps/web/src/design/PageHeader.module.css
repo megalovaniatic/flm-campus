@@ -1,13 +1,11 @@
 .header {
-  /* Margen bajo el contenido: el búho de la cabecera lo descuenta para apoyarse en la línea */
-  --header-pad: clamp(1.5rem, 1rem + 2vw, 2.75rem);
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
   gap: var(--space-8);
-  padding-bottom: var(--header-pad);
-  margin-bottom: var(--header-pad);
+  padding-bottom: clamp(1.5rem, 1rem + 2vw, 2.75rem);
+  margin-bottom: clamp(1.5rem, 1rem + 2vw, 2.75rem);
   border-bottom: 1px solid var(--line);
 }
 
@@ -101,14 +99,33 @@
   min-width: 0;
 }
 
+/* Portadas de los destinos (Aprender, Consultar, Participar): la foto ocupa la mitad derecha y se centra en ella */
+.header[data-media] {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+  align-items: center;
+  gap: var(--space-10);
+}
+
+.media {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
 @media (max-width: 860px) {
   .header {
     grid-template-columns: minmax(0, 1fr);
     align-items: start;
   }
 
+  .header[data-media] {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+  }
+
   /* La foto que se oculta en móvil no deja hueco bajo la entradilla */
-  .aside:has(> [data-mobile='hide']) {
+  .aside:has(> [data-mobile='hide']),
+  .media:has(> [data-mobile='hide']) {
     display: none;
   }
 }

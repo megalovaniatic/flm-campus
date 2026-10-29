@@ -6,8 +6,8 @@ import styles from './PhotoCapsule.module.css';
 
 interface PhotoCapsuleProps {
   name: PhotoName;
-  /** Proporción de la cápsula: «12 / 5» (lugar, horizontal) o «5 / 7» (vertical). */
-  aspect?: '12 / 5' | '5 / 7';
+  /** Proporción de la cápsula: «12 / 5» (lugar, horizontal), «2 / 1» (portada de un destino) o «5 / 7» (vertical). */
+  aspect?: '12 / 5' | '2 / 1' | '5 / 7';
   width?: string;
   position?: string;
   sizes?: string;

@@ -41,7 +41,7 @@ La web usa **Inter** (general) y **Belleza** (destacados). El campus mantiene In
 
 ## 5. Fotografía (verificado)
 
-Sesión corporativa aportada por FLM (edificio y fachada de la sede, biblioteca, recepción, libretas, retrato de Ángel María Ceniceros, Socio del Área Fiscal) y la foto real del Desayuno Mercantil. Criterios: color natural, sin duotonos; reencuadres para evitar rótulos de otras firmas o elementos ajenos; sin fotografía de stock de personas. Desde el 29/10/2026, las cabeceras de Aprender, Consultar y Participar llevan las ilustraciones de búhos que aportó FLM (leyendo, sacando un libro y dos búhos encajando un puzle), con fondo transparente y de pie sobre la línea de la cabecera.
+Sesión corporativa aportada por FLM (edificio y fachada de la sede, biblioteca, recepción, libretas, retrato de Ángel María Ceniceros, Socio del Área Fiscal) y la foto real del Desayuno Mercantil. Criterios: color natural, sin duotonos; reencuadres para evitar rótulos de otras firmas o elementos ajenos; sin fotografía de stock de personas. Desde el 29/10/2026, las portadas de Aprender, Consultar y Participar llevan fotos que aportó FLM: un libro abierto con unas gafas, una biblioteca con escalera de caracol y manos que encajan un puzle. No son del equipo y no se ofrecen en el selector de fotos del creador.
 
 ## 6. Redes y voz pública (verificado)
 

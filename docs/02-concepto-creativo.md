@@ -34,7 +34,7 @@ En castellano, *círculo de confianza* es la gente a la que puedes preguntar sin
 
 - **Papel cálido y tinta marino**, la marca como acento (rojo para puntos y trazos; degradado completo solo en filetes, anillos y conectores; como superficie, solo en la tarjeta protagonista de cada pantalla).
 - **Tipografía con dos voces**: Newsreader para titulares y lectura (rigor de publicación profesional), Inter para la interfaz (la tipografía de la web) y Belleza solo en «Explicamos».
-- **Fotografía real** de la oficina de Barcelona, en cápsulas y círculos, con pie; cero stock de personas. Las cabeceras de Aprender, Consultar y Participar llevan los búhos ilustrados de FLM (desde el 29/10/2026). Portadas tipográficas para las formaciones («Art. 27», «147», «¿A Mercantil?»).
+- **Fotografía real** de la oficina de Barcelona, en cápsulas y círculos, con pie; cero stock de personas. Las portadas de Aprender, Consultar y Participar llevan fotos aportadas por FLM (un libro con gafas, una biblioteca y un puzle), más grandes y centradas en su mitad. Portadas tipográficas para las formaciones («Art. 27», «147», «¿A Mercantil?»).
 - **Áreas** con la meseta de color de su cápsula oficial; **Contable** como la rampa completa del degradado («la suma de las tres»).
 
 ## Momentos firma

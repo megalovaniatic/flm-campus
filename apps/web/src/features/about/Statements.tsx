@@ -66,7 +66,7 @@ const PRINCIPLES = [
     title: 'Datos profesionales y del calendario',
     text: 'Nombre, correo corporativo, puesto, departamento y sede. Para el calendario de empresa, el día y el mes del cumpleaños (nunca el año de nacimiento) y la fecha de incorporación: solo los que da la persona o administración, nunca inventados.',
   },
-  { icon: Image, title: 'Fotografías reales', text: 'Solo las aportadas por FLM con autorización. Nunca fotos de stock de personas: quien no tiene foto aparece con sus iniciales.' },
+  { icon: Image, title: 'Fotografías reales', text: 'Solo las aportadas por FLM, también las de las portadas de Aprender, Consultar y Participar. Ninguna presenta a alguien como parte del equipo sin serlo: quien no tiene foto aparece con sus iniciales.' },
   { icon: ShieldCheck, title: 'Personas de la demostración', text: 'Salvo las identificadas como reales (información profesional pública o autorización expresa), son ficticias y no tienen foto.' },
   { icon: Cookie, title: 'Sin seguimiento', text: 'Ni analítica ni cookies de terceros. Las tipografías se sirven desde el propio campus.' },
 ];
@@ -225,11 +225,7 @@ export function Credits() {
       <dl className={styles.credits}>
         <div>
           <dt>Fotografía</dt>
-          <dd>Fotografías corporativas aportadas por FLM: sede de Barcelona (fachada, recepción y biblioteca), libretas, retrato de Ángel María Ceniceros y Desayuno Mercantil.</dd>
-        </div>
-        <div>
-          <dt>Ilustraciones</dt>
-          <dd>Los búhos de las cabeceras de Aprender, Consultar y Participar, aportados por FLM.</dd>
+          <dd>Fotografías corporativas aportadas por FLM: sede de Barcelona (fachada, recepción y biblioteca), libretas, retrato de Ángel María Ceniceros y Desayuno Mercantil. Las de las portadas de Aprender, Consultar y Participar también las ha aportado FLM.</dd>
         </div>
         <div>
           <dt>Logotipos</dt>

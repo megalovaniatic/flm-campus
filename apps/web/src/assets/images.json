@@ -136,5 +136,37 @@
       960
     ],
     "placeholder": "data:image/webp;base64,UklGRpYAAABXRUJQVlA4IIoAAACwBQCdASoYACAAPt1cpU2opSOiN/qoARAbiWYAnTM0OWgpPN4mZUvnPJLGv5JElfqpOA97V1QA/rBordETq/BGPczs0cH8nXD+Qbrmik3Yt/6wbTCPqWwIIjcnm5Gc8TMvSvj9IOEqbhozxnrTEYdJ0bsLcDA5QNgRaaWtKxNwXtawtXh0HU00QAA="
+  },
+  "aprender-libro": {
+    "alt": "Libro abierto con unas gafas encima, junto a una libreta, un lápiz y un café",
+    "width": 1280,
+    "height": 720,
+    "sizes": [
+      480,
+      960
+    ],
+    "placeholder": "data:image/webp;base64,UklGRmoAAABXRUJQVlA4IF4AAADQAwCdASoYAA4APu1kqk4ppaQiMAgBMB2JYgCdMoAA2lwAYRTRooAAwz5H0wViCnTOUyfOL7nMmEGF/uxJVdU3w2LiCkQTIxWHa+Vzm7VeNB58Y5BC0Bv5BGDBAAAA"
+  },
+  "consultar-biblioteca": {
+    "alt": "Biblioteca de varias plantas con estanterías de madera llenas de libros y una escalera de caracol",
+    "width": 1920,
+    "height": 1167,
+    "sizes": [
+      480,
+      960,
+      1600
+    ],
+    "placeholder": "data:image/webp;base64,UklGRm4AAABXRUJQVlA4IGIAAADwAwCdASoYAA8APu1kqk2ppaQiMAgBMB2JZACdABVRXIMdO/7UrFfgAP7AU0DWrneketwP5PTRGSfMMfYmNhhL/rBNaVNweolXx2lMXJa65qh7UShLX4GO6rz1JBbLY5AAAA=="
+  },
+  "equipo-puzle": {
+    "alt": "Manos de un equipo que unen piezas de un puzle de madera",
+    "width": 1920,
+    "height": 1280,
+    "sizes": [
+      480,
+      960,
+      1600
+    ],
+    "placeholder": "data:image/webp;base64,UklGRnIAAABXRUJQVlA4IGYAAADQAwCdASoYABAAPu1kqk4ppaQiMAgBMB2JQBOmUGMAAMwuMNZp9AAA4UEVLuyupQyCHrknSM0vMZ0y7OcD7mm9aOLFEIZbawtmYMDdODHz1RJR9vc51ASIkB8vL3e9bAKN5TWFgAA="
   }
 }

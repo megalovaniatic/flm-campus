@@ -16,7 +16,7 @@
 4. **El rojo se mira, no se lee.** `#E53327` solo en gráficos, puntos, trazos y texto ≥ 24 px. El texto rojo pequeño va en `--flm-rojo-oscuro #90101A`. Botón principal: marino con texto blanco.
 5. **El color nunca va solo.** Áreas, estados y tipos se nombran siempre por escrito (y con icono o forma).
 6. **Movimiento con significado.** Dos momentos firma como máximo (La llegada y El escalón), una vez al día o por logro, ≤ 1,5 s, interrumpibles, sin bucles infinitos. Con movimiento reducido, la composición final dice lo mismo.
-7. **Nada inventado.** Sin fotos de stock de personas, sin cifras inventadas, sin datos personales inventados de personas reales. En la demo todo lo simulado se rotula.
+7. **Nada inventado.** Ninguna foto presenta como parte del equipo a quien no lo es (las portadas de Aprender, Consultar y Participar son fotos de ambiente aportadas por FLM), sin cifras inventadas, sin datos personales inventados de personas reales. En la demo todo lo simulado se rotula.
 
 ## 2. Tokens (ver `apps/web/src/styles/tokens.css`)
 

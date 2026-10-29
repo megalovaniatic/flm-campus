@@ -7,8 +7,11 @@ import { useDocuments } from '@/data/selectors';
 import { DOC_KIND_LABEL } from '../forms';
 import styles from './Editor.module.css';
 
+/** Fotos de las portadas de Aprender, Consultar y Participar: no son del equipo de FLM ni de sus eventos. */
+const COVER_ONLY: readonly string[] = ['aprender-libro', 'consultar-biblioteca', 'equipo-puzle'];
+
 /** Fotografías aprobadas para el campus (manifiesto de fotos de FLM). En la demo no se suben fotos. */
-export const PHOTOS = (Object.keys(manifest) as PhotoName[]).map((name) => ({ name, alt: manifest[name].alt }));
+export const PHOTOS = (Object.keys(manifest) as PhotoName[]).filter((name) => !COVER_ONLY.includes(name)).map((name) => ({ name, alt: manifest[name].alt }));
 
 /**
  * Selector de fotografía: solo las fotos aprobadas del manifiesto, sin subida. Radios nativos con la

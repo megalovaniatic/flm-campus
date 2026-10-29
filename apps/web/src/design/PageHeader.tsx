@@ -14,9 +14,13 @@ export interface Crumb {
  * Cabecera de página común: migas, antetítulo, titular (Newsreader), entradilla y acciones.
  * Usar en todas las secciones para mantener el ritmo editorial del campus.
  */
-export function PageHeader({ crumbs, eyebrow, title, lede, actions, aside, id }: { crumbs?: Crumb[]; eyebrow?: ReactNode; title: ReactNode; lede?: ReactNode; actions?: ReactNode; aside?: ReactNode; id?: string }) {
+/**
+ * Cabecera de página. `aside` va a la derecha, a su tamaño; `media` es la foto de portada de un destino:
+ * ocupa la mitad derecha, centrada en ella.
+ */
+export function PageHeader({ crumbs, eyebrow, title, lede, actions, aside, media, id }: { crumbs?: Crumb[]; eyebrow?: ReactNode; title: ReactNode; lede?: ReactNode; actions?: ReactNode; aside?: ReactNode; media?: ReactNode; id?: string }) {
   return (
-    <header className={styles.header}>
+    <header className={styles.header} data-media={media ? '' : undefined}>
       <div className={styles.main}>
         {crumbs && crumbs.length > 0 && (
           <nav aria-label="Estás en" className={styles.crumbs}>
@@ -48,6 +52,7 @@ export function PageHeader({ crumbs, eyebrow, title, lede, actions, aside, id }:
         {actions && <div className={styles.actions}>{actions}</div>}
       </div>
       {aside && <div className={styles.aside}>{aside}</div>}
+      {media && <div className={styles.media}>{media}</div>}
     </header>
   );
 }
