@@ -237,6 +237,9 @@
 /* ── Tabla accesible ────────────────────────────────────────────────── */
 
 .tableFigure {
+  /* Nunca más ancha que la pantalla: la tabla se desplaza dentro de su marco */
+  min-width: 0;
+  max-width: min(100%, calc(100vw - 2 * var(--gutter)));
   margin-block: 2em;
   font-family: var(--font-sans);
   font-size: 0.9375rem;
@@ -276,6 +279,22 @@
   text-align: left;
   vertical-align: top;
   border-top: 1px solid var(--line);
+}
+
+/* En móvil, la tabla se ajusta al ancho: columnas repartidas y texto que parte palabras largas */
+@media (max-width: 560px) {
+  .table {
+    table-layout: fixed;
+  }
+
+  .table th,
+  .table td {
+    min-width: 0;
+    padding: 0.6rem 0.6rem;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+    font-size: 0.8125rem;
+  }
 }
 
 .table thead th {

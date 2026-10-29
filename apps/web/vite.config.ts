@@ -32,6 +32,18 @@ export default defineConfig(({ mode }) => {
       cssCodeSplit: true,
       sourcemap: false,
       chunkSizeWarningLimit: 900,
+      rolldownOptions: {
+        output: {
+          // Trozos estables y cacheables: librerías, contenido del campus y aplicación.
+          codeSplitting: {
+            groups: [
+              { name: 'contenido', test: /packages[\\/]content[\\/]/ },
+              { name: 'react', test: /node_modules[\\/](react|react-dom|react-router|scheduler)[\\/]/ },
+              { name: 'motion', test: /node_modules[\\/](motion|framer-motion|motion-dom|motion-utils)[\\/]/ },
+            ],
+          },
+        },
+      },
     },
   };
 });

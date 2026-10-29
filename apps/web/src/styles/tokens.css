@@ -52,7 +52,8 @@
   --surface-inverse: var(--flm-marino);
   --ink: var(--flm-marino);
   --ink-2: var(--flm-gris);
-  --ink-3: #6b7280;
+  /* Texto terciario: ≥ 4,5:1 también sobre la crema (#EFEBE4) */
+  --ink-3: #5c636e;
   --ink-inverse: #f6f3ee;
   --line: rgb(23 38 65 / 0.12);
   --line-strong: rgb(23 38 65 / 0.24);

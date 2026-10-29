@@ -11,16 +11,17 @@
 
 .progress {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2) var(--space-3);
   min-width: 0;
+  max-width: 100%;
 }
 
 .progressText {
   font-size: var(--text-sm);
   font-weight: 650;
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 
 .buttons {

@@ -6,6 +6,12 @@
       "runtimeExecutable": "node",
       "runtimeArgs": ["node_modules/vite/bin/vite.js", "apps/web", "--port", "5173", "--strictPort"],
       "port": 5173
+    },
+    {
+      "name": "demo-build",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "preview", "apps/web", "--port", "4173", "--strictPort", "--base", "/flm-campus/"],
+      "port": 4173
     }
   ]
 }

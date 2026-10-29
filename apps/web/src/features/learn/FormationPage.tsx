@@ -415,7 +415,7 @@ function Reader({ f, isSample }: { f: Formation; isSample: boolean }) {
             </div>
 
             {wide ? (
-              <aside className={styles.termsCol} aria-labelledby={termsTitle}>
+              <aside className={styles.termsCol} aria-labelledby={termsTitle} tabIndex={0}>
                 <h2 id={termsTitle} className={styles.colTitle}>
                   Términos clave
                 </h2>
