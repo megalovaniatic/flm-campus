@@ -1,0 +1,128 @@
+/* Sobre el campus: dosier con índice lateral fijo */
+.motto {
+  max-width: 18rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-variation-settings: 'opsz' 36;
+  font-size: 1.35rem;
+  line-height: 1.25;
+  color: var(--ink-2);
+  text-align: right;
+  text-wrap: balance;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  gap: clamp(2rem, 1rem + 3vw, 4.5rem);
+  align-items: start;
+}
+
+.toc {
+  position: sticky;
+  top: calc(72px + var(--space-6));
+  display: grid;
+  gap: var(--space-3);
+}
+
+.tocTitle {
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.tocList {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-left: 1px solid var(--line);
+}
+
+.tocLink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 0 12px 0 16px;
+  color: var(--ink-2);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color var(--dur-quick) var(--ease-standard);
+}
+
+.tocLink:hover {
+  color: var(--ink);
+}
+
+.tocLink[aria-current='true'] {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.tocNum {
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+}
+
+/* El punto rojo de la marca viaja por el filete del índice */
+.tocDot {
+  position: absolute;
+  left: -4px;
+  top: calc(50% - 3.5px);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--flm-rojo);
+}
+
+.content {
+  display: grid;
+  min-width: 0;
+}
+
+@media (max-width: 1023px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .toc {
+    position: static;
+    padding: var(--space-4);
+    border-radius: var(--radius-xl);
+    background: var(--surface);
+    border: 1px solid var(--line);
+  }
+
+  .tocList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-left: 0;
+    gap: 0 var(--space-3);
+  }
+
+  .tocLink {
+    min-height: 44px;
+    padding-left: 4px;
+  }
+
+  .tocDot {
+    display: none;
+  }
+
+  .motto {
+    text-align: left;
+    max-width: none;
+  }
+}
+
+@media (pointer: coarse) {
+  .tocLink {
+    min-height: 44px;
+  }
+}

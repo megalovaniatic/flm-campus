@@ -98,9 +98,7 @@ export function companyRoutes(ctx: AppContext) {
       }),
     );
     const prefix = `${year}-${String(month).padStart(2, '0')}`;
-    const people = activeUsers(db)
-      .filter((u) => u.start_date)
-      .map(toPerson);
+    const people = activeUsers(db).map(toPerson);
     const holidays = all<HolidayRow>(db, 'SELECT * FROM holidays WHERE date LIKE ?', `${prefix}-%`).map(toHoliday);
     const events = listPublished(db, ['evento'])
       .map((row) => composeItem(db, row) as unknown as CampusEvent)

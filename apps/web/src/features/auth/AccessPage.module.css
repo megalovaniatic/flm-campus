@@ -1,0 +1,395 @@
+/* Acceso: pieza oficial de redes a la izquierda (completa, sin recortar) y formulario a la derecha */
+.page {
+  min-height: 100dvh;
+  background: var(--paper);
+}
+
+.main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  min-height: 100dvh;
+}
+
+/* ── Pieza de redes ────────────────────────────────────────────────────── */
+.art {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: var(--space-4);
+  margin: 0;
+  padding: clamp(2rem, 1rem + 3.5vw, 4.5rem);
+  background: var(--surface-sunken);
+}
+
+.artImg {
+  display: block;
+  width: min(100%, calc(100dvh - 10rem), 40rem);
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  box-shadow: var(--shadow-3);
+}
+
+.caption {
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+  text-align: center;
+}
+
+/* ── Panel ─────────────────────────────────────────────────────────────── */
+.panel {
+  display: grid;
+  align-content: center;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: clamp(2rem, 1rem + 3.5vw, 4.5rem) var(--gutter);
+}
+
+.brand {
+  display: flex;
+}
+
+.intro {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-weight: 380;
+  font-variation-settings: 'opsz' 72;
+  font-size: clamp(2.1rem, 1.5rem + 2vw, 3.1rem);
+  line-height: 1.05;
+  letter-spacing: -0.024em;
+  text-wrap: balance;
+}
+
+.lede {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-variation-settings: 'opsz' 24;
+  font-size: clamp(1.1rem, 1rem + 0.35vw, 1.3rem);
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.inlineLink {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration-color: var(--flm-rojo);
+}
+
+/* ── Demostración ──────────────────────────────────────────────────────── */
+.demo {
+  display: grid;
+  gap: var(--space-3);
+  padding: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.badge,
+.previewBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  background: var(--info-soft);
+  color: var(--ink);
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.demoTitle,
+.privateTitle {
+  font-family: var(--font-serif);
+  font-variation-settings: 'opsz' 40;
+  font-weight: 450;
+  font-size: 1.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.privateTitle:focus-visible {
+  border-radius: var(--radius-xs);
+}
+
+.demoText,
+.privateNote,
+.formText {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+/* Acción principal: cápsula marino con el círculo de la persona */
+.entry {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 68px;
+  margin-top: var(--space-2);
+  padding: 9px 20px 9px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--flm-marino);
+  color: #fff;
+  text-align: left;
+  transition:
+    background-color var(--dur-quick) var(--ease-standard),
+    box-shadow var(--dur-quick) var(--ease-standard),
+    transform var(--dur-quick) var(--ease-standard);
+}
+
+.entry:hover {
+  background: var(--flm-azul);
+  box-shadow: 0 10px 28px -12px rgb(23 38 65 / 0.6);
+}
+
+.entry:active {
+  transform: scale(0.985);
+}
+
+.entry:focus-visible {
+  border-radius: var(--radius-pill);
+}
+
+:root[data-theme='dark'] .entry {
+  background: var(--flm-crema);
+  color: var(--flm-marino);
+}
+
+:root[data-theme='dark'] .entry:hover {
+  background: #fff;
+}
+
+.entry > span:first-child {
+  box-shadow: 0 0 0 2px rgb(255 255 255 / 0.85);
+}
+
+.entryText {
+  display: grid;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.entryTitle {
+  font-weight: 650;
+  font-size: var(--text-md);
+  line-height: 1.25;
+}
+
+.entryRole {
+  font-weight: 500;
+  opacity: 0.86;
+}
+
+.entrySub {
+  font-size: 0.8125rem;
+  opacity: 0.82;
+}
+
+.entryArrow {
+  flex: none;
+  transition: transform var(--dur-quick) var(--ease-standard);
+}
+
+.entry:hover .entryArrow {
+  transform: translateX(3px);
+}
+
+.roles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.role {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 56px;
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  text-align: left;
+  transition:
+    border-color var(--dur-quick) var(--ease-standard),
+    background-color var(--dur-quick) var(--ease-standard);
+}
+
+.role:hover {
+  border-color: var(--ink);
+  background: var(--surface-2);
+}
+
+.role svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.roleTitle {
+  display: block;
+  font-weight: 650;
+  font-size: var(--text-sm);
+}
+
+.roleText {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--ink-2);
+}
+
+/* ── Acceso de la versión interna ─────────────────────────────────────── */
+.private {
+  display: grid;
+  gap: var(--space-3);
+  padding: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.private[data-demo] {
+  background: transparent;
+  border: 1.5px dashed var(--line-strong);
+}
+
+.previewBadge {
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+  color: var(--ink-2);
+}
+
+.form {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.formRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+
+.formRow > :first-child {
+  min-height: 44px;
+  align-items: center;
+}
+
+.textButton {
+  min-height: 44px;
+  padding: 0 2px;
+  color: var(--ink);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--ink) 40%, transparent);
+  text-underline-offset: 0.2em;
+}
+
+.textButton:hover {
+  text-decoration-color: var(--flm-rojo);
+}
+
+.formActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+}
+
+.result:empty {
+  display: none;
+}
+
+.simulated {
+  display: block;
+  margin-top: 6px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ── Pie ───────────────────────────────────────────────────────────────── */
+.foot {
+  display: grid;
+  gap: 6px;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.foot p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.foot a {
+  color: var(--ink);
+}
+
+/* ── Adaptación ────────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .main {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .art {
+    position: static;
+    height: auto;
+    padding: var(--space-6) var(--gutter) 0;
+    background: transparent;
+  }
+
+  .artImg {
+    width: min(44vw, 13rem);
+    box-shadow: var(--shadow-2);
+  }
+
+  .panel {
+    align-content: start;
+    padding-top: var(--space-6);
+  }
+}
+
+@media (max-width: 520px) {
+  .artImg {
+    width: min(40vw, 9.5rem);
+  }
+
+  .caption {
+    display: none;
+  }
+
+  .roles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .entry {
+    padding-right: 16px;
+  }
+}
+
+@media (forced-colors: active) {
+  .entry {
+    border: 2px solid ButtonText;
+  }
+}

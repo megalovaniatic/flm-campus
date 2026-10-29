@@ -1,0 +1,154 @@
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
+import { describe, expect, it } from 'vitest';
+import { ConfigError, loadConfig } from '../src/config';
+import { all, get, openDatabase, run } from '../src/db/database';
+import { migrate } from '../src/db/migrate';
+import { createBackup } from '../src/services/backup';
+import { purgeExpiredData } from '../src/services/retention';
+import { importSeed, SeedValidationError } from '../src/services/seed';
+import { EMAILS, FORMATION_CORRECT as FORMATION_CORRECT_ANSWERS, fixtureSeed, IDS } from './fixtures/seed';
+import { createTestEnv, DAY, json, loginAs, START } from './helpers';
+
+describe('auditoría', () => {
+  it('registra acciones de seguridad y editoriales y solo la consulta administración', async () => {
+    const env = await createTestEnv();
+    const employee = await loginAs(env, EMAILS.empleado);
+    await employee.post(`/api/formations/${IDS.formation}/attempts`, { answers: FORMATION_CORRECT_ANSWERS });
+    const admin = await loginAs(env, EMAILS.admin);
+    const news = (await json(await admin.get(`/api/contents/${IDS.news}`))).content;
+    await admin.post(`/api/contents/${IDS.news}/transitions`, { action: 'archivar', revision: news.revision });
+
+    const res = await admin.get('/api/audit?action=sesion');
+    expect(res.status).toBe(200);
+    const body = await json(res);
+    expect(body.total).toBeGreaterThanOrEqual(2);
+    expect(body.items[0]).toMatchObject({ action: 'sesion.inicio', entity: 'sesion' });
+    const archived = await json(await admin.get(`/api/audit?entity=noticia&entityId=${IDS.news}`));
+    expect(archived.items[0]).toMatchObject({ action: 'contenido.archivar', actorId: IDS.admin, actorName: 'Ana Admin Puig' });
+    expect(archived.items[0].at).toBe(START.toISOString());
+    expect((await employee.get('/api/audit')).status).toBe(403);
+    env.close();
+  });
+});
+
+describe('retención de datos', () => {
+  it('purga sesiones y enlaces caducados, auditoría de más de 2 años y progreso 1 año después de la baja', async () => {
+    const env = await createTestEnv();
+    const employee = await loginAs(env, EMAILS.empleado);
+    await employee.post(`/api/formations/${IDS.formation}/read`, {});
+    await employee.post(`/api/formations/${IDS.formation}/attempts`, { answers: FORMATION_CORRECT_ANSWERS });
+    const admin = await loginAs(env, EMAILS.admin);
+    await admin.post('/api/people', { email: 'pendiente@flmexperts.com', name: 'Pendiente', position: 'Asesora', department: 'Fiscal', office: 'Vic', role: 'empleado' });
+    await admin.post(`/api/people/${IDS.empleado}/deactivate`);
+    run(env.db, "INSERT INTO audit_log (at, actor_id, action, entity) VALUES ('2024-01-01T00:00:00.000Z', NULL, 'prueba.antigua', 'sistema')");
+
+    // Al día siguiente: las sesiones revocadas e inactivas ya no hacen falta.
+    let result = purgeExpiredData(env.db, new Date(START.getTime() + 2 * DAY));
+    expect(result.sessions).toBeGreaterThanOrEqual(2);
+    expect(result.auditEntries).toBe(1);
+    expect(result.attemptsDissociated).toBe(0);
+    expect(get(env.db, 'SELECT 1 AS x FROM auth_tokens')).toBeDefined(); // el enlace de activación (7 días) sigue vigente
+
+    // Un año y un día después de la baja.
+    result = purgeExpiredData(env.db, new Date(START.getTime() + 367 * DAY));
+    expect(result.tokens).toBe(1);
+    expect(result.attemptsDissociated).toBe(1);
+    expect(result.readsDeleted).toBe(1);
+    expect(get<{ n: number }>(env.db, 'SELECT COUNT(*) AS n FROM quiz_attempts WHERE user_id IS NULL')!.n).toBe(1);
+    expect(all(env.db, 'SELECT * FROM sessions')).toHaveLength(0);
+    expect(get(env.db, "SELECT 1 AS x FROM audit_log WHERE action = 'retencion.purga'")).toBeDefined();
+    env.close();
+  });
+});
+
+describe('migraciones y copias de seguridad', () => {
+  it('aplica las migraciones una sola vez', () => {
+    const db = openDatabase(':memory:');
+    expect(migrate(db).applied).toEqual(['0001_esquema_inicial.sql']);
+    expect(migrate(db).applied).toEqual([]);
+    expect(get<{ version: number }>(db, 'SELECT MAX(version) AS version FROM schema_migrations')!.version).toBe(1);
+    db.close();
+  });
+
+  it('crea una copia fechada con VACUUM INTO, comprueba su integridad y conserva las N más recientes', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'flm-copias-'));
+    const dbPath = join(dir, 'campus.sqlite');
+    const storage = join(dir, 'storage');
+    mkdirSync(join(storage, 'files'), { recursive: true });
+    writeFileSync(join(storage, 'files', 'a'.repeat(32)), 'contenido');
+    const db = openDatabase(dbPath);
+    migrate(db);
+    await importSeed(db, fixtureSeed, { now: START });
+
+    const first = createBackup(db, { dir: join(dir, 'copias'), now: START, storageDir: storage });
+    expect(first.file).toMatch(/campus-20261028-110000\.sqlite$/);
+    expect(first.integrity).toBe('ok');
+    expect(existsSync(join(first.filesDir!, 'files', 'a'.repeat(32)))).toBe(true);
+    const copy = new DatabaseSync(first.file, { readOnly: true });
+    expect((copy.prepare('SELECT COUNT(*) AS n FROM users').get() as { n: number }).n).toBe(5);
+    copy.close();
+
+    createBackup(db, { dir: join(dir, 'copias'), now: new Date(START.getTime() + DAY) });
+    const third = createBackup(db, { dir: join(dir, 'copias'), now: new Date(START.getTime() + 2 * DAY), keep: 2 });
+    expect(third.removed).toEqual(['campus-20261028-110000.sqlite']);
+    expect(readdirSync(join(dir, 'copias')).filter((f) => f.endsWith('.sqlite'))).toHaveLength(2);
+    expect(existsSync(first.filesDir!)).toBe(false);
+    db.close();
+    rmSync(dir, { recursive: true, force: true });
+  });
+});
+
+describe('configuración', () => {
+  it('exige en producción APP_ORIGIN https, DATABASE_PATH y STORAGE_DIR, sin secretos por defecto', () => {
+    expect(() => loadConfig({ NODE_ENV: 'production' }, tmpdir())).toThrow(ConfigError);
+    let problems: string[] = [];
+    try {
+      loadConfig({ NODE_ENV: 'production', APP_ORIGIN: 'http://campus.flmexperts.com' }, tmpdir());
+    } catch (err) {
+      problems = (err as ConfigError).problems;
+    }
+    expect(problems).toEqual(
+      expect.arrayContaining(['En producción APP_ORIGIN debe usar https://.', 'DATABASE_PATH es obligatorio en producción.', 'STORAGE_DIR es obligatorio en producción.']),
+    );
+    const config = loadConfig(
+      { NODE_ENV: 'production', APP_ORIGIN: 'https://campus.flmexperts.com/', DATABASE_PATH: '/srv/campus.sqlite', STORAGE_DIR: '/srv/archivos', TRUST_PROXY: 'true', SMTP_HOST: 'smtp.example.com', SMTP_USER: 'campus', SMTP_PASS: 'x' },
+      tmpdir(),
+    );
+    expect(config).toMatchObject({ appOrigin: 'https://campus.flmexperts.com', secureCookies: true, trustProxy: 1, host: '0.0.0.0', smtp: { port: 587, secure: false } });
+    expect(() => loadConfig({ TRUST_PROXY: 'quizá' }, tmpdir())).toThrow(/TRUST_PROXY/);
+    expect(loadConfig({}, tmpdir())).toMatchObject({ env: 'development', secureCookies: false, serveWebDist: null, smtp: null });
+  });
+});
+
+describe('datos semilla', () => {
+  it('importa el fixture, omite las personas ficticias y es idempotente', async () => {
+    const db = openDatabase(':memory:');
+    migrate(db);
+    const first = await importSeed(db, fixtureSeed, { now: START });
+    expect(first.created).toMatchObject({ personas: 5, formacion: 1, test: 1, noticia: 1, documento: 1, evento: 3, comunicado: 1, festivos: 2, lecturas: 1, asignaciones: 1 });
+    expect(first.skipped['personas ficticias']).toBe(1);
+    expect(get(db, 'SELECT 1 AS x FROM users WHERE id = ?', IDS.ficticia)).toBeUndefined();
+    expect(get<{ n: number }>(db, 'SELECT COUNT(*) AS n FROM users WHERE password_hash IS NOT NULL')!.n).toBe(0);
+
+    const second = await importSeed(db, fixtureSeed, { now: START });
+    expect(second.created).toEqual({});
+    expect(second.skipped).toMatchObject({ personas: 5, formacion: 1, festivos: 2 });
+
+    const withFictional = await importSeed(db, fixtureSeed, { now: START, includeFictional: true });
+    expect(withFictional.created).toMatchObject({ personas: 1 });
+    db.close();
+  });
+
+  it('valida con los esquemas compartidos antes de escribir nada', async () => {
+    const db = openDatabase(':memory:');
+    migrate(db);
+    const broken = { ...fixtureSeed, people: [{ ...fixtureSeed.people[0]!, email: 'externa@gmail.com' }] };
+    await expect(importSeed(db, broken, { now: START })).rejects.toBeInstanceOf(SeedValidationError);
+    await expect(importSeed(db, broken, { now: START })).rejects.toThrow(/Correo corporativo @flmexperts.com obligatorio/);
+    expect(get<{ n: number }>(db, 'SELECT COUNT(*) AS n FROM users')!.n).toBe(0);
+    db.close();
+  });
+});

@@ -1,0 +1,330 @@
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-5);
+  padding-bottom: var(--space-5);
+  margin-bottom: var(--space-5);
+  border-bottom: 1px solid var(--line);
+}
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.progressText {
+  font-size: var(--text-sm);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.layout {
+  display: grid;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+@container widget (min-width: 780px) {
+  .layout {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: var(--space-8);
+    align-items: start;
+  }
+}
+
+.diary,
+.ledger {
+  min-width: 0;
+}
+
+.colTitle {
+  margin-bottom: var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+/* Libro diario como lista de pasos */
+.steps {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.stepItem {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  overflow: hidden;
+  transition:
+    border-color var(--dur-quick) var(--ease-standard),
+    box-shadow var(--dur-quick) var(--ease-standard);
+}
+
+.stepItem[data-state='current'] {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 1px var(--ink);
+}
+
+.stepButton {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 52px;
+  padding: 8px var(--space-4);
+  text-align: left;
+  border-radius: var(--radius-md);
+}
+
+.stepButton:hover {
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+}
+
+.stepNum {
+  width: 1.4rem;
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 450;
+  line-height: 1;
+  color: var(--ink-2);
+  font-variant-numeric: lining-nums;
+}
+
+.stepItem[data-state='current'] .stepNum {
+  color: var(--ink);
+}
+
+.stepText {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.stepConcept {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  line-height: 1.35;
+}
+
+.stepItem[data-state='pending'] .stepConcept {
+  color: var(--ink-2);
+}
+
+.stepDate {
+  font-size: 0.75rem;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.stepState {
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.stepItem[data-state='done'] .stepState {
+  color: var(--success);
+}
+
+.stepItem[data-state='current'] .stepState {
+  color: var(--accent-text);
+}
+
+.stepDetail {
+  padding: 0 var(--space-4) var(--space-4);
+}
+
+/* Cuentas en T */
+.grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 13.5rem), 1fr));
+}
+
+.t {
+  display: grid;
+  align-content: start;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  min-width: 0;
+  transition:
+    border-color var(--dur-base) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-standard);
+}
+
+.t[data-touched] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.tHead {
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 560;
+  line-height: 1.3;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.tCode {
+  font-weight: 750;
+}
+
+.tBody {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-height: 4.75rem;
+}
+
+.tSide {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: 6px 6px 8px;
+  min-width: 0;
+}
+
+.tSide + .tSide {
+  border-left: 2px solid var(--ink);
+}
+
+.tSideLabel {
+  font-size: 0.625rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.moves {
+  display: grid;
+  gap: 2px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.move {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 4px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.flash {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  pointer-events: none;
+}
+
+.moveRef {
+  position: relative;
+  font-size: 0.6875rem;
+  color: var(--ink-2);
+}
+
+.moveAmount {
+  position: relative;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.tTotals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--line-strong);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.tTotals span {
+  padding: 6px;
+  text-align: right;
+}
+
+.tTotals span + span {
+  border-left: 2px solid var(--ink);
+}
+
+.t[data-empty] .tTotals {
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.tSaldo {
+  padding-top: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.tSaldo[data-kind='deudor'],
+.tSaldo[data-kind='acreedor'] {
+  color: var(--ink);
+}
+
+.balance {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+  color: var(--ink-2);
+}
+
+.balance svg {
+  flex: none;
+}
+
+.balanceOk {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.balanceKo {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.balance strong {
+  color: var(--ink);
+}

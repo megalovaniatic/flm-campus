@@ -9,6 +9,10 @@ import { AREA_IDS } from './areas';
 const dateKey = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha con formato AAAA-MM-DD');
 const localDateTime = z.string().regex(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/, 'Fecha u hora local con formato AAAA-MM-DD o AAAA-MM-DDTHH:mm');
 const httpsUrl = z.string().regex(/^https:\/\/[^\s]+$/, 'Enlace https obligatorio');
+/** Enlace seguro: https, mailto o ruta interna (nunca javascript:, data: ni otros esquemas). */
+const safeLink = z.string().regex(/^(https:\/\/[^\s]+|mailto:[^\s]+|\/[^\s/][^\s]*|#\/[^\s]*)$/, 'Enlace no permitido: usa https://, mailto: o una ruta interna');
+/** Recurso de imagen: nombre del manifiesto de fotos o ruta relativa sin esquema. */
+const safeAsset = z.string().regex(/^(?![a-z][a-z0-9+.-]*:)[\w./-]+$/i, 'Imagen no permitida: usa una ruta relativa del campus');
 const nonEmpty = (label: string) => z.string().trim().min(1, `${label}: campo obligatorio`);
 
 export const areaSchema = z.enum(AREA_IDS);
@@ -134,7 +138,7 @@ export const blockSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('example'), title: nonEmpty('Ejemplo'), scenario: nonEmpty('Planteamiento'), steps: z.array(exampleStepSchema).min(1), conclusion: nonEmpty('Conclusión') }),
   z.object({ type: z.literal('table'), caption: z.string().optional(), columns: z.array(z.string()).min(2), rows: z.array(z.array(z.string())).min(1), numeric: z.array(z.number()).optional() }),
   z.object({ type: z.literal('widget'), widget: widgetSchema, caption: z.string().optional() }),
-  z.object({ type: z.literal('figure'), src: nonEmpty('Imagen'), alt: nonEmpty('Texto alternativo'), caption: z.string().optional() }),
+  z.object({ type: z.literal('figure'), src: safeAsset, alt: nonEmpty('Texto alternativo'), caption: z.string().optional() }),
 ]);
 
 export const formationSchema = z
@@ -145,6 +149,7 @@ export const formationSchema = z
     title: nonEmpty('Título'),
     intro: nonEmpty('Introducción'),
     summary: nonEmpty('Resumen').max(220, 'Resumen de 220 caracteres como máximo'),
+    coverTerm: z.string().max(16, 'Término de portada de 16 caracteres como máximo').optional(),
     readingMinutes: z.number().int().min(3).max(40),
     outcomes: z.array(nonEmpty('Resultado de aprendizaje')).min(2, 'Entre 2 y 3 resultados de aprendizaje').max(3, 'Entre 2 y 3 resultados de aprendizaje'),
     blocks: z.array(blockSchema).min(3),
@@ -227,13 +232,13 @@ export const eventSchema = z.object({
   summary: nonEmpty('Descripción breve'),
   body: z.string().optional(),
   icon: z.enum(['estrella', 'trofeo', 'cafe', 'calendario', 'formacion', 'megafono', 'web', 'boletin', 'brindis', 'resenas', 'video', 'idea']),
-  image: z.object({ src: nonEmpty('Imagen'), alt: nonEmpty('Texto alternativo'), credit: z.string().optional() }).optional(),
+  image: z.object({ src: safeAsset, alt: nonEmpty('Texto alternativo'), credit: z.string().optional() }).optional(),
   sessions: z.array(z.object({ start: localDateTime, end: localDateTime.optional(), label: z.string().optional(), location: z.string().optional() })),
   pendingDateNote: z.string().optional(),
   manualPhase: z.enum(['proximo', 'historico']).optional(),
   archived: z.boolean().optional(),
   department: z.string().optional(),
-  links: z.array(z.object({ label: nonEmpty('Enlace'), url: z.string(), example: z.boolean().optional() })).optional(),
+  links: z.array(z.object({ label: nonEmpty('Enlace'), url: safeLink, example: z.boolean().optional() })).optional(),
   materials: z.array(z.object({ label: nonEmpty('Material'), documentId: nonEmpty('Documento') })).optional(),
   recap: z.string().optional(),
   editorial: editorialSchema,

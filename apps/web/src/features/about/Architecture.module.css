@@ -1,0 +1,426 @@
+/* 04 · Arquitectura de información: mapa del sitio y recorridos (HTML accesible) */
+.map {
+  display: grid;
+  gap: var(--space-6);
+  padding: clamp(1.25rem, 0.75rem + 2vw, 2.5rem);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  --branch: var(--line-strong);
+  --drop: var(--space-6);
+}
+
+.root {
+  position: relative;
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 22px;
+  border-radius: var(--radius-pill);
+  background: var(--flm-marino);
+  color: #fff;
+  font-weight: 650;
+}
+
+:root[data-theme='dark'] .root {
+  background: var(--flm-crema);
+  color: var(--flm-marino);
+}
+
+.rootDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--flm-rojo);
+}
+
+.root::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 1.5px;
+  height: var(--space-6);
+  background: var(--branch);
+}
+
+.trunks {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: var(--drop) 0 0;
+  list-style: none;
+}
+
+.trunks::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 12.5%;
+  right: 12.5%;
+  height: 1.5px;
+  background: var(--branch);
+}
+
+.trunk {
+  position: relative;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.trunk::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: calc(-1 * var(--drop));
+  width: 1.5px;
+  height: var(--drop);
+  background: var(--branch);
+}
+
+.trunkLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--ink);
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 650;
+  text-decoration: none;
+  transition: background-color var(--dur-quick) var(--ease-standard);
+}
+
+.trunkLink:hover {
+  background: var(--surface-sunken);
+}
+
+.trunkLink:focus-visible {
+  border-radius: var(--radius-pill);
+}
+
+.trunkNote {
+  font-size: 0.75rem;
+  color: var(--ink-2);
+  text-align: center;
+}
+
+.trunk > .children {
+  justify-self: stretch;
+  margin-top: var(--space-3);
+}
+
+.children {
+  display: grid;
+  gap: 10px;
+  margin: 8px 0 0;
+  padding: 0 0 0 16px;
+  list-style: none;
+  border-left: 1.5px solid var(--branch);
+}
+
+.node {
+  position: relative;
+  display: grid;
+  min-width: 0;
+}
+
+.node::before {
+  content: '';
+  position: absolute;
+  left: -16px;
+  top: 0.75em;
+  width: 11px;
+  height: 1.5px;
+  background: var(--branch);
+}
+
+.nodeBody {
+  display: grid;
+  gap: 1px;
+}
+
+.nodeLink,
+.nodeLabel {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.nodeLink {
+  text-decoration-color: color-mix(in srgb, var(--ink) 35%, transparent);
+}
+
+.nodeLink:hover {
+  text-decoration-color: var(--flm-rojo);
+}
+
+.nodeNote {
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--ink-2);
+}
+
+/* Grupos transversales */
+.groups {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  padding-top: var(--space-5);
+  border-top: 1px dashed var(--line-strong);
+}
+
+.group {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.groupTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 650;
+}
+
+.groupHint {
+  font-size: 0.75rem;
+  color: var(--ink-2);
+}
+
+.groupList {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+}
+
+.groupList li {
+  display: grid;
+  gap: 1px;
+}
+
+.groupList a,
+.groupList strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.groupList span {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.mapNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.mapNote svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+/* Recorridos */
+.journeys {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: start;
+}
+
+.panel {
+  justify-self: stretch;
+  padding: clamp(1.25rem, 0.75rem + 2vw, 2.25rem);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.flow {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.flowIntro {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-variation-settings: 'opsz' 24;
+  font-size: 1.15rem;
+  color: var(--ink-2);
+}
+
+.steps {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  column-gap: 14px;
+  row-gap: 2px;
+  padding-bottom: var(--space-5);
+}
+
+.step > :not(.marker) {
+  grid-column: 2;
+}
+
+.step::before {
+  content: '';
+  position: absolute;
+  left: calc(1rem - 0.75px);
+  top: 22px;
+  bottom: 2px;
+  width: 1.5px;
+  background: var(--line-strong);
+}
+
+.step[data-last] {
+  padding-bottom: 0;
+}
+
+.step[data-last]::before {
+  display: none;
+}
+
+.marker {
+  grid-row: 1 / span 3;
+  justify-self: center;
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+
+.step[data-last] .marker {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  background: var(--flm-gradient-diagonal);
+}
+
+.stepNumber {
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.stepTitle {
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.stepText {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+.branches {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.branches li {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+}
+
+.branches li:first-child {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    var(--flm-gradient) border-box;
+}
+
+.branchWhen {
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.branchResult {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+@media (max-width: 1023px) {
+  .trunks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: var(--space-6);
+  }
+
+  .trunks::before,
+  .trunk::before {
+    display: none;
+  }
+
+  .root::after {
+    display: none;
+  }
+
+  .trunks {
+    padding-top: 0;
+  }
+
+  .trunk {
+    justify-items: start;
+  }
+
+  .trunkNote {
+    text-align: left;
+  }
+
+  .groups {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .trunks {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .root {
+    justify-self: start;
+  }
+
+  .branches {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

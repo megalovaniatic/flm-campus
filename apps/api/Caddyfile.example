@@ -1,0 +1,21 @@
+# FLM Campus · Caddy como proxy inverso con HTTPS automático (Let's Encrypt).
+# La API ya envía CSP, HSTS, X-Frame-Options y el resto de cabeceras de seguridad.
+{$CAMPUS_DOMAIN} {
+	encode zstd gzip
+
+	# Cuerpo máximo algo superior al límite de la API (PDF de 15 MB + formulario).
+	request_body {
+		max_size 16MB
+	}
+
+	reverse_proxy api:3000 {
+		# Caddy sustituye X-Forwarded-For de clientes no fiables: la API lee la IP real
+		# con TRUST_PROXY=true.
+		header_up X-Real-IP {remote_host}
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}

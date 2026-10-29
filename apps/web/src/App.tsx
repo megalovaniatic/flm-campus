@@ -51,6 +51,7 @@ const router = createHashRouter([
       { path: 'admin', element: guard('admin', page(() => import('./features/admin/AdminPage'))) },
       { path: 'admin/:section', element: guard('admin', page(() => import('./features/admin/AdminPage'))) },
       { path: 'sobre', element: page(() => import('./features/about/AboutPage')) },
+      ...(import.meta.env.DEV ? [{ path: 'dev/widgets', element: page(() => import('./features/learn/widgets/Gallery')) }] : []),
       { path: 'inicio', element: <Navigate to="/" replace /> },
       { path: '*', element: page(() => import('./features/errors/NotFound')) },
     ],

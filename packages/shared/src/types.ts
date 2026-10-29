@@ -110,13 +110,22 @@ export interface ExampleStep {
   result?: string;
 }
 
-/** Componentes interactivos que acompañan a las explicaciones. */
+/**
+ * Componentes interactivos que acompañan a las explicaciones.
+ * Importes en euros; fechas «AAAA-MM-DD»; porcentajes como número (25 = 25 %).
+ */
 export type WidgetSpec =
+  /** Cuota a ingresar de la autoliquidación presentada fuera de plazo (€). */
   | { kind: 'recargo-extemporaneo'; cuota: number }
+  /** Salario bruto anual (€) y fechas de inicio y fin del contrato. */
   | { kind: 'indemnizacion-despido'; salarioAnual: number; inicio: string; fin: string }
+  /** Capital social, patrimonio neto contable y préstamo participativo (€). */
   | { kind: 'disolucion-perdidas'; capital: number; patrimonioNeto: number; prestamoParticipativo?: number }
+  /** Fecha de cierre del ejercicio. */
   | { kind: 'calendario-cuentas'; cierre: string }
+  /** Coste (€), vida útil (años), coeficiente fiscal máximo (% anual) y valor residual (€). */
   | { kind: 'amortizacion'; coste: number; vidaUtil: number; coeficienteFiscalMax: number; valorResidual?: number }
+  /** Importe (€) que cubre «meses» meses desde «inicio»; «cierre» = fecha de cierre del ejercicio. */
   | { kind: 'periodificacion'; importe: number; inicio: string; meses: number; cierre: string; concepto: string }
   | { kind: 'cuentas-t'; title?: string; entries: JournalEntry[] }
   | { kind: 'arbol-decision'; title: string; start: string; nodes: DecisionNode[] }
@@ -203,6 +212,8 @@ export interface Formation {
   intro: RichText;
   /** Frase corta para tarjetas. */
   summary: string;
+  /** «Término de portada» de la cubierta tipográfica (p. ej. «Art. 27», «147», «¿A Mercantil?»). */
+  coverTerm?: string;
   readingMinutes: number;
   outcomes: string[];
   blocks: Block[];

@@ -1,0 +1,375 @@
+.headStats {
+  display: flex;
+  gap: var(--space-8);
+  margin: 0;
+}
+
+.headStats > div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 4px;
+}
+
+.headStats dd {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 380;
+  font-variation-settings: 'opsz' 60;
+  font-size: clamp(2.25rem, 1.8rem + 1.6vw, 3.25rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.headStats dt {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+/* ── La estantería ─────────────────────────────────────────────────── */
+.shelves {
+  --cover-w: clamp(7.25rem, 31vw, 8.75rem);
+  --row-top: 1.5rem;
+  display: grid;
+  gap: clamp(2.5rem, 2rem + 2vw, 4rem);
+}
+
+.shelfHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.shelfTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-serif);
+  font-weight: 420;
+  font-variation-settings: 'opsz' 48;
+  font-size: var(--text-2xl);
+  letter-spacing: -0.012em;
+}
+
+.shelfDot {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--area-fill);
+}
+
+.shelfCount {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+/* La fila se desplaza en horizontal si no cabe (nunca la página) */
+.scroller {
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  padding-bottom: var(--space-2);
+}
+
+/* (.scroller > .row gana a la regla base ul[role='list'] { padding: 0 }) */
+.scroller > .row {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(1rem, 0.6rem + 1.6vw, 2rem);
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+  padding: var(--row-top) clamp(0.75rem, 0.4rem + 1.2vw, 1.5rem) var(--space-4);
+  list-style: none;
+}
+
+/* La balda: las portadas se apoyan en ella */
+.row::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--row-top) + var(--cover-w) * 1.5);
+  height: 12px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--line-strong) 0 2px, var(--surface-sunken) 2px);
+  box-shadow: 0 10px 16px -12px color-mix(in srgb, var(--ink) 60%, transparent);
+  pointer-events: none;
+}
+
+:root[data-theme='dark'] .row::after {
+  background: linear-gradient(180deg, var(--line-strong) 0 2px, var(--surface-2) 2px);
+  box-shadow: 0 10px 16px -12px rgb(0 0 0 / 0.8);
+}
+
+.slot {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: start;
+  width: var(--cover-w);
+}
+
+.bookLink {
+  display: block;
+  width: 100%;
+  border-radius: 3px 7px 7px 3px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.bookLink:focus-visible {
+  border-radius: 3px 7px 7px 3px;
+}
+
+.caption {
+  display: grid;
+  gap: 2px;
+  margin-top: 1.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+.captionAuthors {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.captionEdition {
+  color: var(--ink-2);
+}
+
+.sample {
+  margin-top: var(--space-2);
+}
+
+/* Hueco de un área sin lecturas todavía */
+.ghost {
+  display: grid;
+  place-items: center;
+  width: var(--cover-w);
+  aspect-ratio: 2 / 3;
+  padding: var(--space-3);
+  border-radius: 3px 7px 7px 3px;
+  border: 1.5px dashed var(--line-strong);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  text-align: center;
+  color: var(--ink-2);
+}
+
+/* ── Ficha de la lectura ───────────────────────────────────────────── */
+.detail {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.detailTop {
+  display: grid;
+  grid-template-columns: 10.5rem minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+  perspective: 900px;
+}
+
+.detailCover {
+  min-width: 0;
+  transform-origin: 0% 50%;
+}
+
+.facts {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.facts > div {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: baseline;
+}
+
+.facts dt {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.facts dd {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 560;
+  overflow-wrap: anywhere;
+}
+
+.isbn {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.facts .muted {
+  font-weight: 400;
+  color: var(--ink-2);
+}
+
+.sampleLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.section {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.sectionTitle {
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.summary {
+  font-family: var(--font-serif);
+  font-variation-settings: 'opsz' 18;
+  font-size: var(--text-reading);
+  line-height: var(--leading-reading);
+  hyphens: auto;
+}
+
+/* Valor práctico: el porqué de la recomendación, destacado */
+.value {
+  position: relative;
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6);
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.value::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--area-fill);
+}
+
+.detail[data-area='contable'] .value::before {
+  background: var(--flm-gradient-diagonal);
+}
+
+.value p {
+  font-family: var(--font-serif);
+  font-variation-settings: 'opsz' 24;
+  font-size: clamp(1.1rem, 1.04rem + 0.3vw, 1.25rem);
+  line-height: 1.45;
+}
+
+.text {
+  font-size: var(--text-md);
+}
+
+.verified {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+/* ── Estantería vacía ──────────────────────────────────────────────── */
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-4);
+  padding: clamp(2rem, 1rem + 4vw, 4rem) var(--space-6);
+  border-radius: var(--radius-xl);
+  border: 1px dashed var(--line-strong);
+  background: var(--surface-2);
+  text-align: center;
+}
+
+.ghostShelf {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 7.5rem;
+  margin-bottom: var(--space-3);
+  padding: 0 1.25rem;
+}
+
+.ghostShelf::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--surface-sunken);
+  box-shadow: inset 0 2px 0 color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+.ghostSpine {
+  width: 1.4rem;
+  border-radius: 3px 3px 2px 2px;
+  background: var(--area-fill);
+}
+
+.ghostSpine[data-area='contable'] {
+  background: var(--flm-gradient-diagonal);
+}
+
+.ghostSpine[data-empty] {
+  width: 1.5rem;
+  background: transparent;
+  border: 1.5px dashed var(--line-strong);
+}
+
+.emptyTitle {
+  font-family: var(--font-serif);
+  font-weight: 420;
+  font-variation-settings: 'opsz' 48;
+  font-size: var(--text-2xl);
+  letter-spacing: -0.012em;
+}
+
+.emptyText {
+  max-width: 34rem;
+  color: var(--ink-2);
+}
+
+@media (max-width: 560px) {
+  .detailTop {
+    grid-template-columns: 7rem minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+
+  .facts > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .value {
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .headStats {
+    gap: var(--space-6);
+  }
+}

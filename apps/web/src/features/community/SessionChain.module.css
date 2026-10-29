@@ -1,0 +1,55 @@
+.box {
+  --chain-tint: color-mix(in srgb, var(--ink) 9%, var(--surface));
+  width: 100%;
+  min-width: 0;
+}
+
+.svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Líquido aún por recorrer */
+.bridge,
+.future,
+.next {
+  fill: var(--chain-tint);
+}
+
+/* Sesiones celebradas: llenas y unidas en tinta */
+.bridgeDone,
+.past {
+  fill: var(--ink);
+}
+
+/* Próxima sesión: anillo en tinta */
+.next {
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.num {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 620;
+  font-variant-numeric: tabular-nums;
+  fill: var(--ink);
+}
+
+.num[data-state='past'] {
+  fill: var(--paper);
+}
+
+.num[data-state='next'] {
+  font-weight: 760;
+}
+
+.month {
+  font-family: var(--font-sans);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  fill: var(--ink-2);
+}

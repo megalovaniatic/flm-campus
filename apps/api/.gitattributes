@@ -1,0 +1,2 @@
+# El script de arranque del contenedor debe conservar finales de línea LF (se ejecuta en Linux).
+*.sh text eol=lf

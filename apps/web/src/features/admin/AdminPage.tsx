@@ -1,5 +1,146 @@
-import { Placeholder } from '@/layout/Placeholder';
+import { motion } from 'motion/react';
+import type { LucideIcon } from 'lucide-react';
+import { ArrowRight, ChartColumn, FileQuestionMark, FlaskConical, Inbox, LayoutGrid, ScrollText, Timer, Users } from 'lucide-react';
+import { Link, useParams } from 'react-router';
+import { ButtonLink, EmptyState, Notice, PageHeader } from '@/design';
+import { assignments, useFormations, usePeople } from '@/data/selectors';
+import { useDemo } from '@/data/store';
+import { MESSAGES } from '@/lib/messages';
+import { usePageTitle } from '@/lib/preferences';
+import { useContentRows } from '@/features/manage/model';
+import { AuditSection } from './AuditSection';
+import { PeopleSection } from './PeopleSection';
+import { ReportsSection } from './ReportsSection';
+import { RetentionSection } from './RetentionSection';
+import styles from './AdminPage.module.css';
 
+type SectionId = 'personas' | 'informes' | 'auditoria' | 'retencion';
+
+const SECTIONS: { id: SectionId; label: string; icon: LucideIcon; title: string; lede: string }[] = [
+  { id: 'personas', label: 'Personas', icon: Users, title: 'Personas y accesos', lede: 'Roles, activación, sesiones y eliminación controlada de datos personales.' },
+  { id: 'informes', label: 'Informes', icon: ChartColumn, title: 'Informes restringidos', lede: 'Cumplimiento de las formaciones obligatorias y errores frecuentes por pregunta.' },
+  { id: 'auditoria', label: 'Auditoría', icon: ScrollText, title: 'Auditoría', lede: 'Quién hizo qué, sobre qué y cuándo. Sin contraseñas, tokens ni datos personales en el detalle.' },
+  { id: 'retencion', label: 'Retención', icon: Timer, title: 'Retención de datos', lede: 'Cuánto se conserva cada dato y cómo se elimina.' },
+];
+
+function AdminNav({ current }: { current: SectionId | null }) {
+  const items: { id: SectionId | null; label: string; icon: LucideIcon }[] = [{ id: null, label: 'Resumen', icon: LayoutGrid }, ...SECTIONS];
+  return (
+    <nav className={styles.nav} aria-label="Secciones de administración">
+      <ul role="list" className={styles.navList}>
+        {items.map(({ id, label, icon: Icon }) => {
+          const active = id === current;
+          return (
+            <li key={label}>
+              <Link to={id ? `/admin/${id}` : '/admin'} className={styles.navLink} aria-current={active ? 'page' : undefined}>
+                {active && <motion.span layoutId="admin-nav-pill" className={styles.navPill} transition={{ type: 'spring', stiffness: 460, damping: 38 }} aria-hidden="true" />}
+                <span className={styles.navContent}>
+                  <Icon size={16} aria-hidden="true" /> {label}
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  );
+}
+
+function Overview() {
+  const people = usePeople();
+  const audit = useDemo((s) => s.audit);
+  const formations = useFormations();
+  const rows = useContentRows();
+  const active = people.filter((p) => p.status === 'activa');
+  const admins = active.filter((p) => p.role === 'admin').length;
+  const real = people.filter((p) => !p.fictional).length;
+  const pending = rows.filter((r) => r.status === 'en-revision').length;
+  const published = new Set(formations.map((f) => f.id));
+  const live = assignments.filter((a) => published.has(a.formationId)).length;
+
+  const cards: { id: SectionId; figure: string; caption: string; detail: string }[] = [
+    { id: 'personas', figure: String(active.length), caption: active.length === 1 ? 'persona activa' : 'personas activas', detail: `${admins} ${admins === 1 ? 'administrador' : 'administradores'} · ${real} ${real === 1 ? 'persona real' : 'personas reales'} en la demo` },
+    { id: 'informes', figure: String(assignments.length), caption: assignments.length === 1 ? 'formación obligatoria asignada' : 'formaciones obligatorias asignadas', detail: live === assignments.length ? 'Todas con su formación publicada' : `${assignments.length - live} a la espera de que se publique su formación` },
+    { id: 'auditoria', figure: String(audit.length), caption: audit.length === 1 ? 'registro de esta demo' : 'registros de esta demo', detail: 'Más ejemplos rotulados para ver el formato' },
+    { id: 'retencion', figure: '12 h', caption: 'sin actividad cierran la sesión', detail: '14 días como máximo · auditoría, 2 años' },
+  ];
+
+  return (
+    <>
+      <ul role="list" className={styles.overview}>
+        {cards.map((c, i) => {
+          const s = SECTIONS.find((x) => x.id === c.id)!;
+          const Icon = s.icon;
+          return (
+            <motion.li key={c.id} className={styles.ovCard} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 * i, duration: 0.32, ease: [0.22, 1, 0.36, 1] }}>
+              <span className={styles.ovIcon} aria-hidden="true">
+                <Icon size={18} />
+              </span>
+              <h2 className={styles.ovTitle}>
+                <Link to={`/admin/${c.id}`} className={styles.stretch}>
+                  {s.title}
+                </Link>
+              </h2>
+              <p className={styles.ovFigure}>
+                {c.figure} <span className={styles.ovCaption}>{c.caption}</span>
+              </p>
+              <p className={styles.ovDetail}>{c.detail}</p>
+              <span className={styles.ovGo} aria-hidden="true">
+                Abrir <ArrowRight size={16} />
+              </span>
+            </motion.li>
+          );
+        })}
+      </ul>
+      <Link to="/gestion?estado=en-revision" className={styles.pendingLink}>
+        <Inbox size={18} aria-hidden="true" />
+        <span>
+          Gestión de contenidos: <strong>{pending === 0 ? 'nada pendiente' : pending === 1 ? '1 contenido pendiente' : `${pending} contenidos pendientes`}</strong> de revisión
+        </span>
+        <ArrowRight size={16} aria-hidden="true" />
+      </Link>
+    </>
+  );
+}
+
+/** Administración: resumen y cuatro secciones (personas, informes, auditoría, retención). */
 export default function AdminPage() {
-  return <Placeholder title="Administración" />;
+  const { section } = useParams();
+  const current = SECTIONS.find((s) => s.id === section) ?? null;
+  const unknown = !!section && !current;
+  usePageTitle(current ? `${current.label} · Administración` : 'Administración');
+
+  return (
+    <div className="container page">
+      <PageHeader
+        crumbs={current ? [{ label: 'Inicio', to: '/' }, { label: 'Administración', to: '/admin' }, { label: current.label }] : [{ label: 'Inicio', to: '/' }, { label: 'Administración' }]}
+        eyebrow="Administración"
+        title={current ? current.title : 'Administración del campus'}
+        lede={current ? current.lede : 'Personas, informes, auditoría y retención: lo que solo ve administración.'}
+      />
+      <AdminNav current={current?.id ?? null} />
+      {__DEMO__ && (
+        <div className={styles.sim}>
+          <Notice icon={<FlaskConical size={18} />} title="Simulación">
+            {MESSAGES.demoSimulated}
+          </Notice>
+        </div>
+      )}
+      {unknown ? (
+        <EmptyState icon={<FileQuestionMark />} title={MESSAGES.notFound.title} action={<ButtonLink to="/admin">Volver a Administración</ButtonLink>}>
+          <p>Las secciones de administración son Personas, Informes, Auditoría y Retención.</p>
+        </EmptyState>
+      ) : current?.id === 'personas' ? (
+        <PeopleSection />
+      ) : current?.id === 'informes' ? (
+        <ReportsSection />
+      ) : current?.id === 'auditoria' ? (
+        <AuditSection />
+      ) : current?.id === 'retencion' ? (
+        <RetentionSection />
+      ) : (
+        <Overview />
+      )}
+    </div>
+  );
 }

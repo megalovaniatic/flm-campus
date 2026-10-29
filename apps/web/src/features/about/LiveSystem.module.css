@@ -1,0 +1,448 @@
+/* 03 · Sistema de diseño vivo */
+.block {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.probe {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.liveDot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--success) 22%, transparent);
+}
+
+.tableWrap {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.table th,
+.table td {
+  padding: 0.75rem 0.75rem;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--line);
+}
+
+.table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+.table thead th {
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.tokenCell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.swatch {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: var(--radius-sm);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.tokenName {
+  display: block;
+  font-weight: 650;
+  font-size: var(--text-sm);
+  color: var(--ink);
+}
+
+.tokenUse {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--ink-2);
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.mono code,
+.monoSmall {
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+}
+
+.ratioCell {
+  white-space: nowrap;
+}
+
+.ratio {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  margin-right: 6px;
+}
+
+.cellLabel {
+  display: none;
+}
+
+/* Tipografía */
+.typeList {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+
+.typeRow {
+  display: grid;
+  grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--space-3) var(--space-6);
+  padding: var(--space-5) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.typeMeta {
+  display: grid;
+  gap: 2px;
+}
+
+.tDisplay {
+  font-family: var(--font-serif);
+  font-weight: 380;
+  font-variation-settings: 'opsz' 72;
+  font-size: var(--text-5xl);
+  line-height: 1.04;
+  letter-spacing: -0.024em;
+}
+
+.tSection {
+  font-family: var(--font-serif);
+  font-weight: 420;
+  font-variation-settings: 'opsz' 60;
+  font-size: var(--text-3xl);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+}
+
+.tReading {
+  max-width: var(--reading-max);
+  font-family: var(--font-serif);
+  font-variation-settings: 'opsz' 18;
+  font-size: var(--text-reading);
+  line-height: var(--leading-reading);
+}
+
+.tLede {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-variation-settings: 'opsz' 24;
+  font-size: var(--text-lg);
+  color: var(--ink-2);
+}
+
+.tUi {
+  font-size: var(--text-md);
+  font-weight: 600;
+}
+
+.tMeta {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.tEyebrow {
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--flm-vino-texto);
+}
+
+/* Muestrarios */
+.specimen {
+  display: grid;
+  gap: var(--space-4);
+  padding: clamp(1rem, 0.75rem + 1vw, 1.5rem);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  min-width: 0;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.labelled {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.rowLabel {
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.caption {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.glyphs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.glyphs > li {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.glyphs > li.rings {
+  gap: 12px;
+  padding: 4px var(--space-4) 4px 4px;
+}
+
+.ringValue {
+  font-size: 0.75rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabPanel {
+  display: flex;
+  gap: var(--space-4);
+  align-items: stretch;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.areaBar {
+  width: 6px;
+  flex: none;
+  border-radius: var(--radius-pill);
+  background: var(--area-fill);
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4) var(--space-5);
+}
+
+.checks {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+}
+
+/* Movimiento */
+.motion {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.tracks {
+  display: grid;
+  gap: var(--space-3);
+  padding: clamp(1rem, 0.75rem + 1vw, 1.5rem);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.trackRow {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+}
+
+.trackLabel {
+  display: grid;
+  gap: 2px;
+}
+
+.track {
+  position: relative;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+}
+
+.dot {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--flm-rojo);
+  transition-property: left, transform;
+  transition-duration: var(--dur-signature);
+}
+
+.dot[data-moved='true'] {
+  left: calc(100% - 18px);
+}
+
+.trackButton {
+  justify-self: start;
+}
+
+.durations {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.durations li {
+  display: grid;
+  grid-template-columns: 8.5rem 4.5rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.durValue {
+  font-weight: 650;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 1023px) {
+  .motion {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .typeRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .labelled {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .trackRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .durations li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .durations li .tokenUse {
+    grid-column: 1 / -1;
+  }
+
+  /* Tabla de contraste → fichas */
+  .table,
+  .table tbody,
+  .table tr,
+  .table th,
+  .table td {
+    display: block;
+  }
+
+  .table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .table tr {
+    display: grid;
+    gap: 6px;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .table tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  .table th,
+  .table td {
+    padding: 0;
+    border: 0;
+  }
+
+  .ratioCell {
+    white-space: normal;
+  }
+
+  .cellLabel {
+    display: inline;
+    color: var(--ink-2);
+  }
+}

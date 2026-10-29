@@ -1,0 +1,317 @@
+/* Escalera del recargo: una columna por mes completo de retraso */
+.stairs {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  min-width: 0;
+}
+
+.plot {
+  --plot-pad: 30px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: clamp(120px, 6rem + 10cqi, 160px);
+  padding-top: var(--plot-pad);
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.col {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 0;
+  cursor: pointer;
+  transition: height var(--dur-slow) var(--ease-enter);
+  transition-delay: calc(var(--i) * 14ms);
+}
+
+.plot[data-seen] .col {
+  height: calc(var(--h) * 100%);
+}
+
+.colFull,
+.colPaid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 4px 4px 0 0;
+}
+
+.colFull {
+  top: 0;
+  background: color-mix(in srgb, var(--s1) 7%, transparent);
+}
+
+.colPaid {
+  height: calc(var(--f) * 100%);
+  background: color-mix(in srgb, var(--s1) 14%, transparent);
+  transition:
+    height var(--dur-base) var(--ease-standard),
+    background-color var(--dur-quick) var(--ease-standard);
+}
+
+.col[data-state='past'] .colPaid {
+  background: color-mix(in srgb, var(--s1) 32%, transparent);
+}
+
+.col[data-state='past'] .colFull {
+  background: color-mix(in srgb, var(--s1) 12%, transparent);
+}
+
+.col[data-state='current'] .colPaid {
+  background: var(--accent);
+}
+
+.col[data-state='current'] .colFull {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+/* Trama a 45°: más de 12 meses (15 % e intereses) */
+.col[data-late] .colPaid {
+  background-image: repeating-linear-gradient(135deg, color-mix(in srgb, var(--surface) 62%, transparent) 0 1.5px, transparent 1.5px 5px);
+}
+
+@media (hover: hover) {
+  .col:hover .colPaid {
+    filter: brightness(1.12);
+  }
+}
+
+.wall {
+  position: absolute;
+  top: 6px;
+  bottom: 0;
+  left: calc(var(--x) * 100% - 2px);
+  width: 1.5px;
+  background: var(--accent);
+  pointer-events: none;
+}
+
+.wallLabel {
+  position: absolute;
+  top: -2px;
+  left: 6px;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: var(--accent-text);
+}
+
+.flag {
+  position: absolute;
+  left: calc(var(--x) * 100%);
+  bottom: calc(var(--h) * (100% - var(--plot-pad)) + 6px);
+  transform: translateX(-50%);
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  color: var(--surface);
+  font-size: 0.6875rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    left var(--dur-base) var(--ease-standard),
+    bottom var(--dur-base) var(--ease-standard),
+    opacity var(--dur-base) var(--ease-standard) var(--dur-slow);
+}
+
+.plot[data-seen] .flag {
+  opacity: 1;
+}
+
+.axis {
+  position: relative;
+  height: 16px;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.axis span {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.axis span:nth-child(1) {
+  left: calc(100% * 0.5 / 25);
+}
+
+.axis span:nth-child(2) {
+  left: calc(100% * 6.5 / 25);
+}
+
+.axis span:nth-child(3) {
+  left: calc(100% * 12.5 / 25);
+}
+
+.axis span:nth-child(4) {
+  left: calc(100% * 18.5 / 25);
+}
+
+.axis span:nth-child(5) {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+.caption {
+  display: grid;
+  gap: 4px;
+}
+
+/* Comparación con el escenario tras requerimiento */
+.compare {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--line);
+}
+
+.compareTitle {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.cmp {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.cmpRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'label value'
+    'track track';
+  align-items: baseline;
+  gap: 6px var(--space-3);
+}
+
+.cmpLabel {
+  grid-area: label;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.cmpValue {
+  grid-area: value;
+  justify-self: end;
+  font-size: var(--text-sm);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.cmpPlus {
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.cmpTrack {
+  grid-area: track;
+  display: flex;
+  gap: 2px;
+  height: 12px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  overflow: hidden;
+}
+
+.cmpBar {
+  display: block;
+  height: 100%;
+  border-radius: 0 4px 4px 0;
+  background: var(--s1);
+}
+
+.cmpBar[data-tone='risk'] {
+  background: var(--accent);
+}
+
+.cmpTail {
+  display: block;
+  flex: 0 0 16%;
+  height: 100%;
+  border-radius: 0 4px 4px 0;
+  background: repeating-linear-gradient(135deg, var(--accent) 0 2px, transparent 2px 5px);
+}
+
+.compareText {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+
+/* Ayuda con fechas */
+.helper {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.helperSummary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 var(--space-4);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  list-style: none;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+}
+
+.helperSummary::-webkit-details-marker {
+  display: none;
+}
+
+.helperSummary::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  margin-left: auto;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform var(--dur-quick) var(--ease-standard);
+}
+
+.helper[open] > .helperSummary::after {
+  transform: translateY(2px) rotate(225deg);
+}
+
+.helperSummary:hover {
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+}
+
+.helperBody {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-4) var(--space-4);
+}
+
+.helperResult {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.helperResult strong {
+  color: var(--ink);
+  font-weight: 650;
+}

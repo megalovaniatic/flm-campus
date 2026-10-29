@@ -1,0 +1,140 @@
+.verdictWrap {
+  display: flex;
+  min-height: 42px;
+}
+
+.verdict {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 1rem 0 0.8rem;
+  border-radius: var(--radius-pill);
+  font-weight: 650;
+  font-size: var(--text-sm);
+}
+
+.verdict[data-tone='danger'] {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.verdict[data-tone='success'] {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+/* «La balanza» */
+.balance {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  min-width: 0;
+}
+
+.plot {
+  position: relative;
+  padding: 26px 0 32px;
+}
+
+.track {
+  position: relative;
+  height: 22px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+
+.bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 4px;
+  background: var(--s1);
+}
+
+.bar[data-neg] {
+  background: repeating-linear-gradient(135deg, var(--accent) 0 3px, color-mix(in srgb, var(--accent) 45%, transparent) 3px 6px);
+}
+
+.bar[data-kind='pp'] {
+  background: var(--s3);
+  box-shadow: -2px 0 0 var(--wash);
+}
+
+.zero {
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  width: 1px;
+  background: var(--ink-2);
+}
+
+.threshold {
+  position: absolute;
+  top: 20px;
+  height: 34px;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 2px;
+  background: var(--accent);
+  transition: left var(--dur-base) var(--ease-standard);
+}
+
+.thresholdLabel {
+  position: absolute;
+  top: 0;
+  left: calc(var(--x) * 1%);
+  font-size: 0.75rem;
+  font-weight: 650;
+  white-space: nowrap;
+  color: var(--accent-text);
+  font-variant-numeric: tabular-nums;
+  transition: left var(--dur-base) var(--ease-standard);
+}
+
+.thresholdLabel[data-side='left'] {
+  transform: translateX(calc(-100% - 6px));
+}
+
+.thresholdLabel[data-side='right'] {
+  transform: translateX(6px);
+}
+
+.gap {
+  position: absolute;
+  top: 54px;
+  height: 8px;
+  border: 1.5px solid currentColor;
+  border-top: 0;
+  border-radius: 0 0 4px 4px;
+}
+
+.gap[data-tone='danger'] {
+  color: var(--danger);
+}
+
+.gap[data-tone='success'] {
+  color: var(--success);
+}
+
+.gapLabel {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  font-weight: 650;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+
+.clock strong {
+  color: var(--ink);
+}

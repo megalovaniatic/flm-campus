@@ -1,0 +1,596 @@
+/* ── Ritmo de la página ─────────────────────────────────────────────── */
+
+.block + .block {
+  margin-top: clamp(3rem, 2rem + 4vw, 5.5rem);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.headNote {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+.quiet {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+  color: var(--ink-2);
+  font-size: var(--text-sm);
+}
+
+.sep {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--ink-3);
+}
+
+/* Enlace que cubre el elemento entero */
+.stretch {
+  color: inherit;
+  text-decoration: none;
+}
+
+.stretch::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.stretch:focus-visible {
+  box-shadow: none;
+}
+
+.stretch:focus-visible::after {
+  box-shadow: var(--focus-ring);
+}
+
+/* ── Progreso global (cabecera) ──────────────────────────────────────── */
+
+.overall {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.overallText {
+  display: grid;
+  gap: 2px;
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  max-width: 13rem;
+}
+
+.overallText strong {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.ringNum {
+  font-family: var(--font-serif);
+  font-weight: 420;
+  font-variation-settings: 'opsz' 48;
+  font-size: 1.75rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.ringNum span {
+  font-size: 0.6em;
+  color: var(--ink-2);
+}
+
+/* ── Obligatorias ───────────────────────────────────────────────────── */
+
+.dueList {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.dueItem {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-4) var(--space-6) var(--space-4) var(--space-4);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  transition:
+    box-shadow var(--dur-base) var(--ease-standard),
+    transform var(--dur-base) var(--ease-standard);
+}
+
+@media (hover: hover) {
+  .dueItem:hover {
+    box-shadow: var(--shadow-2);
+    transform: translateY(-2px);
+  }
+
+  .dueItem:hover .dueTitle {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+}
+
+/* La fecha límite es un momento: cápsula vertical */
+.dueDate {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  width: 54px;
+  height: 70px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--ink);
+  line-height: 1;
+}
+
+.dueDate[data-overdue] {
+  border-color: var(--danger);
+  border-width: 2px;
+}
+
+.dueItem[data-done] .dueDate {
+  border-color: var(--line-strong);
+  color: var(--ink-2);
+}
+
+.dueDay {
+  font-family: var(--font-serif);
+  font-size: 1.55rem;
+  font-weight: 430;
+  font-variant-numeric: tabular-nums;
+}
+
+.dueMonth {
+  margin-top: 2px;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  text-align: center;
+}
+
+.dueText {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.dueTitle {
+  font-family: var(--font-serif);
+  font-weight: 460;
+  font-variation-settings: 'opsz' 32;
+  font-size: clamp(1.125rem, 1.05rem + 0.3vw, 1.3rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.dueMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+.dueSide {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+  text-align: right;
+}
+
+.dueHint {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.dueHint[data-overdue] {
+  color: var(--danger);
+}
+
+/* ── Selector de áreas: cápsulas con punto del área ─────────────────── */
+
+.switch {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+}
+
+.tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 1.15rem 0 1rem;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--dur-quick) var(--ease-standard), background-color var(--dur-quick) var(--ease-standard);
+}
+
+.tab:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+}
+
+.tab[aria-selected='true'] {
+  color: #fff;
+  background: transparent;
+}
+
+.pill {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-pill);
+  background: var(--flm-marino);
+  box-shadow: 0 6px 16px -10px rgb(23 38 65 / 0.7);
+}
+
+:root[data-theme='dark'] .pill {
+  background: var(--flm-crema);
+}
+
+:root[data-theme='dark'] .tab[aria-selected='true'] {
+  color: var(--flm-marino);
+}
+
+.tabInner {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.tabCount {
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.78;
+}
+
+.panel {
+  margin-top: var(--space-6);
+  border-radius: var(--radius-xl);
+}
+
+.panel:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.panelGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(1.25rem, 0.5rem + 2.5vw, 3rem);
+  align-items: start;
+}
+
+.summary {
+  position: relative;
+  display: grid;
+  gap: var(--space-5);
+  justify-items: start;
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.summary::before {
+  content: '';
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  top: -1px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--area-fill);
+}
+
+.summaryTop {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.summaryText {
+  display: grid;
+  gap: 4px;
+}
+
+.areaName {
+  font-family: var(--font-serif);
+  font-weight: 430;
+  font-variation-settings: 'opsz' 48;
+  font-size: clamp(1.5rem, 1.3rem + 0.6vw, 1.85rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+}
+
+.areaCount {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.areaDesc {
+  color: var(--ink-2);
+  font-size: 0.9375rem;
+}
+
+.refPerson {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+  width: 100%;
+}
+
+.refLabel {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.refName {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.listCol {
+  min-width: 0;
+}
+
+.rows {
+  display: grid;
+}
+
+/* ── Evaluaciones ───────────────────────────────────────────────────── */
+
+.assessGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.assess {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  transition:
+    box-shadow var(--dur-base) var(--ease-standard),
+    transform var(--dur-base) var(--ease-standard);
+}
+
+.assess::before {
+  content: '';
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  top: -1px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--area-fill);
+}
+
+.assess:not([data-ready]) {
+  background: var(--surface-2);
+  border-style: dashed;
+  border-color: var(--line-strong);
+}
+
+.assess:not([data-ready])::before {
+  opacity: 0.35;
+}
+
+@media (hover: hover) {
+  .assess[data-ready]:hover {
+    box-shadow: var(--shadow-2);
+    transform: translateY(-2px);
+  }
+
+  .assess[data-ready]:hover .assessGo svg {
+    transform: translateX(3px);
+  }
+}
+
+.assessArea {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.assessTitle {
+  font-family: var(--font-serif);
+  font-weight: 450;
+  font-variation-settings: 'opsz' 36;
+  font-size: 1.3rem;
+  line-height: 1.2;
+}
+
+.assessStatus {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.assessGo {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: var(--space-2);
+  font-weight: 650;
+  font-size: var(--text-sm);
+}
+
+.assessGo svg {
+  transition: transform var(--dur-quick) var(--ease-standard);
+}
+
+/* ── Estados ────────────────────────────────────────────────────────── */
+
+.states {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-6);
+}
+
+.state {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+}
+
+/* Hilo que une los estados en orden */
+.state:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: 44px;
+  right: calc(-1 * var(--space-6) + 8px);
+  height: 1px;
+  background: var(--line-strong);
+}
+
+.stateGlyph {
+  display: inline-flex;
+  margin-bottom: var(--space-2);
+}
+
+.stateTitle {
+  font-size: 1rem;
+  font-weight: 650;
+  letter-spacing: -0.005em;
+}
+
+.stateText {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  line-height: 1.55;
+}
+
+/* ── Adaptación ─────────────────────────────────────────────────────── */
+
+@media (max-width: 1100px) {
+  .assessGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .states {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .state:nth-child(2)::after {
+    display: none;
+  }
+}
+
+@media (max-width: 860px) {
+  .panelGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .dueItem {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-2) var(--space-4);
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+  }
+
+  .dueSide {
+    grid-column: 2;
+    justify-items: start;
+    text-align: left;
+  }
+
+  .dueDate {
+    width: 48px;
+    height: 62px;
+    align-self: start;
+  }
+
+  .switch {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-radius: var(--radius-lg);
+    width: 100%;
+  }
+
+  .assessGrid,
+  .states {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .state::after {
+    display: none;
+  }
+
+  .state {
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--space-4);
+  }
+
+  .stateGlyph {
+    grid-row: span 2;
+    margin: 0;
+  }
+
+  .summary {
+    padding: var(--space-5);
+    border-radius: var(--radius-lg);
+  }
+
+  .assess {
+    padding: var(--space-5);
+    border-radius: var(--radius-lg);
+  }
+}

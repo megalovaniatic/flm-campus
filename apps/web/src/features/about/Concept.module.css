@@ -1,0 +1,454 @@
+/* 01 · Concepto */
+.motto {
+  margin: 0;
+  padding: clamp(1.5rem, 1rem + 2vw, 2.75rem) 0 clamp(1.25rem, 1rem + 1vw, 2rem);
+  border-bottom: 1px solid var(--line);
+}
+
+.motto blockquote {
+  margin: 0;
+}
+
+.motto p {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 360;
+  font-variation-settings: 'opsz' 72;
+  font-size: clamp(2.1rem, 1.3rem + 3.4vw, 4.4rem);
+  line-height: 1.04;
+  letter-spacing: -0.024em;
+  text-wrap: balance;
+}
+
+.motto figcaption {
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+.idea {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: clamp(1.5rem, 1rem + 3vw, 4rem);
+  align-items: start;
+}
+
+.ideaText {
+  max-width: var(--reading-max);
+}
+
+.choice {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.asideTitle {
+  font-size: var(--text-md);
+  font-weight: 650;
+}
+
+.asideText {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.candidates {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.candidates li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.candName {
+  font-weight: 650;
+  font-size: var(--text-sm);
+}
+
+.candAngle {
+  font-weight: 400;
+  color: var(--ink-2);
+}
+
+.candScore {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.candRole {
+  grid-column: 1 / -1;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.candidates li[data-chosen] .candName::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin: 0 8px 1px 0;
+  border-radius: 50%;
+  background: var(--flm-rojo);
+}
+
+.candidates li[data-discarded] .candName {
+  color: var(--ink-2);
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--ink) 40%, transparent);
+}
+
+/* ── Verbos ────────────────────────────────────────────────────────────── */
+.verbs {
+  --about-a: var(--flm-rojo);
+  --about-b: var(--flm-burdeos);
+  --about-c: var(--flm-marino);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+:root[data-theme='dark'] .verbs {
+  --about-b: var(--area-laboral);
+  --about-c: var(--area-mercantil);
+}
+
+.verb {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.stage {
+  position: relative;
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.stage[data-verb='superponer'] {
+  background: var(--flm-noche);
+  border-color: transparent;
+}
+
+.art {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 1;
+}
+
+.replay {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+}
+
+.stage[data-verb='superponer'] .replay {
+  background: rgb(255 255 255 / 0.85);
+  color: var(--flm-marino);
+}
+
+.verbTitle {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-variation-settings: 'opsz' 40;
+  font-weight: 420;
+  font-size: 1.6rem;
+  line-height: 1.1;
+}
+
+.verbFrom {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.verbMeaning {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+.fillA {
+  fill: var(--area-mercantil);
+}
+
+.fillB {
+  fill: var(--area-laboral);
+}
+
+.capsule {
+  fill: var(--flm-marino);
+}
+
+.capsuleInk {
+  stroke: #fff;
+}
+
+.capsuleText {
+  fill: #fff;
+  font-family: var(--font-sans);
+}
+
+:root[data-theme='dark'] .capsule {
+  fill: var(--flm-crema);
+}
+
+:root[data-theme='dark'] .capsuleInk {
+  stroke: var(--flm-marino);
+}
+
+:root[data-theme='dark'] .capsuleText {
+  fill: var(--flm-marino);
+}
+
+.redRojo {
+  fill: var(--flm-rojo-vivo);
+}
+
+.redVino {
+  fill: var(--flm-vino);
+}
+
+.redAzul {
+  fill: var(--flm-azul-profundo);
+}
+
+/* ── Gramática ─────────────────────────────────────────────────────────── */
+.shapes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shapes li {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.shapeGlyph {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  margin-bottom: 6px;
+}
+
+.shapeName {
+  font-weight: 650;
+}
+
+.shapeMeaning {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+.gCircle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, var(--surface-2) 0 13px, transparent 13.5px),
+    var(--flm-gradient-diagonal);
+}
+
+.gCapsule {
+  width: 84px;
+  height: 30px;
+  border-radius: var(--radius-pill);
+  background: var(--flm-marino);
+}
+
+:root[data-theme='dark'] .gCapsule {
+  background: var(--flm-crema);
+}
+
+.gRect {
+  width: 30px;
+  height: 38px;
+  border-radius: var(--radius-xs);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1.5px var(--ink-2);
+  border-left: 3px solid var(--ink);
+}
+
+.gBridge {
+  fill: var(--ink);
+}
+
+.rule {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  max-width: 48rem;
+}
+
+/* ── Momentos firma ────────────────────────────────────────────────────── */
+.moments {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.moment {
+  display: grid;
+  gap: var(--space-4);
+  padding: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  min-width: 0;
+}
+
+.momentHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.momentTitle {
+  font-family: var(--font-serif);
+  font-variation-settings: 'opsz' 40;
+  font-weight: 460;
+  font-size: 1.5rem;
+}
+
+.momentWhen {
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--flm-vino-texto);
+}
+
+.momentText {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+
+.timeline {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8125rem;
+}
+
+.timeline li {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: 10px;
+  padding-left: 14px;
+  border-left: 2px solid var(--line-strong);
+}
+
+.timeline li span {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.escalonStage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 140px;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.escalonStage > svg {
+  flex: 1 1 260px;
+  max-width: 420px;
+}
+
+.verdict {
+  display: grid;
+  gap: 4px;
+  font-family: var(--font-serif);
+  font-variation-settings: 'opsz' 60;
+  font-size: 2.25rem;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.verdictSub {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.momentActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.reduceNote {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+@media (max-width: 1100px) {
+  .verbs,
+  .shapes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .moments {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 860px) {
+  .idea {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .verbs,
+  .shapes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .timeline li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+}

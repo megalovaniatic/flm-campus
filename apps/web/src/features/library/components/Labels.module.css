@@ -1,0 +1,84 @@
+.kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.kind[data-size='sm'] {
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+}
+
+.kind svg {
+  flex: none;
+  color: var(--ink-2);
+}
+
+.urgency {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+/* Texto rojo pequeño: siempre el rojo oscuro de la web (4,5:1) */
+.urgency[data-urgency='alta'] {
+  color: var(--accent-text);
+}
+
+.glyph {
+  flex: none;
+}
+
+.glyphFill {
+  fill: var(--accent);
+}
+
+.glyphHalf {
+  fill: var(--ink);
+}
+
+.glyphRing {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.urgency[data-urgency='informativa'] .glyphRing {
+  stroke: var(--ink-2);
+}
+
+/* Coincidencias de búsqueda: fondo tenue + subrayado (no depende solo del color) */
+.mark {
+  padding: 0 0.06em;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--flm-rojo) 13%, transparent);
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--flm-rojo) 70%, transparent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.18em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+:root[data-theme='dark'] .mark {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  text-decoration-color: var(--accent);
+}
+
+@media (forced-colors: active) {
+  .mark {
+    background: Mark;
+    color: MarkText;
+  }
+}

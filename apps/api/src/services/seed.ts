@@ -40,6 +40,11 @@ export interface SeedOptions {
   storage?: FileStorage;
   /** Carpetas donde buscar los archivos de `documents[].versions[].file`. */
   filesDirs?: string[];
+  /**
+   * Importar también las personas ficticias de la demostración (`fictional: true`).
+   * Por defecto no se importan: en producción solo deben existir cuentas reales.
+   */
+  includeFictional?: boolean;
 }
 
 export interface SeedReport {
@@ -117,10 +122,17 @@ export async function importSeed(db: Db, seed: SeedData, opts: SeedOptions): Pro
     }
   }
 
+  const people = seed.people.filter((p) => opts.includeFictional || !p.fictional);
+  const fictional = seed.people.length - people.length;
+  if (fictional) {
+    report.warnings.push(`${fictional} personas ficticias de la demostración no se importan (usa --incluir-ficticias solo en entornos de prueba).`);
+    report.skipped['personas ficticias'] = fictional;
+  }
+
   try {
     transaction(db, () => {
       // 2. Personas (sin contraseña: deben activar la cuenta con un enlace).
-      for (const p of seed.people) {
+      for (const p of people) {
         if (exists('users', p.id) || get(db, 'SELECT 1 AS x FROM users WHERE email = ?', p.email)) {
           count('skipped', 'personas');
           continue;
@@ -137,7 +149,7 @@ export async function importSeed(db: Db, seed: SeedData, opts: SeedOptions): Pro
           p.department,
           p.office,
           p.role,
-          p.startDate,
+          p.startDate ?? null,
           p.birthday ?? null,
           p.showBirthday ? 1 : 0,
           p.status,
@@ -149,12 +161,15 @@ export async function importSeed(db: Db, seed: SeedData, opts: SeedOptions): Pro
       }
 
       const fallbackAuthor =
-        seed.people.find((p) => p.role === 'admin' && p.status === 'activa')?.id ??
-        get<{ id: string }>(db, "SELECT id FROM users WHERE role = 'admin' ORDER BY created_at LIMIT 1")?.id;
+        people.find((p) => p.role === 'admin' && p.status === 'activa')?.id ??
+        get<{ id: string }>(db, "SELECT id FROM users WHERE role = 'admin' AND anonymized_at IS NULL ORDER BY created_at LIMIT 1")?.id;
+      const reassigned = new Map<string, number>();
       const authorFor = (authorId: string | undefined, what: string): string => {
         if (authorId && exists('users', authorId)) return authorId;
-        if (!fallbackAuthor) throw new SeedValidationError([`${what}: no hay ninguna persona administradora a la que atribuir el contenido.`]);
-        if (authorId) report.warnings.push(`${what}: la persona autora «${authorId}» no existe; se atribuye a ${fallbackAuthor}.`);
+        if (!fallbackAuthor) {
+          throw new SeedValidationError([`${what}: no hay ninguna persona administradora a la que atribuir el contenido. Crea antes una con «npm run create-admin».`]);
+        }
+        if (authorId) reassigned.set(authorId, (reassigned.get(authorId) ?? 0) + 1);
         return fallbackAuthor;
       };
 
@@ -267,6 +282,9 @@ export async function importSeed(db: Db, seed: SeedData, opts: SeedOptions): Pro
         count(changed ? 'created' : 'skipped', 'asignaciones');
       }
 
+      for (const [authorId, n] of reassigned) {
+        report.warnings.push(`La persona autora «${authorId}» no existe en la plataforma: ${n} contenidos se atribuyen a ${fallbackAuthor}.`);
+      }
       audit(db, { actorId: null, action: 'semilla.importar', entity: 'sistema', detail: JSON.stringify(report.created) }, opts.now);
     });
   } catch (err) {

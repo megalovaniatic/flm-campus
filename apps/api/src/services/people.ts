@@ -48,7 +48,8 @@ const shape = personSchema.pick({ name: true, position: true, department: true, 
 
 export const personCreateSchema = shape.extend({
   email: corporateEmail,
-  startDate: dateKey,
+  /** Fecha de incorporación: genera los aniversarios. Si no consta, no se calculan. */
+  startDate: dateKey.optional(),
   birthday: birthdaySchema.optional(),
   showBirthday: z.boolean().default(false),
 });
@@ -78,7 +79,7 @@ export function toPerson(u: UserRow): Person {
     office: u.office as Office,
     role: u.role,
     ...(u.photo_file_id ? { photo: fileUrl(u.photo_file_id) } : {}),
-    startDate: u.start_date ?? '',
+    ...(u.start_date ? { startDate: u.start_date } : {}),
     ...(u.birthday ? { birthday: u.birthday } : {}),
     showBirthday: u.show_birthday === 1,
     status: u.status,
@@ -168,7 +169,7 @@ export function createUser(db: Db, input: PersonCreateInput, nowIso: string, id:
       input.department,
       input.office,
       input.role,
-      input.startDate,
+      input.startDate ?? null,
       input.birthday ?? null,
       input.showBirthday ? 1 : 0,
       nowIso,

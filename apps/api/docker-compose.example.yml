@@ -1,0 +1,76 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# FLM Campus · ejemplo de despliegue con Docker Compose y Caddy (HTTPS automático).
+#
+# 1. En la RAÍZ del monorepo (contexto de construcción), copia este archivo y el Caddyfile:
+#      cp apps/api/docker-compose.example.yml docker-compose.yml
+#      cp apps/api/Caddyfile.example Caddyfile
+#      mkdir -p copias && sudo chown 10001:10001 copias   # UID del usuario «campus» del contenedor
+# 2. Crea `.env` junto a docker-compose.yml con, al menos:
+#      CAMPUS_DOMAIN=campus.flmexperts.com
+#      APP_ORIGIN=https://campus.flmexperts.com
+#      SMTP_HOST=… SMTP_PORT=587 SMTP_USER=… SMTP_PASS=… SMTP_FROM="FLM Campus <campus@flmexperts.com>"
+# 3. El registro DNS del dominio debe apuntar a este servidor (puertos 80 y 443 abiertos).
+# 4. docker compose up -d --build
+# 5. Primera cuenta (siempre con -u campus):
+#      docker compose exec -u campus api node dist/create-admin.mjs --email … --nombre "…"
+# ─────────────────────────────────────────────────────────────────────────────
+name: flm-campus
+
+services:
+  api:
+    build:
+      context: .                 # raíz del monorepo
+      dockerfile: apps/api/Dockerfile
+      args:
+        BUILD_WEB: "true"
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      APP_ORIGIN: ${APP_ORIGIN:?Define APP_ORIGIN en .env}
+      TRUST_PROXY: "true"        # Caddy es el único proxy delante de la API
+      SERVE_WEB_DIST: /app/web   # web y API desde el mismo origen
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-FLM Campus <campus@flmexperts.com>}
+    volumes:
+      - campus-data:/app/data
+      - campus-storage:/app/storage
+      - ./copias:/app/backups    # copias de seguridad en el anfitrión (para sacarlas del servidor)
+    expose:
+      - "3000"                   # solo accesible a través de Caddy
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:                     # solo para que el arranque ajuste permisos y ceda privilegios
+      - CHOWN
+      - SETUID
+      - SETGID
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      CAMPUS_DOMAIN: ${CAMPUS_DOMAIN:?Define CAMPUS_DOMAIN en .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data         # certificados TLS
+      - caddy-config:/config
+
+volumes:
+  campus-data:
+  campus-storage:
+  caddy-data:
+  caddy-config:

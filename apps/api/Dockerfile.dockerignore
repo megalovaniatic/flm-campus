@@ -1,0 +1,17 @@
+# Exclusiones del contexto de construcción (BuildKit usa este archivo porque está junto al Dockerfile).
+**/node_modules
+**/dist
+**/coverage
+**/.vite
+**/.env
+**/.env.*
+!**/.env.example
+.git
+.github
+research
+apps/api/data
+apps/api/storage
+apps/api/backups
+**/*.sqlite
+**/*.sqlite-*
+**/*.log

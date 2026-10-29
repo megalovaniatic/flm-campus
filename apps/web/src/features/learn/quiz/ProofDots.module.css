@@ -1,0 +1,40 @@
+.dots {
+  display: block;
+  flex: none;
+  overflow: visible;
+}
+
+.bridge {
+  fill: var(--ink);
+}
+
+.dot circle {
+  fill: transparent;
+  stroke: var(--line-strong);
+  stroke-width: 1.5;
+  transition:
+    fill var(--dur-base) var(--ease-standard),
+    stroke var(--dur-base) var(--ease-standard),
+    stroke-width var(--dur-base) var(--ease-standard);
+}
+
+.dot[data-state='current'] circle {
+  stroke: var(--ink);
+  stroke-width: 2.5;
+}
+
+.dot[data-state='right'] circle,
+.dot[data-state='wrong'] circle {
+  fill: var(--ink);
+  stroke: var(--ink);
+}
+
+.strike {
+  stroke: var(--paper);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.dots[data-variant='points'] .dot[data-state='current'] circle {
+  stroke-width: 2;
+}

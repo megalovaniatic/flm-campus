@@ -8,6 +8,20 @@ export interface GradeResult {
   perQuestion: { questionId: string; chosen?: string; correct: boolean }[];
 }
 
+/** Versión pública de un test: sin la respuesta correcta ni las explicaciones (se envían tras corregir). */
+export function publicQuiz(quiz: Quiz): Quiz {
+  return {
+    ...quiz,
+    questions: quiz.questions.map((q) => ({
+      id: q.id,
+      prompt: q.prompt,
+      options: q.options.map((o) => ({ id: o.id, text: o.text })),
+      correctOptionId: '',
+      explanation: '',
+    })),
+  };
+}
+
 /** Corrige un test. En producción se ejecuta en el servidor; en la demo, en el navegador. */
 export function gradeQuiz(quiz: Quiz, answers: Record<string, string>): GradeResult {
   const perQuestion = quiz.questions.map((q) => ({

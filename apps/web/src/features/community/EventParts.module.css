@@ -1,0 +1,172 @@
+.img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.credit {
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+}
+
+/* Enlaces */
+.links {
+  display: grid;
+  gap: var(--space-1);
+  list-style: none;
+  padding: 0;
+}
+
+.external {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 44px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--flm-rojo);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.24em;
+  transition: text-decoration-thickness var(--dur-quick) var(--ease-standard);
+}
+
+.external:hover {
+  text-decoration-thickness: 2.5px;
+}
+
+.external svg {
+  flex: none;
+  transition: transform var(--dur-quick) var(--ease-standard);
+}
+
+.external:hover svg {
+  transform: translate(2px, -2px);
+}
+
+.example {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  color: var(--ink-2);
+  font-weight: 560;
+}
+
+.exampleLabel {
+  text-decoration: underline dotted;
+  text-underline-offset: 0.24em;
+}
+
+.fine {
+  margin-top: var(--space-2);
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+/* Material: rectángulo de documento (radio pequeño, filete lateral) */
+.materials {
+  display: grid;
+  gap: var(--space-3);
+  list-style: none;
+  padding: 0;
+}
+
+.material {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--space-3);
+  padding: var(--space-4) var(--space-4) var(--space-4) var(--space-4);
+  border-radius: var(--radius-xs);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--ink);
+}
+
+.materialIcon {
+  margin-top: 2px;
+  color: var(--ink-2);
+}
+
+.materialText {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.materialTitle {
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.materialMeta {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.materialActions {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 40px;
+  padding: 0 1rem;
+  border-radius: var(--radius-pill);
+  background: var(--flm-marino);
+  color: #fff;
+  font-weight: 600;
+  font-size: var(--text-sm);
+  text-decoration: none;
+  transition: background-color var(--dur-quick) var(--ease-standard), transform var(--dur-quick) var(--ease-standard);
+}
+
+.download:hover {
+  background: var(--flm-azul);
+}
+
+.download:active {
+  transform: scale(0.97);
+}
+
+:root[data-theme='dark'] .download {
+  background: var(--flm-crema);
+  color: var(--flm-marino);
+}
+
+:root[data-theme='dark'] .download:hover {
+  background: #fff;
+}
+
+.libraryLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.24em;
+}
+
+.libraryLink:hover {
+  text-decoration-color: var(--ink);
+}
+
+@media (pointer: coarse) {
+  .download {
+    min-height: 44px;
+  }
+}

@@ -1,0 +1,85 @@
+.dot {
+  display: inline-block;
+  flex: none;
+  border-radius: 50%;
+  background: var(--area-fill);
+}
+
+/* Sobre la cápsula marino del selector: anillo claro para que el punto se vea siempre */
+.dot[data-ring] {
+  box-shadow: 0 0 0 2px rgb(255 255 255 / 0.92);
+}
+
+:root[data-theme='dark'] .dot[data-ring] {
+  box-shadow: 0 0 0 2px var(--flm-marino);
+}
+
+/* Anillo del degradado: en modo oscuro, sobre placa clara (el degradado nunca se recolorea) */
+.ringPlate {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  border-radius: 50%;
+}
+
+.ringPlate svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+:root[data-theme='dark'] .ringPlate {
+  background: #f8f6f2;
+  padding: 0.12em;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
+/* Titular de Contable: anillo del degradado + texto (sin letras dentro del círculo) */
+.typeHead {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32em;
+}
+
+.typeHead em {
+  font-style: italic;
+}
+
+.typeRing {
+  width: 0.8em;
+  height: 0.8em;
+  margin-top: 0.06em;
+}
+
+.logoHead {
+  display: block;
+  line-height: 0;
+}
+
+.logoHead img {
+  max-width: 100%;
+  height: auto !important;
+}
+
+/* En móvil, misma altura para los tres logotipos (≥ 240 px de ancho) */
+@media (max-width: 560px) {
+  .logoHead img {
+    width: auto !important;
+    height: 48px !important;
+  }
+}
+
+.sealType {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sealName {
+  font-family: var(--font-sans);
+  font-weight: 650;
+  font-size: 1.125rem;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+}

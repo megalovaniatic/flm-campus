@@ -1,0 +1,339 @@
+/* ── Listas ─────────────────────────────────────────────────────────── */
+
+.ul,
+.ol {
+  display: grid;
+  gap: 0.55em;
+  padding: 0;
+  list-style: none;
+}
+
+.ul > li {
+  position: relative;
+  padding-left: 1.5em;
+}
+
+.ul > li::before {
+  content: '';
+  position: absolute;
+  left: 0.15em;
+  top: 0.82em;
+  width: 0.75em;
+  height: 1.5px;
+  border-radius: 2px;
+  background: var(--ink);
+}
+
+.ol {
+  counter-reset: item;
+}
+
+.ol > li {
+  position: relative;
+  padding-left: 2em;
+  counter-increment: item;
+}
+
+.ol > li::before {
+  content: counter(item) '.';
+  position: absolute;
+  left: 0;
+  top: 0.18em;
+  font-family: var(--font-sans);
+  font-size: 0.82em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--flm-vino-texto);
+}
+
+/* ── «Explicamos [TÍTULO]» en Belleza ───────────────────────────────── */
+
+.explain {
+  position: relative;
+  margin-block: 2.25em;
+  padding: clamp(1.4rem, 1rem + 1.5vw, 2.25rem);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  overflow: hidden;
+}
+
+.explain::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: var(--flm-gradient);
+}
+
+.explainTitle {
+  display: grid;
+  gap: 0.4rem;
+  font-family: 'Belleza', var(--font-sans);
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 1.25;
+  letter-spacing: 0.16em;
+  text-wrap: balance;
+}
+
+.explainKicker {
+  font-size: 0.8125rem;
+  letter-spacing: 0.32em;
+  color: var(--ink-2);
+}
+
+.explainTerm {
+  font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.7rem);
+  color: var(--ink);
+}
+
+.explainText {
+  margin-top: var(--space-4);
+}
+
+.explainText p + p {
+  margin-top: 0.8em;
+}
+
+/* ── Avisos: atención, consejo y norma ──────────────────────────────── */
+
+.callout {
+  margin-block: 2em;
+  padding: var(--space-5) var(--space-6);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-sans);
+  font-size: 0.98rem;
+  line-height: 1.6;
+  hyphens: manual;
+}
+
+.callout[data-tone='atencion'] {
+  background: var(--warning-soft);
+}
+
+.callout[data-tone='consejo'] {
+  background: var(--info-soft);
+}
+
+.callout[data-tone='norma'] {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--ink);
+  border-radius: 6px var(--radius-lg) var(--radius-lg) 6px;
+}
+
+.calloutKicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.calloutKicker > span {
+  display: inline-flex;
+}
+
+.callout[data-tone='atencion'] .calloutKicker {
+  color: var(--warning);
+}
+
+.callout[data-tone='consejo'] .calloutKicker {
+  color: var(--ink);
+}
+
+.calloutTitle {
+  margin-top: 0.45rem;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-variation-settings: 'opsz' 30;
+  font-size: 1.2rem;
+  line-height: 1.25;
+  letter-spacing: -0.008em;
+}
+
+.calloutText {
+  margin-top: 0.5rem;
+}
+
+.calloutText p + p {
+  margin-top: 0.7em;
+}
+
+.refs {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+
+.refs li {
+  display: grid;
+  gap: 2px;
+  font-size: var(--text-sm);
+}
+
+.refKind {
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.extIcon {
+  display: inline-block;
+  margin-left: 4px;
+  vertical-align: -1px;
+}
+
+/* ── Cita ───────────────────────────────────────────────────────────── */
+
+.quote {
+  position: relative;
+  margin-block: 2.5em;
+  padding-left: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+}
+
+.quoteMark {
+  position: absolute;
+  left: 0;
+  top: -0.12em;
+  font-family: var(--font-serif);
+  font-size: 4.75rem;
+  line-height: 1;
+  color: var(--flm-rojo);
+}
+
+.quote blockquote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-variation-settings: 'opsz' 36;
+  font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.55rem);
+  line-height: 1.42;
+  letter-spacing: -0.005em;
+}
+
+.quote blockquote p + p {
+  margin-top: 0.6em;
+}
+
+.quote figcaption {
+  margin-top: var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+.quote figcaption::before {
+  content: '— ';
+}
+
+/* ── Tabla accesible ────────────────────────────────────────────────── */
+
+.tableFigure {
+  margin-block: 2em;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  hyphens: manual;
+}
+
+.tableScroll {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.tableScroll:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table caption {
+  caption-side: top;
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  text-align: left;
+  font-weight: 650;
+  font-size: var(--text-sm);
+  color: var(--ink);
+}
+
+.table th,
+.table td {
+  min-width: 7rem;
+  padding: 0.7rem var(--space-4);
+  text-align: left;
+  vertical-align: top;
+  border-top: 1px solid var(--line);
+}
+
+.table thead th {
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  background: var(--surface-2);
+}
+
+.table tbody th {
+  font-weight: 600;
+}
+
+.table tbody tr:hover {
+  background: color-mix(in srgb, var(--ink) 3%, transparent);
+}
+
+.table [data-num] {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.scrollHint {
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+}
+
+/* ── Imagen y apoyos visuales ───────────────────────────────────────── */
+
+.figure {
+  margin-block: 2em;
+}
+
+.figure img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background: var(--surface-sunken);
+}
+
+.figure figcaption,
+.widgetCaption {
+  margin-top: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.widget {
+  margin-block: 2em;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+  font-variation-settings: normal;
+  hyphens: manual;
+}

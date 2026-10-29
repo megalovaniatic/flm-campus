@@ -1,0 +1,196 @@
+.fields {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11.5rem), 1fr));
+  align-items: start;
+}
+
+.summary {
+  display: grid;
+  gap: var(--space-3);
+}
+
+@container widget (min-width: 440px) {
+  .summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .verdictBox {
+    grid-column: 1 / -1;
+  }
+}
+
+@container widget (min-width: 820px) {
+  .summary {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.7fr);
+  }
+
+  .verdictBox {
+    grid-column: auto;
+  }
+}
+
+.tile {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--wash);
+  border: 1px solid var(--line);
+  min-width: 0;
+}
+
+.tileValue {
+  font-weight: 650;
+  font-size: clamp(1.6rem, 1.2rem + 2cqi, 2.2rem);
+  letter-spacing: -0.03em;
+}
+
+.tileSub {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.verdictBox {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  min-width: 0;
+}
+
+.verdictBox[data-tone='warning'] {
+  background: var(--warning-soft);
+}
+
+.verdictBox[data-tone='success'] {
+  background: var(--success-soft);
+}
+
+.verdictHead {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.verdictBox[data-tone='warning'] .verdictHead {
+  color: var(--warning);
+}
+
+.verdictBox[data-tone='success'] .verdictHead {
+  color: var(--success);
+}
+
+.verdictText {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+.verdictText strong {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Cuadro año a año */
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.tableWrap:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.table {
+  width: 100%;
+  min-width: 46rem;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.tableCaption {
+  caption-side: top;
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  text-align: left;
+  font-weight: 650;
+  font-size: var(--text-sm);
+}
+
+.table th,
+.table td {
+  padding: 10px 12px;
+  text-align: right;
+  white-space: nowrap;
+  border-top: 1px solid var(--line);
+}
+
+.table thead th {
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  background: var(--wash);
+}
+
+.table thead th:first-child,
+.table th[scope='row'] {
+  text-align: left;
+}
+
+.table tbody th[scope='row'] {
+  font-weight: 650;
+}
+
+.table tr[data-kind='exceso'] th[scope='row'] {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.table tr[data-kind='reversion'] th[scope='row'] {
+  box-shadow: inset 3px 0 0 var(--s3);
+}
+
+.adj {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.adjTag {
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  font-size: 0.6875rem;
+  font-weight: 650;
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.table tr[data-kind='reversion'] .adjTag {
+  background: var(--info-soft);
+  color: var(--ink);
+}
+
+.rowActive {
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+}
+
+.table tfoot th,
+.table tfoot td {
+  font-weight: 700;
+  border-top: 1.5px solid var(--ink);
+}
+
+.footnote {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}

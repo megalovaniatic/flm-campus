@@ -1,0 +1,38 @@
+/* Retrato: círculo de la persona con un filete del degradado oficial (conexión con la firma) */
+.ring {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  border-radius: 50%;
+  background: var(--flm-gradient-diagonal);
+}
+
+.ring > * {
+  box-shadow: 0 0 0 3px var(--paper);
+}
+
+.frame {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--surface-sunken);
+}
+
+.frame img {
+  position: absolute;
+  max-width: none;
+  height: auto;
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease-standard);
+}
+
+.frame[data-loaded='true'] img {
+  opacity: 1;
+}
+
+@media (forced-colors: active) {
+  .ring {
+    background: CanvasText;
+  }
+}

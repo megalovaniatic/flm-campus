@@ -20,7 +20,12 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
     },
-    server: { port: 5173, strictPort: true },
+    server: {
+      port: 5173,
+      strictPort: true,
+      // En desarrollo, /api se redirige a la API local (npm run dev:api, puerto 3000).
+      proxy: { '/api': { target: env.VITE_API_PROXY || 'http://localhost:3000', changeOrigin: false } },
+    },
     preview: { port: 4173 },
     build: {
       target: 'es2022',

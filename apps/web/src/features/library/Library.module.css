@@ -1,0 +1,99 @@
+/* FLM Campus · Consultar · piezas comunes de las listas */
+
+.toolbar {
+  display: grid;
+  gap: var(--space-5);
+  padding-bottom: var(--space-6);
+  margin-bottom: var(--space-5);
+  border-bottom: 1px solid var(--line);
+}
+
+.search {
+  width: 100%;
+  max-width: 40rem;
+}
+
+.filters {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.statusRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  min-height: 44px;
+  margin-bottom: var(--space-6);
+}
+
+.status {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+  border-radius: var(--radius-xs);
+}
+
+.status strong {
+  font-weight: 650;
+  color: var(--ink);
+}
+
+/* Meses del archivo */
+.month + .month {
+  margin-top: clamp(2.5rem, 2rem + 2vw, 4rem);
+}
+
+.monthTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem var(--space-3);
+  margin-bottom: var(--space-5);
+  font-family: var(--font-serif);
+  font-weight: 420;
+  font-variation-settings: 'opsz' 48;
+  font-size: var(--text-2xl);
+  letter-spacing: -0.012em;
+}
+
+.monthTitle::after {
+  content: '';
+  flex: 1 1 3rem;
+  align-self: center;
+  height: 1px;
+  background: var(--line);
+}
+
+.monthCount {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.sampleNotice {
+  margin-bottom: var(--space-6);
+}
+
+.sampleNotice code,
+.devHint code {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  font-size: 0.85em;
+}
+
+.devHint {
+  margin-top: var(--space-4);
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.backRow {
+  margin-top: var(--space-10);
+}

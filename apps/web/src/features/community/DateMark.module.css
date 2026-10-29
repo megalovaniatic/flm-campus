@@ -1,0 +1,125 @@
+/* Círculo de fecha: el círculo es el momento; la cápsula, la acción */
+.mark {
+  --size: 5.75rem;
+  --day: 2.35rem;
+  --small: 0.78rem;
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  align-content: center;
+  width: var(--size);
+  height: var(--size);
+  flex: none;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  background: var(--surface);
+  color: var(--ink);
+  line-height: 1;
+  text-align: center;
+  user-select: none;
+}
+
+.mark[data-size='md'] {
+  --size: 4.25rem;
+  --day: 1.7rem;
+  --small: 0.7rem;
+}
+
+@media (max-width: 899px) {
+  .mark[data-size='lg'] {
+    --size: 4.25rem;
+    --day: 1.7rem;
+    --small: 0.7rem;
+  }
+}
+
+.mark[data-size='sm'] {
+  --size: 3.25rem;
+  --day: 1.3rem;
+  --small: 0.625rem;
+}
+
+.day {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-variation-settings: 'opsz' 72;
+  font-size: var(--day);
+  letter-spacing: -0.03em;
+  font-variant-numeric: lining-nums;
+  margin-top: 0.06em;
+}
+
+/* Versalitas: el mes en minúsculas con all-small-caps */
+.month,
+.caption,
+.pending {
+  font-family: var(--font-sans);
+  font-size: var(--small);
+  font-weight: 650;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.09em;
+  color: var(--ink-2);
+}
+
+.month {
+  margin-top: 0.2em;
+  font-size: calc(var(--small) * 1.12);
+}
+
+.caption {
+  margin-bottom: 0.18em;
+}
+
+/* En curso: el círculo se llena */
+.mark[data-tone='current'] {
+  background: var(--flm-marino);
+  border-color: var(--flm-marino);
+  color: #fff;
+}
+
+.mark[data-tone='current'] .month,
+.mark[data-tone='current'] .caption {
+  color: rgb(255 255 255 / 0.82);
+}
+
+:root[data-theme='dark'] .mark[data-tone='current'] {
+  background: var(--flm-crema);
+  border-color: var(--flm-crema);
+  color: var(--flm-marino);
+}
+
+:root[data-theme='dark'] .mark[data-tone='current'] .month,
+:root[data-theme='dark'] .mark[data-tone='current'] .caption {
+  color: rgb(23 38 65 / 0.78);
+}
+
+.mark[data-tone='muted'] {
+  border-color: var(--line-strong);
+  background: transparent;
+}
+
+/* Fecha por confirmar: anillo discontinuo dibujado en SVG (trazos regulares) */
+.mark[data-pending='true'] {
+  border-color: transparent;
+  background: transparent;
+}
+
+.ring {
+  position: absolute;
+  inset: -1.5px;
+  width: calc(100% + 3px);
+  height: calc(100% + 3px);
+  overflow: visible;
+}
+
+.ring circle {
+  fill: none;
+  stroke: var(--ink-2);
+  stroke-width: 1.7;
+  stroke-dasharray: 3.1 2.9;
+}
+
+.pending {
+  line-height: 1.05;
+  font-size: calc(var(--small) * 1.05);
+}

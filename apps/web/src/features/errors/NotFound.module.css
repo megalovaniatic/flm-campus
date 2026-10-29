@@ -1,0 +1,220 @@
+/* Página no encontrada: logotipo diagonal oficial, pequeño y digno */
+.page {
+  display: grid;
+  gap: clamp(2.75rem, 2rem + 3vw, 4.75rem);
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(1.5rem, 0.75rem + 3.5vw, 4.5rem);
+  max-width: 62rem;
+}
+
+.logo {
+  padding-top: 0.4rem;
+}
+
+.text {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-weight: 380;
+  font-variation-settings: 'opsz' 72;
+  font-size: clamp(2.15rem, 1.5rem + 2.6vw, 3.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.024em;
+  text-wrap: balance;
+}
+
+.body {
+  max-width: 40rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-variation-settings: 'opsz' 24;
+  font-size: clamp(1.1rem, 1rem + 0.4vw, 1.35rem);
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.path {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+
+.path code {
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  background: var(--surface-sunken);
+  color: var(--ink);
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: 0.8125rem;
+}
+
+.suggest {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.suggestLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  background: var(--info-soft);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.suggestLink:hover {
+  background: color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.suggestLink:focus-visible {
+  border-radius: var(--radius-pill);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.keys {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+/* Secciones */
+.sections {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.sectionsTitle {
+  font-family: var(--font-serif);
+  font-variation-settings: 'opsz' 48;
+  font-weight: 440;
+  font-size: var(--text-2xl);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: var(--space-5);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  transition:
+    box-shadow var(--dur-base) var(--ease-standard),
+    border-color var(--dur-quick) var(--ease-standard);
+}
+
+.card[data-suggested] {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    var(--flm-gradient) border-box;
+}
+
+@media (hover: hover) {
+  .card:hover {
+    box-shadow: var(--shadow-2);
+    border-color: var(--line-strong);
+  }
+
+  .card[data-suggested]:hover {
+    border-color: transparent;
+  }
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--surface-sunken);
+  color: var(--ink);
+}
+
+.cardText {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.stretch {
+  font-weight: 650;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.stretch::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.stretch:focus-visible {
+  box-shadow: none;
+}
+
+.stretch:focus-visible::after {
+  box-shadow: var(--focus-ring);
+}
+
+.cardSub {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+
+.arrow {
+  flex: none;
+  margin-top: 12px;
+  color: var(--ink-2);
+  transition: transform var(--dur-quick) var(--ease-standard);
+}
+
+.card:hover .arrow {
+  transform: translateX(3px);
+  color: var(--ink);
+}
+
+@media (max-width: 720px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+  }
+}

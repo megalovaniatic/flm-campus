@@ -26,10 +26,15 @@ export function learningRoutes(ctx: AppContext) {
     return row;
   };
 
-  const assignmentFor = (userId: string, contentId: string) => {
-    const due = dueDatesForUser(db, userId).get(contentId);
-    if (!due) return null;
-    return { mandatory: true, dueDate: due.dueDate, overdue: !!due.dueDate && due.dueDate < madridDateKey(ctx.now()) };
+  /** Asignación obligatoria de cada formación para una persona (se calcula una vez por petición). */
+  const assignmentsOf = (userId: string) => {
+    const dues = dueDatesForUser(db, userId);
+    const today = madridDateKey(ctx.now());
+    return (contentId: string) => {
+      const due = dues.get(contentId);
+      if (!due) return null;
+      return { mandatory: true, dueDate: due.dueDate, overdue: !!due.dueDate && due.dueDate < today };
+    };
   };
 
   /* ── Formaciones ─────────────────────────────────────────────────────────── */
@@ -37,6 +42,7 @@ export function learningRoutes(ctx: AppContext) {
   r.get('/formations', requirePermission('campus:leer'), (c) => {
     const { area } = queryParams(c, areaQuery);
     const me = currentUser(c);
+    const assignmentFor = assignmentsOf(me.id);
     const items = listPublished(db, ['formacion'], area).map((row) => {
       const f = JSON.parse(row.payload) as Record<string, unknown>;
       const progress = progressView(row, progressFor(db, me.id, row));
@@ -53,7 +59,7 @@ export function learningRoutes(ctx: AppContext) {
         publishedAt: row.published_at,
         updatedAt: row.updated_at,
         progress,
-        assignment: assignmentFor(me.id, row.id),
+        assignment: assignmentFor(row.id),
       };
     });
     return c.json({ items });
@@ -63,7 +69,7 @@ export function learningRoutes(ctx: AppContext) {
     const row = requirePublished(['formacion'], c.req.param('ref'), 'formación');
     const me = currentUser(c);
     const formation = withPublicQuiz(composeItem(db, row) as Record<string, unknown> & { quiz: Quiz });
-    return c.json({ formation, progress: progressView(row, progressFor(db, me.id, row)), assignment: assignmentFor(me.id, row.id) });
+    return c.json({ formation, progress: progressView(row, progressFor(db, me.id, row)), assignment: assignmentsOf(me.id)(row.id) });
   });
 
   /** Confirmación de lectura de la versión vigente (al llegar al final de la formación). */
@@ -133,13 +139,14 @@ export function learningRoutes(ctx: AppContext) {
 
   r.get('/me/progress', requirePermission('progreso:propio'), (c) => {
     const me = currentUser(c);
+    const assignmentFor = assignmentsOf(me.id);
     const formations = listPublished(db, ['formacion']).map((row) => ({
       id: row.id,
       slug: row.slug,
       area: row.area,
       title: row.title,
       progress: progressView(row, progressFor(db, me.id, row)),
-      assignment: assignmentFor(me.id, row.id),
+      assignment: assignmentFor(row.id),
     }));
     return c.json({ formations, mandatory: formations.filter((f) => f.assignment) });
   });

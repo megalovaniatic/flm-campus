@@ -1,0 +1,130 @@
+/* Documento = rectángulo con radio pequeño (gramática de formas del campus) */
+.thumb {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-xs);
+  background: var(--surface);
+  box-shadow:
+    0 0 0 1px var(--line),
+    var(--shadow-1);
+  isolation: isolate;
+}
+
+.img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+}
+
+/* Página esquemática con la forma real del documento mientras carga */
+.sketch {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5.5%;
+  padding: 13% 12%;
+}
+
+.sketch i {
+  display: block;
+  height: 3%;
+  min-height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--ink) 7%, transparent) 25%, color-mix(in srgb, var(--ink) 13%, transparent) 50%, color-mix(in srgb, var(--ink) 7%, transparent) 75%);
+  background-size: 300% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+.sketch i:nth-child(1) {
+  width: 58%;
+  height: 5%;
+  margin-bottom: 4%;
+}
+
+.sketch i:nth-child(2) {
+  width: 36%;
+  margin-bottom: 6%;
+}
+
+.sketch i:nth-child(3) {
+  width: 96%;
+}
+
+.sketch i:nth-child(4) {
+  width: 90%;
+}
+
+.sketch i:nth-child(5) {
+  width: 94%;
+}
+
+.sketch i:nth-child(6) {
+  width: 82%;
+}
+
+.sketch i:nth-child(7) {
+  width: 92%;
+}
+
+.sketch i:nth-child(8) {
+  width: 48%;
+}
+
+/* Página apaisada (presentación): título y tres viñetas */
+.thumb[data-landscape] .sketch {
+  gap: 8%;
+  padding: 10% 9%;
+}
+
+.thumb[data-landscape] .sketch i {
+  height: 6%;
+}
+
+.thumb[data-landscape] .sketch i:nth-child(1) {
+  width: 52%;
+  height: 10%;
+}
+
+.thumb[data-landscape] .sketch i:nth-child(n + 6) {
+  display: none;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: 0 0;
+  }
+}
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--ink-2);
+}
+
+.placeholder svg {
+  width: 22%;
+  height: auto;
+  max-width: 28px;
+  min-width: 16px;
+}
+
+/* Documento interno: trama diagonal sobre papel */
+.thumb[data-state='locked'] {
+  background:
+    repeating-linear-gradient(135deg, transparent 0 7px, color-mix(in srgb, var(--ink) 6%, transparent) 7px 8px),
+    var(--surface-2);
+}
+
+.thumb[data-state='failed'] {
+  background: var(--surface-2);
+}

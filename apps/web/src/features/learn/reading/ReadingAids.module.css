@@ -1,0 +1,209 @@
+/* ── Filete de lectura (bajo la cabecera fija) ──────────────────────── */
+
+.rule {
+  position: sticky;
+  top: 72px;
+  z-index: 30;
+  height: 3px;
+  margin-bottom: -3px;
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+}
+
+.ruleFill {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 50%;
+  background: var(--flm-gradient);
+}
+
+.left {
+  position: absolute;
+  top: 10px;
+  right: var(--gutter);
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-1);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (max-width: 1023px) {
+  .rule {
+    top: 58px;
+  }
+}
+
+/* ── Índice ─────────────────────────────────────────────────────────── */
+
+.toc {
+  display: grid;
+  border-left: 1px solid var(--line-strong);
+}
+
+.tocLink {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-height: 44px;
+  padding: 11px 10px 11px 18px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  color: var(--ink-2);
+  text-decoration: none;
+  transition: color var(--dur-quick) var(--ease-standard), background-color var(--dur-quick) var(--ease-standard);
+}
+
+.tocLink:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+}
+
+.tocLink[aria-current] {
+  color: var(--ink);
+  font-weight: 620;
+}
+
+.tocMark {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+}
+
+/* La «gota» roja que viaja por el índice, como en la navegación principal */
+.tocDot {
+  position: absolute;
+  left: -4px;
+  top: calc(50% - 3.5px);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--flm-rojo);
+}
+
+.tocNum {
+  flex: none;
+  min-width: 1.1em;
+  font-size: 0.75rem;
+  font-weight: 650;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.tocLink[aria-current] .tocNum {
+  color: var(--flm-vino-texto);
+}
+
+.tocLabel {
+  min-width: 0;
+}
+
+/* ── Términos clave al margen ───────────────────────────────────────── */
+
+.terms {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.term {
+  position: relative;
+  padding: 10px 10px 10px 16px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.term::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--line-strong);
+  transition: width var(--dur-base) var(--ease-standard);
+}
+
+.term[data-current]::before {
+  width: 3px;
+  background: var(--area-fill, var(--ink));
+}
+
+.term[data-flash] {
+  animation: flash 1.6s var(--ease-standard);
+}
+
+@keyframes flash {
+  0%,
+  30% {
+    background: color-mix(in srgb, var(--flm-rojo) 12%, transparent);
+  }
+
+  100% {
+    background: transparent;
+  }
+}
+
+.termName {
+  font-weight: 650;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.termDef {
+  margin-top: 4px;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+/* ── Términos en línea (móvil) ──────────────────────────────────────── */
+
+.termsInline {
+  display: grid;
+  border-top: 1px solid var(--line);
+}
+
+.termsInline > li {
+  border-bottom: 1px solid var(--line);
+}
+
+.termDetails summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: 6px 4px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  list-style: none;
+  border-radius: var(--radius-sm);
+}
+
+.termDetails summary::-webkit-details-marker {
+  display: none;
+}
+
+.chev {
+  flex: none;
+  color: var(--ink-2);
+  transition: transform var(--dur-base) var(--ease-standard);
+}
+
+.termDetails[open] .chev {
+  transform: rotate(180deg);
+}
+
+.termDetails .termDef {
+  margin: 0;
+  padding: 0 4px 14px;
+  font-size: 0.9375rem;
+}

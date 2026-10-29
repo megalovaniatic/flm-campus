@@ -1,0 +1,45 @@
+.track {
+  --t1: var(--flm-rojo);
+  --t2: var(--flm-burdeos);
+  --t3: var(--flm-marino);
+  flex: none;
+  overflow: visible;
+}
+
+:root[data-theme='dark'] .track {
+  --t2: #c9707a;
+  --t3: #8fa3c7;
+}
+
+.s1 {
+  stop-color: var(--t1);
+}
+
+.s2 {
+  stop-color: var(--t2);
+}
+
+.s3 {
+  stop-color: var(--t3);
+}
+
+.ring {
+  stroke: var(--line-strong);
+}
+
+.track[data-archived] {
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+
+@media (forced-colors: active) {
+  .s1,
+  .s2,
+  .s3 {
+    stop-color: CanvasText;
+  }
+
+  .ring {
+    stroke: CanvasText;
+  }
+}

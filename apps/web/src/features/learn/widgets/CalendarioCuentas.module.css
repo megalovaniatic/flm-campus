@@ -1,0 +1,297 @@
+.layout {
+  display: grid;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+.inputs {
+  display: grid;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@container widget (min-width: 560px) {
+  .inputs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.juntaField {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+}
+
+/* Regla proporcional */
+.ruler {
+  padding: 46px 6px 34px;
+  border-radius: var(--radius-lg);
+  background: var(--wash);
+  border: 1px solid var(--line);
+  padding-inline: clamp(1rem, 4cqi, 2rem);
+}
+
+.rulerTrack {
+  position: relative;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.tick {
+  position: absolute;
+  top: -3px;
+  width: 1px;
+  height: 10px;
+  background: var(--line-strong);
+}
+
+.dot {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--x) * 1%);
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2.5px solid var(--ink);
+  transition: left var(--dur-slow) var(--ease-standard);
+}
+
+.dot[data-kind='inicio'] {
+  background: var(--ink);
+}
+
+.dot[data-kind='consecuencia'] {
+  border-style: dashed;
+  border-color: var(--ink-2);
+}
+
+.dotLabel {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--ink-2);
+}
+
+.dot[data-row='top'] .dotLabel {
+  bottom: 18px;
+}
+
+.dot[data-row='bottom'] .dotLabel {
+  top: 18px;
+}
+
+.dot[data-kind='inicio'] .dotLabel {
+  left: -4px;
+  transform: none;
+}
+
+.dot[data-kind='consecuencia'] .dotLabel {
+  left: auto;
+  right: -4px;
+  transform: none;
+}
+
+.today {
+  position: absolute;
+  top: -16px;
+  bottom: -16px;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.today span {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--accent-text);
+  white-space: nowrap;
+}
+
+@container widget (max-width: 460px) {
+  .dotLabel {
+    display: none;
+  }
+
+  .ruler {
+    padding-block: 34px 24px;
+  }
+}
+
+/* Lista de hitos */
+.list {
+  position: relative;
+  display: grid;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.list::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 30px;
+  bottom: 30px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--line-strong);
+}
+
+.item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr) auto;
+  gap: 4px var(--space-4);
+  align-items: start;
+  padding: var(--space-4) 0 var(--space-4) 2rem;
+}
+
+.item + .item {
+  border-top: 1px solid var(--line);
+}
+
+.node {
+  position: absolute;
+  left: 0;
+  top: calc(var(--space-4) + 8px);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2.5px solid var(--ink);
+}
+
+.item[data-kind='inicio'] .node {
+  background: var(--ink);
+}
+
+.item[data-kind='consecuencia'] .node {
+  border-style: dashed;
+  border-color: var(--ink-2);
+}
+
+.item[data-state='vencido'] .node {
+  border-color: var(--ink-3);
+  background: color-mix(in srgb, var(--ink-3) 30%, var(--surface));
+}
+
+.item[data-state='pronto'] .node,
+.item[data-state='hoy'] .node {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.date {
+  position: relative;
+  display: grid;
+  height: 3.1rem;
+  overflow: hidden;
+}
+
+.dateInner {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+}
+
+.day {
+  font-family: var(--font-serif);
+  font-weight: 450;
+  font-variation-settings: 'opsz' 36;
+  font-size: 1.75rem;
+  line-height: 1;
+  font-variant-numeric: lining-nums;
+}
+
+.month {
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.content {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.itemTitle {
+  font-weight: 650;
+  font-size: var(--text-md);
+  letter-spacing: -0.01em;
+}
+
+.when {
+  font-size: var(--text-sm);
+  color: var(--ink);
+}
+
+.when::first-letter {
+  text-transform: uppercase;
+}
+
+.rule {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}
+
+.note {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 650;
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+  color: var(--ink-2);
+}
+
+.chip[data-tone='warning'] {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.chip[data-tone='danger'] {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+@container widget (max-width: 540px) {
+  .item {
+    grid-template-columns: 3.6rem minmax(0, 1fr);
+  }
+
+  .chip {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: 4px;
+  }
+
+  .day {
+    font-size: 1.5rem;
+  }
+}

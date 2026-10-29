@@ -1,0 +1,865 @@
+/* ── Calendario de FLM ────────────────────────────────────────────────── */
+
+/* Color de cada tipo de fecha (siempre acompañado de icono y texto) */
+:where(.filter, .pill, .entry, .dot)[data-kind='cumpleanos'] {
+  --kind: var(--cal-cumpleanos);
+}
+
+:where(.filter, .pill, .entry, .dot)[data-kind='aniversario'] {
+  --kind: var(--cal-aniversario);
+}
+
+:where(.filter, .pill, .entry, .dot)[data-kind='encuentro'] {
+  --kind: var(--cal-encuentro);
+}
+
+:where(.filter, .pill, .entry, .dot)[data-kind='festivo'] {
+  --kind: var(--cal-festivo);
+}
+
+.persona,
+.emptyFilter {
+  margin-bottom: var(--space-6);
+}
+
+.personaClear {
+  margin-top: var(--space-2);
+  margin-left: calc(-1 * var(--space-3));
+}
+
+.controls {
+  display: grid;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-6);
+}
+
+.monthTitle {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-variation-settings: 'opsz' 60;
+  font-size: var(--text-4xl);
+  line-height: 1.05;
+  letter-spacing: -0.022em;
+}
+
+.year {
+  font-style: italic;
+  color: var(--ink-2);
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.select select {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 44px;
+  padding: 0 2.3rem 0 1rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: border-color var(--dur-quick) var(--ease-standard);
+}
+
+.select select:hover {
+  border-color: var(--ink);
+}
+
+.select select:focus-visible {
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-pill);
+}
+
+.select svg {
+  position: absolute;
+  right: 0.85rem;
+  pointer-events: none;
+  color: var(--ink-2);
+}
+
+.todayBtn {
+  margin-left: var(--space-1);
+}
+
+.selects {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.selects .select {
+  min-width: 0;
+}
+
+.selects select {
+  max-width: 100%;
+}
+
+.filterLabel {
+  white-space: nowrap;
+}
+
+/* Días anteriores del mes en curso (lista móvil) */
+.pastToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  margin-bottom: var(--space-3);
+  padding: 0 1rem 0 0.75rem;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--ink);
+}
+
+.pastChevron {
+  transform: rotate(180deg);
+  transition: transform var(--dur-base) var(--ease-standard);
+}
+
+.pastToggle[aria-expanded='false'] .pastChevron {
+  transform: rotate(0deg);
+}
+
+.listNone {
+  color: var(--ink-2);
+  font-size: var(--text-sm);
+}
+
+/* Filtros por tipo: cápsulas con casilla, icono, color, nombre y recuento */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.filtersLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0 0.6rem 0 0.55rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  transition:
+    background-color var(--dur-quick) var(--ease-standard),
+    border-color var(--dur-quick) var(--ease-standard),
+    color var(--dur-quick) var(--ease-standard),
+    transform var(--dur-quick) var(--ease-standard);
+}
+
+.filter:active {
+  transform: scale(0.97);
+}
+
+.filter:hover {
+  border-color: var(--ink);
+}
+
+.filter[aria-pressed='true'] {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--kind) 50%, var(--line-strong));
+  background: color-mix(in srgb, var(--kind) 9%, var(--surface));
+}
+
+.filterCheck {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  color: #fff;
+  transition: background-color var(--dur-quick) var(--ease-standard), border-color var(--dur-quick) var(--ease-standard);
+}
+
+.filter[aria-pressed='true'] .filterCheck {
+  background: var(--kind);
+  border-color: var(--kind);
+}
+
+:root[data-theme='dark'] .filter[aria-pressed='true'] .filterCheck {
+  color: var(--flm-negro);
+}
+
+.filterIcon {
+  flex: none;
+  color: var(--kind);
+}
+
+.filterCount {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+.consent svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+/* ── Escritorio: cuadrícula + panel del día ───────────────────────────── */
+
+.layout {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.layout[data-wide='true'] {
+  grid-template-columns: minmax(0, 1fr) 21.5rem;
+  align-items: start;
+}
+
+.gridCol {
+  min-width: 0;
+}
+
+.grid {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.weekdays,
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.weekday {
+  padding: 0.7rem 0.75rem 0.55rem;
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.weekday[data-weekend='true'] {
+  background: color-mix(in srgb, var(--ink) 2.5%, transparent);
+}
+
+.weeksClip {
+  position: relative;
+  overflow: hidden;
+}
+
+.weeks {
+  display: grid;
+}
+
+.blank,
+.day {
+  min-height: 7.25rem;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  min-width: 0;
+}
+
+.week > :first-child {
+  border-left: 0;
+}
+
+.blank {
+  background: repeating-linear-gradient(135deg, transparent 0 7px, color-mix(in srgb, var(--ink) 3%, transparent) 7px 8px);
+}
+
+.day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0.5rem;
+  cursor: pointer;
+  outline: none;
+  border-radius: 0;
+  transition: background-color var(--dur-quick) var(--ease-standard);
+}
+
+.day[data-weekend='true'],
+.blank[data-weekend='true'] {
+  background-color: color-mix(in srgb, var(--ink) 2.5%, transparent);
+}
+
+.day[data-festivo='true'] {
+  background-color: color-mix(in srgb, var(--cal-festivo) 11%, var(--surface));
+}
+
+.day:hover {
+  background-color: color-mix(in srgb, var(--ink) 5%, var(--surface));
+}
+
+.day[aria-selected='true'] {
+  background-color: color-mix(in srgb, var(--ink) 4%, var(--surface));
+}
+
+/* Foco visible dentro de la celda (no lo recorta la cuadrícula) */
+.day:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--ink), inset 0 0 0 4px var(--surface);
+  border-radius: 0;
+}
+
+.dayHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.dayNum,
+.stripNum {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  font-weight: 600;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+/* El círculo de selección viaja entre días */
+.selDisc {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--flm-marino);
+}
+
+:root[data-theme='dark'] .selDisc {
+  background: var(--flm-crema);
+}
+
+.dayNumText {
+  position: relative;
+}
+
+.day[aria-selected='true'] .dayNumText,
+.stripDay[data-selected='true'] .dayNumText {
+  color: #fff;
+}
+
+:root[data-theme='dark'] .day[aria-selected='true'] .dayNumText,
+:root[data-theme='dark'] .stripDay[data-selected='true'] .dayNumText {
+  color: var(--flm-marino);
+}
+
+/* Hoy: punto rojo (se mira) y la palabra en tinta (se lee) */
+.todayTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.todayTag::before,
+.todayDot {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--flm-rojo);
+}
+
+.pills {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 2px 7px 2px 5px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--kind) 11%, transparent);
+  color: var(--ink);
+  font-size: 0.72rem;
+  font-weight: 560;
+  line-height: 1.35;
+}
+
+.pill svg {
+  flex: none;
+  color: var(--kind);
+}
+
+/* Al volver a mostrar un tipo (o al llegar un mes), las cápsulas aparecen sin saltos */
+.pill,
+.dot,
+.filterCheck svg {
+  animation: pop-in var(--dur-quick) var(--ease-enter) both;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.pillText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pill[data-highlight='true'] {
+  background: var(--flm-marino);
+  color: #fff;
+}
+
+.pill[data-highlight='true'] svg {
+  color: #fff;
+}
+
+:root[data-theme='dark'] .pill[data-highlight='true'] {
+  background: var(--flm-crema);
+  color: var(--flm-marino);
+}
+
+:root[data-theme='dark'] .pill[data-highlight='true'] svg {
+  color: var(--flm-marino);
+}
+
+.more {
+  padding-left: 6px;
+  font-size: 0.7rem;
+  font-weight: 650;
+  color: var(--ink-2);
+}
+
+.keys {
+  margin-top: var(--space-3);
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  line-height: 2;
+}
+
+/* Panel del día */
+.panel {
+  position: sticky;
+  top: 6rem;
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.panelTitle {
+  font-family: var(--font-serif);
+  font-weight: 420;
+  font-variation-settings: 'opsz' 40;
+  font-size: var(--text-2xl);
+  line-height: 1.15;
+  letter-spacing: -0.012em;
+  margin-bottom: var(--space-2);
+}
+
+.none {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-2);
+  color: var(--ink-2);
+  font-size: var(--text-sm);
+}
+
+/* Entradas de un día */
+.entries {
+  display: grid;
+  gap: var(--space-2);
+  list-style: none;
+  padding: 0;
+}
+
+.entry {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.entry[data-highlight='true'] {
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+  background: color-mix(in srgb, var(--kind) 7%, var(--surface));
+}
+
+.kindDisc {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--kind) 13%, var(--surface));
+  color: var(--kind);
+}
+
+.entryText {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.entryKind {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+}
+
+.kindIcon {
+  color: var(--kind);
+}
+
+.entryFlag {
+  margin-left: 4px;
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--flm-marino);
+  color: #fff;
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+}
+
+:root[data-theme='dark'] .entryFlag {
+  background: var(--flm-crema);
+  color: var(--flm-marino);
+}
+
+.entryTitle {
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.entryDetail {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.entryLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  margin-bottom: -8px;
+  font-size: var(--text-sm);
+  font-weight: 650;
+  color: var(--ink);
+  text-decoration: none;
+  width: fit-content;
+}
+
+.entryLink:hover {
+  text-decoration: underline;
+}
+
+.entryLink svg {
+  transition: transform var(--dur-quick) var(--ease-standard);
+}
+
+.entryLink:hover svg {
+  transform: translateX(3px);
+}
+
+/* ── Móvil: tira semanal + lista legible ──────────────────────────────── */
+
+.mobile {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.strip {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.stripHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.stripRange {
+  font-weight: 650;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.stripClip {
+  position: relative;
+  overflow: hidden;
+}
+
+.stripDays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+  list-style: none;
+  padding: 0;
+}
+
+.stripDay {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 3px;
+  width: 100%;
+  min-height: 72px;
+  padding: 6px 0 8px;
+  border-radius: var(--radius-md);
+}
+
+.stripDay[data-weekend='true'] {
+  background: color-mix(in srgb, var(--ink) 3%, transparent);
+}
+
+.stripDay:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+.stripWd {
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.stripWd[data-today='true'] {
+  color: var(--accent-text);
+  font-weight: 800;
+}
+
+.stripDots {
+  display: flex;
+  gap: 3px;
+  height: 6px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--kind);
+}
+
+.monthList {
+  min-width: 0;
+}
+
+.listTitle {
+  margin-bottom: var(--space-4);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--text-2xl);
+  padding-bottom: var(--space-2);
+  border-bottom: 1.5px solid var(--ink);
+}
+
+.listDays {
+  display: grid;
+  gap: var(--space-5);
+  list-style: none;
+  padding: 0;
+}
+
+.listDay {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+.listDayHead {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 2px;
+  padding-top: 4px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.listDayNum {
+  font-family: var(--font-serif);
+  font-size: 1.9rem;
+  line-height: 1;
+  font-variation-settings: 'opsz' 60;
+}
+
+.listDayWd {
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.listDay[data-today='true'] .listDayWd {
+  color: var(--accent-text);
+  font-weight: 800;
+}
+
+.listDay[data-past='true'] .listDayNum {
+  color: var(--ink-2);
+}
+
+@media (max-width: 1099px) {
+  .blank,
+  .day {
+    min-height: 6.25rem;
+  }
+}
+
+@media (max-width: 719px) {
+  .monthTitle {
+    grid-area: title;
+    font-size: var(--text-3xl);
+  }
+
+  /* Título con flechas en la primera línea; selectores y «Hoy» en la segunda */
+  .toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      'title prev next'
+      'sel sel today';
+    align-items: center;
+    gap: var(--space-3) var(--space-2);
+  }
+
+  .nav {
+    display: contents;
+  }
+
+  .prev {
+    grid-area: prev;
+  }
+
+  .next {
+    grid-area: next;
+  }
+
+  .selects {
+    grid-area: sel;
+    min-width: 0;
+  }
+
+  .todayBtn {
+    grid-area: today;
+    margin-left: 0;
+  }
+
+  /* Filtros en dos columnas: casilla, nombre corto (el completo, para lectores) y recuento */
+  .filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filtersLabel {
+    grid-column: 1 / -1;
+  }
+
+  .filter {
+    padding-right: 0.45rem;
+    font-size: 0.8125rem;
+  }
+
+  .filterIcon {
+    display: none;
+  }
+
+  .filterRest {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .filterCount {
+    margin-left: auto;
+  }
+}

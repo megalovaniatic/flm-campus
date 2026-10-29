@@ -282,7 +282,7 @@ Casillas: pólizas, cuotas y suscripciones pagadas por adelantado (480); cobros 
    - Feedback: después del ajuste, la cuenta de gasto o ingreso debe mostrar exactamente lo devengado en el año (625 = 300 €; 752 = 1.600 €).
 
 3. **Meter el IVA en el ajuste o deducirlo sin factura.**
-   - Por qué falla: el IVA repercutido no forma parte del ingreso ([NRV 12.ª PGC](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#A12)) y el impuesto tiene su propio devengo ([art. 75 LIVA](https://www.boe.es/buscar/act.php?id=BOE-A-1992-28740#a75)): en el alquiler cobrado por adelantado se declara entero en el 4.º trimestre de 2026, aunque dos tercios del ingreso sean de 2027. En una factura pendiente de recibir, el IVA soportado no se deduce hasta recibirla ([arts. 97.Uno](https://www.boe.es/buscar/act.php?id=BOE-A-1992-28740#a97) y [99 LIVA](https://www.boe.es/buscar/act.php?id=BOE-A-1992-28740#a99)). Al revés, en un servicio puntual terminado en diciembre y facturado en enero, el IVA repercutido ya se devengó en diciembre (art. 75.Uno.2.º) y, si el cliente es empresario o profesional, la factura debe expedirse antes del día 16 del mes siguiente ([art. 11.1 RD 1619/2012](https://www.boe.es/buscar/act.php?id=BOE-A-2012-14696#a11)).
+   - Por qué falla: el IVA repercutido no forma parte del ingreso ([NRV 12.ª PGC](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#A12)) y el impuesto tiene su propio devengo ([art. 75 LIVA](https://www.boe.es/buscar/act.php?id=BOE-A-1992-28740#a75)): en el alquiler cobrado por adelantado se declara entero en el 4.º trimestre de 2026 (si se liquida por trimestres), aunque dos tercios del ingreso sean de 2027. En una factura pendiente de recibir, el IVA soportado no se deduce hasta recibirla ([arts. 97.Uno](https://www.boe.es/buscar/act.php?id=BOE-A-1992-28740#a97) y [99 LIVA](https://www.boe.es/buscar/act.php?id=BOE-A-1992-28740#a99)). Al revés, en un servicio puntual terminado en diciembre y facturado en enero, el IVA repercutido ya se devengó en diciembre (art. 75.Uno.2.º) y, si el cliente es empresario o profesional, la factura debe expedirse antes del día 16 del mes siguiente ([art. 11.1 RD 1619/2012](https://www.boe.es/buscar/act.php?id=BOE-A-2012-14696#a11)).
    - Feedback: periodifica bases, no cuotas; para el IVA, mira la fecha de devengo del impuesto.
 
 4. **Elegir una cuenta que no corresponde.**
@@ -437,11 +437,11 @@ Copias locales de trabajo (HTML de los textos consolidados del BOE descargados e
 | PGC, Marco Conceptual 3.º y 5.º | Ninguna: texto original, en vigor desde el 01/01/2008 | Vigente |
 | PGC, quinta parte, grupos 4 y 5 (480, 485, 527, 528, 546, 547, 548, 567, 568) | RD 1/2021 (BOE de 30/01/2021; ejercicios iniciados desde el 01/01/2021) | Vigente |
 | PGC, cuarta parte (4009, 4109, 4309 y subgrupos 48, 52, 54, 56) | Grupo 4 sin modificaciones; grupo 5, RD 1/2021 (cuenta 593, ajena a este tema) | Vigente |
-| PGC, NRV 8.ª, 22.ª y 23.ª | Ninguna: texto original | Vigente |
-| PGC, NRV 14.ª | RD 1/2021 (en vigor desde el 31/01/2021) | Vigente |
+| PGC, NRV 8.ª, 12.ª, 22.ª y 23.ª | Ninguna: texto original | Vigente |
+| PGC, NRV 9.ª y 14.ª | RD 1/2021 (en vigor desde el 31/01/2021; ejercicios iniciados desde el 01/01/2021) | Vigente |
 | PGC, modelo de balance | RD 1/2021 | Vigente |
 | PGC de Pymes, art. 2 (ámbito y límites) | RD 602/2016 (efectos desde el 01/01/2016) | Vigente: 4 M€ de activo, 8 M€ de cifra de negocios y 50 personas |
-| PGC de Pymes, Marco Conceptual, NRV 7.ª, 16.ª, 21.ª y 22.ª, quinta parte (grupos 4 y 5) | Ninguna: texto original (la NRV 16.ª no se adaptó al modelo de ingresos del RD 1/2021) | Vigente |
+| PGC de Pymes, art. 3, Marco Conceptual, NRV 7.ª, 9.ª, 14.ª, 16.ª, 21.ª y 22.ª, quinta parte (grupos 4 y 5) | Ninguna: texto original (la NRV 16.ª no se adaptó al modelo de ingresos que el RD 1/2021 introdujo en el PGC) | Vigente |
 | Código de Comercio, art. 38 | Ley 16/2007 (en vigor desde el 01/01/2008) | Vigente |
 | LIS, art. 11 | Apdos. 1 y 3: texto original de 2014 (en vigor desde el 01/01/2015); el artículo se modificó por última vez con el RDL 3/2016 (apdos. 10 y 11) | Vigente |
 | LIS, art. 29.1 y DT 44.ª | Ley 7/2024 (efectos desde el 01/01/2025) | Vigente: entidades de reducida dimensión, 24 % (2025), 23 % (2026), 22 % (2027), 21 % (2028) y 20 % después; microempresas, 21/22 % (2025), 19/21 % (2026) y 17/20 % desde 2027 |
@@ -473,5 +473,6 @@ Copias locales de trabajo (HTML de los textos consolidados del BOE descargados e
 
 ## 12. Tiempo de lectura estimado
 
-- Contenido final de los apartados 1 a 8 (texto, tablas y asientos): unas 4.900 palabras, que equivalen a **25 minutos** de lectura a 200 palabras por minuto; con las tablas y los cálculos, conviene prever **unos 30 minutos**.
-- Test y banco de preguntas (apartados 9 y 10), con sus explicaciones: unas 2.400 palabras, **12 minutos** adicionales.
+- **Tiempo recomendado para la ficha: 25 minutos.**
+- Base del cálculo: los apartados 1 a 8 (texto, tablas y asientos) suman unas 4.680 palabras, de las que unas 445 son las listas de referencias del apartado 3. A 200 palabras por minuto son 23 minutos (21 sin las referencias); se redondea a 25 porque las tablas de asientos y los cálculos se leen más despacio que la prosa.
+- Test y banco de preguntas (apartados 9 y 10), con sus explicaciones: unas 1.750 palabras, **9 minutos** adicionales si se leen completos.

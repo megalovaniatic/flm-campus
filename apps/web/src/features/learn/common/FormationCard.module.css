@@ -1,0 +1,352 @@
+/* ── Portada tipográfica ─────────────────────────────────────────────── */
+
+.cover {
+  position: relative;
+  container-type: inline-size;
+  display: grid;
+  align-content: end;
+  min-height: 10rem;
+  padding: var(--space-8) var(--space-6) var(--space-5);
+  background: color-mix(in srgb, var(--area) 7%, var(--surface));
+  overflow: hidden;
+}
+
+/* Banda superior con el relleno del área (Contable: el degradado, en una franja fina) */
+.band {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 10px;
+  background: var(--area-fill);
+  transition: height var(--dur-base) var(--ease-standard);
+}
+
+.index {
+  position: absolute;
+  top: 26px;
+  right: var(--space-6);
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.term {
+  --fit: 6;
+  display: block;
+  justify-self: start;
+  max-width: 100%;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-variation-settings: 'opsz' 72;
+  /* Nunca por debajo de 24 px: el rojo de Fiscal solo se usa en texto grande */
+  font-size: clamp(1.5rem, calc(160cqi / var(--fit)), 4.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  color: var(--area);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-bottom: 0.06em;
+  transition: transform var(--dur-base) var(--ease-standard);
+}
+
+/* Contable: el término toma la rampa completa del degradado (superficie mínima) */
+.cover[data-area='contable'] .term {
+  background: var(--flm-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+:root[data-theme='dark'] .cover[data-area='contable'] .term {
+  background: none;
+  color: var(--area);
+}
+
+/* ── Tarjeta ─────────────────────────────────────────────────────────── */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  transition:
+    box-shadow var(--dur-base) var(--ease-standard),
+    transform var(--dur-base) var(--ease-standard),
+    border-color var(--dur-base) var(--ease-standard);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6) var(--space-6);
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-weight: 460;
+  font-variation-settings: 'opsz' 36;
+  font-size: clamp(1.25rem, 1.15rem + 0.35vw, 1.45rem);
+  line-height: 1.18;
+  letter-spacing: -0.012em;
+}
+
+.summary {
+  color: var(--ink-2);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+}
+
+.foot {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+
+.minutes {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.due {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-pill);
+  background: var(--warning-soft);
+  color: var(--warning);
+  font-size: 0.78rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.due[data-overdue] {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* Enlace que cubre la tarjeta: un solo enlace con nombre claro */
+.stretch {
+  color: inherit;
+  text-decoration: none;
+}
+
+.stretch::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+.stretch:focus-visible {
+  box-shadow: none;
+}
+
+.stretch:focus-visible::after {
+  box-shadow: var(--focus-ring);
+}
+
+/* La tarjeta recorta su contenido: el anillo de foco se dibuja en la propia tarjeta */
+.card .stretch:focus-visible::after {
+  box-shadow: none;
+}
+
+.card:has(.stretch:focus-visible) {
+  box-shadow: var(--focus-ring);
+}
+
+@media (hover: hover) {
+  .card:hover {
+    box-shadow: var(--shadow-2);
+    transform: translateY(-3px);
+    border-color: var(--line-strong);
+  }
+
+  .card:hover .band {
+    height: 16px;
+  }
+
+  .card:hover .term {
+    transform: translateY(-4px);
+  }
+
+  .card:hover .title {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+}
+
+.card:focus-within .band {
+  height: 16px;
+}
+
+/* ── Fila compacta ──────────────────────────────────────────────────── */
+
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  transition: background-color var(--dur-quick) var(--ease-standard);
+}
+
+.row + .row {
+  margin-top: 2px;
+}
+
+.mini {
+  position: relative;
+  container-type: inline-size;
+  display: grid;
+  align-content: end;
+  width: 84px;
+  height: 66px;
+  padding: 0 8px 7px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--area) 8%, var(--surface));
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.miniBand {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 6px;
+  background: var(--area-fill);
+  transition: height var(--dur-base) var(--ease-standard);
+}
+
+.miniTerm {
+  --fit: 5;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-family: var(--font-serif);
+  font-variation-settings: 'opsz' 48;
+  font-size: clamp(0.8rem, calc(150cqi / var(--fit)), 1.5rem);
+  justify-self: start;
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+  color: var(--area);
+  padding-bottom: 0.05em;
+}
+
+/* La miniportada usa texto pequeño: el rojo pasa a rojo oscuro (contraste 4,5:1) */
+.row[data-area='fiscal'] .miniTerm {
+  color: var(--accent-text);
+}
+
+.rowText {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.rowTitle {
+  font-family: var(--font-serif);
+  font-weight: 460;
+  font-variation-settings: 'opsz' 30;
+  font-size: 1.1875rem;
+  line-height: 1.22;
+  letter-spacing: -0.01em;
+}
+
+.rowMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.sep {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--ink-3);
+}
+
+.rowArrow {
+  color: var(--ink-2);
+  transition: transform var(--dur-quick) var(--ease-standard), color var(--dur-quick) var(--ease-standard);
+}
+
+@media (hover: hover) {
+  .row:hover {
+    background: color-mix(in srgb, var(--ink) 4%, transparent);
+  }
+
+  .row:hover .miniBand {
+    height: 10px;
+  }
+
+  .row:hover .rowArrow {
+    transform: translateX(3px);
+    color: var(--ink);
+  }
+
+  .row:hover .rowTitle {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+}
+
+@media (max-width: 560px) {
+  .cover {
+    min-height: 8.5rem;
+    padding: var(--space-8) var(--space-5) var(--space-4);
+  }
+
+  .body {
+    padding: var(--space-4) var(--space-5) var(--space-5);
+  }
+
+  .row {
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: var(--space-3) 0;
+    gap: var(--space-3);
+  }
+
+  .mini {
+    width: 72px;
+    height: 58px;
+    padding: 0 6px 6px;
+  }
+
+  .rowArrow {
+    display: none;
+  }
+
+  .rowTitle {
+    font-size: 1.0625rem;
+  }
+}

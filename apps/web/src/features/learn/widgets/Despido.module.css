@@ -1,0 +1,186 @@
+/* Días de indemnización con tope */
+.days {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  min-width: 0;
+}
+
+.daysPlot {
+  position: relative;
+  padding-top: 24px;
+}
+
+.daysTrack {
+  position: relative;
+  height: 18px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+
+.daysSeg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 0 4px 4px 0;
+  background: var(--s1);
+}
+
+.daysSeg:first-child {
+  border-radius: 4px;
+}
+
+.daysSeg[data-t='2'] {
+  background: var(--s3);
+}
+
+/* Separación de 2 px con el color de la superficie */
+.daysSeg[data-gap] {
+  box-shadow: -2px 0 0 var(--wash);
+}
+
+.over {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--wash) 80%, transparent) 0 2.5px, color-mix(in srgb, var(--wash) 30%, transparent) 2.5px 6px);
+  border-radius: 0 4px 4px 0;
+}
+
+.capLine {
+  position: absolute;
+  top: 18px;
+  bottom: -6px;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 2px;
+  background: var(--ink);
+}
+
+.capLabel {
+  position: absolute;
+  top: 0;
+  left: calc(var(--x) * 1%);
+  font-size: 0.75rem;
+  font-weight: 650;
+  white-space: nowrap;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.capLabel[data-side='left'] {
+  transform: translateX(calc(-100% - 6px));
+}
+
+.capLabel[data-side='right'] {
+  transform: translateX(6px);
+}
+
+.block {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+
+.blockTitle {
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.diff {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+.diff strong {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tiempo de servicio */
+.service {
+  display: grid;
+  gap: 8px;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+}
+
+.serviceTitle {
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.serviceTrack {
+  display: flex;
+  gap: 2px;
+  height: 8px;
+}
+
+.serviceSeg {
+  display: block;
+  flex-basis: 0;
+  min-width: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--s1);
+}
+
+.serviceSeg[data-t='2'] {
+  background: var(--s3);
+}
+
+.serviceDates {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.serviceMid {
+  position: absolute;
+  transform: translateX(-50%);
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.serviceList {
+  display: grid;
+  gap: 4px;
+  list-style: none;
+  padding: 0;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.serviceList li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.serviceList strong {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.serviceDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--s1);
+  flex: none;
+}
+
+.serviceDot[data-t='2'] {
+  background: var(--s3);
+}

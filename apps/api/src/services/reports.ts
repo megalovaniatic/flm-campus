@@ -1,8 +1,7 @@
 import { commonErrors, formationStatus, madridDateKey, plainText, STATUS_LABEL, type FormationProgress, type FormationStatus } from '@flm/shared';
 import { all, type Db } from '../db/database';
 import type { CsvValue } from '../lib/csv';
-import type { AssignmentRow } from './assignments';
-import { mergeDueDates } from './assignments';
+import { mergeDueDates, type AssignmentRow } from './assignments';
 import { listPublished, type ContentRow } from './content';
 import { quizOf, toQuizAttempt, type AttemptRow } from './learning';
 import { activeUsers } from './people';

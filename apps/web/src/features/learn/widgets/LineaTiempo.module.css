@@ -1,0 +1,128 @@
+.list {
+  position: relative;
+  display: grid;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.item {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(7rem, 11rem) minmax(0, 1fr);
+  gap: 4px var(--space-5);
+  padding: var(--space-3) 0 var(--space-5) 2.25rem;
+}
+
+/* Conector de cada hito con el siguiente: se dibuja al entrar en pantalla */
+.item::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: calc(var(--space-3) + 22px);
+  bottom: calc((var(--space-3) + 2px) * -1);
+  width: 2px;
+  border-radius: 2px;
+  background: var(--line-strong);
+  transform: scaleY(0);
+  transform-origin: top center;
+  transition: transform var(--dur-slow) var(--ease-enter);
+  transition-delay: calc(var(--i) * 80ms + 160ms);
+}
+
+.list[data-seen] .item::before {
+  transform: scaleY(1);
+}
+
+.item:last-child::before {
+  display: none;
+}
+
+.node {
+  position: absolute;
+  left: 0;
+  top: calc(var(--space-3) + 4px);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+
+.item[data-tone='plazo'] .node {
+  background: var(--surface);
+  border: 3px solid var(--accent);
+}
+
+.item[data-tone='pendiente'] .node {
+  background: var(--surface);
+  border: 2px dashed var(--ink-2);
+}
+
+.when {
+  font-size: var(--text-sm);
+  font-weight: 650;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.body {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  justify-items: start;
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-weight: 460;
+  font-variation-settings: 'opsz' 30;
+  font-size: 1.2rem;
+  line-height: 1.25;
+  letter-spacing: -0.008em;
+  text-wrap: balance;
+}
+
+.text {
+  max-width: 62ch;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+.text p + p {
+  margin-top: 0.6em;
+}
+
+.tone {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 0.7rem 0 0.55rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.tone[data-tone='plazo'] {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.tone[data-tone='pendiente'] {
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+  color: var(--ink-2);
+}
+
+@container widget (max-width: 560px) {
+  .item {
+    grid-template-columns: minmax(0, 1fr);
+    padding-bottom: var(--space-4);
+  }
+
+  .when {
+    font-size: 0.8125rem;
+    color: var(--ink-2);
+  }
+}

@@ -1,0 +1,92 @@
+/* Apartados del dosier «Sobre el campus» */
+.section {
+  display: grid;
+  gap: var(--space-6);
+  padding-top: clamp(2.5rem, 1.5rem + 3vw, 4.5rem);
+  border-top: 1px solid var(--line);
+}
+
+.section:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.section + .section {
+  margin-top: clamp(2.5rem, 1.5rem + 3vw, 4.5rem);
+}
+
+.head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-4) clamp(1rem, 0.5rem + 1.5vw, 2rem);
+  align-items: start;
+}
+
+.number {
+  font-family: var(--font-serif);
+  font-variation-settings: 'opsz' 72;
+  font-weight: 300;
+  font-size: clamp(2.25rem, 1.6rem + 2vw, 3.5rem);
+  line-height: 0.9;
+  color: var(--ink-3);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.headText {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-variation-settings: 'opsz' 60;
+  font-size: var(--text-4xl);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+}
+
+.title:focus-visible {
+  border-radius: var(--radius-xs);
+}
+
+.lede {
+  max-width: 44rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-variation-settings: 'opsz' 24;
+  font-size: clamp(1.1rem, 1rem + 0.35vw, 1.3rem);
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.sub {
+  display: grid;
+  gap: 4px;
+  margin-top: var(--space-6);
+}
+
+.subTitle {
+  font-family: var(--font-serif);
+  font-variation-settings: 'opsz' 40;
+  font-weight: 460;
+  font-size: var(--text-2xl);
+  line-height: 1.15;
+}
+
+.subHint {
+  max-width: 44rem;
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+@media (max-width: 560px) {
+  .head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .number {
+    font-size: 1.75rem;
+  }
+}

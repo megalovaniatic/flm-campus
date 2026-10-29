@@ -1,0 +1,142 @@
+.fields {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  align-items: start;
+}
+
+.split {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+}
+
+.tile {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--wash);
+  border: 1px solid var(--line);
+  min-width: 0;
+}
+
+.tile[data-kind='480'] {
+  box-shadow: inset 3px 0 0 var(--s2);
+}
+
+.tileValue {
+  font-weight: 650;
+  font-size: clamp(1.6rem, 1.2rem + 2cqi, 2.25rem);
+  letter-spacing: -0.03em;
+}
+
+.tileSub {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Barra del periodo con la línea de corte */
+.cut {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  min-width: 0;
+}
+
+.cutPlot {
+  position: relative;
+  padding-top: 26px;
+}
+
+.cutTrack {
+  position: relative;
+  height: 28px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  overflow: hidden;
+}
+
+.segNow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--s1);
+}
+
+.segNext {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 2px solid var(--surface);
+  background: repeating-linear-gradient(135deg, var(--s2) 0 3px, color-mix(in srgb, var(--s2) 45%, transparent) 3px 7px);
+}
+
+.monthTick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: color-mix(in srgb, var(--surface) 75%, transparent);
+}
+
+.cutLine {
+  position: absolute;
+  top: 20px;
+  left: calc(var(--cut) * 100%);
+  width: 2px;
+  height: 40px;
+  margin-left: -1px;
+  border-radius: 2px;
+  background: var(--ink);
+  transform-origin: top center;
+}
+
+.cutLabel {
+  position: absolute;
+  top: 0;
+  left: calc(var(--cut) * 100%);
+  font-size: 0.75rem;
+  font-weight: 650;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.cutLabel[data-side='left'] {
+  transform: translateX(calc(-100% - 6px));
+}
+
+.cutLabel[data-side='right'] {
+  transform: translateX(6px);
+}
+
+.months {
+  position: relative;
+  height: 16px;
+  margin-top: 8px;
+  font-size: 0.6875rem;
+  color: var(--ink-2);
+}
+
+.months span {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.journals {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  align-items: start;
+}
+
+.footnote {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+  text-wrap: pretty;
+}

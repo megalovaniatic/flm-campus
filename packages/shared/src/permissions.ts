@@ -102,6 +102,8 @@ export interface TransitionCheck {
   ok: boolean;
   to?: EditorialStatus;
   reason?: string;
+  /** Motivo estable del rechazo: permiso (403), estado no válido (409) o propiedad (403). */
+  code?: 'permiso' | 'estado' | 'propiedad';
 }
 
 /**
@@ -110,10 +112,10 @@ export interface TransitionCheck {
  */
 export function checkTransition(role: Role, action: EditorialAction, from: EditorialStatus, isOwner: boolean): TransitionCheck {
   const t = TRANSITIONS[action];
-  if (!can(role, t.permission)) return { ok: false, reason: 'No tienes permiso para realizar esta acción.' };
-  if (!t.from.includes(from)) return { ok: false, reason: `No se puede ${ACTION_VERB[action]} un contenido en estado «${STATUS_LABEL_EDITORIAL[from]}».` };
+  if (!can(role, t.permission)) return { ok: false, code: 'permiso', reason: 'No tienes permiso para realizar esta acción.' };
+  if (!t.from.includes(from)) return { ok: false, code: 'estado', reason: `No se puede ${ACTION_VERB[action]} un contenido en estado «${STATUS_LABEL_EDITORIAL[from]}».` };
   if ((action === 'guardar' || action === 'enviar') && !isOwner && !can(role, 'contenido:editar-cualquiera')) {
-    return { ok: false, reason: 'Solo puedes modificar tus propios borradores.' };
+    return { ok: false, code: 'propiedad', reason: 'Solo puedes modificar tus propios borradores.' };
   }
   return { ok: true, to: t.to };
 }
