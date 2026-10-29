@@ -117,7 +117,7 @@ Cada página es un fragmento propio. Las fotografías se sirven en AVIF o WebP c
 
 - La demo no tiene servidor: no contiene secretos ni claves, y todo lo que se hace se guarda solo en el navegador (`localStorage`). Se puede borrar con «Restablecer».
 - Solo se publican documentos de FLM aprobados para la demo. Los documentos de terceros (revista de AEDAF, presentación de la campaña de Sociedades y novedades de Cataluña) aparecen como fichas sin archivo.
-- Las personas reales aparecen con su nombre y área públicos y con la fuente anotada. Solo llevan fotografía cuando FLM la ha aportado o hay autorización expresa. Las personas ficticias de relleno están marcadas como tales en Administración, y a las reales no se les atribuye ningún dato inventado.
+- Las personas reales aparecen con su nombre y área públicos y con la fuente anotada. Solo llevan fotografía cuando FLM la ha aportado; el perfil de la demostración aparece con sus iniciales, sin foto. Las personas ficticias de relleno están marcadas como tales en Administración, y a las reales no se les atribuye ningún dato inventado.
 - En la versión privada, la seguridad la cubren las 81 pruebas de la API (§2). Configuración y despliegue en [`apps/api/README.md`](../apps/api/README.md).
 
 ## 8. Qué no se ha probado

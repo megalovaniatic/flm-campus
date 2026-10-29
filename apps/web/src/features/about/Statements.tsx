@@ -213,7 +213,7 @@ export function Credits() {
       <dl className={styles.credits}>
         <div>
           <dt>Fotografía</dt>
-          <dd>Fotografías corporativas aportadas por FLM: sede de Barcelona (fachada, recepción y biblioteca), libretas, retrato de Ángel María Ceniceros y Desayuno Mercantil. Retrato de Judith Calet con su autorización.</dd>
+          <dd>Fotografías corporativas aportadas por FLM: sede de Barcelona (fachada, recepción y biblioteca), libretas, retrato de Ángel María Ceniceros y Desayuno Mercantil.</dd>
         </div>
         <div>
           <dt>Logotipos</dt>

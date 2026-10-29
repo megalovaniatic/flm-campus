@@ -17,7 +17,6 @@ export interface PortraitCrop {
 }
 
 const PORTRAITS: Record<string, Omit<PortraitCrop, 'src'> & { file: string }> = {
-  'img/people/judith-calet.webp': { file: 'img/people/judith-calet-retrato.webp', width: 900, height: 1200, x: 180, y: 196, size: 560 },
   'img/people/angel-ceniceros.webp': { file: 'img/people/angel-ceniceros-retrato.webp', width: 900, height: 1350, x: 120, y: 215, size: 600 },
 };
 

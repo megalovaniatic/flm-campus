@@ -1,8 +1,8 @@
 /**
  * Personas de la DEMOSTRACIÓN.
  *
- * - Judith Calet (Asesora Contable) aparece con su nombre y fotografía con su autorización expresa,
- *   como perfil con el que se abre la demo.
+ * - Judith Calet (Asesora Contable) aparece con su nombre, con su autorización expresa, como perfil
+ *   con el que se abre la demo. No lleva fotografía: el campus muestra sus iniciales.
  * - El resto son personas FICTICIAS creadas para mostrar el calendario, los aniversarios y la
  *   administración. No tienen fotografía (solo iniciales) para no fabricar retratos de plantilla.
  *   En la versión privada estos datos se sustituyen por las cuentas reales.
@@ -169,7 +169,6 @@ export const people: Person[] = [
       birthday,
       showBirthday: !!birthday,
       status: 'activa',
-      photo: isJudith ? 'img/people/judith-calet.webp' : undefined,
       fictional: isJudith ? undefined : true,
       publicSource: isJudith ? 'Perfil de la demostración, con autorización expresa.' : undefined,
     };

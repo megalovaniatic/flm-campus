@@ -18,6 +18,10 @@ describe('contenido semilla', () => {
     expect(new Set(seed.people.map((p) => p.id)).size).toBe(seed.people.length);
   });
 
+  it('el perfil de la demostración va sin fotografía', () => {
+    expect(seed.people.find((p) => p.id === 'p-judith-calet')?.photo).toBeUndefined();
+  });
+
   it('formaciones válidas (resultados, ejemplo, test de 3 con aprobado 2)', () => {
     expect(issues(formationSchema, seed.formations)).toEqual([]);
   });

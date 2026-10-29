@@ -58,4 +58,4 @@ Ver [`apps/api/README.md`](../apps/api/README.md): Hono sobre Node 24 con SQLite
 
 ## Demo pública frente a versión privada
 
-La demo pública no contiene credenciales ni registros privados: las personas reales aparecen solo con información profesional pública (y la persona de la demostración con su autorización). Las acciones de administración están rotuladas como simulación. La versión privada se despliega por separado, con autenticación real.
+La demo pública no contiene credenciales ni registros privados: las personas reales aparecen solo con información profesional pública (y la persona de la demostración, con su nombre y su autorización, pero sin fotografía). Las acciones de administración están rotuladas como simulación. La versión privada se despliega por separado, con autenticación real.
