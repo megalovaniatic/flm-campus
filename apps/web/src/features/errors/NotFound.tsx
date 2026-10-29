@@ -22,7 +22,7 @@ const DESTINATIONS: Destination[] = [
   { to: '/aprender', slug: 'aprender', label: 'Aprender', text: 'Formaciones de Fiscal, Laboral, Mercantil y Contable, con test final.', icon: BookOpen },
   { to: '/consultar', slug: 'consultar', label: 'Consultar', text: 'Actualidad en tu sector, notas informativas y lecturas recomendadas.', icon: Library },
   { to: '/participar', slug: 'participar', label: 'Participar', text: 'Agenda, calendario y propuestas para el equipo.', icon: Users },
-  { to: '/perfil', slug: 'perfil', label: 'Mi perfil', text: 'Tu recorrido, tu progreso y tus ajustes.', icon: UserRound },
+  { to: '/perfil', slug: 'perfil', label: 'Mi perfil', text: 'Tu progreso, tus reconocimientos y tus ajustes.', icon: UserRound },
   { to: '/sobre', slug: 'sobre', label: 'Sobre el campus', text: 'Concepto, marca, accesibilidad y privacidad.', icon: Info },
 ];
 

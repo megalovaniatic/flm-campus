@@ -1,5 +1,5 @@
 import { animate, useInView } from 'motion/react';
-import { ArrowRight, Award, BookOpenCheck, Feather, GraduationCap, Medal, Sparkles, type LucideIcon } from 'lucide-react';
+import { ArrowRight, BookOpenCheck, Feather, GraduationCap, Medal, Sparkles, type LucideIcon } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { AREA_IDS, formatLongDate, madridDateKey, type AreaId, type Badge, type BadgeFamily } from '@flm/shared';
@@ -11,7 +11,6 @@ import styles from './Recognitions.module.css';
 type IconType = LucideIcon;
 
 const FAMILIES: { id: BadgeFamily; title: string; hint: string; icon: IconType }[] = [
-  { id: 'trayectoria', title: 'Trayectoria', hint: 'Aniversarios en FLM', icon: Award },
   { id: 'aprendizaje', title: 'Aprendizaje', hint: 'Itinerarios de área y evaluaciones', icon: GraduationCap },
   { id: 'contribucion', title: 'Contribución', hint: 'Lo que compartes con el equipo', icon: Feather },
 ];
@@ -24,12 +23,11 @@ function areaOf(badge: Badge): AreaId | undefined {
 }
 
 function glyphFor(badge: Badge): IconType {
-  if (badge.family === 'trayectoria') return Award;
   if (badge.family === 'contribucion') return Feather;
   return badge.id.startsWith('evaluacion-') ? Medal : BookOpenCheck;
 }
 
-/** Cifra que acompaña a la cápsula (años, aciertos...). Nunca la inicial de un área dentro de un círculo. */
+/** Cifra que acompaña a la cápsula (aciertos, publicaciones...). Nunca la inicial de un área dentro de un círculo. */
 function markOf(badge: Badge): string | undefined {
   if (badge.id.startsWith('area-')) return undefined;
   return badge.mark;

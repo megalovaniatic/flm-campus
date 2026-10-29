@@ -1,6 +1,4 @@
 import {
-  Award,
-  Cake,
   CalendarDays,
   Coffee,
   Globe,
@@ -41,8 +39,6 @@ export function EventIcon({ icon, size = 18, className }: { icon: EventIconName;
 }
 
 export const KIND_ICON: Record<CalendarKind, LucideIcon> = {
-  cumpleanos: Cake,
-  aniversario: Award,
   encuentro: Users,
   festivo: Sun,
 };

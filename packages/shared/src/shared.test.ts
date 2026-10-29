@@ -5,8 +5,7 @@ import { eventPhase, eventToIcs, nextSession } from './events';
 import { can, checkTransition, isCorporateEmail } from './permissions';
 import { formationStatus, gradeQuiz } from './progress';
 import { normalize, slugify } from './text';
-import { nextTenureMilestone, tenureYears } from './badges';
-import type { CampusEvent, Person, Quiz } from './types';
+import type { CampusEvent, Quiz } from './types';
 
 const editorial = { status: 'publicado' as const, authorId: 'a', review: { state: 'revisado' as const } };
 const baseEvent = (patch: Partial<CampusEvent>): CampusEvent => ({
@@ -69,30 +68,15 @@ describe('ciclo de vida de eventos', () => {
 });
 
 describe('calendario', () => {
-  const person: Person = {
-    id: 'p1',
-    email: 'ana@flmexperts.com',
-    name: 'Ana Prueba',
-    position: 'Asesora',
-    department: 'Fiscal',
-    office: 'Barcelona',
-    role: 'empleado',
-    startDate: '2016-02-29',
-    birthday: '02-29',
-    showBirthday: true,
-    status: 'activa',
-  };
-  it('genera aniversarios desde la fecha de incorporación y mueve el 29/02 al 28 en años no bisiestos', () => {
-    const feb = entriesForMonth(2027, 2, { people: [person], holidays: [], events: [] });
-    expect(feb.find((e) => e.kind === 'aniversario')).toMatchObject({ date: '2027-02-28', years: 11 });
-    expect(feb.find((e) => e.kind === 'cumpleanos')?.date).toBe('2027-02-28');
-  });
-  it('respeta la preferencia de no mostrar el cumpleaños', () => {
-    const feb = entriesForMonth(2028, 2, { people: [{ ...person, showBirthday: false }], holidays: [], events: [] });
-    expect(feb.some((e) => e.kind === 'cumpleanos')).toBe(false);
+  const navidad = { date: '2026-12-25', name: 'Navidad', scope: 'nacional' as const, offices: [], source: 'https://www.boe.es' };
+  it('solo genera encuentros de equipo y festivos, sin fechas personales', () => {
+    const comida = baseEvent({ title: 'Comida de Navidad', sessions: [{ start: '2026-12-16T14:00' }] });
+    const list = entriesForMonth(2026, 12, { holidays: [navidad], events: [comida] });
+    expect(list.map((e) => e.kind)).toEqual(['encuentro', 'festivo']);
+    expect(list[0]).toMatchObject({ date: '2026-12-16', title: 'Comida de Navidad', eventId: 'e1', time: '14:00' });
   });
   it('muestra los festivos como «Festivo»', () => {
-    const list = entriesForMonth(2026, 12, { people: [], holidays: [{ date: '2026-12-25', name: 'Navidad', scope: 'nacional', offices: [], source: 'https://www.boe.es' }], events: [] });
+    const list = entriesForMonth(2026, 12, { holidays: [navidad], events: [] });
     expect(list[0]).toMatchObject({ title: 'Festivo', detail: 'Navidad' });
   });
   it('construye la cuadrícula empezando en lunes', () => {
@@ -147,13 +131,9 @@ describe('permisos y flujo editorial', () => {
   });
 });
 
-describe('texto y trayectoria', () => {
+describe('texto', () => {
   it('normaliza tildes y conserva la ñ', () => {
     expect(normalize('Ámbito ESPAÑOL')).toBe('ambito español');
     expect(slugify('Cuándo derivar a Mercantil')).toBe('cuando-derivar-a-mercantil');
-  });
-  it('calcula años de trayectoria y el próximo hito', () => {
-    expect(tenureYears('2016-11-02', '2026-10-28')).toBe(9);
-    expect(nextTenureMilestone('2016-11-02', '2026-10-28')).toMatchObject({ years: 10, date: '2026-11-02', inDays: 5 });
   });
 });

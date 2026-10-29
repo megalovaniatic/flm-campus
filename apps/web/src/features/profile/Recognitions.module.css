@@ -1,7 +1,7 @@
 /* Reconocimientos: cápsulas agrupadas por familia (sin puntos ni rankings) */
 .families {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-6);
 }
 

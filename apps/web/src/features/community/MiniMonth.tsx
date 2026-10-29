@@ -2,24 +2,21 @@ import { ArrowRight } from 'lucide-react';
 import { useMemo } from 'react';
 import { Link } from 'react-router';
 import { diffDays, formatWeekdayDate, monthGrid, monthName, monthShort, relativeDay, weekdayName, type CalendarEntry, type CalendarSources } from '@flm/shared';
-import { Avatar } from '@/design';
-import { holidays, useEvents, usePeople } from '@/data/selectors';
+import { holidays, useEvents } from '@/data/selectors';
 import { entrySentence, festivoLabel, indexMonths, KIND_ORDER, kindLabel, shiftMonth } from './calendarView';
 import { capitalize } from './eventView';
 import { KindIcon } from './icons';
 import styles from './Hub.module.css';
 
-const base = import.meta.env.BASE_URL;
 const INITIALS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
 /** Mes en curso en miniatura: puntos por tipo, días enlazados con el calendario y próximas fechas. */
 export function MiniMonth({ today, headingId }: { today: string; headingId: string }) {
-  const people = usePeople();
   const events = useEvents();
   const y = Number(today.slice(0, 4));
   const m = Number(today.slice(5, 7));
   const meetings = useMemo(() => events.filter((e) => e.kind !== 'comunicado'), [events]);
-  const sources = useMemo<CalendarSources>(() => ({ people, holidays, events: meetings }), [people, meetings]);
+  const sources = useMemo<CalendarSources>(() => ({ holidays, events: meetings }), [meetings]);
   const index = useMemo(() => indexMonths([{ y, m }, shiftMonth(y, m, 1)], sources), [y, m, sources]);
   const weeks = monthGrid(y, m);
   const soon = useMemo(
@@ -81,11 +78,11 @@ export function MiniMonth({ today, headingId }: { today: string; headingId: stri
 
       <h3 className={styles.soonHeading}>Próximas fechas</h3>
       {soon.length === 0 ? (
-        <p className={styles.soonNone}>No hay cumpleaños, aniversarios, encuentros ni festivos en las próximas dos semanas.</p>
+        <p className={styles.soonNone}>No hay encuentros ni festivos en las próximas dos semanas.</p>
       ) : (
         <ul role="list" className={styles.soon}>
           {soon.map((e) => (
-            <SoonItem key={e.id} entry={e} today={today} people={people} />
+            <SoonItem key={e.id} entry={e} today={today} />
           ))}
         </ul>
       )}
@@ -127,22 +124,16 @@ function MiniDay({ dateKey, entries, isToday }: { dateKey: string; entries: Cale
   );
 }
 
-function SoonItem({ entry: e, today, people }: { entry: CalendarEntry; today: string; people: ReturnType<typeof usePeople> }) {
-  const person = e.personId ? people.find((p) => p.id === e.personId) : undefined;
+function SoonItem({ entry: e, today }: { entry: CalendarEntry; today: string }) {
   const when = relativeDay(e.date, today);
   let extra = '';
-  if (e.kind === 'aniversario' && e.detail) extra = ` · ${e.detail}`;
   if (e.kind === 'encuentro' && e.time) extra = ` · ${e.time}`;
   if (e.kind === 'festivo' && e.detail) extra = ` · ${e.detail}`;
   return (
     <li className={styles.soonItem} data-kind={e.kind}>
-      {person ? (
-        <Avatar name={person.name} photo={person.photo ? base + person.photo : undefined} size={36} decorative />
-      ) : (
-        <span className={styles.soonDisc} aria-hidden="true">
-          <KindIcon kind={e.kind} size={16} />
-        </span>
-      )}
+      <span className={styles.soonDisc} aria-hidden="true">
+        <KindIcon kind={e.kind} size={16} />
+      </span>
       <span className={styles.soonText}>
         <span className={styles.soonTitle}>{e.kind === 'festivo' ? festivoLabel(e) : e.title}</span>
         <span className={styles.soonMeta}>

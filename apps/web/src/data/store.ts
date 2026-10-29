@@ -5,6 +5,9 @@
  * borradores, cambios de administración— se guarda solo en este navegador
  * (localStorage) y se puede restablecer. En la versión privada estas mismas
  * operaciones las resuelve la API con permisos en el servidor.
+ *
+ * Lo guardado lleva número de versión: si cambia su forma, se sube `version` y se añade
+ * el paso correspondiente en `migrateDemo`, para no perder el progreso de nadie.
  */
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
@@ -133,6 +136,33 @@ const safeStorage = createJSONStorage(() => {
   }
 });
 
+/** Lo que la demo guarda en este navegador: todo menos la presentación inicial. */
+type PersistedDemo = Omit<DemoState, 'seenIntro'>;
+
+/** Claves de la ficha que el campus ya no guarda: cumpleaños, su consentimiento y fecha de incorporación. */
+const RETIRED_PERSON_KEYS = new Set(['birthday', 'showBirthday', 'startDate']);
+
+/**
+ * Pone al día lo guardado por una versión anterior sin perder el progreso.
+ * v2: el campus deja de guardar cumpleaños y fechas de incorporación, y desaparecen los
+ * aniversarios en FLM; se borran los que quedaran en este navegador.
+ */
+export function migrateDemo(persisted: unknown, version: number): PersistedDemo {
+  const state = (persisted ?? {}) as PersistedDemo;
+  if (version >= 2) return state;
+  const peopleOverrides: Record<string, Partial<Person>> = {};
+  for (const [id, patch] of Object.entries(state.peopleOverrides ?? {})) {
+    const kept = Object.entries(patch).filter(([key]) => !RETIRED_PERSON_KEYS.has(key));
+    if (kept.length) peopleOverrides[id] = Object.fromEntries(kept);
+  }
+  return {
+    ...state,
+    peopleOverrides,
+    audit: (state.audit ?? []).filter((r) => r.action !== 'perfil.cumpleanos'),
+    celebrated: (state.celebrated ?? []).filter((id) => !id.startsWith('trayectoria-')),
+  };
+}
+
 export const useDemo = create<DemoState>()(
   persist(
     (set) => ({
@@ -181,9 +211,10 @@ export const useDemo = create<DemoState>()(
     }),
     {
       name: 'flm-campus-demo',
-      version: 1,
+      version: 2,
       storage: safeStorage,
-      partialize: (s) => {
+      migrate: migrateDemo,
+      partialize: (s): PersistedDemo => {
         const { seenIntro: _seen, ...rest } = s;
         return rest;
       },

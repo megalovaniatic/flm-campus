@@ -241,14 +241,11 @@ export function PeopleSection() {
         email: `eliminada-${p.id}@anonimizada.invalid`,
         position: '',
         photo: '',
-        startDate: '',
-        birthday: '',
-        showBirthday: false,
         publicSource: '',
         status: 'inactiva',
       });
       st.revokeSessions(p.id);
-      log('persona.eliminar-datos', p, 'Anonimizados nombre, correo, foto y cumpleaños. Intentos de test desvinculados.');
+      log('persona.eliminar-datos', p, 'Anonimizados nombre, correo, foto y puesto. Intentos de test desvinculados.');
       toast.success('Datos personales eliminados', 'La ficha queda anonimizada y la acción consta en la auditoría.');
     }
     close();
@@ -479,7 +476,7 @@ export function PeopleSection() {
           >
             <ul className={styles.effects}>
               <li>Nombre y correo pasan a «{ANON_NAME}» y a una dirección no válida.</li>
-              <li>Se borran la fotografía, el puesto, la fecha de incorporación y el cumpleaños.</li>
+              <li>Se borran la fotografía y el puesto.</li>
               <li>Se cierran sus sesiones; los intentos de test se desvinculan y quedan solo como agregados anónimos.</li>
               <li>Queda constancia en la auditoría, sin datos personales en el detalle.</li>
             </ul>

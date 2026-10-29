@@ -1,10 +1,9 @@
-import { Bell, CalendarClock, GraduationCap, Newspaper } from 'lucide-react';
+import { Bell, CalendarClock, Newspaper } from 'lucide-react';
 import { useMemo } from 'react';
 import { Link } from 'react-router';
-import { diffDays, eventPhase, formatShortDate, madridDateKey, nextSession, sessionStart, timeOf, formationStatus } from '@flm/shared';
+import { diffDays, eventPhase, formatShortDate, madridDateKey, nextSession, sessionStart, timeOf } from '@flm/shared';
 import { Popover } from '@/design';
-import { assignments, useEvents, useFormations, useMe, useNews } from '@/data/selectors';
-import { useDemo } from '@/data/store';
+import { useEvents, useMe, useNews } from '@/data/selectors';
 import styles from './NoticesButton.module.css';
 
 interface Notice {
@@ -15,32 +14,15 @@ interface Notice {
   href: string;
 }
 
-/** Avisos calculados a partir de datos reales: obligatorias, agenda y novedades del área. */
+/** Avisos calculados a partir de datos reales: agenda de la semana y novedades de tu área. */
 export function useNotices(): Notice[] {
   const me = useMe();
-  const formations = useFormations();
-  const progress = useDemo((s) => s.progress);
   const events = useEvents();
   const news = useNews();
   return useMemo(() => {
     if (!me) return [];
     const today = madridDateKey();
     const out: Notice[] = [];
-    const left = (days: number) => (days === 0 ? ' (vence hoy)' : days === 1 ? ' (queda 1 día)' : ` (quedan ${days} días)`);
-    // La obligatoria que vence antes, primero.
-    for (const a of [...assignments].sort((x, y) => (x.dueDate ?? '9999').localeCompare(y.dueDate ?? '9999'))) {
-      if (a.target.kind === 'persona' && a.target.personId !== me.id) continue;
-      const f = formations.find((x) => x.id === a.formationId);
-      if (!f || formationStatus(progress[f.id], f) === 'completada') continue;
-      const days = a.dueDate ? diffDays(today, a.dueDate) : undefined;
-      out.push({
-        id: `as-${a.id}`,
-        icon: GraduationCap,
-        title: `Formación obligatoria: ${f.title}`,
-        body: a.dueDate ? `Complétala antes del ${formatShortDate(a.dueDate, false)}${days !== undefined && days >= 0 ? left(days) : ''}.` : 'Asignada por administración.',
-        href: `/aprender/${f.area}/${f.slug}`,
-      });
-    }
     for (const ev of events) {
       if (eventPhase(ev) === 'historico') continue;
       const s = nextSession(ev);
@@ -62,7 +44,7 @@ export function useNotices(): Notice[] {
       out.push({ id: `news-${n.id}`, icon: Newspaper, title: n.headline, body: `Novedad de tu área · ${formatShortDate(n.date)}`, href: `/consultar/actualidad/${n.slug}` });
     }
     return out;
-  }, [me, formations, progress, events, news]);
+  }, [me, events, news]);
 }
 
 export function NoticesButton() {

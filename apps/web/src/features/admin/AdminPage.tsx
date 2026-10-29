@@ -3,7 +3,7 @@ import type { LucideIcon } from 'lucide-react';
 import { ArrowRight, ChartColumn, FileQuestionMark, FlaskConical, Inbox, LayoutGrid, ScrollText, Timer, Users } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import { ButtonLink, EmptyState, Notice, PageHeader } from '@/design';
-import { assignments, useFormations, usePeople } from '@/data/selectors';
+import { useFormations, usePeople } from '@/data/selectors';
 import { useDemo } from '@/data/store';
 import { MESSAGES } from '@/lib/messages';
 import { usePageTitle } from '@/lib/preferences';
@@ -18,7 +18,7 @@ type SectionId = 'personas' | 'informes' | 'auditoria' | 'retencion';
 
 const SECTIONS: { id: SectionId; label: string; icon: LucideIcon; title: string; lede: string }[] = [
   { id: 'personas', label: 'Personas', icon: Users, title: 'Personas y accesos', lede: 'Roles, activación, sesiones y eliminación controlada de datos personales.' },
-  { id: 'informes', label: 'Informes', icon: ChartColumn, title: 'Informes restringidos', lede: 'Cumplimiento de las formaciones obligatorias y errores frecuentes por pregunta.' },
+  { id: 'informes', label: 'Informes', icon: ChartColumn, title: 'Informes restringidos', lede: 'Participación en las formaciones, sin nombres, y errores frecuentes por pregunta.' },
   { id: 'auditoria', label: 'Auditoría', icon: ScrollText, title: 'Auditoría', lede: 'Quién hizo qué, sobre qué y cuándo. Sin contraseñas, tokens ni datos personales en el detalle.' },
   { id: 'retencion', label: 'Retención', icon: Timer, title: 'Retención de datos', lede: 'Cuánto se conserva cada dato y cómo se elimina.' },
 ];
@@ -55,12 +55,10 @@ function Overview() {
   const admins = active.filter((p) => p.role === 'admin').length;
   const real = people.filter((p) => !p.fictional).length;
   const pending = rows.filter((r) => r.status === 'en-revision').length;
-  const published = new Set(formations.map((f) => f.id));
-  const live = assignments.filter((a) => published.has(a.formationId)).length;
 
   const cards: { id: SectionId; figure: string; caption: string; detail: string }[] = [
     { id: 'personas', figure: String(active.length), caption: active.length === 1 ? 'persona activa' : 'personas activas', detail: `${admins} ${admins === 1 ? 'administrador' : 'administradores'} · ${real} ${real === 1 ? 'persona real' : 'personas reales'} en la demo` },
-    { id: 'informes', figure: String(assignments.length), caption: assignments.length === 1 ? 'formación obligatoria asignada' : 'formaciones obligatorias asignadas', detail: live === assignments.length ? 'Todas con su formación publicada' : `${assignments.length - live} a la espera de que se publique su formación` },
+    { id: 'informes', figure: String(formations.length), caption: formations.length === 1 ? 'formación publicada' : 'formaciones publicadas', detail: 'Participación sin nombres y errores frecuentes' },
     { id: 'auditoria', figure: String(audit.length), caption: audit.length === 1 ? 'registro de esta demo' : 'registros de esta demo', detail: 'Más ejemplos rotulados para ver el formato' },
     { id: 'retencion', figure: '12 h', caption: 'sin actividad cierran la sesión', detail: '14 días como máximo · auditoría, 2 años' },
   ];

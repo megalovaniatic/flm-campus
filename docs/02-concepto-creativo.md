@@ -8,11 +8,13 @@ Cuatro direcciones independientes (editorial, producto digital, marca en movimie
 
 | Concepto | Puntuación media | Qué aporta al resultado final |
 |---|---|---|
-| Círculo de confianza (humano) | 8,07 | Base: personas reales, «Hoy en FLM», trayectoria, pertenencia |
+| Círculo de confianza (humano) | 8,07 | Base: personas reales, «Hoy en FLM» y pertenencia |
 | Punto y seguido (editorial) | 8,15 | Newsreader + Inter, «El titular es el menú», test como «pruebas de imprenta» |
 | Vasos comunicantes (movimiento) | 7,78 | Geometría oficial como gramática: «El escalón», sesiones unidas, fechas por confirmar |
 | Círculo abierto (producto) | 7,58 | Búsqueda global, glifo de estado, autoguardado y «Deshacer», «Ver como» |
 | Del círculo a la palabra (propio) | 5,93 | Descartado: sus círculos con letras imitaban el logotipo |
+
+> **Actualización (29/10/2026).** A petición de la clienta, el campus no guarda ni muestra cumpleaños ni fechas de incorporación. Del concepto humano se mantienen las personas reales, «Hoy en FLM» (eventos del día y festivos próximos) y la pertenencia; los aniversarios y la trayectoria de cada persona en la firma se han retirado.
 
 ## La idea
 
@@ -40,5 +42,5 @@ En castellano, *círculo de confianza* es la gente a la que puedes preguntar sin
 
 - **Auténtico**: no añade colores, logotipos ni formas que FLM no tenga; los reinterpreta como comportamiento.
 - **Útil cada día**: la primera pantalla muestra datos vivos (siguiente paso, hoy en FLM, novedades, agenda).
-- **Humano**: personas reales, reconocimiento profesional y la trayectoria de cada uno unida al «desde 1921» de la firma.
+- **Humano**: personas reales y reconocimiento profesional por lo que cada uno aprende y aporta, sin puntos ni clasificaciones.
 - **Accesible**: contraste verificado, nada depende solo del color, movimiento opcional.

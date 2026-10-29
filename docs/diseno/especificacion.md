@@ -12,7 +12,7 @@
    - **Cápsula** (radio completo) = acción, etiqueta, estado, lugar o momento.
    - **Puente** (conector líquido entre dos círculos, geometría de `FLM-Diagonal.png`) = conexión creada por una acción (completar, aprobar, sesiones de un mismo evento). Nunca se une al logotipo.
    - **Rectángulo** con radio pequeño (6–8 px) = documento o imagen de archivo.
-3. **Utilidad antes que eslogan.** La primera pantalla muestra datos vivos (siguiente paso, obligatorias, novedades, agenda) también a 1366×768 y 390×844.
+3. **Utilidad antes que eslogan.** La primera pantalla muestra datos vivos (siguiente paso, progreso, novedades, agenda) también a 1366×768 y 390×844.
 4. **El rojo se mira, no se lee.** `#E53327` solo en gráficos, puntos, trazos y texto ≥ 24 px. El texto rojo pequeño va en `--flm-rojo-oscuro #90101A`. Botón principal: marino con texto blanco.
 5. **El color nunca va solo.** Áreas, estados y tipos se nombran siempre por escrito (y con icono o forma).
 6. **Movimiento con significado.** Dos momentos firma como máximo (La llegada y El escalón), una vez al día o por logro, ≤ 1,5 s, interrumpibles, sin bucles infinitos. Con movimiento reducido, la composición final dice lo mismo.
@@ -78,14 +78,14 @@ Círculo de dos mitades (SVG 20–24 px): mitad izquierda = lectura (llena si es
 
 ## 7. Tratamiento por tipo de contenido
 
-- **Formación**: portada tipográfica con un «término de portada» del color del área («Art. 27», «147», «¿A Mercantil?»), nunca stock. Lectura con índice fijo «En esta formación», términos clave al margen (enlazados con `aria-describedby`; en línea en móvil), recuadro «Explicamos» en Belleza, ejemplo resuelto paso a paso («Siguiente paso» / «Ver todo», nunca ligado al desplazamiento), apoyos visuales interactivos accesibles con teclado, «Idea clave», fuentes, autoría (persona real + cargo + estado de revisión) y fechas sin repetir.
+- **Formación**: portada tipográfica con un «término de portada» del color del área («Art. 27», «147», «¿A Mercantil?»), nunca stock. Lectura con índice fijo «En esta formación», términos clave al margen (enlazados con `aria-describedby`; en línea en móvil), recuadro «Explicamos» en Belleza, ejemplo resuelto paso a paso («Siguiente paso» / «Ver todo», nunca ligado al desplazamiento), apoyos visuales interactivos accesibles con teclado, «Idea clave», fuentes, autoría (persona real + cargo + estado de revisión) y fechas sin repetir. Todas las formaciones son voluntarias: ninguna lleva rótulo de obligatoria ni fecha límite.
 - **Test** («Pruebas de imprenta»): una pregunta por pantalla, `fieldset`/`legend` y radios nativos; al comprobar, la opción errónea se tacha en tinta con un anillo abierto y la correcta se subraya; nota al margen firmada por la autoría: «Por qué no…», «La respuesta correcta es B…», «Repasa: apartado n». Resultado con cifra grande (Newsreader) y veredicto.
 - **Actualidad**: cinco bloques en columna vertical numerada (variante Vertical): 1 La novedad, en una frase · 2 A quién afecta · 3 **Qué debemos hacer** (el más visible) · 4 Un ejemplo sencillo · 5 Fuente y fecha (con «Copiar referencia»). Tipo con icono y palabra: Legislación, Resolución judicial, Criterio administrativo, Aviso interno.
 - **Notas informativas**: archivo con miniatura real de la primera página (pdf.js, perezoso), versión, páginas, tamaño, «Abrir» y «Descargar (PDF · 239 KB)» visibles; avisos editoriales; documentos no publicables → «Disponible en la versión interna».
 - **Lecturas**: «La estantería» con portadas tipográficas por área; ficha con edición, resumen, valor práctico, público y enlace.
 - **Agenda**: «Actuales y próximos» como agenda editorial con fecha grande; varias sesiones = círculos de fecha unidos por puente; «Fecha por confirmar» = anillo discontinuo; detalle desplegable (layout); «Añadir a mi calendario (.ics)». «Histórico» compacto por meses, con foto real y material.
-- **Calendario**: mes con lunes como primer día; tipos con icono + color + texto (Cumpleaños: pastel/rojo; Aniversario FLM: medalla/burdeos; Encuentro de equipo: grupo/marino; Festivo: sol/gris, siempre rotulado «Festivo»); panel del día; navegación de mes y año; en móvil, tira semanal + lista.
-- **Perfil**: «Tu recorrido» (FLM, desde 1921 · tú, desde …), progreso por área, obligatorias, historial de intentos, reconocimientos (cápsulas), ajustes.
+- **Calendario**: mes con lunes como primer día; solo encuentros de equipo y festivos, sin fechas personales; tipos con icono + color + texto (Encuentro de equipo: grupo/marino; Festivo: sol/gris, siempre rotulado «Festivo»); panel del día; navegación de mes y año; en móvil, tira semanal + lista.
+- **Perfil**: progreso por área, tus formaciones, historial de intentos, evaluaciones sectoriales, reconocimientos de aprendizaje y contribución (cápsulas) y ajustes.
 - **Gestión**: tabla unificada con estados (Borrador, En revisión, Publicado, Archivado), plantillas por tipo, editor con vista previa, autoguardado local, aviso de cambios sin guardar, «Deshacer» tras publicar.
 
 ## 8. Accesibilidad (WCAG 2.2 AA)

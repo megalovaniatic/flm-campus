@@ -21,7 +21,6 @@ import { currentUser, requirePermission } from '../middleware/authorize';
 import { audit } from '../services/audit';
 import { composeItem, findPublished, listPublished, requireContent, setManualPhase } from '../services/content';
 import { contentDisposition } from '../services/files';
-import { activeUsers, toPerson } from '../services/people';
 import { contentDetail } from './contents';
 
 interface HolidayRow {
@@ -88,7 +87,7 @@ export function companyRoutes(ctx: AppContext) {
     return c.json({ content: contentDetail(db, row, ctx.now()) });
   });
 
-  /** Calendario del mes: cumpleaños (solo con consentimiento), aniversarios, festivos y encuentros. */
+  /** Calendario del mes: festivos y encuentros de equipo, sin fechas personales. */
   r.get('/calendar', requirePermission('campus:leer'), (c) => {
     const { year, month } = queryParams(
       c,
@@ -98,12 +97,11 @@ export function companyRoutes(ctx: AppContext) {
       }),
     );
     const prefix = `${year}-${String(month).padStart(2, '0')}`;
-    const people = activeUsers(db).map(toPerson);
     const holidays = all<HolidayRow>(db, 'SELECT * FROM holidays WHERE date LIKE ?', `${prefix}-%`).map(toHoliday);
     const events = listPublished(db, ['evento'])
       .map((row) => composeItem(db, row) as unknown as CampusEvent)
       .filter((e) => e.category === 'encuentro');
-    return c.json({ year, month, entries: entriesForMonth(year, month, { people, holidays, events }) });
+    return c.json({ year, month, entries: entriesForMonth(year, month, { holidays, events }) });
   });
 
   r.get('/holidays', requirePermission('campus:leer'), (c) => {

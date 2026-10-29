@@ -1,14 +1,14 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { ArrowRight, BookOpen, CalendarCheck2 } from 'lucide-react';
+import { ArrowRight, BookOpen } from 'lucide-react';
 import { useId, useMemo, useRef, type KeyboardEvent } from 'react';
 import { Link, useSearchParams } from 'react-router';
-import { AREA_LIST, AREAS, formationStatus, isAreaId, monthShort, type AreaId, type FormationStatus } from '@flm/shared';
-import { AreaTag, Avatar, ButtonLink, EmptyState, PageHeader, ProgressRing, StatusGlyph } from '@/design';
+import { AREA_LIST, AREAS, formationStatus, isAreaId, type AreaId, type FormationStatus } from '@flm/shared';
+import { Avatar, ButtonLink, EmptyState, PageHeader, ProgressRing, StatusGlyph } from '@/design';
 import { assessments, useFormations } from '@/data/selectors';
 import { useDemo } from '@/data/store';
 import { usePageTitle } from '@/lib/preferences';
 import { AreaDot } from './common/AreaMark';
-import { AREA_REFERENCE, areaCounts, bestOf, dueInfo, formationPath, photoOf, useMyArea, useMyAssignments, usePerson, useProgressMap } from './common/data';
+import { AREA_REFERENCE, areaCounts, bestOf, photoOf, useMyArea, usePerson, useProgressMap } from './common/data';
 import { FormationRow } from './common/FormationCard';
 import { TenDots } from './common/TenDots';
 import styles from './LearnHub.module.css';
@@ -19,79 +19,6 @@ const STATES: { status: FormationStatus; title: string; text: string }[] = [
   { status: 'test-superado', title: 'Test superado', text: 'Has acertado al menos dos de las tres preguntas del test final.' },
   { status: 'completada', title: 'Completada', text: 'Lectura confirmada y test superado en la versión vigente. Si la formación se actualiza, vuelve a confirmar la lectura.' },
 ];
-
-/* ── Obligatorias ────────────────────────────────────────────────────── */
-
-function Mandatory() {
-  const mine = useMyAssignments();
-  const progress = useProgressMap();
-  const rows = useMemo(
-    () =>
-      mine
-        .map((m) => ({ ...m, status: formationStatus(progress[m.formation.id], m.formation) }))
-        .sort((a, b) => Number(a.status === 'completada') - Number(b.status === 'completada')),
-    [mine, progress],
-  );
-  const pending = rows.filter((r) => r.status !== 'completada').length;
-
-  return (
-    <section className={styles.block} aria-labelledby="h-obligatorias">
-      <div className={styles.head}>
-        <h2 id="h-obligatorias" className="section-title">
-          Tus formaciones obligatorias
-        </h2>
-        {rows.length > 0 && <p className={styles.headNote}>{pending === 0 ? 'Todas completadas' : pending === 1 ? '1 pendiente' : `${pending} pendientes`}</p>}
-      </div>
-      {rows.length === 0 ? (
-        <p className={styles.quiet}>
-          <CalendarCheck2 size={18} aria-hidden="true" /> Ahora mismo no tienes formaciones obligatorias asignadas.
-        </p>
-      ) : (
-        <ol role="list" className={styles.dueList}>
-          {rows.map(({ assignment, formation, status }) => {
-            const done = status === 'completada';
-            const due = assignment.dueDate ? dueInfo(assignment.dueDate) : undefined;
-            const day = assignment.dueDate?.slice(8, 10);
-            const month = assignment.dueDate ? monthShort(Number(assignment.dueDate.slice(5, 7))) : '';
-            return (
-              <li key={assignment.id} className={styles.dueItem} data-area={formation.area} data-done={done || undefined}>
-                <span className={styles.dueDate} data-overdue={(due?.overdue && !done) || undefined} aria-hidden="true">
-                  {day ? (
-                    <>
-                      <span className={styles.dueDay}>{Number(day)}</span>
-                      <span className={styles.dueMonth}>{month}</span>
-                    </>
-                  ) : (
-                    <span className={styles.dueMonth}>sin fecha</span>
-                  )}
-                </span>
-                <span className={styles.dueText}>
-                  <Link to={formationPath(formation)} className={`${styles.stretch} ${styles.dueTitle}`}>
-                    {formation.title}
-                  </Link>
-                  <span className={styles.dueMeta}>
-                    <AreaTag area={formation.area} size="sm" />
-                    <span>{formation.readingMinutes} min</span>
-                    <span aria-hidden="true" className={styles.sep} />
-                    <span>{assignment.target.kind === 'todos' ? 'Para todo el equipo' : 'Asignada a ti'}</span>
-                  </span>
-                </span>
-                <span className={styles.dueSide}>
-                  <StatusGlyph status={status} />
-                  {due && !done && (
-                    <span className={styles.dueHint} data-overdue={due.overdue || undefined}>
-                      {due.label} · {due.hint.charAt(0).toLowerCase() + due.hint.slice(1)}
-                    </span>
-                  )}
-                </span>
-              </li>
-            );
-          })}
-        </ol>
-      )}
-    </section>
-  );
-}
 
 /* ── Selector de áreas ───────────────────────────────────────────────── */
 
@@ -161,7 +88,6 @@ function AreaSwitch({ value, onChange, idBase }: { value: AreaId; onChange: (a: 
 function AreaPanel({ area }: { area: AreaId }) {
   const formations = useFormations();
   const progress = useProgressMap();
-  const mine = useMyAssignments();
   const ref = usePerson(AREA_REFERENCE[area]);
   const list = useMemo(() => formations.filter((f) => f.area === area), [formations, area]);
   const { completed, total } = areaCounts(list, progress);
@@ -206,11 +132,9 @@ function AreaPanel({ area }: { area: AreaId }) {
       <div className={styles.listCol}>
         {list.length > 0 ? (
           <ol role="list" className={styles.rows} aria-label={`Formaciones de ${info.name}`}>
-            {list.map((f) => {
-              const a = mine.find((m) => m.formation.id === f.id)?.assignment;
-              const status = formationStatus(progress[f.id], f);
-              return <FormationRow key={f.id} formation={f} status={status} due={a?.dueDate && status !== 'completada' ? dueInfo(a.dueDate) : undefined} />;
-            })}
+            {list.map((f) => (
+              <FormationRow key={f.id} formation={f} status={formationStatus(progress[f.id], f)} />
+            ))}
           </ol>
         ) : (
           <EmptyState icon={<BookOpen />} title="Formaciones en preparación">
@@ -365,7 +289,6 @@ export default function LearnHub() {
           </div>
         }
       />
-      <Mandatory />
       <Itineraries />
       <Assessments />
       <States />

@@ -9,7 +9,7 @@ import { currentUser, requirePermission } from '../middleware/authorize';
 import { audit, queryAudit } from '../services/audit';
 import { getContent } from '../services/content';
 import { contentDisposition } from '../services/files';
-import { commonErrorsCsv, commonErrorsReport, complianceCsv, complianceReport } from '../services/reports';
+import { commonErrorsCsv, commonErrorsReport, participationCsv, participationReport } from '../services/reports';
 
 function csvResponse(c: Context<AppEnv>, filename: string, csv: { headers: string[]; rows: CsvValue[][] }) {
   return c.body(toCsv(csv.headers, csv.rows), 200, {
@@ -19,18 +19,21 @@ function csvResponse(c: Context<AppEnv>, filename: string, csv: { headers: strin
   });
 }
 
-/** Informes restringidos (cumplimiento, errores frecuentes, CSV) y registro de auditoría. */
+/**
+ * Informes restringidos, agregados y sin nombres (participación por formación y errores frecuentes
+ * por pregunta, con exportación CSV), y registro de auditoría.
+ */
 export function adminRoutes(ctx: AppContext) {
   const r = new Hono<AppEnv>();
   const { db } = ctx;
 
-  r.get('/reports/compliance', requirePermission('informes:ver'), (c) => {
-    const q = queryParams(c, z.object({ format: z.enum(['json', 'csv']).default('json'), view: z.enum(['personas', 'formaciones']).default('personas') }));
+  r.get('/reports/participation', requirePermission('informes:ver'), (c) => {
+    const { format } = queryParams(c, z.object({ format: z.enum(['json', 'csv']).default('json') }));
     const now = ctx.now();
-    const report = complianceReport(db, now);
-    if (q.format === 'csv') {
-      audit(db, { actorId: currentUser(c).id, action: 'informe.exportar', entity: 'informe', detail: `Cumplimiento (${q.view})`, ip: c.get('clientIp') }, now);
-      return csvResponse(c, `cumplimiento-${q.view}-${madridDateKey(now)}.csv`, complianceCsv(report, q.view));
+    const report = participationReport(db, now);
+    if (format === 'csv') {
+      audit(db, { actorId: currentUser(c).id, action: 'informe.exportar', entity: 'informe', detail: 'Participación por formación', ip: c.get('clientIp') }, now);
+      return csvResponse(c, `participacion-formaciones-${madridDateKey(now)}.csv`, participationCsv(report));
     }
     return c.json(report);
   });

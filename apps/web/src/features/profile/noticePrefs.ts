@@ -6,7 +6,6 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 export interface NoticePrefs {
-  obligatorias: boolean;
   agenda: boolean;
   novedades: boolean;
   correo: boolean;
@@ -17,7 +16,7 @@ interface NoticePrefsState extends NoticePrefs {
   resetPrefs: () => void;
 }
 
-export const NOTICE_DEFAULTS: NoticePrefs = { obligatorias: true, agenda: true, novedades: true, correo: false };
+export const NOTICE_DEFAULTS: NoticePrefs = { agenda: true, novedades: true, correo: false };
 
 const storage = createJSONStorage(() => {
   try {
@@ -38,6 +37,15 @@ export const useNoticePrefs = create<NoticePrefsState>()(
       setPref: (key, value) => set({ [key]: value } as Partial<NoticePrefs>),
       resetPrefs: () => set({ ...NOTICE_DEFAULTS }),
     }),
-    { name: 'flm-campus-avisos', version: 1, storage },
+    {
+      name: 'flm-campus-avisos',
+      version: 2,
+      storage,
+      // La versión 1 guardaba también el aviso de formaciones obligatorias, que ya no existen
+      migrate: (persisted) => {
+        const { obligatorias: _retirada, ...rest } = (persisted ?? {}) as Partial<NoticePrefs> & { obligatorias?: boolean };
+        return { ...NOTICE_DEFAULTS, ...rest } as NoticePrefsState;
+      },
+    },
   ),
 );

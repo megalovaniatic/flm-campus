@@ -20,7 +20,7 @@
 | `--flm-rojo` | `#E53327` | Logotipo oficial (muestreo de píxel) | Puntos, trazos, gráficos, Fiscal, texto ≥ 24 px |
 | `--flm-rojo-web` | `#E22F29` | `variables.css` de flmexperts.com | Referencia (no se usa en texto) |
 | `--flm-rojo-oscuro` | `#90101A` | `variables.css` | Texto rojo pequeño, avisos, botón de peligro |
-| `--flm-burdeos` | `#84343D` | Cápsula oficial «LABORAL» | Área Laboral, aniversarios |
+| `--flm-burdeos` | `#84343D` | Cápsula oficial «LABORAL» | Área Laboral |
 | `--flm-marino` | `#172641` | Logotipo y web | Tinta principal, acción principal, Mercantil |
 | `--flm-azul` | `#1F2F4A` | `variables.css` | Estado *hover* de la acción principal |
 | `--flm-negro` | `#081225` | `variables.css` | Fondo del modo oscuro |
@@ -53,7 +53,7 @@ Contrastes clave (WCAG 2.2): marino sobre papel ≈ 13,8:1 · gris sobre papel �
 | Mercantil | `--area-mercantil` | marino | Meseta de la cápsula MERCANTIL |
 | Contable | `--area-contable` + `--area-contable-fill` | marino + degradado completo | «La suma de las tres»: no tiene letra ni cápsula propia |
 
-Uso: `data-area="fiscal|laboral|mercantil|contable"` expone `--area` (color plano) y `--area-fill` (relleno). Calendario: `--cal-cumpleanos` (rojo), `--cal-aniversario` (burdeos), `--cal-encuentro` (marino), `--cal-festivo` (gris), siempre con icono y texto.
+Uso: `data-area="fiscal|laboral|mercantil|contable"` expone `--area` (color plano) y `--area-fill` (relleno). Calendario: `--cal-encuentro` (marino) y `--cal-festivo` (gris), siempre con icono y texto. El calendario solo tiene esos dos tipos: encuentros de equipo y festivos, sin fechas personales.
 
 ### 2.4 Tipografía
 

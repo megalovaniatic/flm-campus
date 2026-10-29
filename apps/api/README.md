@@ -42,13 +42,13 @@ apps/api/
 │  ├─ config.ts            variables de entorno validadas con zod
 │  ├─ context.ts           tipos del contexto (AppEnv, AppDeps, AppContext)
 │  ├─ web.ts               web compilada desde el mismo origen con fallback SPA
-│  ├─ db/                  database.ts (helpers, transacciones), migrate.ts, migrations/0001_….sql
+│  ├─ db/                  database.ts (helpers, transacciones), migrate.ts, migrations/NNNN_….sql
 │  ├─ auth/                passwords (scrypt), tokens (SHA-256), sessions, cookies
 │  ├─ middleware/          request-context (IP, registro), security-headers, rate-limit,
 │  │                       session, csrf, authorize (matriz de permisos), errors (413/404/500)
 │  ├─ services/            people, accounts, account-tokens, content (flujo editorial),
-│  │                       learning, assignments, reports, files, audit, retention, backup,
-│  │                       seed, mailer, emails
+│  │                       learning, reports, files, audit, retention, backup, seed,
+│  │                       mailer, emails
 │  ├─ routes/              auth, people, contents, learning, library, company, admin
 │  ├─ lib/                 errors (HttpError), validation (zod), csv, logger
 │  └─ cli/                 create-admin, seed, backup (+ load-content.mjs)
@@ -59,11 +59,21 @@ apps/api/
 └─ .env.example
 ```
 
-**Modelo de datos.** `users`, `sessions`, `auth_tokens` (activación y recuperación),
-`contents` (tabla genérica: tipo, estado editorial, autoría, `payload` JSON validado con el
-esquema del tipo, número de revisión para concurrencia), `content_revisions` (cambios sobre
-contenido publicado), `document_versions` + `files` (biblioteca), `read_confirmations`,
-`quiz_attempts`, `assignments`, `holidays`, `readings` y `audit_log`.
+**Modelo de datos.** `users` (solo datos profesionales: sin cumpleaños ni fecha de
+incorporación), `sessions`, `auth_tokens` (activación y recuperación), `contents` (tabla genérica:
+tipo, estado editorial, autoría, `payload` JSON validado con el esquema del tipo, número de
+revisión para concurrencia), `content_revisions` (cambios sobre contenido publicado),
+`document_versions` + `files` (biblioteca), `read_confirmations`, `quiz_attempts`, `holidays`,
+`readings` y `audit_log`.
+
+**Esquema.** Las migraciones (`src/db/migrations/NNNN_descripcion.sql`) se aplican solas al
+arrancar, una sola vez y en orden; una migración publicada no se edita, se añade otra:
+
+| Versión | Migración | Qué hace |
+| --- | --- | --- |
+| 1 | `0001_esquema_inicial.sql` | Esquema inicial |
+| 2 | `0002_sin_cumpleanos_ni_incorporacion.sql` | Quita de `users` el cumpleaños, su consentimiento y la fecha de incorporación (con sus datos) y borra de la auditoría las preferencias de cumpleaños |
+| 3 | `0003_formaciones_voluntarias.sql` | Elimina la tabla de asignaciones de formaciones y sus fechas límite: todas las formaciones son voluntarias |
 
 ## 2. Puesta en marcha (desarrollo)
 
@@ -157,7 +167,6 @@ públicas exigen sesión; las pruebas recorren `app.routes` para comprobar que n
 | POST | `/api/auth/password/change` | `campus:leer` (exige la contraseña actual) |
 | GET | `/api/sessions` · POST `/api/sessions/revoke-others` · DELETE `/api/sessions/:id` | `campus:leer` (solo las propias) |
 | GET | `/api/me` | `campus:leer` |
-| PATCH | `/api/me` (cumpleaños y consentimiento) | `progreso:propio` |
 | PUT · DELETE | `/api/me/photo` | `progreso:propio` |
 | GET | `/api/me/progress` · `/api/me/attempts` | `progreso:propio` |
 
@@ -170,7 +179,9 @@ públicas exigen sesión; las pruebas recorren `app.routes` para comprobar que n
 | POST · GET | `/api/formations/:ref/attempts` | `progreso:propio` (corrección en el servidor) |
 | GET | `/api/assessments` · `/api/assessments/:id` | `campus:leer` |
 | POST · GET | `/api/assessments/:id/attempts` | `progreso:propio` |
-| GET · POST | `/api/assignments` · DELETE `/api/assignments/:id` | `formaciones:asignar` |
+
+Todas las formaciones son voluntarias: no hay asignaciones ni fechas límite. `GET /api/me/progress`
+devuelve el progreso propio en cada formación publicada (`formations`), sin más.
 
 **Contenidos (panel editorial)**
 
@@ -201,7 +212,7 @@ públicas exigen sesión; las pruebas recorren `app.routes` para comprobar que n
 | --- | --- | --- |
 | GET | `/api/events?phase&kind&category` · `/api/events/:ref` · `/api/events/:ref/ics` | `campus:leer` |
 | PATCH | `/api/events/:id/phase` `{ manualPhase, revision }` | `contenido:editar-cualquiera` |
-| GET | `/api/calendar?year&month` | `campus:leer` |
+| GET | `/api/calendar?year&month` (festivos y encuentros de equipo; sin fechas personales) | `campus:leer` |
 | GET | `/api/holidays?year` | `campus:leer` |
 | POST · DELETE | `/api/holidays` · `/api/holidays/:id` | `contenido:publicar` |
 
@@ -209,16 +220,44 @@ públicas exigen sesión; las pruebas recorren `app.routes` para comprobar que n
 
 | Método | Ruta | Permiso |
 | --- | --- | --- |
-| GET | `/api/people/directory` | `campus:leer` (sin correos ni fechas personales) |
+| GET | `/api/people/directory` | `campus:leer` (sin correos) |
 | GET · POST | `/api/people` | `personas:gestionar` (alta solo @flmexperts.com) |
 | GET · PATCH | `/api/people/:id` | `personas:gestionar` (cambiar el rol cierra sus sesiones) |
 | POST | `/api/people/:id/deactivate` · `/reactivate` · `/activation-link` | `personas:gestionar` |
 | PUT · DELETE | `/api/people/:id/photo` | `personas:gestionar` |
 | POST | `/api/people/:id/anonymize` `{ confirm: "<correo>" }` | `datos-personales:eliminar` |
 | GET · DELETE | `/api/people/:id/sessions` · DELETE `/api/people/:id/sessions/:sessionId` | `sesiones:revocar` |
-| GET | `/api/reports/compliance?format=json\|csv&view=personas\|formaciones` | `informes:ver` |
-| GET | `/api/reports/errors/:contentId?format=json\|csv` | `informes:ver` |
+| GET | `/api/reports/participation?format=json\|csv` | `informes:ver` (recuentos por formación, sin nombres) |
+| GET | `/api/reports/errors/:contentId?format=json\|csv` | `informes:ver` (agregado, sin nombres) |
 | GET | `/api/audit?action&entity&entityId&actorId&from&to&limit&offset` | `auditoria:ver` |
+
+**Informes.** Solo dan recuentos agregados: ningún nombre, correo ni dato por persona.
+
+- *Participación por formación* (`/api/reports/participation`): para cada formación publicada, en
+  su versión vigente y sobre las personas activas, cuántas la han completado, cuántas la tienen a
+  medias (leída, test intentado o test superado sin completar) y cuántas no la han empezado, con el
+  porcentaje completado (estado calculado con `formationStatus()`). Lleva dos totales: personas con
+  al menos una formación completada (`peopleWithCompleted`) y formaciones completadas en total
+  (`completed`).
+
+  ```json
+  {
+    "generatedAt": "2026-10-28T10:00:00.000Z",
+    "totals": { "people": 48, "peopleWithCompleted": 31, "completed": 112 },
+    "byFormation": [
+      { "formationId": "fis-01", "title": "…", "area": "fiscal", "version": 1, "people": 48,
+        "completed": 20, "inProgress": 9, "notStarted": 19, "completionRate": 42 }
+    ]
+  }
+  ```
+
+  Columnas del CSV: `Formación;Área;Versión;Personas;Completada;A medias;Sin empezar;% completada`.
+- *Errores frecuentes por pregunta* (`/api/reports/errors/:contentId`) con `commonErrors()`, sobre
+  todos los intentos de la versión vigente, incluidos los ya desvinculados de su persona.
+
+Con `format=csv` se descarga un archivo para Excel (separador «;», BOM UTF-8, fórmulas
+neutralizadas, `Content-Disposition: attachment`) y la exportación queda en la auditoría
+(`informe.exportar`, con el detalle «Participación por formación» o «Errores frecuentes»).
 
 ## 6. Seguridad
 
@@ -355,6 +394,8 @@ docker compose exec -u campus api node dist/backup.mjs --archivos --conservar 14
 avisa y termina con código 1. Valida todo con los esquemas compartidos antes de escribir, inserta
 solo lo que no existe (no pisa cambios hechos en la plataforma), no crea contraseñas y **no
 importa las personas ficticias de la demo** (`fictional: true`) salvo con `--incluir-ficticias`.
+De cada persona importa solo la ficha profesional (nombre, correo, puesto, departamento, oficina,
+rol y estado): ni la foto (se avisa para subirla desde la administración) ni fechas personales.
 Los PDF de la biblioteca se buscan en `--archivos <carpeta>` (por defecto `packages/content` y
 `apps/web/public`); si no aparecen, la versión queda registrada como «no disponible».
 `dist/seed.mjs` incluye `@flm/content` si existía al compilar.
@@ -376,4 +417,5 @@ Los PDF de la biblioteca se buscan en `--archivos <carpeta>` (por defecto `packa
   comparten entre instancias (con SQLite solo debe haber una).
 - Los borradores se validan con el esquema completo del tipo: no se pueden guardar contenidos a
   medias que no cumplan el esquema (p. ej., una formación con menos de 3 preguntas).
-- El informe de errores frecuentes analiza la versión vigente del test.
+- Los informes analizan la versión vigente: el de errores frecuentes, la del test, y el de
+  participación, la de cada formación (lo hecho en una versión anterior no cuenta).

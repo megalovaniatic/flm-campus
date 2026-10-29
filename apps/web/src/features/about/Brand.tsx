@@ -27,7 +27,7 @@ const COLORS: Swatch[] = [
   { name: 'Rojo FLM', hex: '#E53327', token: '--flm-rojo', source: 'Logotipo (muestreo de los PNG oficiales)', use: 'Puntos, trazos y gráficos; área Fiscal; en texto, solo a partir de 24 px' },
   { name: 'Rojo de la web', hex: '#E22F29', token: '--flm-rojo-web', source: 'variables.css de flmexperts.com', use: 'Referencia; no se usa en texto' },
   { name: 'Rojo oscuro', hex: '#90101A', token: '--flm-rojo-oscuro', source: 'variables.css de flmexperts.com', use: 'Texto rojo pequeño y botón de peligro' },
-  { name: 'Burdeos', hex: '#84343D', token: '--flm-burdeos', source: 'Cápsula oficial LABORAL (PNG)', use: 'Área Laboral y aniversarios' },
+  { name: 'Burdeos', hex: '#84343D', token: '--flm-burdeos', source: 'Cápsula oficial LABORAL (PNG)', use: 'Área Laboral' },
   { name: 'Marino FLM', hex: '#172641', token: '--flm-marino', source: 'Logotipo (muestreo de los PNG oficiales)', use: 'Tinta principal, acción principal y área Mercantil' },
   { name: 'Azul de la web', hex: '#1F2F4A', token: '--flm-azul', source: 'variables.css de flmexperts.com', use: 'Acción principal al pasar el puntero' },
   { name: 'Negro de la web', hex: '#081225', token: '--flm-negro', source: 'variables.css de flmexperts.com', use: 'Fondo del modo oscuro' },

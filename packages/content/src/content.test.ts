@@ -18,7 +18,9 @@ describe('contenido semilla', () => {
     expect(new Set(seed.people.map((p) => p.id)).size).toBe(seed.people.length);
   });
 
-  it('el perfil de la demostración va sin fotografía', () => {
+  it('solo datos profesionales: sin cumpleaños ni fecha de incorporación, y el perfil de la demo sin foto', () => {
+    const retirados = ['birthday', 'showBirthday', 'startDate'];
+    expect(seed.people.filter((p) => retirados.some((k) => k in p)).map((p) => p.id)).toEqual([]);
     expect(seed.people.find((p) => p.id === 'p-judith-calet')?.photo).toBeUndefined();
   });
 

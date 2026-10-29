@@ -48,15 +48,4 @@ export function queryParams<T extends z.ZodType>(c: Context, schema: T): z.outpu
 
 /* Piezas reutilizables */
 export const idParam = z.string().trim().min(1).max(200);
-export const dateKey = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha con formato AAAA-MM-DD');
 export const revisionField = z.number({ error: 'Indica el número de revisión que estabas editando (campo «revision»).' }).int().positive();
-
-/** Día y mes válidos («MM-DD»), admitiendo el 29 de febrero. */
-export const birthdaySchema = z
-  .string()
-  .regex(/^\d{2}-\d{2}$/, 'Cumpleaños con formato MM-DD')
-  .refine((v) => {
-    const [m, d] = v.split('-').map(Number) as [number, number];
-    const max = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
-    return !!max && d >= 1 && d <= max;
-  }, 'El cumpleaños no es una fecha válida');

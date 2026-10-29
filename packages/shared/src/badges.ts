@@ -1,57 +1,18 @@
 import { AREAS, AREA_IDS, type AreaId } from './areas';
-import { diffDays, madridDateKey } from './dates';
 import { formationStatus } from './progress';
-import type { Badge, Formation, FormationProgress, Person, QuizAttempt, SectorAssessment } from './types';
-
-/** Hitos de trayectoria que generan reconocimiento. */
-export const TENURE_MILESTONES = [1, 3, 5, 10, 15, 20, 25, 30, 40] as const;
-
-export function tenureYears(startDate: string, today: string = madridDateKey()): number {
-  const [sy, sm, sd] = startDate.split('-').map(Number) as [number, number, number];
-  const [ty, tm, td] = today.split('-').map(Number) as [number, number, number];
-  let years = ty - sy;
-  if (tm < sm || (tm === sm && td < sd)) years -= 1;
-  return Math.max(0, years);
-}
-
-/** Próximo hito de trayectoria y días que faltan. */
-export function nextTenureMilestone(startDate: string, today: string = madridDateKey()): { years: number; date: string; inDays: number } | undefined {
-  const current = tenureYears(startDate, today);
-  const next = TENURE_MILESTONES.find((m) => m > current);
-  if (!next) return undefined;
-  const date = `${Number(startDate.slice(0, 4)) + next}${startDate.slice(4)}`;
-  return { years: next, date, inDays: diffDays(today, date) };
-}
+import type { Badge, Formation, FormationProgress, QuizAttempt, SectorAssessment } from './types';
 
 export interface BadgeInputs {
-  person: Person;
   formations: Formation[];
   progress: Record<string, FormationProgress>;
   assessments: SectorAssessment[];
   assessmentAttempts: Record<string, QuizAttempt[]>;
   publishedByPerson: number;
-  today?: string;
 }
 
-/** Reconocimientos profesionales: trayectoria, aprendizaje y contribución. */
+/** Reconocimientos profesionales: aprendizaje y contribución. */
 export function computeBadges(input: BadgeInputs): Badge[] {
-  const today = input.today ?? madridDateKey();
   const badges: Badge[] = [];
-
-  const start = input.person.startDate;
-  const years = start ? tenureYears(start, today) : 0;
-  for (const m of TENURE_MILESTONES) {
-    if (start && years >= m) {
-      badges.push({
-        id: `trayectoria-${m}`,
-        family: 'trayectoria',
-        title: m === 1 ? 'Primer año en FLM' : `${m} años en FLM`,
-        description: `Reconocimiento por ${m === 1 ? 'tu primer año' : `${m} años`} de trayectoria en la firma.`,
-        earnedAt: `${Number(start.slice(0, 4)) + m}${start.slice(4)}`,
-        mark: String(m),
-      });
-    }
-  }
 
   for (const area of AREA_IDS) {
     const list = input.formations.filter((f) => f.area === area && f.editorial.status === 'publicado');

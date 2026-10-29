@@ -15,7 +15,6 @@
 ## Personas y datos
 
 - [ ] Cargar las cuentas reales (solo @flmexperts.com) y retirar las personas ficticias de la demo.
-- [ ] Recoger el consentimiento para mostrar cumpleaños (día y mes) y verificar fechas de incorporación.
 - [ ] Consentimiento escrito para retratos y fotografías de actos con personas identificables.
 - [ ] Aprobar la política de retención (`apps/api/docs/retencion-datos.md`) y registrar el tratamiento en el registro de actividades (RGPD).
 
@@ -37,6 +36,6 @@
 
 ## Comunicación
 
-- [ ] Anuncio interno del lanzamiento (comunicado en la agenda).
+- [ ] Anuncio interno del lanzamiento (comunicado en la agenda). Debe explicar que las formaciones son voluntarias, que los tests sirven para aprender y no para evaluar a nadie, y que administración solo ve datos agregados, sin nombres.
 - [ ] Sesión de bienvenida de 15 minutos y guía rápida para autores.
 - [ ] Buzón de sugerencias activo (barcelona@flmexperts.com).

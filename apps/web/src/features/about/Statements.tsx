@@ -61,16 +61,15 @@ export function Accessibility() {
 /* ── 06 · Privacidad ───────────────────────────────────────────────────── */
 
 const PRINCIPLES = [
-  { icon: UserRound, title: 'Lo justo y con permiso', text: 'El cumpleaños solo con tu consentimiento y sin año. La fecha de incorporación genera los aniversarios; si no consta, no se calcula nada.' },
+  { icon: UserRound, title: 'Solo datos profesionales', text: 'Nombre, correo corporativo, puesto, departamento y sede. El campus no pide ni guarda cumpleaños ni fechas de incorporación.' },
   { icon: Image, title: 'Fotografías reales', text: 'Solo las aportadas por FLM con autorización. Nunca fotos de stock de personas: quien no tiene foto aparece con sus iniciales.' },
   { icon: ShieldCheck, title: 'Personas de la demostración', text: 'Salvo las identificadas como reales (información profesional pública o autorización expresa), son ficticias y no tienen foto.' },
   { icon: Cookie, title: 'Sin seguimiento', text: 'Ni analítica ni cookies de terceros. Las tipografías se sirven desde el propio campus.' },
 ];
 
 const RETENTION = [
-  { data: 'Ficha (nombre, correo corporativo, puesto, departamento, sede, perfil y fecha de incorporación)', purpose: 'Identificarte, firmar tus contenidos y calcular aniversarios', time: 'Mientras trabajes en FLM. Tras la baja, la ficha se revisa para anonimizarla al cabo de un año.' },
-  { data: 'Cumpleaños (día y mes)', purpose: 'Mostrarlo en el calendario, si lo autorizas', time: 'Hasta que retires el consentimiento o borres la fecha en Ajustes.' },
-  { data: 'Progreso: lecturas confirmadas e intentos de test', purpose: 'Tu progreso y el cumplimiento de las formaciones obligatorias', time: 'Mientras estés en activo y hasta un año después de la baja. Después, los intentos quedan como datos agregados anónimos y las lecturas se borran.' },
+  { data: 'Ficha (nombre, correo corporativo, puesto, departamento, sede y perfil)', purpose: 'Identificarte y firmar tus contenidos', time: 'Mientras trabajes en FLM. Tras la baja, la ficha se revisa para anonimizarla al cabo de un año.' },
+  { data: 'Progreso: lecturas confirmadas e intentos de test', purpose: 'Mostrarte tu progreso y elaborar informes agregados, sin nombres, de participación y errores frecuentes', time: 'Mientras estés en activo y hasta un año después de la baja. Después, los intentos quedan como datos agregados anónimos y las lecturas se borran.' },
   { data: 'Sesión (cookie técnica)', purpose: 'Mantenerte conectado de forma segura', time: 'Caduca tras 12 horas sin actividad y, como máximo, a los 14 días. Se borra al día siguiente.' },
   { data: 'Enlaces de activación y de recuperación', purpose: 'Crear o restablecer tu contraseña', time: 'Activación: 7 días. Recuperación: 30 minutos. Un solo uso.' },
   { data: 'Registro de auditoría', purpose: 'Saber quién hizo qué y cuándo en la gestión', time: '2 años.' },
@@ -166,7 +165,7 @@ export function DemoVsPrivate() {
             <li>Formaciones con lectura, test corregido al momento, estados de progreso y «El escalón».</li>
             <li>Actualidad, notas informativas en PDF y lecturas recomendadas.</li>
             <li>Agenda con exportación a calendario (.ics) y calendario del mes.</li>
-            <li>Perfil, reconocimientos y ajustes de tema, movimiento, atajos y cumpleaños.</li>
+            <li>Perfil, reconocimientos y ajustes de tema, movimiento y atajos.</li>
           </ul>
         </div>
         <div className={styles.column} data-kind="sim">
@@ -176,7 +175,7 @@ export function DemoVsPrivate() {
           <ul className={styles.list}>
             <li>Acceso sin contraseña y «Ver como» autor o administrador.</li>
             <li>Borradores, envío a revisión, publicación, archivo y «Deshacer».</li>
-            <li>Subida de documentos, altas y bajas de personas, asignaciones y auditoría.</li>
+            <li>Subida de documentos, altas y bajas de personas, informes y auditoría.</li>
             <li>Preferencias de avisos y resumen por correo.</li>
           </ul>
           <p className={styles.note}>{MESSAGES.demoSimulated}</p>

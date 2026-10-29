@@ -19,7 +19,6 @@ const PERMISSION_MESSAGES: Partial<Record<Permission, string>> = {
   'informes:ver': 'Solo administración puede consultar los informes.',
   'auditoria:ver': 'Solo administración puede consultar el registro de auditoría.',
   'datos-personales:eliminar': 'Solo administración puede eliminar datos personales.',
-  'formaciones:asignar': 'Solo administración puede asignar formaciones obligatorias.',
 };
 
 export function unauthenticated(c: Context<AppEnv>): HttpError {

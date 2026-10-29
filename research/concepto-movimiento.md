@@ -4,6 +4,8 @@
 
 **Enfoque:** marca en movimiento (motion branding) · **Fecha:** 28 de octubre de 2026 · **Estado:** propuesta para validar con FLM
 
+> **Nota del 29/10/2026.** Propuesta conservada tal como se presentó. Después, a petición de la clienta, FLM Campus dejó de guardar y mostrar cumpleaños y fechas de incorporación, y todas sus formaciones pasaron a ser voluntarias. Por eso no forman parte del producto las categorías «Cumpleaños» y «Aniversario FLM» del calendario (ni su anillo «una vuelta más»), el anillo de antigüedad del perfil («En FLM desde…»), los reconocimientos por antigüedad, las formaciones obligatorias con fecha límite ni el informe de obligatorias completadas: administración solo ve informes agregados, sin nombres. Lo vigente está en `docs/`.
+
 > **Compromiso con la clienta.** No se modifica ningún logotipo ni ningún color. Usamos los archivos originales tal como están y no los redibujamos, recoloreamos ni deformamos. Todos los tonos de la interfaz son los colores oficiales o mezclas de esos colores con blanco o entre sí; no hay ningún tono nuevo. Todo el movimiento sale de la geometría oficial, que hemos medido píxel a píxel sobre los archivos.
 
 ---

@@ -51,7 +51,6 @@ describe('alta y activación de cuentas', () => {
       department: 'Laboral',
       office: 'Vic',
       role: 'empleado',
-      startDate: '2026-10-26',
     });
     expect(res.status).toBe(201);
     const body = await json(res);
@@ -333,7 +332,7 @@ describe('recuperación y cambio de contraseña', () => {
     main.csrf = body.csrfToken;
     expect(main.sessionCookie()).not.toBe(before);
     expect((await main.get('/api/me')).status).toBe(200);
-    expect((await main.patch('/api/me', { showBirthday: true })).status).toBe(200);
+    expect((await main.delete('/api/me/photo')).status).toBe(200);
     expect((await other.get('/api/me')).status).toBe(401);
   });
 });

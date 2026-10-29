@@ -71,7 +71,7 @@ const TEXT_TOKENS = [
   { token: '--ink', name: 'Tinta', use: 'Texto principal' },
   { token: '--ink-2', name: 'Tinta secundaria', use: 'Texto secundario y metadatos' },
   { token: '--ink-3', name: 'Tinta terciaria', use: 'Ayudas breves' },
-  { token: '--accent-text', name: 'Acento en texto', use: 'Texto rojo pequeño: plazos, obligatorios' },
+  { token: '--accent-text', name: 'Acento en texto', use: 'Texto rojo pequeño: el día de hoy y el asterisco de los formularios' },
   { token: '--flm-vino-texto', name: 'Vino', use: 'Antetítulos' },
   { token: '--success', name: 'Éxito', use: 'Completada, superado' },
   { token: '--warning', name: 'Atención', use: 'En revisión, por confirmar' },
@@ -189,7 +189,7 @@ const TYPE = [
   { token: '--text-lg', role: 'Entradilla', family: 'Newsreader itálica', cls: 'tLede', sample: 'Apostamos por tu formación y tu crecimiento.' },
   { token: '--text-md', role: 'Interfaz', family: 'Inter 400–650', cls: 'tUi', sample: 'Marcar la lectura como terminada' },
   { token: '--text-sm', role: 'Metadatos', family: 'Inter, cifras tabulares', cls: 'tMeta', sample: '28 oct 2026 · 12 min · PDF · 239 KB' },
-  { token: '--text-xs', role: 'Antetítulo', family: 'Inter 650, mayúsculas espaciadas', cls: 'tEyebrow', sample: 'Formación obligatoria' },
+  { token: '--text-xs', role: 'Antetítulo', family: 'Inter 650, mayúsculas espaciadas', cls: 'tEyebrow', sample: 'Tu siguiente paso' },
 ] as const;
 
 function TypeRow({ row }: { row: (typeof TYPE)[number] }) {
@@ -426,7 +426,7 @@ export function LiveSystem() {
           />
           <TextArea label="Comentario" hint="Hasta 140 caracteres." maxLength={140} value={comment} onChange={(e) => setComment(e.target.value)} />
           <div className={styles.checks}>
-            <Checkbox label="Mostrar mi cumpleaños en el calendario" hint="Solo día y mes." checked={check} onChange={setCheck} />
+            <Checkbox label="Avisarme de la agenda de la semana" hint="Eventos y encuentros de los próximos siete días." checked={check} onChange={setCheck} />
             <Switch label="Atajos de una tecla" description="Muestra del interruptor accesible." checked={toggle} onChange={setToggle} />
             <p className={styles.caption}>
               Teclas: <Kbd>Tab</Kbd> para moverte, <Kbd>Espacio</Kbd> para marcar, <Kbd>Esc</Kbd> para cerrar.

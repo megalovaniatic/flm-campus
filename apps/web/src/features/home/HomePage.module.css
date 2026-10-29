@@ -102,12 +102,6 @@
   gap: var(--space-3);
 }
 
-.due {
-  font-size: var(--text-sm);
-  font-weight: 600;
-  color: var(--accent-text);
-}
-
 .nextFoot {
   margin-top: auto;
   display: flex;

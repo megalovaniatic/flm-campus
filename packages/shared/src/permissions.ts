@@ -21,8 +21,7 @@ export type Permission =
   | 'sesiones:revocar'
   | 'informes:ver'
   | 'auditoria:ver'
-  | 'datos-personales:eliminar'
-  | 'formaciones:asignar';
+  | 'datos-personales:eliminar';
 
 const EMPLEADO: Permission[] = ['campus:leer', 'progreso:propio'];
 
@@ -47,7 +46,6 @@ const ADMIN: Permission[] = [
   'informes:ver',
   'auditoria:ver',
   'datos-personales:eliminar',
-  'formaciones:asignar',
 ];
 
 export const ROLE_PERMISSIONS: Record<Role, ReadonlySet<Permission>> = {

@@ -90,30 +90,19 @@ describe('calendario', () => {
   });
   afterEach(() => env.close());
 
-  it('usa entriesForMonth(): cumpleaños con consentimiento, aniversarios, encuentros y festivos', async () => {
+  it('usa entriesForMonth(): solo encuentros de equipo y festivos, sin fechas personales', async () => {
     const employee = await loginAs(env, EMAILS.empleado);
     const nov = await json(await employee.get('/api/calendar?year=2026&month=11'));
-    const titles = nov.entries.map((e: { kind: string; title: string; date: string }) => `${e.date} ${e.kind} ${e.title}`);
-    expect(titles).toContain('2026-11-08 cumpleanos Pau Empleado Camps');
-    expect(titles).toContain('2026-11-20 cumpleanos Ana Admin Puig');
-    expect(titles.some((t: string) => t.includes('Sara Reservada') && t.includes('cumpleanos'))).toBe(false);
-    expect(nov.entries.find((e: { kind: string; personId: string }) => e.kind === 'aniversario' && e.personId === IDS.admin)).toMatchObject({
-      date: '2026-11-15',
-      years: 16,
-      detail: '16 años en FLM',
-    });
-    expect(nov.entries.find((e: { kind: string }) => e.kind === 'encuentro')).toMatchObject({ date: '2026-11-12', title: 'Encuentro de otoño', time: '09:00' });
-    expect(titles.some((t: string) => t.includes('Ciclo sobre el cierre'))).toBe(false);
+    // Noviembre: solo el encuentro de otoño (el ciclo de formación interna del 3/11 no es un encuentro).
+    expect(nov.entries).toHaveLength(1);
+    expect(nov.entries[0]).toMatchObject({ kind: 'encuentro', date: '2026-11-12', title: 'Encuentro de otoño', time: '09:00', eventId: IDS.encuentro });
+    expect(nov.entries[0]).not.toHaveProperty('personId');
     expect(JSON.stringify(nov)).not.toContain('@flmexperts.com');
+    expect(JSON.stringify(nov)).not.toMatch(/Pau Empleado|Ana Admin|Sara Reservada/);
 
     const dec = await json(await employee.get('/api/calendar?year=2026&month=12'));
-    const festivos = dec.entries.filter((e: { kind: string }) => e.kind === 'festivo');
-    expect(festivos).toHaveLength(2);
-    expect(festivos[0]).toMatchObject({ date: '2026-12-25', title: 'Festivo', detail: 'Navidad' });
-
-    await employee.patch('/api/me', { showBirthday: false });
-    const again = await json(await employee.get('/api/calendar?year=2026&month=11'));
-    expect(again.entries.some((e: { kind: string; personId: string }) => e.kind === 'cumpleanos' && e.personId === IDS.empleado)).toBe(false);
+    expect(dec.entries.map((e: { kind: string }) => e.kind)).toEqual(['festivo', 'festivo']);
+    expect(dec.entries[0]).toMatchObject({ date: '2026-12-25', title: 'Festivo', detail: 'Navidad' });
   });
 
   it('valida año y mes', async () => {

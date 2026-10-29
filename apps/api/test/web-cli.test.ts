@@ -73,7 +73,8 @@ describe('herramientas de línea de órdenes (compiladas con esbuild)', () => {
   afterAll(() => rmSync(work, { recursive: true, force: true }));
 
   it('compila server.mjs, los CLI y copia las migraciones', () => {
-    for (const file of ['server.mjs', 'create-admin.mjs', 'backup.mjs', 'seed.mjs', 'migrations/0001_esquema_inicial.sql']) {
+    const migrations = ['0001_esquema_inicial.sql', '0002_sin_cumpleanos_ni_incorporacion.sql', '0003_formaciones_voluntarias.sql'].map((m) => `migrations/${m}`);
+    for (const file of ['server.mjs', 'create-admin.mjs', 'backup.mjs', 'seed.mjs', ...migrations]) {
       expect(existsSync(join(dist, file)), file).toBe(true);
     }
   });
@@ -82,6 +83,7 @@ describe('herramientas de línea de órdenes (compiladas con esbuild)', () => {
     const usage = runCli('create-admin.mjs');
     expect(usage.status).toBe(1);
     expect(usage.stdout).toContain('Uso: npm run create-admin');
+    expect(usage.stdout).not.toContain('--incorporacion');
 
     const external = runCli('create-admin.mjs', ['--email', 'admin@gmail.com', '--nombre', 'Externa']);
     expect(external.status).toBe(1);
@@ -92,8 +94,11 @@ describe('herramientas de línea de órdenes (compiladas con esbuild)', () => {
     expect(ok.stdout).toMatch(/https:\/\/campus\.test\/activar#token=[A-Za-z0-9_-]{43}/);
     const db = openDatabase(env.DATABASE_PATH!);
     const users = all<{ email: string; role: string; password_hash: string | null }>(db, 'SELECT email, role, password_hash FROM users');
+    // Las migraciones compiladas se aplican: la ficha no tiene cumpleaños ni fecha de incorporación.
+    const columns = all<{ name: string }>(db, "SELECT name FROM pragma_table_info('users')").map((c) => c.name);
     db.close();
     expect(users).toEqual([{ email: 'direccion@flmexperts.com', role: 'admin', password_hash: null }]);
+    expect(columns.filter((name) => ['birthday', 'show_birthday', 'start_date'].includes(name))).toEqual([]);
 
     const again = runCli('create-admin.mjs', ['--email', 'direccion@flmexperts.com', '--nombre', 'Dirección FLM']);
     expect(again.status).toBe(0);

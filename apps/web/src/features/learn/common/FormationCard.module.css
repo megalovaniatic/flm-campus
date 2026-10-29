@@ -125,25 +125,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-.due {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  min-height: 28px;
-  padding: 0 0.75rem;
-  border-radius: var(--radius-pill);
-  background: var(--warning-soft);
-  color: var(--warning);
-  font-size: 0.78rem;
-  font-weight: 650;
-  white-space: nowrap;
-}
-
-.due[data-overdue] {
-  background: var(--danger-soft);
-  color: var(--danger);
-}
-
 /* Enlace que cubre la tarjeta: un solo enlace con nombre claro */
 .stretch {
   display: inline-block;

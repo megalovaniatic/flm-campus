@@ -6,7 +6,7 @@ import { listActiveSessions, publicSession, revokeSession, revokeUserSessions, t
 import type { AppContext, AppEnv, AuthUser } from '../context';
 import { all, get, run, transaction, type SqlParam } from '../db/database';
 import { notFound } from '../lib/errors';
-import { birthdaySchema, jsonBody, queryParams } from '../lib/validation';
+import { jsonBody, queryParams } from '../lib/validation';
 import { currentUser, requirePermission } from '../middleware/authorize';
 import { enforce, RATE_RULES } from '../middleware/rate-limit';
 import { anonymizeUser, deactivateUser, reactivateUser, sendActivationLink } from '../services/accounts';
@@ -63,7 +63,7 @@ async function removePhoto(ctx: AppContext, c: Context<AppEnv>, target: UserRow,
   return requireUserRow(ctx.db, target.id);
 }
 
-/** Perfil propio: consulta, preferencias (consentimiento de cumpleaños) y foto. */
+/** Perfil propio: consulta y foto. */
 export function meRoutes(ctx: AppContext) {
   const r = new Hono<AppEnv>();
   const { db } = ctx;
@@ -71,24 +71,6 @@ export function meRoutes(ctx: AppContext) {
   r.get('/', requirePermission('campus:leer'), (c) => {
     const user = requireUserRow(db, currentUser(c).id);
     return c.json({ person: toPerson(user), accountState: accountState(user), permissions: [...ROLE_PERMISSIONS[user.role]] });
-  });
-
-  r.patch('/', requirePermission('progreso:propio'), async (c) => {
-    const input = await jsonBody(
-      c,
-      z
-        .object({ birthday: birthdaySchema.nullable().optional(), showBirthday: z.boolean().optional() })
-        .refine((v) => v.birthday !== undefined || v.showBirthday !== undefined, 'Indica el cumpleaños o la preferencia de mostrarlo'),
-    );
-    const me = currentUser(c);
-    const user = requireUserRow(db, me.id);
-    const birthday = input.birthday === undefined ? user.birthday : input.birthday;
-    // Sin cumpleaños no hay nada que mostrar: el consentimiento se retira.
-    const show = birthday ? (input.showBirthday ?? user.show_birthday === 1) : false;
-    const now = ctx.now();
-    run(db, 'UPDATE users SET birthday = ?, show_birthday = ?, updated_at = ? WHERE id = ?', birthday, show ? 1 : 0, now.toISOString(), me.id);
-    audit(db, { actorId: me.id, action: 'perfil.cumpleanos', entity: 'persona', entityId: me.id, detail: `Mostrar cumpleaños en el calendario: ${show ? 'sí' : 'no'}`, ip: c.get('clientIp') }, now);
-    return c.json({ person: toPerson(requireUserRow(db, me.id)) });
   });
 
   r.put('/photo', requirePermission('progreso:propio'), async (c) => {
@@ -110,7 +92,7 @@ export function peopleRoutes(ctx: AppContext) {
   const { db } = ctx;
   const ip = (c: Context<AppEnv>) => c.get('clientIp');
 
-  /** Directorio interno: ficha mínima de las personas activas (sin correo ni fechas personales). */
+  /** Directorio interno: ficha mínima de las personas activas (sin correo electrónico). */
   r.get('/directory', requirePermission('campus:leer'), (c) => c.json({ items: activeUsers(db).map(directoryEntry) }));
 
   r.get('/', requirePermission('personas:gestionar'), (c) => {

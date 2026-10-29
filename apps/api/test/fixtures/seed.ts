@@ -128,9 +128,6 @@ export const fixtureSeed: SeedData = {
       department: 'Administración',
       office: 'Barcelona',
       role: 'admin',
-      startDate: '2010-11-15',
-      birthday: '11-20',
-      showBirthday: true,
       status: 'activa',
     },
     {
@@ -141,8 +138,6 @@ export const fixtureSeed: SeedData = {
       department: 'Fiscal',
       office: 'Barcelona',
       role: 'autor',
-      startDate: '2015-03-01',
-      showBirthday: false,
       status: 'activa',
     },
     {
@@ -153,8 +148,6 @@ export const fixtureSeed: SeedData = {
       department: 'Laboral',
       office: 'Vic',
       role: 'autor',
-      startDate: '2018-06-01',
-      showBirthday: false,
       status: 'activa',
     },
     {
@@ -165,9 +158,6 @@ export const fixtureSeed: SeedData = {
       department: 'Fiscal',
       office: 'Granollers',
       role: 'empleado',
-      startDate: '2020-11-05',
-      birthday: '11-08',
-      showBirthday: true,
       status: 'activa',
     },
     {
@@ -178,9 +168,6 @@ export const fixtureSeed: SeedData = {
       department: 'Contable',
       office: 'Barcelona',
       role: 'empleado',
-      startDate: '2021-12-10',
-      birthday: '11-25',
-      showBirthday: false,
       status: 'activa',
     },
     {
@@ -191,7 +178,6 @@ export const fixtureSeed: SeedData = {
       department: 'Fiscal',
       office: 'Barcelona',
       role: 'empleado',
-      showBirthday: false,
       status: 'activa',
       fictional: true,
     },
@@ -278,8 +264,5 @@ export const fixtureSeed: SeedData = {
   holidays: [
     { date: '2026-12-25', name: 'Navidad', scope: 'nacional', offices: [], source: 'https://www.boe.es/diario_boe/' },
     { date: '2026-12-26', name: 'Sant Esteve', scope: 'autonomico', offices: ['Barcelona', 'Vic', 'Granollers'], source: 'https://dogc.gencat.cat' },
-  ],
-  assignments: [
-    { id: 'asig-todos', formationId: IDS.formation, target: { kind: 'todos' }, dueDate: '2026-11-30', assignedBy: IDS.admin, assignedAt: '2026-10-01T09:00:00.000Z' },
   ],
 };

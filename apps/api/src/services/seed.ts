@@ -140,8 +140,8 @@ export async function importSeed(db: Db, seed: SeedData, opts: SeedOptions): Pro
         if (p.photo) report.warnings.push(`Persona ${p.id}: la foto «${p.photo}» no se importa; puede subirse desde la administración.`);
         run(
           db,
-          `INSERT INTO users (id, email, name, position, department, office, role, start_date, birthday, show_birthday, status, deactivated_at, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO users (id, email, name, position, department, office, role, status, deactivated_at, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           p.id,
           p.email,
           p.name,
@@ -149,9 +149,6 @@ export async function importSeed(db: Db, seed: SeedData, opts: SeedOptions): Pro
           p.department,
           p.office,
           p.role,
-          p.startDate ?? null,
-          p.birthday ?? null,
-          p.showBirthday ? 1 : 0,
           p.status,
           p.status === 'inactiva' ? nowIso : null,
           nowIso,
@@ -244,7 +241,7 @@ export async function importSeed(db: Db, seed: SeedData, opts: SeedOptions): Pro
         }
       }
 
-      // 4. Festivos, lecturas y asignaciones.
+      // 4. Festivos y lecturas.
       for (const h of seed.holidays) {
         const changed = run(
           db,
@@ -261,25 +258,6 @@ export async function importSeed(db: Db, seed: SeedData, opts: SeedOptions): Pro
       for (const r of seed.readings) {
         const changed = run(db, 'INSERT OR IGNORE INTO readings (id, area, payload, updated_at) VALUES (?, ?, ?, ?)', r.id, r.area, JSON.stringify(r), nowIso);
         count(changed ? 'created' : 'skipped', 'lecturas');
-      }
-      for (const a of seed.assignments) {
-        const personId = a.target.kind === 'persona' ? a.target.personId : null;
-        if (!exists('contents', a.formationId) || (personId && !exists('users', personId))) {
-          report.warnings.push(`Asignación ${a.id}: la formación o la persona no existen; se omite.`);
-          continue;
-        }
-        const changed = run(
-          db,
-          'INSERT OR IGNORE INTO assignments (id, content_id, target_kind, person_id, due_date, assigned_by, assigned_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-          a.id,
-          a.formationId,
-          a.target.kind,
-          personId,
-          a.dueDate ?? null,
-          exists('users', a.assignedBy) ? a.assignedBy : null,
-          a.assignedAt,
-        );
-        count(changed ? 'created' : 'skipped', 'asignaciones');
       }
 
       for (const [authorId, n] of reassigned) {

@@ -6,15 +6,17 @@ La navegación principal sigue los tres propósitos del campus más un punto de 
 
 | Destino | Propósito | Intenciones que resuelve |
 |---|---|---|
-| **Inicio** | Punto de partida personal con datos vivos | «Quiero saber qué tengo pendiente» · «¿Qué pasa hoy en FLM?» |
+| **Inicio** | Punto de partida personal con datos vivos | «¿Por dónde sigo?» · «¿Qué pasa hoy en FLM?» |
 | **Aprender** | Formación por área, tests y evaluaciones | «Quiero aprender algo útil» |
 | **Consultar** | Biblioteca: Actualidad, Notas informativas, Lecturas | «Necesito un documento» · «Quiero entender una novedad» |
 | **Participar** | Agenda, calendario y aportaciones | «¿Qué está pasando en la firma?» · «Quiero aportar algo» |
 | Perfil (avatar) | Progreso, resultados, reconocimientos, ajustes | «¿Cómo voy?» |
 | Gestión (autoría y administración) | Crear, revisar y publicar contenidos | «Quiero aportar contenido» · «Necesito gestionar contenido» |
-| Administración | Personas, accesos, informes, auditoría | «Necesito gestionar accesos» |
+| Administración | Personas, accesos, informes agregados (sin nombres), auditoría | «Necesito gestionar accesos» · «¿Cómo va cada formación?» |
 
-La búsqueda global (Ctrl/⌘ K o «/») atraviesa todo: formaciones, novedades, notas, lecturas, agenda, personas y secciones.
+La búsqueda global (Ctrl/⌘ K o «/») atraviesa todo: formaciones, novedades, notas, lecturas, agenda y secciones.
+
+Todas las formaciones son voluntarias, sin fechas límite. «Tu siguiente paso», en Inicio, propone la formación que dejaste a medias (la última que tocaste); si no hay ninguna, la siguiente sin completar recomendada para tu área y, si no, la siguiente sin completar del campus.
 
 ## 2. Mapa del sitio
 
@@ -33,7 +35,7 @@ flowchart TD
   C --> CD[Notas informativas · PDF originales]
   C --> CL[Lecturas recomendadas]
   P --> PA[Agenda: Actuales y próximos · Histórico]
-  P --> PC[Calendario: cumpleaños · aniversarios · encuentros · festivos]
+  P --> PC[Calendario: encuentros de equipo · festivos]
   P --> PP[Participa: temas, mejoras, vídeos, LinkedIn, reseñas]
   PF --> PFA[Ajustes]
   PF -. autoría .-> G[Gestión de contenidos]
@@ -48,7 +50,7 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-  A[Inicio · «Tu siguiente paso»] --> B[Formación obligatoria Verifactu]
+  A[Inicio · «Tu siguiente paso»] --> B[Formación recomendada para tu área: Verifactu]
   B --> C[Lee: resultados de aprendizaje, bloques, ejemplo resuelto, idea clave]
   C --> D[«Marcar la lectura como terminada»]
   D --> E[Test: 3 preguntas con corrección al margen]
@@ -102,7 +104,7 @@ flowchart LR
   C[Administración · Personas] --> D[Alta con enlace de activación de 7 días]
   C --> E[Desactivar = revoca sesiones]
   C --> F[Eliminar datos personales con confirmación]
-  G[Informes] --> H[Cumplimiento de obligatorias · errores frecuentes · CSV]
+  G[Informes agregados, sin nombres] --> H[Participación por formación · errores frecuentes por pregunta · CSV]
   I[Auditoría] --> J[Quién, qué y cuándo]
 ```
 

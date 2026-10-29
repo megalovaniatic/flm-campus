@@ -1,21 +1,17 @@
 /**
  * Datos de la sección Aprender: formaciones (con la muestra de desarrollo), evaluaciones,
- * obligatorias de la persona, personas de referencia y ayudas de fechas y orden.
+ * progreso, personas de referencia y ayudas de fechas y orden.
  */
 import { use, useMemo } from 'react';
 import {
   AREA_IDS,
   AREA_LIST,
-  diffDays,
   formatLongDate,
-  formatShortDate,
   formationStatus,
   isAreaId,
-  madridDateKey,
   normalize,
   slugify,
   type AreaId,
-  type Assignment,
   type Block,
   type Formation,
   type FormationProgress,
@@ -23,7 +19,7 @@ import {
   type QuizAttempt,
   type SectorAssessment,
 } from '@flm/shared';
-import { assessments, assignments, useFormation, useFormations, useMe, usePeople } from '@/data/selectors';
+import { assessments, useFormation, useMe, usePeople } from '@/data/selectors';
 import { useDemo } from '@/data/store';
 import { asset } from '@/lib/download';
 
@@ -111,46 +107,6 @@ export function nextFormation(current: Pick<Formation, 'id' | 'area'>, list: For
     if (f) return f;
   }
   return undefined;
-}
-
-/* ── Obligatorias ─────────────────────────────────────────────────────── */
-
-export interface MyAssignment {
-  assignment: Assignment;
-  formation: Formation;
-}
-
-/** Formaciones obligatorias de la persona (asignadas a ella o a todo el equipo), por fecha límite. */
-export function useMyAssignments(): MyAssignment[] {
-  const me = useMe();
-  const formations = useFormations();
-  return useMemo(() => {
-    if (!me) return [];
-    const out: MyAssignment[] = [];
-    for (const a of assignments) {
-      if (a.target.kind === 'persona' && a.target.personId !== me.id) continue;
-      const formation = formations.find((f) => f.id === a.formationId);
-      if (formation) out.push({ assignment: a, formation });
-    }
-    return out.sort((x, y) => (x.assignment.dueDate ?? '9999').localeCompare(y.assignment.dueDate ?? '9999'));
-  }, [me, formations]);
-}
-
-export interface DueInfo {
-  /** «Antes del 30 nov» o «Venció el 15 nov». */
-  label: string;
-  /** «Quedan 33 días», «Vence hoy», «Venció hace 2 días». */
-  hint: string;
-  overdue: boolean;
-  days: number;
-}
-
-export function dueInfo(due: string, today: string = madridDateKey()): DueInfo {
-  const days = diffDays(today, due);
-  const date = formatShortDate(due, due.slice(0, 4) !== today.slice(0, 4));
-  if (days < 0) return { label: `Venció el ${date}`, hint: days === -1 ? 'Venció ayer' : `Venció hace ${-days} días`, overdue: true, days };
-  const hint = days === 0 ? 'Vence hoy' : days === 1 ? 'Vence mañana' : `Quedan ${days} días`;
-  return { label: `Antes del ${date}`, hint, overdue: false, days };
 }
 
 /* ── Fechas de la formación ───────────────────────────────────────────── */

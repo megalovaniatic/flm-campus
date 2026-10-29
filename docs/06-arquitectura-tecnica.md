@@ -52,7 +52,7 @@ Ver [`apps/api/README.md`](../apps/api/README.md): Hono sobre Node 24 con SQLite
 | Subidas seguras | Lista blanca por cabecera mágica, límite de tamaño, nombres aleatorios fuera de rutas públicas, descarga con `Content-Disposition` y `nosniff` |
 | Límites de frecuencia | Inicio de sesión, recuperación, subidas y general |
 | Secretos | Solo variables de entorno (`.env.example` sin valores reales) |
-| Minimización de datos | Cumpleaños sin año y con consentimiento; datos profesionales mínimos |
+| Minimización de datos | Solo datos profesionales mínimos: el campus no guarda cumpleaños ni fechas de incorporación. Los informes de formación son agregados y sin nombres |
 | Auditoría | Registro de acciones de seguridad y editoriales |
 | Copias y recuperación | `VACUUM INTO` programado y procedimiento de restauración |
 

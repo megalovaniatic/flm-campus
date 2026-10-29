@@ -18,7 +18,6 @@ interface MonthGridProps {
   today: string;
   titleId: string;
   entriesFor: (key: string) => CalendarEntry[];
-  highlightId?: string;
   gridRef: RefObject<HTMLDivElement | null>;
   onActivate: (key: string) => void;
   onKey: (e: KeyboardEvent<HTMLElement>, key: string) => void;
@@ -35,7 +34,7 @@ const slide = {
  * de tabulación, flechas para moverse, Inicio/Fin por semana y RePág/AvPág por mes.
  * El círculo de selección viaja de un día a otro; el mes entra desde su lado.
  */
-export function MonthGrid({ y, m, dir, selected, today, titleId, entriesFor, highlightId, gridRef, onActivate, onKey }: MonthGridProps) {
+export function MonthGrid({ y, m, dir, selected, today, titleId, entriesFor, gridRef, onActivate, onKey }: MonthGridProps) {
   const reduce = useReducedMotionPref();
   const weeks = monthGrid(y, m);
   const monthKey = `${y}-${m}`;
@@ -73,7 +72,6 @@ export function MonthGrid({ y, m, dir, selected, today, titleId, entriesFor, hig
                         entries={entriesFor(key)}
                         selected={key === selected}
                         isToday={key === today}
-                        highlightId={highlightId}
                         onActivate={onActivate}
                         onKey={onKey}
                       />
@@ -96,19 +94,17 @@ interface DayCellProps {
   entries: CalendarEntry[];
   selected: boolean;
   isToday: boolean;
-  highlightId?: string;
   onActivate: (key: string) => void;
   onKey: (e: KeyboardEvent<HTMLElement>, key: string) => void;
 }
 
-function DayCell({ dateKey, entries, selected, isToday, highlightId, onActivate, onKey }: DayCellProps) {
+function DayCell({ dateKey, entries, selected, isToday, onActivate, onKey }: DayCellProps) {
   const day = Number(dateKey.slice(8, 10));
   const weekend = weekdayMondayFirst(dateKey) >= 5;
   const festivo = entries.some((e) => e.kind === 'festivo');
-  const marked = !!highlightId && entries.some((e) => e.personId === highlightId);
   const visible = entries.slice(0, 3);
   const more = entries.length - visible.length;
-  const label = `${capitalize(formatWeekdayDate(dateKey))}${isToday ? ', hoy' : ''}: ${entries.length ? entries.map(entrySentence).join('; ') : 'sin entradas'}${marked ? ' (fecha resaltada)' : ''}`;
+  const label = `${capitalize(formatWeekdayDate(dateKey))}${isToday ? ', hoy' : ''}: ${entries.length ? entries.map(entrySentence).join('; ') : 'sin entradas'}`;
   return (
     <div
       role="gridcell"
@@ -120,7 +116,6 @@ function DayCell({ dateKey, entries, selected, isToday, highlightId, onActivate,
       className={styles.day}
       data-weekend={weekend}
       data-festivo={festivo}
-      data-marked={marked}
       onClick={() => onActivate(dateKey)}
       onKeyDown={(e) => onKey(e, dateKey)}
     >
@@ -133,7 +128,7 @@ function DayCell({ dateKey, entries, selected, isToday, highlightId, onActivate,
       </span>
       <span className={styles.pills} aria-hidden="true">
         {visible.map((e) => (
-          <span key={e.id} className={styles.pill} data-kind={e.kind} data-highlight={!!highlightId && e.personId === highlightId}>
+          <span key={e.id} className={styles.pill} data-kind={e.kind}>
             <KindIcon kind={e.kind} size={12} />
             <span className={styles.pillText}>
               {e.kind === 'encuentro' && e.time ? `${e.time} ` : ''}

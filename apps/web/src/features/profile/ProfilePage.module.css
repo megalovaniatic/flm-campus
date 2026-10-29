@@ -1,4 +1,4 @@
-/* Perfil: identidad, recorrido, progreso, obligatorias, formaciones, intentos y reconocimientos */
+/* Perfil: identidad, progreso, formaciones, intentos, evaluaciones y reconocimientos */
 .page {
   --block-gap: clamp(2.75rem, 1.6rem + 3.2vw, 4.75rem);
 }
@@ -6,7 +6,7 @@
 /* ── Identidad ─────────────────────────────────────────────────────────── */
 .identity {
   display: grid;
-  grid-template-columns: repeat(5, max-content);
+  grid-template-columns: repeat(4, max-content);
   gap: var(--space-4) clamp(1.5rem, 0.5rem + 2.6vw, 3.25rem);
   margin: 0 0 var(--space-6);
 }
@@ -106,21 +106,16 @@
 }
 
 /* ── Tarjetas ──────────────────────────────────────────────────────────── */
-.top,
+.progressCard {
+  margin-top: var(--space-8);
+}
+
 .lower {
   display: grid;
-  gap: var(--space-5);
-  margin-top: var(--space-8);
-  align-items: start;
-}
-
-.top {
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-}
-
-.lower {
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--space-5);
   margin-top: var(--block-gap);
+  align-items: start;
 }
 
 .card {
@@ -148,15 +143,6 @@
   font-size: clamp(1.45rem, 1.25rem + 0.6vw, 1.85rem);
   line-height: 1.12;
   letter-spacing: -0.012em;
-}
-
-.cardLede {
-  margin-top: 4px;
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-variation-settings: 'opsz' 20;
-  font-size: 1.0625rem;
-  color: var(--ink-2);
 }
 
 .cardMeta {
@@ -225,7 +211,7 @@
 /* ── Progreso por área ─────────────────────────────────────────────────── */
 .areas {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-2);
   margin: 0;
   padding: 0;
@@ -290,84 +276,6 @@
 .area[data-complete='true'] .areaStatus {
   color: var(--success);
   font-weight: 600;
-}
-
-/* ── Obligatorias ──────────────────────────────────────────────────────── */
-.mandatory {
-  display: grid;
-  gap: var(--space-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.mRow {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(14rem, auto);
-  align-items: center;
-  gap: var(--space-3) var(--space-6);
-  padding: var(--space-5) var(--space-6);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--line);
-  background: var(--surface);
-  transition: box-shadow var(--dur-base) var(--ease-standard), border-color var(--dur-quick) var(--ease-standard);
-}
-
-.mRow::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 22px;
-  bottom: 22px;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: var(--area-fill);
-}
-
-@media (hover: hover) {
-  .mRow:hover {
-    box-shadow: var(--shadow-2);
-    border-color: var(--line-strong);
-  }
-}
-
-.mMain {
-  display: grid;
-  gap: var(--space-2);
-  min-width: 0;
-}
-
-.mTitle {
-  font-family: var(--font-serif);
-  font-variation-settings: 'opsz' 36;
-  font-weight: 460;
-  font-size: 1.25rem;
-  line-height: 1.2;
-}
-
-.mMeta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 14px;
-  font-size: 0.8125rem;
-  color: var(--ink-2);
-}
-
-.due {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 7px;
-  font-size: var(--text-sm);
-  font-weight: 600;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-
-.due[data-overdue] {
-  color: var(--accent-text);
 }
 
 /* ── Tablas ────────────────────────────────────────────────────────────── */
@@ -600,25 +508,17 @@
 }
 
 /* ── Adaptación ────────────────────────────────────────────────────────── */
-@media (max-width: 1180px) {
-  .identity {
-    grid-template-columns: repeat(3, minmax(0, max-content));
-  }
-}
-
 @media (max-width: 1023px) {
-  .top,
+  .identity {
+    grid-template-columns: repeat(2, minmax(0, max-content));
+  }
+
   .lower {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .mRow {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .due {
-    grid-column: 1 / -1;
-    justify-content: flex-start;
+  .areas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -627,7 +527,9 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .identity > div:first-child {
+  /* Cuatro datos en dos columnas: el correo y «En el campus», a lo ancho; departamento y sede, juntos */
+  .identity > div:first-child,
+  .identity > div:last-child {
     grid-column: 1 / -1;
   }
 
@@ -637,11 +539,6 @@
 
   .areas {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .mRow {
-    grid-template-columns: minmax(0, 1fr);
-    padding: var(--space-4) var(--space-5);
   }
 
   .assess {

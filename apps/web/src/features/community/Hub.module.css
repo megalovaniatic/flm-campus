@@ -1,13 +1,5 @@
 /* ── Participar (portada de la sección) ───────────────────────────────── */
 
-:where(.legend li, .miniDot, .soonItem)[data-kind='cumpleanos'] {
-  --kind: var(--cal-cumpleanos);
-}
-
-:where(.legend li, .miniDot, .soonItem)[data-kind='aniversario'] {
-  --kind: var(--cal-aniversario);
-}
-
 :where(.legend li, .miniDot, .soonItem)[data-kind='encuentro'] {
   --kind: var(--cal-encuentro);
 }

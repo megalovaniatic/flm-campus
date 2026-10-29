@@ -51,7 +51,7 @@ const MAIN: (Node & { icon: LucideIcon })[] = [
     note: 'Vida de empresa',
     children: [
       { label: 'Agenda', to: '/participar/agenda', note: 'Actuales y próximos · histórico' },
-      { label: 'Calendario', to: '/participar/calendario', note: 'Cumpleaños, aniversarios, encuentros y festivos' },
+      { label: 'Calendario', to: '/participar/calendario', note: 'Encuentros de equipo y festivos' },
       { label: 'Contribuye', to: '/participar/contribuye', note: 'Temas, mejoras, vídeos y reseñas' },
     ],
   },
@@ -95,7 +95,7 @@ const JOURNEYS: Record<Journey, { intro: string; steps: Step[] }> = {
   empleado: {
     intro: 'Aprender algo útil y demostrarlo. Es el recorrido diario de la mayoría del equipo.',
     steps: [
-      { title: 'Inicio · «Tu siguiente paso»', text: 'La formación obligatoria más urgente o la que dejaste a medias.' },
+      { title: 'Inicio · «Tu siguiente paso»', text: 'La formación que dejaste a medias o la siguiente recomendada para tu área.' },
       { title: 'Formación', text: 'Resultados de aprendizaje, ejemplo resuelto paso a paso, «Explicamos» e idea clave.' },
       { title: '«Marcar la lectura como terminada»', text: 'Solo con el botón, nunca por desplazamiento.' },
       {
@@ -131,7 +131,7 @@ const JOURNEYS: Record<Journey, { intro: string; steps: Step[] }> = {
       { title: 'Gestión · Pendiente de tu revisión', text: 'Contenidos enviados por las personas autoras.' },
       { title: 'Publicar', text: 'Con «Deshacer» durante unos segundos, o devolver con comentarios.' },
       { title: 'Administración · Personas', text: 'Altas con enlace de activación de 7 días; desactivar cierra sus sesiones.' },
-      { title: 'Informes', text: 'Cumplimiento de obligatorias y errores más frecuentes, exportables en CSV.' },
+      { title: 'Informes', text: 'Participación por formación, sin nombres, y errores más frecuentes, exportables en CSV.' },
       { title: 'Auditoría', text: 'Quién hizo qué y cuándo.' },
     ],
   },
@@ -219,10 +219,10 @@ export function Architecture() {
         <div className={styles.groups}>
           <GroupCard title="Tu espacio" hint="Desde tu círculo, arriba a la derecha (Perfil, en móvil)" icon={UserRound}>
             <li>
-              <Link to="/perfil">Mi perfil</Link> <span>Recorrido, progreso y reconocimientos</span>
+              <Link to="/perfil">Mi perfil</Link> <span>Progreso, formaciones y reconocimientos</span>
             </li>
             <li>
-              <Link to="/perfil/ajustes">Ajustes</Link> <span>Tema, movimiento, atajos, cumpleaños y avisos</span>
+              <Link to="/perfil/ajustes">Ajustes</Link> <span>Tema, movimiento, atajos, avisos y privacidad</span>
             </li>
           </GroupCard>
           <GroupCard title="Según tu perfil" hint="Solo aparecen con el rol correspondiente" icon={ShieldCheck}>

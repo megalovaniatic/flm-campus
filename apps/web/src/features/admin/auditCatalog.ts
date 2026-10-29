@@ -88,7 +88,7 @@ export function exampleAudit(): AuditEntry[] {
   add('ses-1', '2026-10-26T07:58:00.000Z', 'p-laura-gil', 'sesion.inicio', 'sesion');
   add('fail-1', '2026-10-26T08:02:00.000Z', 'sistema', 'sesion.inicio-fallido', 'persona', 'p-xavier-roig', 'Contraseña incorrecta');
   add('rev-1', '2026-10-27T15:20:00.000Z', 'p-marc-pujol', 'sesion.revocar-todas', 'persona', 'p-oriol-font', 'Sesiones cerradas: 2');
-  add('inf-1', '2026-10-27T16:40:00.000Z', 'p-carme-soler', 'informe.exportar', 'informe', undefined, 'Cumplimiento (personas)');
+  add('inf-1', '2026-10-27T16:40:00.000Z', 'p-carme-soler', 'informe.exportar', 'informe', undefined, 'Participación por formación');
   add('purga-1', '2026-10-28T02:00:00.000Z', 'sistema', 'retencion.purga', 'sistema', undefined, 'Sesiones caducadas: 3 · enlaces usados o caducados: 1');
   return out.sort((a, b) => b.at.localeCompare(a.at));
 }

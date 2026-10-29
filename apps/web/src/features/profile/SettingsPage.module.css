@@ -385,38 +385,11 @@
   border-top: 1px solid var(--line);
 }
 
-/* Cumpleaños */
-.birthday {
-  display: grid;
-  gap: var(--space-4);
-}
-
-.dateSet {
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.dateRow {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 12rem));
-  gap: 12px;
-  margin-top: var(--space-3);
-}
-
-.formActions,
 .rowActions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 12px 20px;
-}
-
-.demoNote {
-  font-size: 0.8125rem;
-  color: var(--ink-2);
-  max-width: 44rem;
 }
 
 /* Privacidad */
@@ -529,10 +502,6 @@
 }
 
 @media (max-width: 480px) {
-  .dateRow {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .navLink {
     min-height: 44px;
   }

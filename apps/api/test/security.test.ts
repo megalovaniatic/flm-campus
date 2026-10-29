@@ -65,11 +65,11 @@ describe('CSRF y origen', () => {
 
   it('comprueba Origin contra APP_ORIGIN (o Referer si falta Origin)', async () => {
     const client = await loginAs(env, EMAILS.empleado);
-    const evil = await client.patch('/api/me', { showBirthday: false }, { origin: 'https://malicioso.example' });
+    const evil = await client.delete('/api/me/photo', { origin: 'https://malicioso.example' });
     expect(evil.status).toBe(403);
     expect((await json(evil)).error.code).toBe('ORIGEN_NO_PERMITIDO');
-    expect((await client.patch('/api/me', { showBirthday: false }, { origin: null })).status).toBe(403);
-    const viaReferer = await client.patch('/api/me', { showBirthday: false }, { origin: null, headers: { referer: 'https://campus.test/perfil' } });
+    expect((await client.delete('/api/me/photo', { origin: null })).status).toBe(403);
+    const viaReferer = await client.delete('/api/me/photo', { origin: null, headers: { referer: 'https://campus.test/perfil' } });
     expect(viaReferer.status).toBe(200);
   });
 });
@@ -215,11 +215,10 @@ describe('autorización en todas las rutas', () => {
       ['PATCH', `/api/people/${IDS.autora2}`],
       ['POST', `/api/people/${IDS.autora2}/anonymize`],
       ['GET', `/api/people/${IDS.autora2}/sessions`],
-      ['GET', '/api/reports/compliance'],
+      ['GET', '/api/reports/participation'],
+      ['GET', '/api/reports/participation?format=csv'],
       ['GET', `/api/reports/errors/${IDS.formation}`],
       ['GET', '/api/audit'],
-      ['GET', '/api/assignments'],
-      ['POST', '/api/assignments'],
       ['POST', '/api/holidays'],
       ['PATCH', `/api/events/${IDS.encuentro}/phase`],
       ['POST', `/api/documents/${IDS.document}/versions`],

@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { CalendarRange, Check, ChevronDown, ChevronLeft, ChevronRight, Info, ListFilter, UserRound } from 'lucide-react';
+import { CalendarRange, Check, ChevronDown, ChevronLeft, ChevronRight, ListFilter } from 'lucide-react';
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { useSearchParams } from 'react-router';
 import {
@@ -17,12 +17,12 @@ import {
   type CalendarSources,
 } from '@flm/shared';
 import { Button, ButtonLink, Dialog, EmptyState, IconButton, Kbd, Notice, PageHeader } from '@/design';
-import { holidays, useEvents, usePeople } from '@/data/selectors';
+import { holidays, useEvents } from '@/data/selectors';
 import { MESSAGES } from '@/lib/messages';
 import { usePageTitle, useReducedMotionPref } from '@/lib/preferences';
-import { countLabel, indexMonths, KIND_ORDER, nextPersonEntry, shiftMonth } from './calendarView';
+import { countLabel, indexMonths, KIND_ORDER, shiftMonth } from './calendarView';
 import { DayEntries } from './DayEntries';
-import { capitalize, dayMonth } from './eventView';
+import { capitalize } from './eventView';
 import { useMediaQuery, useToday } from './hooks';
 import { KindIcon } from './icons';
 import { MonthGrid } from './MonthGrid';
@@ -34,14 +34,13 @@ const isDateKey = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(
 const MONTHS = Array.from({ length: 12 }, (_, i) => capitalize(monthName(i + 1)));
 
 /**
- * Calendario de FLM: cumpleaños (con consentimiento y sin año), aniversarios en FLM,
- * encuentros de equipo y festivos. Cuadrícula mensual en escritorio; tira semanal y lista en móvil.
+ * Calendario de FLM: encuentros de equipo y festivos de nuestras sedes (sin fechas personales).
+ * Cuadrícula mensual en escritorio; tira semanal y lista en móvil.
  */
 export default function CalendarPage() {
   usePageTitle('Calendario');
-  const [params, setParams] = useSearchParams();
+  const [params] = useSearchParams();
   const today = useToday();
-  const people = usePeople();
   const events = useEvents();
   const reduce = useReducedMotionPref();
   const isMobile = useMediaQuery('(max-width: 719px)');
@@ -56,16 +55,11 @@ export default function CalendarPage() {
   // Los comunicados no son encuentros: solo los eventos entran en el calendario.
   const meetings = useMemo(() => events.filter((e) => e.kind !== 'comunicado'), [events]);
   const eventsById = useMemo(() => new Map(events.map((e) => [e.id, e])), [events]);
-  const sources = useMemo<CalendarSources>(() => ({ people, holidays, events: meetings }), [people, meetings]);
-
-  const personaId = params.get('persona') ?? undefined;
-  const persona = personaId ? people.find((p) => p.id === personaId) : undefined;
-  const personaNext = useMemo(() => (persona ? nextPersonEntry(persona, today) : undefined), [persona, today]);
+  const sources = useMemo<CalendarSources>(() => ({ holidays, events: meetings }), [meetings]);
 
   const [initial] = useState(() => {
     const dia = params.get('dia');
-    if (dia && isDateKey(dia)) return dia;
-    return personaNext?.date ?? today;
+    return dia && isDateKey(dia) ? dia : today;
   });
   const [selected, setSelected] = useState(initial);
   const [cursor, setCursor] = useState(() => ({ y: Number(initial.slice(0, 4)), m: Number(initial.slice(5, 7)) }));
@@ -79,7 +73,7 @@ export default function CalendarPage() {
   const prefix = `${cursor.y}-${pad(cursor.m)}`;
   const monthDays = useMemo(() => [...index.keys()].filter((k) => k.startsWith(prefix)).sort(), [index, prefix]);
   const counts = useMemo(() => {
-    const c: Record<CalendarKind, number> = { cumpleanos: 0, aniversario: 0, encuentro: 0, festivo: 0 };
+    const c: Record<CalendarKind, number> = { encuentro: 0, festivo: 0 };
     for (const k of monthDays) for (const e of index.get(k) ?? []) c[e.kind] += 1;
     return c;
   }, [monthDays, index]);
@@ -132,15 +126,6 @@ export default function CalendarPage() {
       pendingFocus.current = null;
     }
   });
-
-  // Otra persona desde el buscador con la página abierta: saltar a su próxima fecha.
-  const lastPersona = useRef(personaId);
-  useEffect(() => {
-    if (personaId === lastPersona.current) return;
-    lastPersona.current = personaId;
-    if (personaNext) moveTo(personaNext.date);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [personaId, personaNext]);
 
   useEffect(() => {
     if (wide) setSheetOpen(false);
@@ -199,16 +184,6 @@ export default function CalendarPage() {
     });
   const showAll = () => setKinds(new Set(KIND_ORDER));
 
-  const clearPersona = () =>
-    setParams(
-      (prev) => {
-        const n = new URLSearchParams(prev);
-        n.delete('persona');
-        return n;
-      },
-      { replace: true, preventScrollReset: true },
-    );
-
   const todayY = Number(today.slice(0, 4));
   const years: number[] = [];
   for (let yy = Math.min(cursor.y, todayY - 2); yy <= Math.max(cursor.y, todayY + 2); yy++) years.push(yy);
@@ -218,13 +193,12 @@ export default function CalendarPage() {
   const selDiff = diffDays(today, selected);
   const selEyebrow = Math.abs(selDiff) < 7 ? capitalize(relativeDay(selected, today)) : 'Día seleccionado';
   const selTitle = `${capitalize(formatWeekdayDate(selected))}${selected.slice(0, 4) !== today.slice(0, 4) ? ` de ${selected.slice(0, 4)}` : ''}`;
-  const personaHighlight = persona && personaNext ? persona.id : undefined;
 
   const dayBody = selEntries.length ? (
-    <DayEntries entries={selEntries} people={people} eventsById={eventsById} highlightId={personaHighlight} />
+    <DayEntries entries={selEntries} eventsById={eventsById} />
   ) : (
     <div className={styles.none}>
-      <p>{hidden > 0 ? `${hidden === 1 ? 'Hay una entrada oculta' : `Hay ${hidden} entradas ocultas`} por los filtros.` : 'No hay cumpleaños, aniversarios, encuentros ni festivos este día.'}</p>
+      <p>{hidden > 0 ? `${hidden === 1 ? 'Hay una entrada oculta' : `Hay ${hidden} entradas ocultas`} por los filtros.` : 'No hay encuentros ni festivos este día.'}</p>
       {hidden > 0 && (
         <Button variant="soft" size="sm" onClick={showAll}>
           Mostrar todo
@@ -239,28 +213,13 @@ export default function CalendarPage() {
         crumbs={[{ label: 'Participar', to: '/participar' }, { label: 'Calendario' }]}
         eyebrow="Vida de empresa"
         title="Calendario"
-        lede="Cumpleaños, aniversarios en FLM, encuentros de equipo y festivos de nuestras sedes, mes a mes."
+        lede="Encuentros de equipo y festivos de nuestras sedes, mes a mes."
         actions={
           <ButtonLink to="/participar/agenda" variant="secondary" icon={<CalendarRange />}>
             Ver la agenda
           </ButtonLink>
         }
       />
-
-      {persona && (
-        <div className={styles.persona}>
-          <Notice tone="info" icon={<UserRound size={18} />} title={personaNext ? `Fechas de ${persona.name}` : `${persona.name} no tiene fechas en el calendario`}>
-            <p>
-              {personaNext
-                ? `Resaltamos sus fechas. La próxima: ${personaNext.kind === 'cumpleanos' ? 'su cumpleaños' : `su aniversario en FLM (${personaNext.detail})`}, el ${dayMonth(personaNext.date, todayY)}.`
-                : 'Los cumpleaños solo aparecen con el consentimiento de cada persona y los aniversarios, cuando consta la fecha de incorporación.'}
-            </p>
-            <Button variant="ghost" size="sm" onClick={clearPersona} className={styles.personaClear}>
-              Quitar resaltado
-            </Button>
-          </Notice>
-        </div>
-      )}
 
       <div className={styles.controls}>
         <div className={styles.toolbar}>
@@ -328,10 +287,6 @@ export default function CalendarPage() {
           })}
         </div>
 
-        <p className={styles.consent}>
-          <Info size={16} aria-hidden="true" />
-          Los cumpleaños solo aparecen con el consentimiento de cada persona (sin año).
-        </p>
         <p className="sr-only" aria-live="polite">
           {`${MONTHS[cursor.m - 1]} de ${cursor.y}: ${countLabel(visibleCount)}.`}
         </p>
@@ -341,7 +296,7 @@ export default function CalendarPage() {
         <div className={styles.emptyFilter}>
           <Notice tone="warning" icon={<ListFilter size={18} />} title={MESSAGES.emptyFilter.title}>
             <p>{MESSAGES.emptyFilter.body}</p>
-            <Button variant="ghost" size="sm" onClick={showAll} className={styles.personaClear}>
+            <Button variant="ghost" size="sm" onClick={showAll} className={styles.noticeAction}>
               Mostrar todo
             </Button>
           </Notice>
@@ -403,7 +358,7 @@ export default function CalendarPage() {
                             {key === today ? ', hoy' : ''}
                           </span>
                         </h3>
-                        <DayEntries entries={list} people={people} eventsById={eventsById} highlightId={personaHighlight} />
+                        <DayEntries entries={list} eventsById={eventsById} />
                       </li>
                     ))}
                   </ol>
@@ -424,7 +379,6 @@ export default function CalendarPage() {
               today={today}
               titleId={titleId}
               entriesFor={entriesFor}
-              highlightId={personaHighlight}
               gridRef={gridRef}
               onActivate={activate}
               onKey={onGridKey}

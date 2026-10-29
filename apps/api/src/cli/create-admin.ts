@@ -1,5 +1,4 @@
 import { parseArgs } from 'node:util';
-import { madridDateKey } from '@flm/shared';
 import { transaction } from '../db/database';
 import { formatIssues } from '../lib/validation';
 import { createLogger } from '../lib/logger';
@@ -25,7 +24,6 @@ Uso: npm run create-admin -w @flm/api -- --email <correo> --nombre "<nombre>" [o
   --puesto          Puesto (por defecto: «Administración del campus»)
   --departamento    Fiscal, Laboral, Mercantil, Contable, Dirección, Administración, Comunicación o Sistemas (por defecto: Dirección)
   --oficina         Barcelona, Vic o Granollers (por defecto: Barcelona)
-  --incorporacion   Fecha de incorporación AAAA-MM-DD (por defecto: hoy)
 `;
 
 async function main(): Promise<void> {
@@ -36,7 +34,6 @@ async function main(): Promise<void> {
       puesto: { type: 'string', default: 'Administración del campus' },
       departamento: { type: 'string', default: 'Dirección' },
       oficina: { type: 'string', default: 'Barcelona' },
-      incorporacion: { type: 'string' },
       ayuda: { type: 'boolean', short: 'h', default: false },
     },
   });
@@ -55,8 +52,6 @@ async function main(): Promise<void> {
     department: values.departamento,
     office: values.oficina,
     role: 'admin',
-    startDate: values.incorporacion ?? madridDateKey(now),
-    showBirthday: false,
   });
   if (!parsed.success) fail(`Datos no válidos:\n - ${formatIssues(parsed.error).map((i) => `${i.path}: ${i.message}`).join('\n - ')}`);
 

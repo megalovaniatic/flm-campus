@@ -27,6 +27,27 @@ describe('personas y cuentas', () => {
     expect((await json(edited)).person).toMatchObject({ position: 'Asesor fiscal sénior', department: 'Contable', office: 'Vic' });
     expect(get(env.db, "SELECT 1 AS x FROM audit_log WHERE action = 'persona.editar' AND entity_id = ?", IDS.empleado)).toBeDefined();
 
+    // El campus no guarda cumpleaños ni fechas de incorporación: si una petición aún los envía, se ignoran.
+    const created = await admin.post('/api/people', {
+      email: 'nueva.persona@flmexperts.com',
+      name: 'Nueva Persona',
+      position: 'Asesora laboral',
+      department: 'Laboral',
+      office: 'Vic',
+      role: 'empleado',
+      startDate: '2026-10-26',
+      birthday: '03-14',
+      showBirthday: true,
+    });
+    expect(created.status).toBe(201);
+    const person = (await json(created)).person;
+    for (const key of ['startDate', 'birthday', 'showBirthday']) expect(person).not.toHaveProperty(key);
+    const patched = await admin.patch(`/api/people/${person.id}`, { position: 'Asesora laboral sénior', birthday: '03-14', startDate: '2020-01-01' });
+    expect(patched.status).toBe(200);
+    expect((await json(patched)).person).not.toHaveProperty('birthday');
+    expect(get(env.db, "SELECT detail FROM audit_log WHERE action = 'persona.editar' AND entity_id = ?", person.id)).toMatchObject({ detail: 'Campos: position' });
+    expect((await admin.patch(`/api/people/${person.id}`, { birthday: '03-14' })).status).toBe(400);
+
     const directory = await json(await (await loginAs(env, EMAILS.empleado)).get('/api/people/directory'));
     expect(directory.items.length).toBeGreaterThan(3);
     expect(JSON.stringify(directory)).not.toContain('@flmexperts.com');
@@ -92,9 +113,8 @@ describe('personas y cuentas', () => {
     const person = (await json(res)).person;
     expect(person).toMatchObject({ name: 'Persona eliminada', accountState: 'anonimizada', status: 'inactiva' });
     expect(person.email).not.toContain('pau');
-    expect(person.birthday).toBeUndefined();
+    expect(person.position).toBe('');
     expect(person.photo).toBeUndefined();
-    expect(person.startDate).toBeUndefined();
     expect(existsSync(join(env.storageDir, 'files', photoFiles[0]!))).toBe(false);
     expect(all(env.db, 'SELECT id FROM sessions WHERE user_id = ?', IDS.empleado)).toHaveLength(0);
 
@@ -105,14 +125,16 @@ describe('personas y cuentas', () => {
 
     const auditRows = all<{ detail: string | null }>(env.db, 'SELECT detail FROM audit_log');
     expect(JSON.stringify(auditRows)).not.toMatch(/pau\.empleado|Pau Empleado/i);
-    expect(get(env.db, "SELECT 1 AS x FROM audit_log WHERE action = 'persona.eliminar-datos' AND entity_id = ?", IDS.empleado)).toBeDefined();
+    expect(get(env.db, "SELECT detail FROM audit_log WHERE action = 'persona.eliminar-datos' AND entity_id = ?", IDS.empleado)).toMatchObject({
+      detail: 'Anonimizados nombre, correo, foto y puesto. Intentos de test desvinculados: 1.',
+    });
 
     expect((await employee.get('/api/me')).status).toBe(401);
     expect((await new TestClient(env.app).login(EMAILS.empleado, PASSWORD)).status).toBe(401);
     expect((await admin.post(`/api/people/${IDS.empleado}/reactivate`)).status).toBe(409);
   });
 
-  it('cada persona gestiona su foto y su consentimiento de cumpleaños', async () => {
+  it('cada persona gestiona su foto de perfil', async () => {
     const employee = await loginAs(env, EMAILS.empleado);
     const up = await employee.upload('PUT', '/api/me/photo', fileForm(PNG_BYTES, 'yo.png', 'image/png'));
     expect(up.status).toBe(200);
@@ -127,9 +149,17 @@ describe('personas y cuentas', () => {
     expect((await json(replaced)).person.photo).not.toBe(photo);
     expect(readdirSync(join(env.storageDir, 'files'))).toHaveLength(1);
 
-    const pref = await employee.patch('/api/me', { showBirthday: false });
-    expect((await json(pref)).person.showBirthday).toBe(false);
-    expect(get(env.db, "SELECT 1 AS x FROM audit_log WHERE action = 'perfil.cumpleanos'")).toBeDefined();
-    expect((await employee.patch('/api/me', { birthday: '02-30' })).status).toBe(400);
+    const removed = await employee.delete('/api/me/photo');
+    expect(removed.status).toBe(200);
+    expect((await json(removed)).person.photo).toBeUndefined();
+    expect(readdirSync(join(env.storageDir, 'files'))).toHaveLength(0);
+    expect(get(env.db, "SELECT 1 AS x FROM audit_log WHERE action = 'persona.foto-eliminar' AND entity_id = ?", IDS.empleado)).toBeDefined();
+
+    // El perfil propio ya no tiene preferencias de cumpleaños: PATCH /api/me no existe.
+    const me = await json(await employee.get('/api/me'));
+    for (const key of ['startDate', 'birthday', 'showBirthday']) expect(me.person).not.toHaveProperty(key);
+    const legacy = await employee.patch('/api/me', { showBirthday: false });
+    expect(legacy.status).toBe(404);
+    expect((await json(legacy)).error.code).toBe('NO_ENCONTRADO');
   });
 });

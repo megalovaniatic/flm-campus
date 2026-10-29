@@ -1,5 +1,7 @@
 # FLM Campus · Investigación 03 · Aprendizaje en línea basado en evidencias
 
+> **Nota del 29/10/2026.** Informe conservado tal como se redactó. Después, a petición de la clienta, todas las formaciones del campus pasaron a ser voluntarias y el campus dejó de guardar fechas de incorporación. Por eso no se aplica lo que aquí se propone para las formaciones *obligatorias* (asignación por la administración, fecha límite, «Al día en obligatorias», recuento de pendientes e informe de compleción por persona y por departamento) ni el reconocimiento «Antigüedad · [n] años en FLM». Administración solo ve informes agregados y sin nombres: participación por formación y errores frecuentes por pregunta. El resto del modelo de aprendizaje (estados de cada formación, test final, evaluación sectorial y reconocimientos de aprendizaje y contribución) sigue vigente.
+
 - **Entregable:** 03-aprendizaje
 - **Fecha de verificación:** 28/10/2026 (Europe/Madrid)
 - **Pregunta:** qué patrones de universidades e instituciones educativas de prestigio, respaldados por la investigación, deben guiar las formaciones cortas de FLM Campus para profesionales de asesoría fiscal, laboral, mercantil y contable.

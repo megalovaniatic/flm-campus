@@ -8,14 +8,15 @@ const base = import.meta.env.BASE_URL;
 /**
  * Retrato circular de la cabecera del perfil (círculo = persona real).
  * Usa el retrato en alta resolución con su encuadre; si no hay, la foto o las iniciales.
+ * `decorative` cuando el nombre ya está escrito al lado (las iniciales no aportan nada al lector de pantalla).
  */
-export function Portrait({ name, photo, size = 152 }: { name: string; photo?: string; size?: number }) {
+export function Portrait({ name, photo, size = 152, decorative = false }: { name: string; photo?: string; size?: number; decorative?: boolean }) {
   const crop = portraitFor(photo);
   const [loaded, setLoaded] = useState(false);
   if (!crop) {
     return (
       <span className={styles.ring} style={{ width: size + 8, height: size + 8 }}>
-        <Avatar name={name} photo={photo ? base + photo : undefined} size={size} />
+        <Avatar name={name} photo={photo ? base + photo : undefined} size={size} decorative={decorative && !photo} />
       </span>
     );
   }

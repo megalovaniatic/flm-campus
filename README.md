@@ -65,7 +65,7 @@ Genera la demo estática en `apps/web/dist` (modo `demo`). Para la versión priv
 npm run check
 ```
 
-Ejecuta comprobación de tipos de todos los paquetes, pruebas unitarias (reglas compartidas, cálculos de los apoyos interactivos, API) y la validación del contenido (estructura, tres formaciones por área, tests de 3 preguntas con aprobado 2/3, evaluaciones de 10 con aprobado 8, cinco bloques en actualidad, enlaces de ejemplo identificados). Procedimientos manuales en [`docs/09-informe-qa.md`](docs/09-informe-qa.md).
+Ejecuta comprobación de tipos de todos los paquetes, pruebas unitarias (reglas compartidas, cálculos de los apoyos interactivos, datos guardados de la demo y API) y la validación del contenido (estructura, tres formaciones por área, tests de 3 preguntas con aprobado 2/3, evaluaciones de 10 con aprobado 8, cinco bloques en actualidad, enlaces de ejemplo identificados y fichas de personas sin cumpleaños ni fecha de incorporación). Procedimientos manuales en [`docs/09-informe-qa.md`](docs/09-informe-qa.md).
 
 ## Despliegue
 

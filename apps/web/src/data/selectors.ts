@@ -105,4 +105,3 @@ export function useEvents(includeArchived = false): CampusEvent[] {
 export const readings = seed.readings;
 export const holidays = seed.holidays;
 export const assessments = seed.assessments;
-export const assignments = seed.assignments;

@@ -1,4 +1,4 @@
-import { ArrowRight, BookOpen, CalendarDays, Cake, Award, Library, Users } from 'lucide-react';
+import { ArrowRight, BookOpen, CalendarDays, Library, Sun, Users } from 'lucide-react';
 import { useMemo } from 'react';
 import { Link } from 'react-router';
 import {
@@ -16,31 +16,27 @@ import {
   sessionEnd,
   sessionStart,
   timeOf,
-  type CalendarEntry,
   type Formation,
 } from '@flm/shared';
-import { AreaTag, Avatar, ProgressRing, StatusGlyph } from '@/design';
-import { assignments, holidays, useDocuments, useEvents, useFormations, useMe, useNews, usePeople } from '@/data/selectors';
+import { AreaTag, ProgressRing, StatusGlyph } from '@/design';
+import { holidays, useDocuments, useEvents, useFormations, useMe, useNews } from '@/data/selectors';
 import { useDemo } from '@/data/store';
 import { usePageTitle } from '@/lib/preferences';
 import { Arrival } from './Arrival';
 import styles from './HomePage.module.css';
 
-const base = import.meta.env.BASE_URL;
-
-function useNextStep(): { formation: Formation; reason: string; due?: string } | null {
+function useNextStep(): { formation: Formation; reason: string } | null {
   const me = useMe();
   const formations = useFormations();
   const progress = useDemo((s) => s.progress);
   return useMemo(() => {
     if (!me || !formations.length) return null;
     const pending = (f: Formation) => formationStatus(progress[f.id], f) !== 'completada';
-    for (const a of [...assignments].sort((x, y) => (x.dueDate ?? '').localeCompare(y.dueDate ?? ''))) {
-      if (a.target.kind === 'persona' && a.target.personId !== me.id) continue;
-      const f = formations.find((x) => x.id === a.formationId);
-      if (f && pending(f)) return { formation: f, reason: 'Formación obligatoria', due: a.dueDate };
-    }
-    const inProgress = formations.find((f) => ['leida', 'test-intentado', 'test-superado'].includes(formationStatus(progress[f.id], f)));
+    // A medias: la última que tocaste (lectura o intento más reciente), que es la que recuerdas
+    const touched = (f: Formation) => [progress[f.id]?.readAt ?? '', ...(progress[f.id]?.attempts ?? []).map((a) => a.at)].sort().pop() ?? '';
+    const inProgress = formations
+      .filter((f) => ['leida', 'test-intentado', 'test-superado'].includes(formationStatus(progress[f.id], f)))
+      .sort((a, b) => touched(b).localeCompare(touched(a)))[0];
     if (inProgress) return { formation: inProgress, reason: 'Continúa donde lo dejaste' };
     const mine = formations.find((f) => AREAS[f.area].name === me.department && pending(f));
     if (mine) return { formation: mine, reason: `Recomendada para ${me.department}` };
@@ -66,7 +62,6 @@ function NextStepCard() {
   }
   const f = next.formation;
   const status = formationStatus(progress[f.id], f);
-  const days = next.due ? diffDays(madridDateKey(), next.due) : undefined;
   return (
     <article className={`${styles.card} ${styles.next} a-card`} data-area={f.area}>
       <p className={styles.cardLabel}>
@@ -80,12 +75,6 @@ function NextStepCard() {
       <div className={styles.nextMeta}>
         <AreaTag area={f.area} size="sm" />
         <span className="meta">{f.readingMinutes} min</span>
-        {next.due && (
-          <span className={styles.due}>
-            Antes del {formatShortDate(next.due, false)}
-            {days === undefined || days < 0 ? '' : days === 0 ? ' · vence hoy' : days === 1 ? ' · queda 1 día' : ` · quedan ${days} días`}
-          </span>
-        )}
       </div>
       <div className={styles.nextFoot}>
         <StatusGlyph status={status} />
@@ -98,26 +87,25 @@ function NextStepCard() {
 }
 
 function TodayCard() {
-  const people = usePeople();
   const events = useEvents();
   const today = madridDateKey();
+  // Festivos de los próximos siete días (el calendario ya no incluye fechas personales)
   const entries = useMemo(() => {
     const y = Number(today.slice(0, 4));
     const m = Number(today.slice(5, 7));
     const next = m === 12 ? [y + 1, 1] : [y, m + 1];
-    const all = [...entriesForMonth(y, m, { people, holidays, events: [] }), ...entriesForMonth(next[0]!, next[1]!, { people, holidays, events: [] })];
+    const all = [...entriesForMonth(y, m, { holidays, events: [] }), ...entriesForMonth(next[0]!, next[1]!, { holidays, events: [] })];
     return all.filter((e) => {
       const d = diffDays(today, e.date);
       return d >= 0 && d <= 7;
     });
-  }, [people, today]);
+  }, [today]);
   const todaysEvents = events.filter((e) => e.sessions.some((s) => madridDateKey(sessionStart(s)) === today));
-  const icon = (e: CalendarEntry) => (e.kind === 'cumpleanos' ? <Cake size={14} /> : e.kind === 'aniversario' ? <Award size={14} /> : <CalendarDays size={14} />);
   return (
     <article className={`${styles.card} a-card`}>
       <p className={styles.cardLabel}>Hoy en FLM · {formatWeekdayDate(today)}</p>
       {todaysEvents.length === 0 && entries.length === 0 ? (
-        <p className={styles.cardText}>Hoy no hay celebraciones ni encuentros en el calendario.</p>
+        <p className={styles.cardText}>Hoy no hay eventos en la agenda ni festivos en los próximos siete días.</p>
       ) : (
         <ul role="list" className={styles.todayList}>
           {todaysEvents.map((e) => (
@@ -134,15 +122,16 @@ function TodayCard() {
             </li>
           ))}
           {entries.slice(0, 4).map((e) => {
-            const person = e.personId ? people.find((p) => p.id === e.personId) : undefined;
             const d = diffDays(today, e.date);
             return (
               <li key={e.id}>
-                {person ? <Avatar name={person.name} photo={person.photo ? base + person.photo : undefined} size={32} decorative /> : <span className={styles.todayIcon}>{icon(e)}</span>}
+                <span className={styles.todayIcon} aria-hidden="true">
+                  <Sun size={14} />
+                </span>
                 <span>
-                  <span className={styles.todayName}>{e.kind === 'festivo' ? 'Festivo' : e.title}</span>
+                  <span className={styles.todayName}>Festivo</span>
                   <span className={styles.todaySub}>
-                    {e.kind === 'cumpleanos' ? 'Cumpleaños' : e.kind === 'aniversario' ? e.detail : e.detail} · {d === 0 ? 'hoy' : d === 1 ? 'mañana' : formatShortDate(e.date, false)}
+                    {e.detail} · {d === 0 ? 'hoy' : d === 1 ? 'mañana' : formatShortDate(e.date, false)}
                   </span>
                 </span>
               </li>

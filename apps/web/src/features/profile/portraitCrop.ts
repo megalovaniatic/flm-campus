@@ -28,9 +28,3 @@ export function portraitFor(photo: string | undefined): PortraitCrop | undefined
   const { file, ...crop } = p;
   return { ...crop, src: base + file };
 }
-
-/** Posición del retrato dentro de un círculo de diámetro `d` (en las mismas unidades que `d`). */
-export function cropBox(crop: PortraitCrop, d: number) {
-  const k = d / crop.size;
-  return { x: -crop.x * k, y: -crop.y * k, width: crop.width * k, height: crop.height * k };
-}

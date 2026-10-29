@@ -2,7 +2,6 @@ import { animate, motion } from 'motion/react';
 import {
   ArrowRight,
   Bell,
-  Cake,
   Database,
   Download,
   FlaskConical,
@@ -23,12 +22,11 @@ import {
 } from 'lucide-react';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { AREAS, madridDateKey, monthName, number as formatNumber, ROLE_LABEL, type Person } from '@flm/shared';
-import { ActionButton, Button, Dialog, Kbd, Notice, PageHeader, SelectField, Switch, toast, type ActionStatus } from '@/design';
+import { AREAS, madridDateKey, number as formatNumber, ROLE_LABEL } from '@flm/shared';
+import { Button, Dialog, Kbd, Notice, PageHeader, Switch, toast } from '@/design';
 import { useMe } from '@/data/selectors';
 import { useDemo, type MotionPref, type ThemePref } from '@/data/store';
 import { downloadText } from '@/lib/download';
-import { MESSAGES } from '@/lib/messages';
 import { usePageTitle, useReducedMotionPref } from '@/lib/preferences';
 import { scrollToSection, useHashScroll, useScrollSpy } from '@/features/about/useSectionNav';
 import { useNoticePrefs } from './noticePrefs';
@@ -38,7 +36,6 @@ const SECTIONS = [
   { id: 'apariencia', label: 'Apariencia', icon: Palette },
   { id: 'movimiento', label: 'Movimiento', icon: Sparkles },
   { id: 'teclado', label: 'Teclado', icon: Keyboard },
-  { id: 'calendario', label: 'Calendario', icon: Cake },
   { id: 'avisos', label: 'Avisos', icon: Bell },
   { id: 'privacidad', label: 'Privacidad', icon: ShieldCheck },
   { id: 'sesion', label: 'Sesión y demo', icon: LogOut },
@@ -164,111 +161,6 @@ function MotionSample({ run, reduce }: { run: number; reduce: boolean }) {
   );
 }
 
-/* ── Cumpleaños (consentimiento) ───────────────────────────────────────── */
-
-const DAYS = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'));
-const MONTHS = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
-const maxDay = (mm: string) => (mm === '02' ? 29 : ['04', '06', '09', '11'].includes(mm) ? 30 : 31);
-
-function BirthdayForm({ person }: { person: Person }) {
-  const patchPerson = useDemo((s) => s.patchPerson);
-  const log = useDemo((s) => s.log);
-  const saved = { day: person.birthday ? person.birthday.slice(3, 5) : '', month: person.birthday ? person.birthday.slice(0, 2) : '', show: !!person.birthday && person.showBirthday };
-  const [day, setDay] = useState(saved.day);
-  const [month, setMonth] = useState(saved.month);
-  const [show, setShow] = useState(saved.show);
-  const [error, setError] = useState<{ field: 'day' | 'month'; text: string }>();
-  const [status, setStatus] = useState<ActionStatus>('idle');
-  const timers = useRef<number[]>([]);
-  useEffect(() => () => timers.current.forEach((t) => window.clearTimeout(t)), []);
-  const dirty = day !== saved.day || month !== saved.month || show !== saved.show;
-
-  const validate = (): typeof error => {
-    if (show && !day) return { field: 'day', text: 'Para mostrar tu cumpleaños, indica el día.' };
-    if (show && !month) return { field: 'month', text: 'Para mostrar tu cumpleaños, indica el mes.' };
-    if (day && !month) return { field: 'month', text: 'Indica también el mes.' };
-    if (month && !day) return { field: 'day', text: 'Indica también el día.' };
-    if (day && month && Number(day) > maxDay(month)) return { field: 'day', text: `${monthName(Number(month)).replace(/^./, (c) => c.toUpperCase())} tiene ${maxDay(month)} días como máximo.` };
-    return undefined;
-  };
-
-  const save = () => {
-    const problem = validate();
-    setError(problem);
-    if (problem) return;
-    setStatus('pending');
-    timers.current.push(
-      window.setTimeout(() => {
-        const birthday = day && month ? `${month}-${day}` : '';
-        patchPerson(person.id, { birthday, showBirthday: show && !!birthday });
-        log({ actorId: person.id, action: 'perfil.cumpleanos', entity: 'persona', entityId: person.id, detail: show && birthday ? 'Consiente mostrar su cumpleaños (día y mes)' : 'No muestra su cumpleaños' });
-        setStatus('success');
-        toast.success('Preferencias de calendario guardadas', show && birthday ? 'Tu cumpleaños aparecerá en el calendario, solo con el día y el mes.' : 'Tu cumpleaños no aparecerá en el calendario.');
-        timers.current.push(window.setTimeout(() => setStatus('idle'), 1800));
-      }, 450),
-    );
-  };
-
-  const erase = () => {
-    patchPerson(person.id, { birthday: '', showBirthday: false });
-    log({ actorId: person.id, action: 'perfil.cumpleanos', entity: 'persona', entityId: person.id, detail: 'Borra su fecha de cumpleaños' });
-    setDay('');
-    setMonth('');
-    setShow(false);
-    setError(undefined);
-    toast.info('Fecha de cumpleaños borrada', 'Ya no se guarda ni aparece en el calendario.');
-  };
-
-  return (
-    <form
-      className={styles.birthday}
-      noValidate
-      onSubmit={(e) => {
-        e.preventDefault();
-        save();
-      }}
-    >
-      <fieldset className={styles.dateSet}>
-        <legend className={styles.legend}>Tu cumpleaños</legend>
-        <p className={styles.hint}>Solo el día y el mes, nunca el año.</p>
-        <div className={styles.dateRow}>
-          <SelectField
-            label="Día"
-            value={day}
-            onChange={(e) => setDay(e.target.value)}
-            error={error?.field === 'day' ? error.text : undefined}
-            options={[{ value: '', label: 'Sin indicar' }, ...DAYS.map((d) => ({ value: d, label: String(Number(d)) }))]}
-          />
-          <SelectField
-            label="Mes"
-            value={month}
-            onChange={(e) => setMonth(e.target.value)}
-            error={error?.field === 'month' ? error.text : undefined}
-            options={[{ value: '', label: 'Sin indicar' }, ...MONTHS.map((m) => ({ value: m, label: monthName(Number(m)) }))]}
-          />
-        </div>
-      </fieldset>
-      <div className={styles.switchBox}>
-        <Switch
-          label="Mostrar mi cumpleaños en el calendario"
-          description="Lo verá el equipo en Participar › Calendario y en «Hoy en FLM». Puedes retirarlo cuando quieras."
-          checked={show}
-          onChange={setShow}
-        />
-      </div>
-      <div className={styles.formActions}>
-        <ActionButton status={status} label="Guardar cambios" successLabel="Guardado" disabled={!dirty && status === 'idle'} onClick={save} />
-        {person.birthday && (
-          <Button variant="ghost" onClick={erase}>
-            Borrar mi fecha
-          </Button>
-        )}
-      </div>
-      {__DEMO__ && <p className={styles.demoNote}>{MESSAGES.demoSimulated}</p>}
-    </form>
-  );
-}
-
 /* ── Página ────────────────────────────────────────────────────────────── */
 
 function storageSize(): number | null {
@@ -308,7 +200,6 @@ export default function SettingsPage() {
   const [announce, setAnnounce] = useState('');
   const [run, setRun] = useState(0);
   const [confirm, setConfirm] = useState(false);
-  const [formKey, setFormKey] = useState(0);
   const [size, setSize] = useState<number | null>(() => storageSize());
 
   useEffect(() => {
@@ -339,10 +230,8 @@ export default function SettingsPage() {
         departamento: me.department,
         sede: me.office,
         perfil: ROLE_LABEL[me.role],
-        fechaDeIncorporacion: me.startDate ?? null,
-        cumpleanos: me.birthday ? { diaYMes: me.birthday, visibleEnElCalendario: me.showBirthday } : null,
       },
-      preferencias: { tema: s.theme, movimiento: s.motion, atajosDeUnaTecla: s.singleKeyShortcuts, avisos: { obligatorias: prefs.obligatorias, agenda: prefs.agenda, novedades: prefs.novedades, correo: prefs.correo } },
+      preferencias: { tema: s.theme, movimiento: s.motion, atajosDeUnaTecla: s.singleKeyShortcuts, avisos: { agenda: prefs.agenda, novedades: prefs.novedades, correo: prefs.correo } },
       progreso: Object.values(s.progress).map((p) => ({ formacion: p.formationId, lecturaConfirmada: p.readAt ?? null, versionLeida: p.readVersion ?? null, intentos: p.attempts.map((a) => ({ fecha: a.at, aciertos: a.correct, preguntas: a.total, superado: a.passed, version: a.version })) })),
       evaluaciones: Object.entries(s.assessmentAttempts).map(([id, list]) => ({ evaluacion: id, intentos: list.map((a) => ({ fecha: a.at, aciertos: a.correct, preguntas: a.total, superada: a.passed })) })),
       reconocimientosVistos: s.celebrated,
@@ -356,7 +245,6 @@ export default function SettingsPage() {
     useNoticePrefs.getState().resetPrefs();
     setConfirm(false);
     setRun(0);
-    setFormKey((k) => k + 1);
     toast.success('Demostración restablecida', 'Se han borrado tu progreso, los intentos, los borradores y los cambios guardados en este navegador.');
   };
 
@@ -485,16 +373,6 @@ export default function SettingsPage() {
             </ul>
           </section>
 
-          <section id="calendario" aria-labelledby="h-calendario" className={styles.panel}>
-            <header className={styles.panelHead}>
-              <h2 id="h-calendario" className={styles.panelTitle}>
-                Calendario
-              </h2>
-              <p className={styles.panelLede}>Tu cumpleaños solo aparece si das tu consentimiento.</p>
-            </header>
-            <BirthdayForm key={`${me.id}-${formKey}`} person={me} />
-          </section>
-
           <section id="avisos" aria-labelledby="h-avisos" className={styles.panel}>
             <header className={styles.panelHead}>
               <h2 id="h-avisos" className={styles.panelTitle}>
@@ -503,7 +381,6 @@ export default function SettingsPage() {
               <p className={styles.panelLede}>Qué quieres ver en la campana de avisos.</p>
             </header>
             <div className={styles.switchList}>
-              <Switch label="Formaciones obligatorias y plazos" description="Al asignarte una formación y una semana antes de que venza." checked={prefs.obligatorias} onChange={(v) => prefs.setPref('obligatorias', v)} />
               <Switch label="Agenda de la semana" description="Eventos y encuentros de los próximos siete días." checked={prefs.agenda} onChange={(v) => prefs.setPref('agenda', v)} />
               <Switch
                 label={area ? `Novedades del área ${area.name}` : 'Novedades de tu área'}

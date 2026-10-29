@@ -43,8 +43,6 @@
   --flm-vino-texto: var(--flm-vino);
 
   /* ── Calendario ────────────────────────────────────────────────────── */
-  --cal-cumpleanos: var(--flm-rojo);
-  --cal-aniversario: var(--flm-burdeos);
   --cal-encuentro: var(--flm-marino);
   --cal-festivo: var(--flm-gris);
 
@@ -185,7 +183,6 @@
   --ring-3: #8fa3c7;
   --cal-encuentro: #8fa3c7;
   --cal-festivo: #a3aab6;
-  --cal-aniversario: #c9707a;
   --shadow-1: 0 1px 2px rgb(0 0 0 / 0.3);
   --shadow-2: 0 2px 6px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.5);
   --shadow-3: 0 4px 12px rgb(0 0 0 / 0.35), 0 24px 56px -16px rgb(0 0 0 / 0.6);

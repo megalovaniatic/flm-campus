@@ -10,6 +10,8 @@
 | Técnica | React 19 + Vite + TypeScript · Motion (motion.dev) · SVG y CSS · demo estática en GitHub Pages |
 | Estado | Propuesta de dirección creativa para validar con FLM · 28 de octubre de 2026 |
 
+> **Nota del 29/10/2026.** Propuesta conservada tal como se presentó. Después, a petición de la clienta, FLM Campus dejó de guardar y mostrar cumpleaños y fechas de incorporación, y todas sus formaciones pasaron a ser voluntarias. Por eso no forman parte del producto las categorías «Cumpleaños» y «Aniversario FLM» del calendario, los cumpleaños y aniversarios de «Esta semana en FLM», el «En FLM desde…» y las insignias de antigüedad del perfil, la búsqueda de personas, las formaciones obligatorias pendientes y sus fechas límite ni el informe de obligatorias por departamento: administración solo ve informes agregados, sin nombres. Lo vigente está en `docs/`.
+
 ---
 
 ## 0. La idea en treinta segundos

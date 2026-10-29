@@ -18,6 +18,7 @@ export type Department =
 
 export type Office = 'Barcelona' | 'Vic' | 'Granollers';
 
+/** Ficha profesional mínima: el campus no guarda cumpleaños ni fecha de incorporación. */
 export interface Person {
   id: string;
   /** Correo corporativo; siempre @flmexperts.com. */
@@ -29,12 +30,6 @@ export interface Person {
   role: Role;
   /** Ruta a la fotografía aportada; si no hay, se muestran las iniciales. */
   photo?: string;
-  /** Fecha de incorporación (AAAA-MM-DD). Genera los aniversarios FLM. Si no consta, no se calcula. */
-  startDate?: string;
-  /** Día y mes de cumpleaños (MM-DD). Opcional y sin año, por minimización de datos. */
-  birthday?: string;
-  /** Si la persona acepta que su cumpleaños aparezca en el calendario. */
-  showBirthday: boolean;
   status: 'activa' | 'inactiva';
   /** Persona ficticia creada solo para la demostración. */
   fictional?: boolean;
@@ -264,16 +259,6 @@ export interface FormationProgress {
 
 export type FormationStatus = 'sin-empezar' | 'leida' | 'test-intentado' | 'test-superado' | 'completada';
 
-export interface Assignment {
-  id: string;
-  formationId: string;
-  /** Persona o «todos» (incluidas futuras altas). */
-  target: { kind: 'persona'; personId: string } | { kind: 'todos' };
-  dueDate?: string;
-  assignedBy: string;
-  assignedAt: string;
-}
-
 /* ────────────────────────────────────────────────────────────────────────────
  * Biblioteca
  * ──────────────────────────────────────────────────────────────────────────── */
@@ -411,16 +396,15 @@ export interface Holiday {
   source: string;
 }
 
-export type CalendarKind = 'cumpleanos' | 'aniversario' | 'encuentro' | 'festivo';
+export type CalendarKind = 'encuentro' | 'festivo';
 
 export interface CalendarEntry {
   id: string;
   date: string;
   kind: CalendarKind;
   title: string;
+  /** Festivo: su nombre. Encuentro: la sesión o el resumen del evento. */
   detail?: string;
-  personId?: string;
-  years?: number;
   eventId?: string;
   time?: string;
   offices?: Office[];
@@ -430,7 +414,7 @@ export interface CalendarEntry {
  * Reconocimientos
  * ──────────────────────────────────────────────────────────────────────────── */
 
-export type BadgeFamily = 'trayectoria' | 'aprendizaje' | 'contribucion';
+export type BadgeFamily = 'aprendizaje' | 'contribucion';
 
 export interface Badge {
   id: string;
@@ -438,7 +422,7 @@ export interface Badge {
   title: string;
   description: string;
   earnedAt?: string;
-  /** Valor principal que muestra la insignia (años, área...). */
+  /** Valor principal que muestra la insignia (aciertos, publicaciones, área...). */
   mark: string;
 }
 
@@ -455,7 +439,6 @@ export interface SeedData {
   readings: Reading[];
   events: CampusEvent[];
   holidays: Holiday[];
-  assignments: Assignment[];
 }
 
 /* ────────────────────────────────────────────────────────────────────────────

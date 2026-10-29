@@ -65,7 +65,7 @@ function Superponer({ t }: { t: number }) {
 type Verb = 'tocar' | 'unir' | 'crecer' | 'superponer';
 
 const VERBS: { id: Verb; title: string; from: string; meaning: string }[] = [
-  { id: 'tocar', title: 'Tocar', from: 'Logotipo horizontal y vertical: tres círculos tangentes.', meaning: 'Estar juntos: las personas de «Hoy en FLM» y las sesiones de un mismo evento.' },
+  { id: 'tocar', title: 'Tocar', from: 'Logotipo horizontal y vertical: tres círculos tangentes.', meaning: 'Estar juntos: las sesiones de un mismo evento.' },
   { id: 'unir', title: 'Unir', from: 'Variantes diagonal y en escalera: conectores líquidos.', meaning: 'Una acción crea una conexión: completar una formación, superar un test, asistir.' },
   { id: 'crecer', title: 'Crecer', from: 'Cápsulas de área: el círculo de la inicial se expande con el nombre.', meaning: 'Algo se nombra o se reconoce: la sección activa, un área, un reconocimiento.' },
   { id: 'superponer', title: 'Superponer', from: 'Pieza de redes: grandes círculos translúcidos.', meaning: 'Comunidad: la pantalla de acceso y los fondos de Participar.' },
@@ -225,7 +225,7 @@ function ArrivalMoment() {
 /* ── Apartado ──────────────────────────────────────────────────────────── */
 
 const CANDIDATES = [
-  { name: 'Círculo de confianza', angle: 'humano', score: '8,07', role: 'Base elegida (2 de 3 votos): personas reales, «Hoy en FLM», trayectoria y pertenencia.' },
+  { name: 'Círculo de confianza', angle: 'humano', score: '8,07', role: 'Base elegida (2 de 3 votos): personas reales, «Hoy en FLM» y pertenencia.' },
   { name: 'Punto y seguido', angle: 'editorial', score: '8,15', role: 'Injerto: Newsreader e Inter, «el titular es el menú» y el test como «pruebas de imprenta».' },
   { name: 'Vasos comunicantes', angle: 'movimiento', score: '7,78', role: 'Injerto: la geometría oficial como gramática, «El escalón», sesiones unidas y fechas por confirmar.' },
   { name: 'Círculo abierto', angle: 'producto', score: '7,58', role: 'Injerto: búsqueda global, glifo de estado, autoguardado, «Deshacer» y «Ver como».' },

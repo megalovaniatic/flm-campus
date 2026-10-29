@@ -8,7 +8,7 @@ import { useDemo } from '@/data/store';
 import { MESSAGES } from '@/lib/messages';
 import { usePageTitle } from '@/lib/preferences';
 import { AreaHeadline } from './common/AreaMark';
-import { AREA_REFERENCE, areaCounts, bestOf, dueInfo, photoOf, useMyAssignments, usePerson, useProgressMap } from './common/data';
+import { AREA_REFERENCE, areaCounts, bestOf, photoOf, usePerson, useProgressMap } from './common/data';
 import { FormationCard } from './common/FormationCard';
 import { TenDots } from './common/TenDots';
 import styles from './AreaPage.module.css';
@@ -73,7 +73,6 @@ export default function AreaPage() {
   usePageTitle(area ? `Área ${AREAS[area].name}` : 'Área no encontrada');
   const formations = useFormations();
   const progress = useProgressMap();
-  const mine = useMyAssignments();
   const list = useMemo(() => (area ? formations.filter((f) => f.area === area) : []), [formations, area]);
 
   if (!area) {
@@ -139,15 +138,11 @@ export default function AreaPage() {
         </div>
         {list.length > 0 ? (
           <ol role="list" className={styles.grid}>
-            {list.map((f, i) => {
-              const status = formationStatus(progress[f.id], f);
-              const a = mine.find((m) => m.formation.id === f.id)?.assignment;
-              return (
-                <li key={f.id} className={styles.gridItem}>
-                  <FormationCard formation={f} index={i + 1} status={status} due={a?.dueDate && status !== 'completada' ? dueInfo(a.dueDate) : undefined} />
-                </li>
-              );
-            })}
+            {list.map((f, i) => (
+              <li key={f.id} className={styles.gridItem}>
+                <FormationCard formation={f} index={i + 1} status={formationStatus(progress[f.id], f)} />
+              </li>
+            ))}
           </ol>
         ) : (
           <EmptyState

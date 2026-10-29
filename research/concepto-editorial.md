@@ -5,6 +5,8 @@
 
 Dirección creativa · Enfoque editorial · Propuesta para validación · 28 de octubre de 2026
 
+> **Nota del 29/10/2026.** Propuesta conservada tal como se presentó. Después, a petición de la clienta, FLM Campus dejó de guardar y mostrar cumpleaños y fechas de incorporación, y todas sus formaciones pasaron a ser voluntarias. Por eso no forman parte del producto las categorías «Cumpleaños» y «Aniversario FLM» del calendario, el «En FLM desde…» y la antigüedad del perfil, las formaciones obligatorias con fecha límite ni el informe de obligatorias completadas: administración solo ve informes agregados, sin nombres. Lo vigente está en `docs/`.
+
 > **Regla de oro, a petición expresa de la clienta: los logotipos y los colores de FLM no se cambian.**
 > Se usan los archivos originales tal como están y solo los colores medidos en ellos o publicados en la hoja de estilos de flmexperts.com. El concepto se construye alrededor de la identidad, nunca encima de ella.
 

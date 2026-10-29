@@ -53,9 +53,9 @@ export function reactivateUser(db: Db, actor: AuthUser, user: UserRow, now: Date
 
 /**
  * Eliminación controlada de datos personales. Exige escribir el correo de la persona como
- * confirmación explícita. Anonimiza nombre, correo, foto, fechas personales y puesto; borra
- * sesiones, enlaces y confirmaciones de lectura; desvincula los intentos de test (se conservan
- * solo como agregados no identificativos) y deja constancia en la auditoría.
+ * confirmación explícita. Anonimiza nombre, correo, foto y puesto; borra sesiones, enlaces y
+ * confirmaciones de lectura; desvincula los intentos de test (se conservan solo como agregados
+ * no identificativos) y deja constancia en la auditoría.
  * Devuelve el nombre del archivo de la foto para borrarlo del almacenamiento.
  */
 export function anonymizeUser(db: Db, actor: AuthUser, user: UserRow, confirmation: string, now: Date, ip?: string | null): { user: UserRow; photoStorageName: string | null } {
@@ -72,12 +72,10 @@ export function anonymizeUser(db: Db, actor: AuthUser, user: UserRow, confirmati
     run(db, 'DELETE FROM auth_tokens WHERE user_id = ?', user.id);
     run(db, 'DELETE FROM read_confirmations WHERE user_id = ?', user.id);
     const attempts = run(db, 'UPDATE quiz_attempts SET user_id = NULL WHERE user_id = ?', user.id);
-    run(db, 'DELETE FROM assignments WHERE person_id = ?', user.id);
     run(
       db,
-      `UPDATE users SET name = ?, email = ?, position = '', photo_file_id = NULL, start_date = NULL, birthday = NULL, show_birthday = 0,
-         password_hash = NULL, password_changed_at = NULL, status = 'inactiva', deactivated_at = COALESCE(deactivated_at, ?),
-         anonymized_at = ?, updated_at = ? WHERE id = ?`,
+      `UPDATE users SET name = ?, email = ?, position = '', photo_file_id = NULL, password_hash = NULL, password_changed_at = NULL,
+         status = 'inactiva', deactivated_at = COALESCE(deactivated_at, ?), anonymized_at = ?, updated_at = ? WHERE id = ?`,
       ANONYMIZED_NAME,
       `eliminada-${user.id}@anonimizada.invalid`,
       nowIso,
@@ -93,7 +91,7 @@ export function anonymizeUser(db: Db, actor: AuthUser, user: UserRow, confirmati
         action: 'persona.eliminar-datos',
         entity: 'persona',
         entityId: user.id,
-        detail: `Anonimizados nombre, correo, foto y cumpleaños. Intentos de test desvinculados: ${attempts}.`,
+        detail: `Anonimizados nombre, correo, foto y puesto. Intentos de test desvinculados: ${attempts}.`,
         ip,
       },
       now,

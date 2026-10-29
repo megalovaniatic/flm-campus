@@ -1,5 +1,7 @@
 # FLM Campus · Investigación 03 · Aprendizaje en línea basado en evidencias (versión verificada)
 
+> **Nota del 29/10/2026.** Informe conservado tal como se verificó. Después, a petición de la clienta, todas las formaciones del campus pasaron a ser voluntarias y el campus dejó de guardar fechas de incorporación. Por eso no se aplica lo que aquí se propone para las formaciones *obligatorias* (asignación por la administración, fecha límite, «Al día en obligatorias», recuento de pendientes e informe de compleción por persona y por departamento) ni el reconocimiento «Antigüedad · [n] años en FLM», aunque el brief pidiera *tenure badges*. Administración solo ve informes agregados y sin nombres: participación por formación y errores frecuentes por pregunta. El resto del modelo de aprendizaje (estados de cada formación, test final, evaluación sectorial y reconocimientos de aprendizaje y contribución) sigue vigente.
+
 - **Entregable:** 03-aprendizaje · versión verificada
 - **Fecha de la investigación original:** 28/10/2026 (Europe/Madrid)
 - **Verificación independiente:** 28/10/2026 (Europe/Madrid). En el texto, **[CORREGIDO]** señala un dato modificado respecto al informe original y **[NO VERIFICABLE]**, un dato que no se ha podido confirmar en una fuente primaria. Todo lo demás se ha comprobado de nuevo. El detalle está en el «Registro de verificación», al final.

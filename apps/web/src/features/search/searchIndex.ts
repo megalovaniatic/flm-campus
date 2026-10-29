@@ -1,7 +1,7 @@
 import { AREAS, areaName, normalize, plainText } from '@flm/shared';
 import { seed } from '@flm/content';
 
-export type ResultGroup = 'Formaciones' | 'Actualidad' | 'Notas informativas' | 'Lecturas' | 'Agenda' | 'Personas' | 'Secciones';
+export type ResultGroup = 'Formaciones' | 'Actualidad' | 'Notas informativas' | 'Lecturas' | 'Agenda' | 'Secciones';
 
 export interface SearchItem {
   id: string;
@@ -20,7 +20,7 @@ const PAGES: [string, string, string][] = [
   ['Notas informativas', 'Documentos originales y PDF de FLM', '/consultar/notas'],
   ['Lecturas recomendadas', 'La estantería del campus', '/consultar/lecturas'],
   ['Agenda', 'Eventos y comunicados de FLM', '/participar/agenda'],
-  ['Calendario', 'Cumpleaños, aniversarios, encuentros y festivos', '/participar/calendario'],
+  ['Calendario', 'Encuentros de equipo y festivos', '/participar/calendario'],
   ['Formas de participar', 'Propón temas, mejoras y vídeos', '/participar/contribuye'],
   ['Mi perfil', 'Progreso, resultados y reconocimientos', '/perfil'],
   ['Ajustes', 'Tema, movimiento y preferencias', '/perfil/ajustes'],
@@ -57,10 +57,6 @@ export function buildIndex(): SearchItem[] {
   }
   for (const e of seed.events) {
     items.push({ id: e.id, group: 'Agenda', title: e.title, subtitle: e.kind === 'comunicado' ? 'Comunicado' : 'Evento', href: `/participar/agenda/${e.slug}`, haystack: normalize([e.title, e.summary].join(' ')), weight: 3 });
-  }
-  for (const p of seed.people) {
-    if (p.status !== 'activa') continue;
-    items.push({ id: p.id, group: 'Personas', title: p.name, subtitle: `${p.position} · ${p.office}`, href: `/participar/calendario?persona=${p.id}`, haystack: normalize([p.name, p.position, p.department, p.office].join(' ')), weight: 1 });
   }
   for (const [title, subtitle, href] of PAGES) items.push({ id: href, group: 'Secciones', title, subtitle, href, haystack: normalize(`${title} ${subtitle}`), weight: 6 });
   cache = items;

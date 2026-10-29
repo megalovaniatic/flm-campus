@@ -1,4 +1,4 @@
-import { AREA_IDS, madridDateKey, type Quiz } from '@flm/shared';
+import { AREA_IDS, type Quiz } from '@flm/shared';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import type { AppContext, AppEnv } from '../context';
@@ -6,7 +6,6 @@ import { all } from '../db/database';
 import { notFound } from '../lib/errors';
 import { jsonBody, queryParams } from '../lib/validation';
 import { currentUser, requirePermission } from '../middleware/authorize';
-import { assignmentInput, createAssignment, deleteAssignment, dueDatesForUser, listAssignments } from '../services/assignments';
 import { composeItem, findPublished, listPublished, type ContentRow } from '../services/content';
 import { attemptHistory, attemptInput, confirmRead, progressFor, progressView, submitAttempt, withPublicQuiz } from '../services/learning';
 
@@ -15,6 +14,7 @@ const areaQuery = z.object({ area: z.enum(AREA_IDS).optional() });
 /**
  * Formaciones y evaluaciones sectoriales tal como las ve una persona empleada: el test llega sin
  * respuestas correctas, explicaciones ni retroalimentación, y se corrige en el servidor.
+ * Todas las formaciones son voluntarias: no hay asignaciones ni fechas límite.
  */
 export function learningRoutes(ctx: AppContext) {
   const r = new Hono<AppEnv>();
@@ -26,23 +26,11 @@ export function learningRoutes(ctx: AppContext) {
     return row;
   };
 
-  /** Asignación obligatoria de cada formación para una persona (se calcula una vez por petición). */
-  const assignmentsOf = (userId: string) => {
-    const dues = dueDatesForUser(db, userId);
-    const today = madridDateKey(ctx.now());
-    return (contentId: string) => {
-      const due = dues.get(contentId);
-      if (!due) return null;
-      return { mandatory: true, dueDate: due.dueDate, overdue: !!due.dueDate && due.dueDate < today };
-    };
-  };
-
   /* ── Formaciones ─────────────────────────────────────────────────────────── */
 
   r.get('/formations', requirePermission('campus:leer'), (c) => {
     const { area } = queryParams(c, areaQuery);
     const me = currentUser(c);
-    const assignmentFor = assignmentsOf(me.id);
     const items = listPublished(db, ['formacion'], area).map((row) => {
       const f = JSON.parse(row.payload) as Record<string, unknown>;
       const progress = progressView(row, progressFor(db, me.id, row));
@@ -59,7 +47,6 @@ export function learningRoutes(ctx: AppContext) {
         publishedAt: row.published_at,
         updatedAt: row.updated_at,
         progress,
-        assignment: assignmentFor(row.id),
       };
     });
     return c.json({ items });
@@ -69,7 +56,7 @@ export function learningRoutes(ctx: AppContext) {
     const row = requirePublished(['formacion'], c.req.param('ref'), 'formación');
     const me = currentUser(c);
     const formation = withPublicQuiz(composeItem(db, row) as Record<string, unknown> & { quiz: Quiz });
-    return c.json({ formation, progress: progressView(row, progressFor(db, me.id, row)), assignment: assignmentsOf(me.id)(row.id) });
+    return c.json({ formation, progress: progressView(row, progressFor(db, me.id, row)) });
   });
 
   /** Confirmación de lectura de la versión vigente (al llegar al final de la formación). */
@@ -139,16 +126,14 @@ export function learningRoutes(ctx: AppContext) {
 
   r.get('/me/progress', requirePermission('progreso:propio'), (c) => {
     const me = currentUser(c);
-    const assignmentFor = assignmentsOf(me.id);
     const formations = listPublished(db, ['formacion']).map((row) => ({
       id: row.id,
       slug: row.slug,
       area: row.area,
       title: row.title,
       progress: progressView(row, progressFor(db, me.id, row)),
-      assignment: assignmentFor(row.id),
     }));
-    return c.json({ formations, mandatory: formations.filter((f) => f.assignment) });
+    return c.json({ formations });
   });
 
   /** Historial propio de intentos (fecha, versión, respuestas y aciertos) de todos los tests. */
@@ -162,20 +147,6 @@ export function learningRoutes(ctx: AppContext) {
       return { ...a, contentId, contentType: titles.get(contentId)?.type ?? null, contentTitle: titles.get(contentId)?.title ?? null };
     });
     return c.json({ items });
-  });
-
-  /* ── Asignaciones obligatorias (administración) ──────────────────────────── */
-
-  r.get('/assignments', requirePermission('formaciones:asignar'), (c) => c.json({ items: listAssignments(db) }));
-
-  r.post('/assignments', requirePermission('formaciones:asignar'), async (c) => {
-    const input = await jsonBody(c, assignmentInput);
-    return c.json({ assignment: createAssignment(db, currentUser(c), input, ctx.now(), c.get('clientIp')) }, 201);
-  });
-
-  r.delete('/assignments/:id', requirePermission('formaciones:asignar'), (c) => {
-    deleteAssignment(db, currentUser(c), c.req.param('id'), ctx.now(), c.get('clientIp'));
-    return c.json({ ok: true });
   });
 
   return r;

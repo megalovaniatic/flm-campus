@@ -1,4 +1,4 @@
-import { BookOpen, CalendarDays, CornerDownLeft, FileText, Library, Newspaper, Search, Signpost, UserRound } from 'lucide-react';
+import { BookOpen, CalendarDays, CornerDownLeft, FileText, Library, Newspaper, Search, Signpost } from 'lucide-react';
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router';
 import { Kbd } from '@/design';
@@ -14,7 +14,6 @@ const ICONS: Record<ResultGroup, typeof Search> = {
   'Notas informativas': FileText,
   Lecturas: Library,
   Agenda: CalendarDays,
-  Personas: UserRound,
   Secciones: Signpost,
 };
 
@@ -114,7 +113,7 @@ export function CommandPalette() {
             ref={input}
             className={styles.input}
             type="search"
-            placeholder="Busca formaciones, notas, novedades, eventos o personas…"
+            placeholder="Busca formaciones, notas, novedades o eventos…"
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={onKeyDown}

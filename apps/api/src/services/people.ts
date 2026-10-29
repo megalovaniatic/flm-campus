@@ -2,10 +2,9 @@ import { isCorporateEmail, personSchema, type Department, type Office, type Pers
 import { z } from 'zod';
 import { all, get, run, transaction, isUniqueViolation, type Db } from '../db/database';
 import { conflict, notFound } from '../lib/errors';
-import { birthdaySchema, dateKey } from '../lib/validation';
 import { newId } from '../auth/tokens';
 
-/** Fila de la tabla `users`. */
+/** Fila de la tabla `users`: solo datos profesionales (sin cumpleaños ni fecha de incorporación). */
 export interface UserRow {
   id: string;
   email: string;
@@ -15,9 +14,6 @@ export interface UserRow {
   office: string;
   role: Role;
   photo_file_id: string | null;
-  start_date: string | null;
-  birthday: string | null;
-  show_birthday: number;
   status: 'activa' | 'inactiva';
   password_hash: string | null;
   password_changed_at: string | null;
@@ -46,16 +42,11 @@ export const corporateEmail = z
 
 const shape = personSchema.pick({ name: true, position: true, department: true, office: true, role: true });
 
-export const personCreateSchema = shape.extend({
-  email: corporateEmail,
-  /** Fecha de incorporación: genera los aniversarios. Si no consta, no se calculan. */
-  startDate: dateKey.optional(),
-  birthday: birthdaySchema.optional(),
-  showBirthday: z.boolean().default(false),
-});
+/** Ficha profesional. Cualquier otro campo de la petición (p. ej. un cumpleaños) se descarta sin guardarlo. */
+export const personCreateSchema = shape.extend({ email: corporateEmail });
 
 export const personUpdateSchema = shape
-  .extend({ email: corporateEmail, startDate: dateKey })
+  .extend({ email: corporateEmail })
   .partial()
   .refine((v) => Object.keys(v).length > 0, 'Indica al menos un campo que modificar');
 
@@ -79,9 +70,6 @@ export function toPerson(u: UserRow): Person {
     office: u.office as Office,
     role: u.role,
     ...(u.photo_file_id ? { photo: fileUrl(u.photo_file_id) } : {}),
-    ...(u.start_date ? { startDate: u.start_date } : {}),
-    ...(u.birthday ? { birthday: u.birthday } : {}),
-    showBirthday: u.show_birthday === 1,
     status: u.status,
   };
 }
@@ -101,7 +89,7 @@ export function adminPerson(u: UserRow, now: Date) {
   };
 }
 
-/** Ficha mínima para el directorio interno (sin correo ni fechas personales). */
+/** Ficha mínima para el directorio interno (sin correo electrónico). */
 export function directoryEntry(u: UserRow) {
   return {
     id: u.id,
@@ -160,8 +148,8 @@ export function createUser(db: Db, input: PersonCreateInput, nowIso: string, id:
   try {
     run(
       db,
-      `INSERT INTO users (id, email, name, position, department, office, role, start_date, birthday, show_birthday, status, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'activa', ?, ?)`,
+      `INSERT INTO users (id, email, name, position, department, office, role, status, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'activa', ?, ?)`,
       id,
       input.email,
       input.name.trim(),
@@ -169,9 +157,6 @@ export function createUser(db: Db, input: PersonCreateInput, nowIso: string, id:
       input.department,
       input.office,
       input.role,
-      input.startDate ?? null,
-      input.birthday ?? null,
-      input.showBirthday ? 1 : 0,
       nowIso,
       nowIso,
     );
@@ -190,14 +175,13 @@ export function updateUser(db: Db, user: UserRow, patch: PersonUpdateInput, nowI
     try {
       run(
         db,
-        `UPDATE users SET email = ?, name = ?, position = ?, department = ?, office = ?, role = ?, start_date = ?, updated_at = ? WHERE id = ?`,
+        `UPDATE users SET email = ?, name = ?, position = ?, department = ?, office = ?, role = ?, updated_at = ? WHERE id = ?`,
         patch.email ?? user.email,
         patch.name?.trim() ?? user.name,
         patch.position?.trim() ?? user.position,
         patch.department ?? user.department,
         patch.office ?? user.office,
         patch.role ?? user.role,
-        patch.startDate ?? user.start_date,
         nowIso,
         user.id,
       );

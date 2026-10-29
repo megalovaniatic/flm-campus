@@ -116,7 +116,7 @@ export function RetentionSection() {
           <ol className={styles.steps}>
             <li>Se hace a petición de la persona o al revisar las cuentas dadas de baja hace más de 1 año.</li>
             <li>Exige una confirmación explícita: escribir el nombre de la persona.</li>
-            <li>Anonimiza nombre, correo, fotografía, puesto, fecha de incorporación y cumpleaños; cierra sus sesiones y borra sus enlaces y lecturas.</li>
+            <li>Anonimiza nombre, correo, fotografía y puesto; cierra sus sesiones y borra sus enlaces y lecturas.</li>
             <li>Los intentos de test se desvinculan y solo cuentan como agregados anónimos.</li>
             <li>Queda constancia en la auditoría, sin datos personales en el detalle. No se puede aplicar al último administrador activo ni a una misma.</li>
           </ol>

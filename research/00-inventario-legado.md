@@ -3,6 +3,7 @@
 - Fecha del inventario: 28/10/2026 (Europe/Madrid).
 - Carpeta analizada en solo lectura (no se ha modificado nada): `C:\Users\usuario\Documents\ChatGPT\FLM UNIVERSITY\`. En este documento se abrevia como `LEGADO\`.
 - Objetivo: separar los datos reales aportados por FLM, y la ubicación de sus archivos fuente, del contenido generado por la versión anterior, que no se va a reutilizar.
+- **Nota del 29/10/2026:** el inventario describe la versión anterior y no se reescribe. Después, a petición de la usuaria, el campus dejó de guardar cumpleaños y fechas de incorporación (y, con ellas, los aniversarios), y el retrato de Judith Calet se retiró de la demo a petición suya: su perfil aparece con sus iniciales. Por eso la duda 14 queda sin efecto y, en la 11, ya no hace falta el consentimiento para su foto. Las referencias a su retrato están anotadas en su sitio (§4, §5.4, §8 y §9).
 
 ## Leyenda
 
@@ -322,7 +323,7 @@ Solo sirven para trazabilidad: sus textos son [GEN].
 | Ángel María Ceniceros | Socio del Área Fiscal | Nombres de archivo de sus fotos; README; autor en metadatos de `facturacion-electronica.pdf` | Ver lista debajo | En la versión anterior figuraba como «perfil de responsable de ejemplo» |
 | Joan Navarro | Socio del Área Mercantil | Radar Mercantil, pp. 1, 4 y 12. Según el PDF, más de 25 años en derecho societario y M&A | Solo dentro del PDF (pp. 4 y 12) | Ponente del Desayuno Mercantil |
 | Lorena Ortiz | Abogada mercantil | Radar Mercantil, pp. 1, 4 y 12. Según el PDF, trabaja en español, catalán e inglés | Solo dentro del PDF (pp. 4 y 12) | Ponente del Desayuno Mercantil |
-| Judith Calet | Asesora Contable, según la versión anterior | Autora de la formación BOICAC 147 en `catalog.js`; perfil de demostración del departamento Contable | `LEGADO\dist\assets\judith-calet.jpeg` (retrato sentada con libreta FLM; EXIF del 23/10/2026) | Confirmar el cargo. La fecha de incorporación de la demo era de ejemplo |
+| Judith Calet | Asesora Contable, según la versión anterior | Autora de la formación BOICAC 147 en `catalog.js`; perfil de demostración del departamento Contable | `LEGADO\dist\assets\judith-calet.jpeg` (retrato sentada con libreta FLM; EXIF del 23/10/2026). **Retirado de la demo a petición suya (29/10/2026)** | Confirmar el cargo. La fecha de incorporación de la demo era de ejemplo (el campus ya no guarda fechas de incorporación) |
 | Lluís Gómez (Palanques) | No consta | Autor en metadatos de `iva-vehiculos.pdf` y `correcciones-is.pdf`. Su nombre también se usó en un aniversario ficticio | Ninguna | Confirmar el cargo (probablemente Fiscal) |
 | Jia Miao | No consta | Solo en un cumpleaños ficticio | Ninguna | Confirmar si es empleada real; no reutilizar la fecha |
 | Christofer Raudales | No consta | Solo en un aniversario ficticio | Ninguna | Confirmar si es empleado real; no reutilizar la fecha |
@@ -416,7 +417,7 @@ Logotipos (PNG del 26/05/2026; fondo transparente salvo que se indique otra cosa
 
 | Archivo | Descripción | Etiqueta |
 |---|---|---|
-| judith-calet.jpeg | Retrato de Judith Calet, sentada con una libreta FLM (persona identificable) | [FLM] |
+| judith-calet.jpeg | Retrato de Judith Calet, sentada con una libreta FLM (persona identificable). **Retirado de la demo a petición suya (29/10/2026)** | [FLM] |
 | angel.jpg / angel-web.jpg | Ángel María Ceniceros de pie con los brazos cruzados (original de 2000×3000 y copia de 600×900) | [FLM] |
 | buzon-sugerencias.jpg | Icono del buzón (ver 5.2) | [FLM], licencia desconocida |
 | brand.jpg | Pieza de marca «FLM, tu partner legal. Fiscal · Laboral · Mercantil» con ondas rojas sobre azul marino (399×501). Procedencia no documentada (¿web o redes de FLM?) | [FLM] |
@@ -500,7 +501,7 @@ Según `catalog.js`, FLM las aportó como «fotografías de stock»: se copiaron
 11. **Personas**:
     - Confirmar los cargos de Judith Calet y Lluís Gómez.
     - Confirmar si Jia Miao y Christofer Raudales son personal real.
-    - Obtener el consentimiento para usar las fotos (Ángel María Ceniceros, Judith Calet, Joan Navarro y Lorena Ortiz).
+    - Obtener el consentimiento para usar las fotos (Ángel María Ceniceros, Judith Calet, Joan Navarro y Lorena Ortiz). *Nota del 29/10/2026: el retrato de Judith Calet se retiró de la demo a petición suya, así que su consentimiento ya no hace falta.*
     - Revisar las condiciones de licencia y el crédito de la sesión de raquelgrafic.com / Branding Consciente.
 12. **Stock e iconos**: ninguna imagen de banco tiene licencia acreditada (incluido el icono del buzón). Sustituirlas o conseguir la licencia.
 13. **Demo pública anterior**: según el README, `LEGADO\flm-campus-sites\` es una demostración pública. Incluye fotos de personas, el Radar interno, la revista de AEDAF y el stock sin licencia. Conviene comprobar si sigue en línea.
@@ -516,6 +517,6 @@ Según `catalog.js`, FLM las aportó como «fotografías de stock»: se copiaron
 - Fotos y logos originales de FLM: `C:\Users\usuario\Documents\ChatGPT\FLM UNIVERSITY\recursos\identidad-flm\`
 - Buzón de sugerencias y logos de área: `C:\Users\usuario\Documents\ChatGPT\FLM UNIVERSITY\FOTOS FLM RECURSOS\`
 - Copias optimizadas: `C:\Users\usuario\Documents\ChatGPT\FLM UNIVERSITY\dist\assets\company\`
-- Retratos sueltos: `C:\Users\usuario\Documents\ChatGPT\FLM UNIVERSITY\dist\assets\judith-calet.jpeg` y `C:\Users\usuario\Documents\ChatGPT\FLM UNIVERSITY\dist\assets\angel.jpg`
+- Retratos sueltos: `C:\Users\usuario\Documents\ChatGPT\FLM UNIVERSITY\dist\assets\judith-calet.jpeg` (retirado de la demo a petición suya el 29/10/2026; no se usa en el campus) y `C:\Users\usuario\Documents\ChatGPT\FLM UNIVERSITY\dist\assets\angel.jpg`
 - Stock (licencia desconocida): `C:\Users\usuario\Documents\ChatGPT\FLM UNIVERSITY\recursos\fotos-stock\`
 - Textos extraídos de PDF reales (útiles para búsqueda): `C:\Users\usuario\Documents\ChatGPT\FLM UNIVERSITY\tmp\pdfs\` y `C:\Users\usuario\Documents\ChatGPT\FLM UNIVERSITY\tmp\boicac147\original.txt`

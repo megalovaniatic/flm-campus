@@ -1,8 +1,8 @@
-import { ArrowRight, CalendarClock, ChevronDown, CircleCheck, CircleDot, Download, GraduationCap, Settings, ShieldCheck, Sparkles, TriangleAlert, UserRound } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { ArrowRight, ChevronDown, CircleCheck, CircleDot, Download, GraduationCap, Settings, ShieldCheck, Sparkles, UserRound } from 'lucide-react';
+import { useState } from 'react';
 import { Link } from 'react-router';
-import { AREAS, formatLongDate, formatShortDate, madridDateKey, madridParts, ROLE_LABEL, type AreaId } from '@flm/shared';
-import { AreaTag, Button, ButtonLink, EmptyState, Notice, PageHeader, ProgressRing, StatusGlyph } from '@/design';
+import { AREAS, formatShortDate, madridDateKey, madridParts, ROLE_LABEL, type AreaId } from '@flm/shared';
+import { AreaTag, Button, ButtonLink, EmptyState, PageHeader, ProgressRing, StatusGlyph } from '@/design';
 import { DEMO_USER_ID, useFormations, useMe } from '@/data/selectors';
 import { useDemo } from '@/data/store';
 import { Logo } from '@/layout/Logo';
@@ -11,7 +11,6 @@ import { usePageTitle } from '@/lib/preferences';
 import { scrollToSection, useHashScroll } from '@/features/about/useSectionNav';
 import { Portrait } from './Portrait';
 import { Recognitions } from './Recognitions';
-import { Trajectory } from './Trajectory';
 import {
   upcomingBadges,
   useAreaSummaries,
@@ -19,12 +18,10 @@ import {
   useAttemptHistory,
   useBadges,
   useFormationGroups,
-  useMandatory,
   usePublishedCount,
   type AreaSummary,
   type AssessmentSummary,
   type AttemptRow,
-  type MandatoryItem,
 } from './useProfileData';
 import styles from './ProfilePage.module.css';
 
@@ -36,9 +33,7 @@ const OFFICE_LINE: Record<string, string> = {
 };
 
 const SECTIONS = [
-  { id: 'recorrido', label: 'Tu recorrido' },
   { id: 'progreso', label: 'Progreso' },
-  { id: 'obligatorias', label: 'Obligatorias' },
   { id: 'formaciones', label: 'Formaciones' },
   { id: 'intentos', label: 'Intentos' },
   { id: 'evaluaciones', label: 'Evaluaciones' },
@@ -87,67 +82,6 @@ function AreaProgress({ summaries }: { summaries: AreaSummary[] }) {
           );
         })}
       </ul>
-    </section>
-  );
-}
-
-/* ── Obligatorias ──────────────────────────────────────────────────────── */
-
-function dueText(m: MandatoryItem): string {
-  const due = m.assignment.dueDate;
-  if (!due || m.days === undefined) return 'Sin fecha límite';
-  if (m.days > 1) return `Antes del ${formatShortDate(due)} · quedan ${m.days} días`;
-  if (m.days === 1) return `Vence mañana, ${formatShortDate(due, false)}`;
-  if (m.days === 0) return 'Vence hoy';
-  return `Vencida el ${formatShortDate(due)} · hace ${-m.days} ${m.days === -1 ? 'día' : 'días'}`;
-}
-
-function Mandatory({ total, pending, hasFormations }: { total: number; pending: MandatoryItem[]; hasFormations: boolean }) {
-  return (
-    <section id="obligatorias" aria-labelledby="h-obligatorias" className={styles.block}>
-      <div className="section-head">
-        <h2 id="h-obligatorias" className="section-title">
-          Formaciones obligatorias
-        </h2>
-        {pending.length > 0 && <p className="meta">{pending.length === 1 ? '1 pendiente' : `${pending.length} pendientes`}</p>}
-      </div>
-      {!hasFormations ? (
-        <EmptyState icon={<GraduationCap />} title="Aún no hay formaciones publicadas">
-          <p>Cuando administración publique y asigne formaciones, verás aquí las que debes completar y su plazo.</p>
-        </EmptyState>
-      ) : pending.length === 0 ? (
-        <Notice tone="success" icon={<CircleCheck size={18} />} title="Estás al día">
-          {total ? `Has completado ${total === 1 ? 'la formación obligatoria que tenías asignada' : `las ${total} formaciones obligatorias que tenías asignadas`}.` : 'No tienes formaciones obligatorias asignadas.'}
-        </Notice>
-      ) : (
-        <ul role="list" className={styles.mandatory}>
-          {pending.map((m) => {
-            const f = m.formation;
-            const overdue = m.days !== undefined && m.days < 0;
-            return (
-              <li key={m.assignment.id} className={styles.mRow} data-area={f.area}>
-                <div className={styles.mMain}>
-                  <h3 className={styles.mTitle}>
-                    <Link to={`/aprender/${f.area}/${f.slug}`} className={styles.stretch}>
-                      {f.title}
-                    </Link>
-                  </h3>
-                  <p className={styles.mMeta}>
-                    <AreaTag area={f.area} size="sm" />
-                    <span>{f.readingMinutes} min de lectura</span>
-                    {m.assignedBy && <span>Asignada por {m.assignedBy}</span>}
-                  </p>
-                </div>
-                <StatusGlyph status={m.status} />
-                <p className={styles.due} data-overdue={overdue || undefined}>
-                  {overdue ? <TriangleAlert size={16} aria-hidden="true" /> : <CalendarClock size={16} aria-hidden="true" />}
-                  <span>{dueText(m)}</span>
-                </p>
-              </li>
-            );
-          })}
-        </ul>
-      )}
     </section>
   );
 }
@@ -435,13 +369,11 @@ export default function ProfilePage() {
   const formations = useFormations();
   const allFormations = useFormations(true);
   const summaries = useAreaSummaries(formations);
-  const mandatory = useMandatory(me?.id ?? DEMO_USER_ID, formations);
   const groups = useFormationGroups(formations);
   const attempts = useAttemptHistory(allFormations);
   const assessmentSummaries = useAssessmentSummaries();
   const published = usePublishedCount(me?.id ?? DEMO_USER_ID);
-  const fallbackPerson = useMemo(() => ({ id: '', email: '', name: '', position: '', department: 'Administración' as const, office: 'Barcelona' as const, role: 'empleado' as const, showBirthday: false, status: 'activa' as const }), []);
-  const badges = useBadges(me ?? fallbackPerson, formations, published);
+  const badges = useBadges(formations, published);
   // Insignias que aún no se han celebrado al abrir la página (se fija al montar).
   const [fresh] = useState<ReadonlySet<string>>(() => {
     const done = new Set(useDemo.getState().celebrated);
@@ -461,6 +393,8 @@ export default function ProfilePage() {
   const upcoming = upcomingBadges(me, badges, summaries, published, assessmentSummaries);
   const viewingAs = me.effectiveRole !== me.role;
   const freshCount = badges.filter((b) => fresh.has(b.id)).length;
+  // Sin intentos todavía: se invita a empezar por la primera formación de su área
+  const firstStep = formations.find((f) => AREAS[f.area].name === me.department) ?? formations[0];
 
   return (
     <div className={`container page ${styles.page}`}>
@@ -485,7 +419,7 @@ export default function ProfilePage() {
             )}
           </>
         }
-        aside={<Portrait name={me.name} photo={me.photo} />}
+        aside={<Portrait name={me.name} photo={me.photo} decorative />}
       />
 
       <dl className={styles.identity}>
@@ -517,10 +451,6 @@ export default function ProfilePage() {
             )}
           </dd>
         </div>
-        <div>
-          <dt>Incorporación</dt>
-          <dd>{me.startDate ? formatLongDate(me.startDate) : 'No consta'}</dd>
-        </div>
       </dl>
 
       <nav aria-label="Secciones del perfil" className={styles.toc}>
@@ -535,36 +465,12 @@ export default function ProfilePage() {
         </ul>
       </nav>
 
-      <div className={styles.top}>
-        <section id="recorrido" aria-labelledby="h-recorrido" className={styles.card}>
-          <div className={styles.cardHead}>
-            <div>
-              <h2 id="h-recorrido" className={styles.cardTitle}>
-                Tu recorrido
-              </h2>
-              <p className={styles.cardLede}>Tu trayectoria, peldaño a peldaño, unida a la de la firma.</p>
-            </div>
-          </div>
-          <Trajectory person={me} />
-        </section>
-        <AreaProgress summaries={summaries} />
-      </div>
-
-      <Mandatory total={mandatory.total} pending={mandatory.pending} hasFormations={formations.length > 0} />
+      <AreaProgress summaries={summaries} />
 
       <FormationsTable groups={groups} />
 
       <div className={styles.lower}>
-        <AttemptsHistory
-          rows={attempts}
-          next={
-            mandatory.pending[0]
-              ? { title: mandatory.pending[0].formation.title, to: `/aprender/${mandatory.pending[0].formation.area}/${mandatory.pending[0].formation.slug}` }
-              : formations[0]
-                ? { title: formations[0].title, to: `/aprender/${formations[0].area}/${formations[0].slug}` }
-                : undefined
-          }
-        />
+        <AttemptsHistory rows={attempts} next={firstStep ? { title: firstStep.title, to: `/aprender/${firstStep.area}/${firstStep.slug}` } : undefined} />
         <Assessments summaries={assessmentSummaries} />
       </div>
 
@@ -574,7 +480,7 @@ export default function ProfilePage() {
             <h2 id="h-reconocimientos" className="section-title">
               Reconocimientos
             </h2>
-            <p className={styles.sectionLede}>Trayectoria, aprendizaje y contribución. Sin puntos ni clasificaciones: lo que has hecho, con fecha.</p>
+            <p className={styles.sectionLede}>Aprendizaje y contribución. Sin puntos ni clasificaciones: lo que has hecho, con fecha.</p>
           </div>
           <p className="meta">{badges.length === 1 ? '1 reconocimiento' : `${badges.length} reconocimientos`}</p>
         </div>

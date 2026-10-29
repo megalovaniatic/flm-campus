@@ -1,21 +1,20 @@
 /**
- * Informes restringidos de la demo.
+ * Informes restringidos de la demo: participación por formación y errores frecuentes por pregunta.
+ * Las formaciones son voluntarias, así que el informe es agregado y no muestra a nadie por su nombre.
  *
  * - La persona de la demostración aporta su progreso REAL (useDemo.progress).
  * - Las personas FICTICIAS reciben datos SIMULADOS y DETERMINISTAS (misma semilla → mismo
  *   resultado), rotulados «Datos simulados».
  * - Las personas REALES distintas de la de la demo se excluyen: nunca se inventa su progreso.
  *
- * La estructura replica la del servicio de informes de la API (byFormation, byPerson, rows)
- * y los CSV usan las mismas columnas.
+ * La estructura replica la del servicio de informes de la API (byFormation y totals) y los CSV
+ * usan las mismas columnas; la demo añade al final «Origen de los datos».
  */
 import {
   commonErrors,
   formationStatus,
   gradeQuiz,
   madridDateKey,
-  STATUS_LABEL,
-  type Assignment,
   type Formation,
   type FormationProgress,
   type FormationStatus,
@@ -98,93 +97,71 @@ function simulatedProgress(person: Person, f: Formation): FormationProgress {
 
 /* ── Informe ────────────────────────────────────────────────────────────── */
 
-export interface ComplianceRow {
-  person: Person;
+/** Progreso de una persona en una formación. Solo sirve para contar: nunca sale del informe con nombre. */
+interface ProgressRow {
+  personId: string;
   formation: Formation;
-  dueDate: string | null;
   status: FormationStatus;
-  completed: boolean;
-  overdue: boolean;
   attempts: QuizAttempt[];
   origin: DataOrigin;
+}
+
+export interface FormationParticipation {
+  formation: Formation;
+  /** Personas sobre las que se calcula. */
+  people: number;
+  completed: number;
+  /** Leída, test intentado o test superado, sin completar todavía. */
+  inProgress: number;
+  notStarted: number;
+  rate: number | null;
 }
 
 export interface ReportData {
   today: string;
   formations: Formation[];
-  /** Asignaciones cuya formación aún no está publicada. */
-  pendingAssignments: Assignment[];
-  rows: ComplianceRow[];
-  byFormation: { formation: Formation; target: string; dueDate: string | null; assigned: number; completed: number; pending: number; overdue: number; rate: number | null }[];
-  byPerson: { person: Person; origin: DataOrigin; assigned: number; completed: number; pending: number; overdue: number; items: ComplianceRow[] }[];
+  people: number;
+  rows: ProgressRow[];
+  byFormation: FormationParticipation[];
+  totals: { withCompleted: number; completed: number };
   excludedReal: number;
 }
 
-export function buildReport(input: { people: Person[]; formations: Formation[]; assignments: Assignment[]; demoUserId: string | null; progress: Record<string, FormationProgress>; now?: Date }): ReportData {
+export function buildReport(input: { people: Person[]; formations: Formation[]; demoUserId: string | null; progress: Record<string, FormationProgress>; now?: Date }): ReportData {
   const today = madridDateKey(input.now);
   const active = input.people.filter((p) => p.status === 'activa' && !p.email.endsWith('@anonimizada.invalid'));
   const population = active.filter((p) => p.fictional || p.id === input.demoUserId);
   const excludedReal = active.length - population.length;
-  const byId = new Map(input.formations.map((f) => [f.id, f]));
 
-  // Pares persona–formación con la fecha límite más exigente.
-  const pairs = new Map<string, { person: Person; formation: Formation; dueDate: string | null }>();
-  for (const a of input.assignments) {
-    const f = byId.get(a.formationId);
-    if (!f) continue;
-    const targets = a.target.kind === 'todos' ? population : population.filter((p) => a.target.kind === 'persona' && p.id === a.target.personId);
-    for (const p of targets) {
-      const key = `${p.id}|${f.id}`;
-      const prev = pairs.get(key);
-      const due = a.dueDate ?? null;
-      if (!prev || (due && (!prev.dueDate || due < prev.dueDate))) pairs.set(key, { person: p, formation: f, dueDate: due });
-    }
-  }
+  const rows: ProgressRow[] = population.flatMap((person) =>
+    input.formations.map((formation): ProgressRow => {
+      const real = person.id === input.demoUserId;
+      const progress = real ? input.progress[formation.id] : simulatedProgress(person, formation);
+      return {
+        personId: person.id,
+        formation,
+        status: formationStatus(progress, formation),
+        attempts: (progress?.attempts ?? []).filter((x) => x.version === formation.version),
+        origin: real ? 'real' : 'simulado',
+      };
+    }),
+  );
 
-  const rows: ComplianceRow[] = [...pairs.values()].map(({ person, formation, dueDate }) => {
-    const real = person.id === input.demoUserId;
-    const progress = real ? input.progress[formation.id] : simulatedProgress(person, formation);
-    const status = formationStatus(progress, formation);
-    const completed = status === 'completada';
-    return {
-      person,
-      formation,
-      dueDate,
-      status,
-      completed,
-      overdue: !completed && !!dueDate && dueDate < today,
-      attempts: (progress?.attempts ?? []).filter((x) => x.version === formation.version),
-      origin: real ? 'real' : 'simulado',
-    };
+  const byFormation = input.formations.map((formation): FormationParticipation => {
+    const items = rows.filter((r) => r.formation.id === formation.id);
+    const completed = items.filter((r) => r.status === 'completada').length;
+    const notStarted = items.filter((r) => r.status === 'sin-empezar').length;
+    return { formation, people: items.length, completed, inProgress: items.length - completed - notStarted, notStarted, rate: items.length ? completed / items.length : null };
   });
-  rows.sort((a, b) => a.person.name.localeCompare(b.person.name, 'es') || a.formation.title.localeCompare(b.formation.title, 'es'));
 
-  const assignedFormations = input.formations.filter((f) => rows.some((r) => r.formation.id === f.id));
-  const byFormation = assignedFormations
-    .map((f) => {
-      const items = rows.filter((r) => r.formation.id === f.id);
-      const completed = items.filter((r) => r.completed).length;
-      const as = input.assignments.filter((a) => a.formationId === f.id);
-      const target = as.some((a) => a.target.kind === 'todos') ? 'Toda la firma' : `${items.length} ${items.length === 1 ? 'persona' : 'personas'}`;
-      const dueDate = as.map((a) => a.dueDate).filter((d): d is string => !!d).sort()[0] ?? null;
-      return { formation: f, target, dueDate, assigned: items.length, completed, pending: items.length - completed, overdue: items.filter((r) => r.overdue).length, rate: items.length ? completed / items.length : null };
-    })
-    .sort((a, b) => a.formation.title.localeCompare(b.formation.title, 'es'));
-
-  const byPerson = population
-    .map((p) => {
-      const items = rows.filter((r) => r.person.id === p.id);
-      return { person: p, origin: (p.id === input.demoUserId ? 'real' : 'simulado') as DataOrigin, assigned: items.length, completed: items.filter((r) => r.completed).length, pending: items.filter((r) => !r.completed).length, overdue: items.filter((r) => r.overdue).length, items };
-    })
-    .filter((p) => p.assigned > 0);
-
+  const done = rows.filter((r) => r.status === 'completada');
   return {
     today,
     formations: input.formations,
-    pendingAssignments: input.assignments.filter((a) => !byId.has(a.formationId)),
+    people: population.length,
     rows,
     byFormation,
-    byPerson,
+    totals: { withCompleted: new Set(done.map((r) => r.personId)).size, completed: done.length },
     excludedReal,
   };
 }
@@ -195,5 +172,3 @@ export function errorsFor(report: ReportData, formation: Formation) {
   const realAttempts = report.rows.filter((r) => r.formation.id === formation.id && r.origin === 'real').reduce((n, r) => n + r.attempts.length, 0);
   return { attempts: attempts.length, realAttempts, passed: attempts.filter((a) => a.passed).length, questions: commonErrors(formation.quiz, attempts) };
 }
-
-export const statusLabel = (s: FormationStatus) => STATUS_LABEL[s];

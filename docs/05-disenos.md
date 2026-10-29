@@ -7,7 +7,7 @@ Capturas de la demostración compilada (modo demo), generadas con `node scripts/
 | Pantalla | Captura |
 |---|---|
 | Inicio — «La llegada»: el titular es el menú, foto real en cápsula y tira de datos vivos | ![Inicio](capturas/escritorio-inicio.webp) |
-| Aprender — áreas en cápsulas, obligatorias y evaluaciones | ![Aprender](capturas/escritorio-aprender.webp) |
+| Aprender — itinerarios por área en cápsulas, progreso y evaluaciones | ![Aprender](capturas/escritorio-aprender.webp) |
 | Área Fiscal — cápsula oficial del departamento, referente y portadas tipográficas | ![Área Fiscal](capturas/escritorio-area-fiscal.webp) |
 | Formación — lectura editorial con índice, glosario al margen y revisión pendiente | ![Formación](capturas/escritorio-formacion.webp) |
 | Test — «pruebas de imprenta», una pregunta por pantalla | ![Test](capturas/escritorio-test.webp) |
@@ -17,7 +17,7 @@ Capturas de la demostración compilada (modo demo), generadas con `node scripts/
 | Lecturas recomendadas — «la estantería» | ![Lecturas](capturas/escritorio-lecturas.webp) |
 | Agenda — sesiones unidas por puentes líquidos y fechas por confirmar | ![Agenda](capturas/escritorio-agenda.webp) |
 | Calendario — tipos con icono, color y texto | ![Calendario](capturas/escritorio-calendario.webp) |
-| Perfil — «Tu recorrido», progreso y reconocimientos | ![Perfil](capturas/escritorio-perfil.webp) |
+| Perfil — progreso por área, formaciones, intentos y reconocimientos | ![Perfil](capturas/escritorio-perfil.webp) |
 | Sobre el campus — concepto, marca y sistema de diseño vivo | ![Sobre el campus](capturas/escritorio-sobre.webp) |
 
 ## Móvil

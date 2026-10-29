@@ -5,6 +5,8 @@
 **Estado:** propuesta creativa para validar con la clienta
 **Condición innegociable:** se usan los logotipos originales y los colores oficiales **sin cambios**, como ha pedido expresamente la clienta. Lo único nuevo es cómo se componen.
 
+> **Nota del 29/10/2026.** Propuesta conservada tal como se presentó al jurado. Después, a petición de la clienta, FLM Campus dejó de guardar y mostrar cumpleaños y fechas de incorporación, y todas sus formaciones pasaron a ser voluntarias. Por eso no forman parte del producto: los cumpleaños y aniversarios de «Hoy en FLM» y del calendario; la trayectoria de cada persona («Tú, desde…», «En FLM desde…», la variante de aniversario de «Un peldaño más» y las insignias de antigüedad); el ajuste «mostrar mi cumpleaños»; el grupo «Personas» de la búsqueda, y las obligatorias pendientes y su informe. Administración solo ve informes agregados, sin nombres. Lo vigente está en `docs/`.
+
 > ## Círculo de confianza
 > ### *Lo que sabe uno, lo sabemos todos.*
 

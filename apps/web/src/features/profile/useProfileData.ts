@@ -1,5 +1,5 @@
 /**
- * Datos del perfil: progreso por área, obligatorias, intentos, evaluaciones y reconocimientos.
+ * Datos del perfil: progreso por área, formaciones, intentos, evaluaciones y reconocimientos.
  * Todo se calcula con las reglas compartidas (@flm/shared) a partir del contenido publicado
  * y del progreso guardado (en la demo, en este navegador).
  */
@@ -11,13 +11,8 @@ import {
   bestAttempt,
   computeBadges,
   currentAttempts,
-  diffDays,
-  formatLongDate,
   formationStatus,
-  madridDateKey,
-  nextTenureMilestone,
   type AreaId,
-  type Assignment,
   type Badge,
   type BadgeFamily,
   type Formation,
@@ -26,14 +21,8 @@ import {
   type QuizAttempt,
   type SectorAssessment,
 } from '@flm/shared';
-import { assessments, assignments, useDocuments, useEvents, useFormations, useNews, usePeople } from '@/data/selectors';
+import { assessments, useDocuments, useEvents, useFormations, useNews } from '@/data/selectors';
 import { useDemo } from '@/data/store';
-
-/** «faltan 308 días», «falta 1 día», «es hoy». */
-export function daysLeftText(days: number): string {
-  if (days <= 0) return 'es hoy';
-  return days === 1 ? 'falta 1 día' : `faltan ${days} días`;
-}
 
 /* ── Progreso por área ─────────────────────────────────────────────────── */
 
@@ -46,44 +35,6 @@ export interface AreaSummary {
 export function useAreaSummaries(formations: Formation[]): AreaSummary[] {
   const progress = useDemo((s) => s.progress);
   return useMemo(() => AREA_IDS.map((area) => ({ area, ...areaProgress(area, formations, progress) })), [formations, progress]);
-}
-
-/* ── Obligatorias ──────────────────────────────────────────────────────── */
-
-export interface MandatoryItem {
-  assignment: Assignment;
-  formation: Formation;
-  status: FormationStatus;
-  /** Días hasta el plazo (negativo si ya ha vencido). */
-  days?: number;
-  assignedBy?: string;
-}
-
-export function useMandatory(personId: string, formations: Formation[]): { total: number; pending: MandatoryItem[] } {
-  const progress = useDemo((s) => s.progress);
-  const people = usePeople();
-  return useMemo(() => {
-    const today = madridDateKey();
-    const mine = assignments
-      .filter((a) => a.target.kind === 'todos' || a.target.personId === personId)
-      .flatMap((a): MandatoryItem[] => {
-        const formation = formations.find((f) => f.id === a.formationId);
-        if (!formation) return [];
-        return [
-          {
-            assignment: a,
-            formation,
-            status: formationStatus(progress[formation.id], formation),
-            days: a.dueDate ? diffDays(today, a.dueDate) : undefined,
-            assignedBy: people.find((p) => p.id === a.assignedBy)?.name,
-          },
-        ];
-      });
-    const pending = mine
-      .filter((m) => m.status !== 'completada')
-      .sort((x, y) => (x.assignment.dueDate ?? '9999-12-31').localeCompare(y.assignment.dueDate ?? '9999-12-31'));
-    return { total: mine.length, pending };
-  }, [personId, formations, progress, people]);
 }
 
 /* ── Formaciones ───────────────────────────────────────────────────────── */
@@ -195,12 +146,12 @@ export function usePublishedCount(personId: string): number {
 
 /* ── Reconocimientos ───────────────────────────────────────────────────── */
 
-export function useBadges(person: Person, formations: Formation[], published: number): Badge[] {
+export function useBadges(formations: Formation[], published: number): Badge[] {
   const progress = useDemo((s) => s.progress);
   const assessmentAttempts = useDemo((s) => s.assessmentAttempts);
   return useMemo(
-    () => computeBadges({ person, formations, progress, assessments, assessmentAttempts, publishedByPerson: published }),
-    [person, formations, progress, assessmentAttempts, published],
+    () => computeBadges({ formations, progress, assessments, assessmentAttempts, publishedByPerson: published }),
+    [formations, progress, assessmentAttempts, published],
   );
 }
 
@@ -215,20 +166,6 @@ export interface UpcomingBadge {
 export function upcomingBadges(person: Person, badges: Badge[], areas: AreaSummary[], published: number, assessmentList: AssessmentSummary[]): UpcomingBadge[] {
   const out: UpcomingBadge[] = [];
   const earned = new Set(badges.map((b) => b.id));
-
-  // Trayectoria
-  if (person.startDate) {
-    const next = nextTenureMilestone(person.startDate);
-    if (next) {
-      out.push({
-        family: 'trayectoria',
-        title: next.years === 1 ? 'Primer año en FLM' : `${next.years} años en FLM`,
-        detail: `El ${formatLongDate(next.date)} · ${daysLeftText(next.inDays)}.`,
-      });
-    }
-  } else {
-    out.push({ family: 'trayectoria', title: 'Aniversarios en FLM', detail: 'Se calculan con tu fecha de incorporación, que aún no consta en tu ficha.' });
-  }
 
   // Aprendizaje: el itinerario de tu departamento o el que tengas más cerca
   const open = areas.filter((a) => a.total > 0 && !earned.has(`area-${a.area}`));

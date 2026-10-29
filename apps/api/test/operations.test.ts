@@ -1,11 +1,11 @@
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { describe, expect, it } from 'vitest';
 import { ConfigError, loadConfig } from '../src/config';
-import { all, get, openDatabase, run } from '../src/db/database';
-import { migrate } from '../src/db/migrate';
+import { all, get, openDatabase, run, type Db } from '../src/db/database';
+import { listMigrations, migrate } from '../src/db/migrate';
 import { createBackup } from '../src/services/backup';
 import { purgeExpiredData } from '../src/services/retention';
 import { importSeed, SeedValidationError } from '../src/services/seed';
@@ -64,13 +64,56 @@ describe('retención de datos', () => {
   });
 });
 
+const MIGRATIONS = ['0001_esquema_inicial.sql', '0002_sin_cumpleanos_ni_incorporacion.sql', '0003_formaciones_voluntarias.sql'];
+const PERSONAL_DATES = ['birthday', 'show_birthday', 'start_date'];
+const columnsOf = (db: Db, table: string) => all<{ name: string }>(db, `SELECT name FROM pragma_table_info('${table}')`).map((c) => c.name);
+const schemaObject = (db: Db, name: string) => get(db, 'SELECT 1 AS x FROM sqlite_schema WHERE name = ?', name);
+
 describe('migraciones y copias de seguridad', () => {
   it('aplica las migraciones una sola vez', () => {
     const db = openDatabase(':memory:');
-    expect(migrate(db).applied).toEqual(['0001_esquema_inicial.sql']);
+    expect(migrate(db).applied).toEqual(MIGRATIONS);
     expect(migrate(db).applied).toEqual([]);
-    expect(get<{ version: number }>(db, 'SELECT MAX(version) AS version FROM schema_migrations')!.version).toBe(1);
+    expect(get<{ version: number }>(db, 'SELECT MAX(version) AS version FROM schema_migrations')!.version).toBe(3);
     db.close();
+  });
+
+  it('tras migrar, users no guarda cumpleaños ni fecha de incorporación y no existe la tabla de asignaciones', () => {
+    const db = openDatabase(':memory:');
+    migrate(db);
+    const columns = columnsOf(db, 'users');
+    expect(columns).toEqual(expect.arrayContaining(['id', 'email', 'name', 'position', 'department', 'office', 'role', 'photo_file_id', 'status']));
+    expect(columns.filter((name) => PERSONAL_DATES.includes(name))).toEqual([]);
+    expect(schemaObject(db, 'assignments')).toBeUndefined();
+    expect(schemaObject(db, 'idx_assignments_unique')).toBeUndefined();
+    db.close();
+  });
+
+  it('una base creada con la versión 1 pierde esas columnas, sus datos y las asignaciones al actualizarse', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'flm-migraciones-'));
+    const first = listMigrations()[0]!;
+    copyFileSync(first.file, join(dir, first.name));
+    const db = openDatabase(':memory:');
+    expect(migrate(db, dir)).toEqual({ applied: ['0001_esquema_inicial.sql'], current: 1 });
+    run(
+      db,
+      `INSERT INTO users (id, email, name, position, department, office, role, start_date, birthday, show_birthday, created_at, updated_at)
+       VALUES ('p-1', 'una@flmexperts.com', 'Una Persona', 'Asesora', 'Fiscal', 'Vic', 'empleado', '2020-01-01', '03-14', 1, 'x', 'x')`,
+    );
+    run(db, "INSERT INTO contents (id, type, title, status, author_id, payload, created_at, updated_at) VALUES ('f-1', 'formacion', 'Formación', 'publicado', 'p-1', '{}', 'x', 'x')");
+    run(db, "INSERT INTO assignments (id, content_id, target_kind, person_id, due_date, assigned_at) VALUES ('a-1', 'f-1', 'persona', 'p-1', '2026-11-30', 'x')");
+    run(db, "INSERT INTO audit_log (at, actor_id, action, entity, entity_id, detail) VALUES ('x', 'p-1', 'perfil.cumpleanos', 'persona', 'p-1', 'Mostrar cumpleaños en el calendario: sí')");
+    run(db, "INSERT INTO audit_log (at, actor_id, action, entity, entity_id) VALUES ('x', NULL, 'persona.alta', 'persona', 'p-1')");
+
+    expect(migrate(db).applied).toEqual(MIGRATIONS.slice(1));
+    expect(columnsOf(db, 'users').filter((name) => PERSONAL_DATES.includes(name))).toEqual([]);
+    expect(get<{ name: string; position: string }>(db, 'SELECT * FROM users')).toMatchObject({ id: 'p-1', name: 'Una Persona', position: 'Asesora' });
+    expect(schemaObject(db, 'assignments')).toBeUndefined();
+    expect(all<{ action: string }>(db, 'SELECT action FROM audit_log').map((a) => a.action)).toEqual(['persona.alta']);
+    expect(all(db, 'PRAGMA foreign_key_check')).toEqual([]);
+    expect(get<{ integrity_check: string }>(db, 'PRAGMA integrity_check')!.integrity_check).toBe('ok');
+    db.close();
+    rmSync(dir, { recursive: true, force: true });
   });
 
   it('crea una copia fechada con VACUUM INTO, comprueba su integridad y conserva las N más recientes', async () => {
@@ -128,7 +171,7 @@ describe('datos semilla', () => {
     const db = openDatabase(':memory:');
     migrate(db);
     const first = await importSeed(db, fixtureSeed, { now: START });
-    expect(first.created).toMatchObject({ personas: 5, formacion: 1, test: 1, noticia: 1, documento: 1, evento: 3, comunicado: 1, festivos: 2, lecturas: 1, asignaciones: 1 });
+    expect(first.created).toEqual({ personas: 5, formacion: 1, test: 1, noticia: 1, documento: 1, evento: 3, comunicado: 1, festivos: 2, lecturas: 1 });
     expect(first.skipped['personas ficticias']).toBe(1);
     expect(get(db, 'SELECT 1 AS x FROM users WHERE id = ?', IDS.ficticia)).toBeUndefined();
     expect(get<{ n: number }>(db, 'SELECT COUNT(*) AS n FROM users WHERE password_hash IS NOT NULL')!.n).toBe(0);
