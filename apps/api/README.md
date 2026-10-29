@@ -152,9 +152,11 @@ La API carga `apps/api/.env` si existe; en producción se recomiendan variables 
   `SESION_CERRADA` (cerrada, revocada, cambio de rol o de contraseña) o `NO_AUTENTICADO`.
 - **Concurrencia editorial:** `PUT /api/contents/:id` y las transiciones exigen `revision` (el
   número recibido al cargar). Si otra persona guardó antes: 409 `CONFLICTO_REVISION`.
-- **Enlaces de correo:** la web debe implementar `/activar` y `/restablecer-contrasena`, leer el
-  token de `location.hash` (`#token=…`, nunca viaja al servidor en la URL) y enviarlo a
-  `POST /api/auth/activate` o `POST /api/auth/password/reset`.
+- **Enlaces de correo:** `APP_ORIGIN/#/activar?token=…` y `APP_ORIGIN/#/restablecer-contrasena?token=…`.
+  El token va en el fragmento (nunca viaja al servidor en la URL). Las pantallas «Activar la cuenta» y
+  «Nueva contraseña» de la web lo leen, lo quitan de la barra de direcciones, comprueban el enlace
+  (`POST /api/auth/activation/check` o `POST /api/auth/password/reset/check`) y lo envían con la
+  contraseña a `POST /api/auth/activate` o `POST /api/auth/password/reset`.
 - **Archivos:** formularios `multipart/form-data` con el campo `archivo` (y `datos` JSON para
   documentos nuevos, `nota` opcional para versiones). Las URL de archivo (`/api/files/:id`) solo
   funcionan con sesión.
@@ -369,8 +371,9 @@ neutralizadas, `Content-Disposition: attachment`) y la exportación queda en la 
 - **CSRF:** token por sesión en `X-CSRF-Token` (previo y en cookie `__Host-flm_csrf` para las
   rutas públicas) y comprobación de `Origin` (o `Referer`) contra `APP_ORIGIN`.
 - **Límites de frecuencia** (memoria, ventana deslizante, 429 con `Retry-After`): inicio de
-  sesión 5/15 min por IP+correo y 20/h por IP; recuperación 3/h por correo y 10/h por IP;
-  subidas 30/h por persona; general 300/min por IP.
+  sesión 5/15 min por IP+correo y 30 intentos fallidos/h por IP (los correctos no cuentan: una
+  oficina comparte IP); recuperación 3/h por correo y 10/h por IP; subidas 30/h por persona;
+  general 1.500/min por IP.
 - **Autorización** en todas las rutas con la matriz compartida, propiedad de borradores y
   protección del último administrador activo.
 - **Archivos:** tipo por cabecera mágica (`%PDF-`, JPEG, PNG, WebP), límites de 15 MB / 5 MB,

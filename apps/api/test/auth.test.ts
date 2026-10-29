@@ -6,7 +6,7 @@ import { EMAILS, IDS, NEW_PERSON_DATES } from './fixtures/seed';
 import { createTestEnv, DAY, HOUR, json, loginAs, MINUTE, PASSWORD, TestClient, type TestEnv } from './helpers';
 
 const tokenFrom = (text: string, page: 'activar' | 'restablecer-contrasena') => {
-  const match = new RegExp(`https://campus\\.test/${page}#token=([A-Za-z0-9_-]{43})`).exec(text);
+  const match = new RegExp(`https://campus\\.test/#/${page}\\?token=([A-Za-z0-9_-]{43})`).exec(text);
   expect(match, `enlace /${page} en el correo`).not.toBeNull();
   return match![1]!;
 };
@@ -305,8 +305,14 @@ describe('recuperación y cambio de contraseña', () => {
     await visitor.post('/api/auth/password/forgot', { email: EMAILS.empleado });
     await new Promise((r) => setTimeout(r, 0));
     const token = tokenFrom(env.mailer.last(EMAILS.empleado)!.text, 'restablecer-contrasena');
+    // La web comprueba el enlace antes de pedir la contraseña: el sustituido por otro más reciente, el válido y el usado se distinguen
+    expect((await json(await visitor.post('/api/auth/password/reset/check', { token: stale }))).error.code).toBe('ENLACE_NO_VALIDO');
+    const check = await visitor.post('/api/auth/password/reset/check', { token });
+    expect(check.status).toBe(200);
+    expect(await json(check)).toMatchObject({ valid: true, email: EMAILS.empleado });
     const reset = await visitor.post('/api/auth/password/reset', { token, password: 'NuevaClave2026x' });
     expect(reset.status).toBe(200);
+    expect((await json(await visitor.post('/api/auth/password/reset/check', { token }))).error.code).toBe('ENLACE_USADO');
     expect((await json(await visitor.post('/api/auth/password/reset', { token, password: 'OtraClave2026xx' }))).error.code).toBe('ENLACE_USADO');
 
     const res = await open.get('/api/me');

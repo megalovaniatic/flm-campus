@@ -18,8 +18,11 @@ const HOUR = 60 * MINUTE;
 export const RATE_RULES = {
   /** Inicio de sesión: 5 intentos cada 15 minutos por IP + correo. */
   loginIpEmail: { limit: 5, windowMs: 15 * MINUTE },
-  /** Inicio de sesión: 20 intentos por hora por IP. */
-  loginIp: { limit: 20, windowMs: HOUR },
+  /**
+   * Inicio de sesión: 30 intentos FALLIDOS por hora por IP. Los correctos no cuentan: en una oficina toda la
+   * plantilla sale a internet por la misma IP, y contarlos bloquearía a la persona 21 de cada mañana.
+   */
+  loginIpFailures: { limit: 30, windowMs: HOUR },
   /** Recuperación de contraseña: 3 solicitudes por hora por correo. */
   recoveryEmail: { limit: 3, windowMs: HOUR },
   /** Recuperación de contraseña: 10 solicitudes por hora por IP. */
@@ -28,8 +31,8 @@ export const RATE_RULES = {
   passwordChange: { limit: 5, windowMs: 15 * MINUTE },
   /** Subidas de archivos: 30 por hora por persona. */
   uploads: { limit: 30, windowMs: HOUR },
-  /** General: 300 peticiones por minuto por IP. */
-  general: { limit: 300, windowMs: MINUTE },
+  /** General: 1.500 peticiones por minuto por IP (una oficina entera comparte IP). */
+  general: { limit: 1500, windowMs: MINUTE },
 } satisfies Record<string, RateRule>;
 
 export interface RateResult {
@@ -70,6 +73,14 @@ export class RateLimiter {
 
   reset(key: string): void {
     this.hits.delete(key);
+  }
+
+  /** Devuelve el último intento anotado (p. ej., un inicio de sesión que ha resultado correcto). */
+  release(key: string): void {
+    const list = this.hits.get(key);
+    if (!list?.length) return;
+    list.pop();
+    if (!list.length) this.hits.delete(key);
   }
 
   /** Limpieza periódica de claves sin actividad reciente (máximo 1 hora de ventana). */

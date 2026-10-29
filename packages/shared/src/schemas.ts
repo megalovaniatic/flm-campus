@@ -384,8 +384,11 @@ export const personSchema = z.object({
 
 /* Entradas de la API */
 export const loginInput = z.object({ email: z.string().trim().toLowerCase().max(254), password: z.string().min(1).max(256) });
+/** Requisitos de la contraseña: los valida la API y la web los muestra mientras se escribe. */
+export const PASSWORD_MIN_LENGTH = 12;
+export const passwordChecks = (p: string) => ({ length: p.length >= PASSWORD_MIN_LENGTH, lettersAndNumbers: /[a-zA-ZÀ-ÿ]/.test(p) && /\d/.test(p) });
 export const passwordInput = z
   .string()
-  .min(12, 'La contraseña debe tener al menos 12 caracteres')
+  .min(PASSWORD_MIN_LENGTH, `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres`)
   .max(256)
-  .refine((p) => /[a-zA-ZÀ-ÿ]/.test(p) && /\d/.test(p), 'Combina letras y números');
+  .refine((p) => passwordChecks(p).lettersAndNumbers, 'Combina letras y números');

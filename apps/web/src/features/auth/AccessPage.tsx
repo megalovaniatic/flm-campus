@@ -1,15 +1,14 @@
-import { AnimatePresence, MotionConfig, motion, type Variants } from 'motion/react';
-import { ArrowLeft, ArrowRight, CircleAlert, CircleCheck, Eye, FlaskConical, KeyRound, LayoutDashboard, Lock, PenLine, ShieldCheck } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { ArrowLeft, ArrowRight, CircleAlert, CircleCheck, Eye, FlaskConical, KeyRound, LayoutDashboard, Lock, PenLine } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { CORPORATE_DOMAIN, isCorporateEmail, type Role } from '@flm/shared';
 import { Avatar, Button, Checkbox, Notice, TextField } from '@/design';
 import { DEMO_USER_ID, usePeople } from '@/data/selectors';
 import { useDemo } from '@/data/store';
-import { Logo } from '@/layout/Logo';
-import { asset } from '@/lib/download';
 import { MESSAGES } from '@/lib/messages';
-import { usePageTitle, usePreferenceEffects, useReducedMotionPref } from '@/lib/preferences';
+import { usePageTitle } from '@/lib/preferences';
+import { AccessFrame, rise } from './AccessFrame';
 import { AccessError, login, RECOVERY_MESSAGE, requestPasswordReset } from './authApi';
 import styles from './AccessPage.module.css';
 
@@ -23,11 +22,6 @@ function emailProblem(value: string): string | undefined {
   if (!isCorporateEmail(v)) return `Usa tu correo corporativo, el que termina en @${CORPORATE_DOMAIN}.`;
   return undefined;
 }
-
-const rise: Variants = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22, 1, 0.36, 1] } },
-};
 
 /* ── Entrada a la demostración ─────────────────────────────────────────── */
 
@@ -79,8 +73,8 @@ function DemoEntry({ onEnter }: { onEnter: (role: Role | null) => void }) {
 
 type View = 'login' | 'forgot' | 'sent';
 
-function PrivateAccess({ demo, onSignedIn }: { demo: boolean; onSignedIn: (userId: string) => void }) {
-  const [view, setView] = useState<View>('login');
+function PrivateAccess({ demo, initialView = 'login', onSignedIn }: { demo: boolean; initialView?: View; onSignedIn: (userId: string) => void }) {
+  const [view, setView] = useState<View>(initialView);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -259,12 +253,12 @@ function PrivateAccess({ demo, onSignedIn }: { demo: boolean; onSignedIn: (userI
 
 /** Pantalla de acceso independiente (sin la estructura común del campus). */
 export default function AccessPage() {
-  usePreferenceEffects();
   usePageTitle('Acceso');
-  const reduce = useReducedMotionPref();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const expired = params.get('caducada') === '1';
+  // Desde un enlace de recuperación caducado o usado: se abre directamente «Recuperar el acceso»
+  const recover = params.get('recuperar') === '1';
   const userId = useDemo((s) => s.userId);
   const signIn = useDemo((s) => s.signIn);
   const setRoleView = useDemo((s) => s.setRoleView);
@@ -278,77 +272,43 @@ export default function AccessPage() {
   };
 
   return (
-    <MotionConfig reducedMotion={reduce ? 'always' : 'user'}>
-      <div className={styles.page}>
-        <main className={styles.main}>
-          <motion.figure className={styles.art} initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
-            <img
-              src={asset('brand/flm-redes.png')}
-              alt="Pieza oficial de FLM para redes: las letras F, L y M en tres círculos blancos sobre grandes círculos translúcidos en rojo, burdeos y azul."
-              width={1073}
-              height={1073}
-              className={styles.artImg}
-              decoding="async"
-              fetchPriority="high"
-            />
-            <figcaption className={styles.caption}>Pieza oficial de FLM para redes sociales</figcaption>
-          </motion.figure>
+    <AccessFrame
+      title="Te damos la bienvenida a FLM Campus"
+      lede={
+        <>
+          Tu espacio para estar al día, compartir conocimiento y avanzar en FLM<span className="red-dot" aria-hidden="true" />
+        </>
+      }
+    >
+      {expired && (
+        <motion.div variants={rise}>
+          <Notice tone="warning" title={MESSAGES.sessionExpired.title} icon={<Lock size={18} />}>
+            {MESSAGES.sessionExpired.body}
+          </Notice>
+        </motion.div>
+      )}
 
-          <motion.div className={styles.panel} initial={reduce ? false : 'hidden'} animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06, delayChildren: 0.08 } } }}>
-            <motion.div variants={rise} className={styles.brand}>
-              <Logo variant="crowe" height={40} />
-            </motion.div>
-            <motion.div variants={rise} className={styles.intro}>
-              <p className="eyebrow">Campus · uso interno</p>
-              <h1 className={styles.title}>Te damos la bienvenida a FLM Campus</h1>
-              <p className={styles.lede}>
-                Tu espacio para estar al día, compartir conocimiento y avanzar en FLM<span className="red-dot" aria-hidden="true" />
-              </p>
-            </motion.div>
+      {current && !expired && (
+        <motion.div variants={rise}>
+          <Notice tone="info" icon={<CircleCheck size={18} />}>
+            Ya has entrado como {current.name}.{' '}
+            <Link to="/" className={styles.inlineLink}>
+              Continuar en el campus
+            </Link>
+          </Notice>
+        </motion.div>
+      )}
 
-            {expired && (
-              <motion.div variants={rise}>
-                <Notice tone="warning" title={MESSAGES.sessionExpired.title} icon={<Lock size={18} />}>
-                  {MESSAGES.sessionExpired.body}
-                </Notice>
-              </motion.div>
-            )}
+      {__DEMO__ && !recover && <DemoEntry onEnter={enterDemo} />}
 
-            {current && !expired && (
-              <motion.div variants={rise}>
-                <Notice tone="info" icon={<CircleCheck size={18} />}>
-                  Ya has entrado como {current.name}.{' '}
-                  <Link to="/" className={styles.inlineLink}>
-                    Continuar en el campus
-                  </Link>
-                </Notice>
-              </motion.div>
-            )}
-
-            {__DEMO__ && <DemoEntry onEnter={enterDemo} />}
-
-            <PrivateAccess
-              demo={__DEMO__}
-              onSignedIn={(id) => {
-                signIn(id);
-                navigate('/', { replace: true });
-              }}
-            />
-
-            <motion.div variants={rise} className={styles.foot}>
-              <p>
-                <ShieldCheck size={15} aria-hidden="true" /> Solo usamos cookies técnicas para mantener la sesión. Sin analítica ni seguimiento.
-              </p>
-              <p>
-                FLM · Barcelona · Vic · Granollers ·{' '}
-                <a href="https://flmexperts.com/" target="_blank" rel="noreferrer">
-                  flmexperts.com<span className="sr-only"> (se abre en una pestaña nueva)</span>
-                </a>
-              </p>
-            </motion.div>
-          </motion.div>
-        </main>
-      </div>
-    </MotionConfig>
+      <PrivateAccess
+        demo={__DEMO__}
+        initialView={recover ? 'forgot' : 'login'}
+        onSignedIn={(id) => {
+          signIn(id);
+          navigate('/', { replace: true });
+        }}
+      />
+    </AccessFrame>
   );
 }

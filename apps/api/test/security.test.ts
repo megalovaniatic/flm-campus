@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { EMAILS, IDS } from './fixtures/seed';
+import { RATE_RULES } from '../src/middleware/rate-limit';
 import { createTestEnv, fileForm, json, loginAs, MINUTE, PASSWORD, PNG_BYTES, TestClient, type TestEnv } from './helpers';
 
 describe('cabeceras de seguridad', () => {
@@ -98,15 +99,37 @@ describe('límites de frecuencia', () => {
     expect((await client.post('/api/auth/login', { email: EMAILS.empleado, password: PASSWORD })).status).toBe(200);
   });
 
-  it('inicio de sesión: 20 intentos por hora por IP', async () => {
+  it('inicio de sesión: 30 intentos fallidos por hora por IP', async () => {
     const client = new TestClient(env.app);
     await client.init();
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < RATE_RULES.loginIpFailures.limit; i++) {
       expect((await client.post('/api/auth/login', { email: `intento${i}@flmexperts.com`, password: 'Equivocada2026' })).status).toBe(401);
     }
     const blocked = await client.post('/api/auth/login', { email: EMAILS.admin, password: PASSWORD });
     expect(blocked.status).toBe(429);
     expect(Number(blocked.headers.get('retry-after'))).toBeGreaterThan(55 * 60);
+  });
+
+  it('una ráfaga simultánea de intentos fallidos no supera el límite por IP', async () => {
+    const client = new TestClient(env.app);
+    client.ip = '203.0.113.99';
+    await client.init();
+    const limit = RATE_RULES.loginIpFailures.limit;
+    const res = await Promise.all(Array.from({ length: limit + 5 }, (_, i) => client.post('/api/auth/login', { email: `rafaga${i}@flmexperts.com`, password: 'Equivocada2026' })));
+    expect(res.filter((r) => r.status === 401)).toHaveLength(limit);
+    expect(res.filter((r) => r.status === 429)).toHaveLength(5);
+  });
+
+  it('una oficina detrás de una sola IP: los inicios correctos no cuentan para el límite por IP', async () => {
+    // 40 inicios correctos seguidos desde la misma IP (antes, el 21.º recibía 429), con algún fallo entre medias
+    const accounts = [EMAILS.empleado, EMAILS.autor, EMAILS.admin];
+    for (let i = 0; i < 40; i++) {
+      const person = new TestClient(env.app);
+      person.ip = '203.0.113.10';
+      await person.init();
+      if (i % 10 === 0) expect((await person.post('/api/auth/login', { email: accounts[i % 3], password: 'Equivocada2026' })).status).toBe(401);
+      expect((await person.post('/api/auth/login', { email: accounts[i % 3], password: PASSWORD })).status, `inicio ${i + 1}`).toBe(200);
+    }
   });
 
   it('recuperación: 3 por hora por correo y 10 por hora por IP', async () => {
@@ -122,10 +145,11 @@ describe('límites de frecuencia', () => {
     expect(byIp.headers.get('retry-after')).not.toBeNull();
   });
 
-  it('general: 300 peticiones por minuto por IP', async () => {
+  it('general: 1.500 peticiones por minuto por IP', async () => {
     const client = new TestClient(env.app);
     client.ip = '198.51.100.200';
-    for (let i = 0; i < 300; i++) expect((await client.get('/api/health')).status).toBe(200);
+    expect(RATE_RULES.general.limit).toBe(1500);
+    for (let i = 0; i < RATE_RULES.general.limit; i++) expect((await client.get('/api/health')).status).toBe(200);
     const blocked = await client.get('/api/health');
     expect(blocked.status).toBe(429);
     expect(Number(blocked.headers.get('retry-after'))).toBeLessThanOrEqual(60);
@@ -187,6 +211,7 @@ describe('autorización en todas las rutas', () => {
     'POST /api/auth/activation/check',
     'POST /api/auth/activate',
     'POST /api/auth/password/forgot',
+    'POST /api/auth/password/reset/check',
     'POST /api/auth/password/reset',
   ]);
 

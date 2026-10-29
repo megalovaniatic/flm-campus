@@ -77,9 +77,13 @@ export function authRoutes(ctx: AppContext) {
   r.post('/login', async (c) => {
     const input = await jsonBody(c, loginInput);
     const ip = c.get('clientIp');
+    // Por IP y correo cuenta cada intento (se pone a cero al acertar); por IP, solo los fallidos. Los dos se
+    // anotan antes de comprobar la contraseña, para que una ráfaga simultánea no se cuele, y el correcto se devuelve.
+    const pairKey = `login:${ip}:${input.email}`;
+    const failuresKey = `login-fallos:${ip}`;
     const keys = [
-      { key: `login:${ip}:${input.email}`, rule: RATE_RULES.loginIpEmail },
-      { key: `login:${ip}`, rule: RATE_RULES.loginIp },
+      { key: pairKey, rule: RATE_RULES.loginIpEmail },
+      { key: failuresKey, rule: RATE_RULES.loginIpFailures },
     ];
     for (const { key, rule } of keys) {
       const check = limiter.check(key, rule);
@@ -87,7 +91,8 @@ export function authRoutes(ctx: AppContext) {
         throw tooManyRequests(`Demasiados intentos de inicio de sesión. Espera ${waitText(check.retryAfterSec)} y vuelve a intentarlo.`, check.retryAfterSec);
       }
     }
-    for (const { key, rule } of keys) limiter.consume(key, rule);
+    limiter.consume(pairKey, RATE_RULES.loginIpEmail);
+    limiter.consume(failuresKey, RATE_RULES.loginIpFailures);
 
     const now = ctx.now();
     const user = getUserByEmail(db, input.email);
@@ -104,7 +109,8 @@ export function authRoutes(ctx: AppContext) {
       audit(db, { actorId: user.id, action: 'sesion.inicio-rechazado', entity: 'persona', entityId: user.id, detail: 'Cuenta desactivada', ip }, now);
       throw new HttpError(403, 'CUENTA_DESACTIVADA', 'Tu cuenta está desactivada. Si crees que es un error, contacta con administración.');
     }
-    limiter.reset(keys[0]!.key);
+    limiter.reset(pairKey);
+    limiter.release(failuresKey);
     if (needsRehash(user.password_hash)) {
       run(db, 'UPDATE users SET password_hash = ? WHERE id = ?', await hashPassword(input.password), user.id);
     }
@@ -179,6 +185,14 @@ export function authRoutes(ctx: AppContext) {
       void ctx.mailer.send(resetEmail(user.email, user.name, resetUrl(ctx.config.appOrigin, token)));
     }
     return c.json({ message: GENERIC_RECOVERY_MESSAGE }, 202);
+  });
+
+  /** Comprueba un enlace de recuperación antes de mostrar el formulario de la nueva contraseña. */
+  r.post('/password/reset/check', async (c) => {
+    const { token } = await jsonBody(c, z.object({ token: tokenField }));
+    const row = findAuthToken(db, token, 'recuperacion', ctx.now().getTime());
+    const user = requireUserRow(db, row.user_id);
+    return c.json({ valid: true, email: user.email, name: user.name, expiresAt: new Date(row.expires_at).toISOString() });
   });
 
   /** Restablecimiento con el enlace de 30 minutos: cierra todas las sesiones de la cuenta. */

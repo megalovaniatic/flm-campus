@@ -66,6 +66,32 @@ export async function requestPasswordReset(email: string): Promise<string> {
   return typeof body.message === 'string' ? body.message : RECOVERY_MESSAGE;
 }
 
+/** Enlaces de los correos: activar la cuenta (7 días) o crear una contraseña nueva (30 minutos). */
+export type AccountLink = 'activar' | 'restablecer';
+
+/** Errores de un enlace que no sirve: la pantalla deja de pedir la contraseña y explica qué hacer. */
+export const LINK_ERRORS = new Set(['ENLACE_NO_VALIDO', 'ENLACE_USADO', 'ENLACE_CADUCADO', 'CUENTA_DESACTIVADA']);
+
+/** Comprueba el enlace antes de pedir la contraseña. Devuelve a quién pertenece. */
+export async function checkAccountLink(kind: AccountLink, token: string): Promise<{ name: string; email: string; expiresAt: string }> {
+  const body = await post(kind === 'activar' ? '/auth/activation/check' : '/auth/password/reset/check', { token });
+  return { name: String(body.name ?? ''), email: String(body.email ?? ''), expiresAt: String(body.expiresAt ?? '') };
+}
+
+/** Activa la cuenta con la contraseña elegida; la API abre la sesión. Devuelve la persona. */
+export async function activateAccount(token: string, password: string): Promise<{ id: string; name: string }> {
+  const body = await post('/auth/activate', { token, password });
+  const user = body.user as { id: string; name: string } | undefined;
+  if (!user) throw new AccessError('La respuesta del servidor no es válida. Inténtalo de nuevo.');
+  return user;
+}
+
+/** Guarda la contraseña nueva; la API cierra todas las sesiones de la cuenta. Devuelve el mensaje. */
+export async function resetPassword(token: string, password: string): Promise<string> {
+  const body = await post('/auth/password/reset', { token, password });
+  return typeof body.message === 'string' ? body.message : 'Contraseña restablecida. Inicia sesión con la nueva contraseña.';
+}
+
 /** Mismo texto genérico que devuelve la API (apps/api/src/routes/auth.ts). */
 export const RECOVERY_MESSAGE =
   'Si existe una cuenta activa con ese correo, recibirás en unos minutos un enlace para restablecer la contraseña. El enlace caduca a los 30 minutos.';

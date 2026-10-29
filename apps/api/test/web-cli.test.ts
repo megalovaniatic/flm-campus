@@ -102,7 +102,7 @@ describe('herramientas de línea de órdenes (compiladas con esbuild)', () => {
 
     const ok = runCli('create-admin.mjs', ['--email', 'Direccion@flmexperts.com', '--nombre', 'Dirección FLM', ...dates]);
     expect(ok.status, ok.stderr).toBe(0);
-    expect(ok.stdout).toMatch(/https:\/\/campus\.test\/activar#token=[A-Za-z0-9_-]{43}/);
+    expect(ok.stdout).toMatch(/https:\/\/campus\.test\/#\/activar\?token=[A-Za-z0-9_-]{43}/);
     expect(ok.stdout).toContain('cumpleaños el 26 de noviembre; incorporación el 1 de septiembre de 2026');
     const db = openDatabase(env.DATABASE_PATH!);
     const users = all<{ email: string; role: string; password_hash: string | null; birthday: string; start_date: string }>(db, 'SELECT email, role, password_hash, birthday, start_date FROM users');

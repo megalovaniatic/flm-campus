@@ -1,13 +1,12 @@
 import type { MailMessage } from './mailer';
 
 /**
- * Plantillas de correo (texto plano). Los enlaces llevan el token en el fragmento (#token=…):
- * el fragmento no se envía al servidor ni aparece en registros de acceso o en la cabecera Referer.
- * La web debe implementar las páginas `/activar` y `/restablecer-contrasena`, leer el token de
- * `location.hash` y enviarlo a la API.
+ * Plantillas de correo (texto plano). Los enlaces van a las páginas de la web, que usa rutas en el
+ * fragmento (`#/activar?token=…`): el token no se envía al servidor ni aparece en registros de acceso
+ * o en la cabecera Referer. La web lo lee, lo quita de la barra de direcciones y lo envía a la API.
  */
-export const activationUrl = (origin: string, token: string) => `${origin}/activar#token=${token}`;
-export const resetUrl = (origin: string, token: string) => `${origin}/restablecer-contrasena#token=${token}`;
+export const activationUrl = (origin: string, token: string) => `${origin}/#/activar?token=${token}`;
+export const resetUrl = (origin: string, token: string) => `${origin}/#/restablecer-contrasena?token=${token}`;
 
 const signature = '\n\n—\nFLM Campus · Plataforma interna de formación de FLM\nEste mensaje se ha generado automáticamente; no respondas a esta dirección.';
 

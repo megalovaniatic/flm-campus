@@ -6,7 +6,7 @@ import { eventPhase, eventToIcs, nextSession } from './events';
 import { assessmentClashReason, can, canHandleType, checkTransition, CREATABLE_TYPES, isCorporateEmail, ROLE_PERMISSIONS, STATUS_LABEL_EDITORIAL } from './permissions';
 import { birthdayKey, birthdayLabel, isValidBirthday, isValidDateKey, latestStartDate, missingPersonalDates, startDateLimitIssue } from './personalDates';
 import { formationStatus, gradeQuiz } from './progress';
-import { blockSchema, editorialSchema, newClientSchema, personalDatesSchema, welcomeSchema } from './schemas';
+import { blockSchema, editorialSchema, newClientSchema, passwordChecks, passwordInput, personalDatesSchema, welcomeSchema } from './schemas';
 import { countryCode } from './countries';
 import { normalize, slugify } from './text';
 import type { CampusEvent, Person, Quiz } from './types';
@@ -256,5 +256,16 @@ describe('texto', () => {
   it('normaliza tildes y conserva la ñ', () => {
     expect(normalize('Ámbito ESPAÑOL')).toBe('ambito español');
     expect(slugify('Cuándo derivar a Mercantil')).toBe('cuando-derivar-a-mercantil');
+  });
+});
+
+describe('contraseña', () => {
+  it('los requisitos que ve la persona son los mismos que valida la API', () => {
+    for (const p of ['corta1', 'solamenteletras', '123456789012', 'DoceCaracteres1', 'añoBisiesto2028']) {
+      const c = passwordChecks(p);
+      expect(passwordInput.safeParse(p).success, p).toBe(c.length && c.lettersAndNumbers);
+    }
+    expect(passwordChecks('DoceCaracteres1')).toEqual({ length: true, lettersAndNumbers: true });
+    expect(passwordChecks('123456789012')).toEqual({ length: true, lettersAndNumbers: false });
   });
 });

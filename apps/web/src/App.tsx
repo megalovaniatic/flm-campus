@@ -23,6 +23,17 @@ const router = createHashRouter([
     element: page(() => import('./features/auth/AccessPage')),
     errorElement: <RouteError standalone />,
   },
+  // Enlaces de los correos de la API (activar la cuenta y crear una contraseña nueva)
+  {
+    path: '/activar',
+    element: page(() => import('./features/auth/AccountLinkPage')),
+    errorElement: <RouteError standalone />,
+  },
+  {
+    path: '/restablecer-contrasena',
+    element: page(() => import('./features/auth/AccountLinkPage')),
+    errorElement: <RouteError standalone />,
+  },
   {
     path: '/',
     element: <AppShell />,

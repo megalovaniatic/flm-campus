@@ -346,6 +346,43 @@
 }
 
 /* ── Adaptación ────────────────────────────────────────────────────────── */
+/* Requisitos de la contraseña, a la vista mientras se escribe */
+.checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink-2);
+}
+
+.check[data-met] {
+  color: var(--success);
+  font-weight: 560;
+}
+
+.spin {
+  vertical-align: -3px;
+  margin-right: 4px;
+  animation: acceso-giro 1s linear infinite;
+}
+
+@keyframes acceso-giro {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+}
+
 @media (max-width: 1023px) {
   .main {
     grid-template-columns: minmax(0, 1fr);
