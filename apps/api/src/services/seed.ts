@@ -6,20 +6,24 @@ import {
   eventSchema,
   formationSchema,
   holidaySchema,
+  newClientSchema,
   newsSchema,
   personSchema,
   readingSchema,
+  welcomeSchema,
   type CampusEvent,
   type ContentType,
   type EditorialMeta,
   type LibraryDocument,
   type SeedData,
+  type Welcome,
 } from '@flm/shared';
 import type { z } from 'zod';
 import { newId } from '../auth/tokens';
 import { all, get, run, transaction, type Db } from '../db/database';
 import { formatIssues } from '../lib/validation';
 import { audit } from './audit';
+import { storedPayload, WELCOME_TITLE } from './content';
 import { MAX_PDF_BYTES, registerFile, type FileStorage, type StoredFile } from './files';
 
 /**
@@ -41,8 +45,8 @@ export interface SeedOptions {
   /** Carpetas donde buscar los archivos de `documents[].versions[].file`. */
   filesDirs?: string[];
   /**
-   * Importar también las personas ficticias de la demostración (`fictional: true`).
-   * Por defecto no se importan: en producción solo deben existir cuentas reales.
+   * Importar también las personas y los clientes ficticios de la demostración (`fictional: true`).
+   * Por defecto no se importan: en producción solo deben existir cuentas y clientes reales.
    */
   includeFictional?: boolean;
 }
@@ -65,6 +69,8 @@ function validateAll(seed: SeedData): string[] {
     ...seed.readings.map((v) => ({ kind: 'lectura', id: v.id, schema: readingSchema, value: v })),
     ...seed.events.map((v) => ({ kind: 'evento', id: v.id, schema: eventSchema, value: v })),
     ...seed.holidays.map((v) => ({ kind: 'festivo', id: v.date, schema: holidaySchema, value: v })),
+    ...seed.clients.map((v) => ({ kind: 'cliente', id: v.id, schema: newClientSchema, value: v })),
+    ...seed.welcomes.map((v) => ({ kind: 'bienvenida', id: v.id, schema: welcomeSchema, value: v })),
   ];
   const problems: string[] = [];
   for (const item of items) {
@@ -76,15 +82,18 @@ function validateAll(seed: SeedData): string[] {
     if (emails.has(p.email)) problems.push(`persona ${p.id} · email: correo duplicado`);
     emails.add(p.email);
   }
+  // Una evaluación del área por área, y eventos y comunicados con slugs distintos (comparten la dirección de la agenda).
+  const areas = new Set<string>();
+  for (const a of seed.assessments) {
+    if (areas.has(a.area)) problems.push(`evaluación ${a.id} · area: el área ya tiene otra evaluación`);
+    areas.add(a.area);
+  }
+  const agenda = new Set<string>();
+  for (const e of seed.events) {
+    if (agenda.has(e.slug)) problems.push(`evento ${e.id} · slug: otro evento o comunicado ya usa la dirección «${e.slug}»`);
+    agenda.add(e.slug);
+  }
   return problems;
-}
-
-const SERVER_FIELDS = ['id', 'editorial', 'versions', 'kind', 'archived', 'manualPhase'];
-
-function storedPayload(item: object): string {
-  const out: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(item)) if (!SERVER_FIELDS.includes(k)) out[k] = v;
-  return JSON.stringify(out);
 }
 
 export async function importSeed(db: Db, seed: SeedData, opts: SeedOptions): Promise<SeedReport> {
@@ -131,9 +140,14 @@ export async function importSeed(db: Db, seed: SeedData, opts: SeedOptions): Pro
 
   try {
     transaction(db, () => {
-      // 2. Personas (sin contraseña: deben activar la cuenta con un enlace).
+      // 2. Personas (sin contraseña: deben activar la cuenta con un enlace). Si la persona ya tiene cuenta,
+      //    por su identificador o por su correo (p. ej. la primera administradora, creada con create-admin
+      //    y un identificador aleatorio), no se duplica: lo suyo de la semilla se atribuye a esa cuenta.
+      const accountOf = new Map<string, string>();
       for (const p of people) {
-        if (exists('users', p.id) || get(db, 'SELECT 1 AS x FROM users WHERE email = ?', p.email)) {
+        const existing = get<{ id: string }>(db, 'SELECT id FROM users WHERE id = ?', p.id) ?? get<{ id: string }>(db, 'SELECT id FROM users WHERE email = ?', p.email);
+        if (existing) {
+          accountOf.set(p.id, existing.id);
           count('skipped', 'personas');
           continue;
         }
@@ -157,17 +171,18 @@ export async function importSeed(db: Db, seed: SeedData, opts: SeedOptions): Pro
         count('created', 'personas');
       }
 
-      const fallbackAuthor =
-        people.find((p) => p.role === 'admin' && p.status === 'activa')?.id ??
-        get<{ id: string }>(db, "SELECT id FROM users WHERE role = 'admin' AND anonymized_at IS NULL ORDER BY created_at LIMIT 1")?.id;
-      const reassigned = new Map<string, number>();
-      const authorFor = (authorId: string | undefined, what: string): string => {
-        if (authorId && exists('users', authorId)) return authorId;
-        if (!fallbackAuthor) {
-          throw new SeedValidationError([`${what}: no hay ninguna persona administradora a la que atribuir el contenido. Crea antes una con «npm run create-admin».`]);
-        }
-        if (authorId) reassigned.set(authorId, (reassigned.get(authorId) ?? 0) + 1);
-        return fallbackAuthor;
+      /** Cuenta de la plataforma de una persona de la semilla (la que ya tenía con su correo, si es el caso). */
+      const accountFor = (personId: string) => accountOf.get(personId) ?? personId;
+      const seedPeople = new Set(seed.people.map((p) => p.id));
+
+      // Contenido de una persona que no está en la plataforma: se importa sin autoría (firma neutra),
+      // nunca atribuido a otra persona.
+      const unattributed = new Map<string, number>();
+      const authorFor = (authorId: string | undefined): string | null => {
+        if (!authorId) return null;
+        if (exists('users', accountFor(authorId))) return accountFor(authorId);
+        unattributed.set(authorId, (unattributed.get(authorId) ?? 0) + 1);
+        return null;
       };
 
       const insertContent = (
@@ -185,19 +200,18 @@ export async function importSeed(db: Db, seed: SeedData, opts: SeedOptions): Pro
         const published = status === 'publicado' || status === 'archivado';
         run(
           db,
-          `INSERT INTO contents (id, type, slug, title, area, status, author_id, payload, revision, version, review, return_comment, manual_phase, published_at, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO contents (id, type, slug, title, area, status, author_id, payload, revision, version, review, manual_phase, published_at, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?)`,
           item.id,
           type,
           meta.slug,
           meta.title,
           meta.area,
           status,
-          authorFor(editorial?.authorId, `${type} ${item.id}`),
-          storedPayload(item),
+          authorFor(editorial?.authorId),
+          storedPayload(type, item),
           meta.version,
           JSON.stringify(editorial?.review ?? { state: published ? 'revisado' : 'pendiente' }),
-          editorial?.returnComment ?? null,
           extra.manualPhase ?? null,
           editorial?.publishedAt ?? (published ? nowIso : null),
           editorial?.publishedAt ?? nowIso,
@@ -207,11 +221,35 @@ export async function importSeed(db: Db, seed: SeedData, opts: SeedOptions): Pro
         return true;
       };
 
-      // 3. Contenidos.
+      // Una base sembrada con una versión anterior de la carga guardó noticias y documentos sin su clase
+      // (`kind`): al volver a sembrar se repone desde la semilla, solo si falta (nunca se pisa nada).
+      const restoreKind = (type: 'noticia' | 'documento', item: { id: string; kind: string }) => {
+        const fixed = run(db, "UPDATE contents SET payload = json_set(payload, '$.kind', ?) WHERE id = ? AND type = ? AND json_type(payload, '$.kind') IS NULL", item.kind, item.id, type);
+        if (!fixed) return;
+        count('created', 'clases repuestas');
+        report.warnings.push(`${type === 'noticia' ? 'Noticia' : 'Documento'} ${item.id}: se repone su clase («${item.kind}»), que una versión anterior de la carga no guardó.`);
+      };
+
+      // 3. Contenidos. Las reglas de la plataforma también valen aquí: una evaluación vigente por área y
+      //    un solo espacio de slugs para la agenda (lo que choque con lo ya creado no se importa y se avisa).
       for (const f of seed.formations) insertContent('formacion', f, { title: f.title, area: f.area, slug: f.slug, version: f.version }, f.editorial);
-      for (const a of seed.assessments) insertContent('test', a, { title: a.title, area: a.area, slug: null, version: 1 }, undefined, { status: 'publicado' });
-      for (const n of seed.news) insertContent('noticia', n, { title: n.headline, area: n.area, slug: n.slug, version: 1 }, n.editorial);
+      for (const a of seed.assessments) {
+        if (!exists('contents', a.id) && get(db, "SELECT 1 AS x FROM contents WHERE type = 'test' AND area = ? AND status <> 'archivado'", a.area)) {
+          count('skipped', 'evaluaciones de un área que ya tiene una');
+          report.warnings.push(`Evaluación ${a.id}: el área ya tiene una evaluación vigente en la plataforma; no se importa.`);
+          continue;
+        }
+        insertContent('test', a, { title: a.title, area: a.area, slug: null, version: 1 }, undefined, { status: 'publicado' });
+      }
+      for (const n of seed.news) {
+        if (!insertContent('noticia', n, { title: n.headline, area: n.area, slug: n.slug, version: 1 }, n.editorial)) restoreKind('noticia', n);
+      }
       for (const e of seed.events as CampusEvent[]) {
+        if (!exists('contents', e.id) && get(db, "SELECT 1 AS x FROM contents WHERE type IN ('evento', 'comunicado') AND slug = ?", e.slug)) {
+          count('skipped', 'eventos con la dirección ocupada');
+          report.warnings.push(`Evento ${e.id}: otro evento o comunicado ya usa la dirección «${e.slug}»; no se importa.`);
+          continue;
+        }
         insertContent(e.kind, e, { title: e.title, area: null, slug: e.slug, version: 1 }, e.editorial, {
           status: e.archived ? 'archivado' : e.editorial.status,
           manualPhase: e.manualPhase ?? null,
@@ -219,10 +257,17 @@ export async function importSeed(db: Db, seed: SeedData, opts: SeedOptions): Pro
       }
       for (const d of seed.documents as LibraryDocument[]) {
         const created = insertContent('documento', d, { title: d.title, area: d.area, slug: null, version: 1 }, d.editorial);
-        if (!created) continue;
+        if (!created) {
+          restoreKind('documento', d);
+          continue;
+        }
         for (const v of d.versions) {
           const stored = storedFiles.get(`${d.id}#${v.version}`);
           if (stored) registerFile(db, stored, 'documento', null, nowIso);
+          // `uploadedBy` es una persona de la semilla (su cuenta, si está en la plataforma) o un texto
+          // libre («Administración»). El identificador de una persona nunca se guarda como nombre: sin
+          // cuenta, la versión lleva la firma neutra.
+          const uploader = exists('users', accountFor(v.uploadedBy)) ? accountFor(v.uploadedBy) : null;
           run(
             db,
             `INSERT INTO document_versions (content_id, version, file_id, original_file, size_kb, pages, note, uploaded_at, uploaded_by, uploaded_by_name)
@@ -235,13 +280,34 @@ export async function importSeed(db: Db, seed: SeedData, opts: SeedOptions): Pro
             v.pages ?? null,
             v.note ?? null,
             v.uploadedAt,
-            exists('users', v.uploadedBy) ? v.uploadedBy : null,
-            exists('users', v.uploadedBy) ? null : v.uploadedBy,
+            uploader,
+            uploader || seedPeople.has(v.uploadedBy) ? null : v.uploadedBy,
           );
         }
       }
 
-      // 4. Festivos y lecturas.
+      // 4. «Ponte al día»: nuevos clientes (los ficticios de la demo, solo con --incluir-ficticias) y
+      //    bienvenidas (solo a personas activas que ya estén en la plataforma, una por persona).
+      for (const client of seed.clients) {
+        if (client.fictional && !opts.includeFictional) {
+          count('skipped', 'clientes ficticios');
+          continue;
+        }
+        insertContent('cliente', client, { title: client.name, area: client.area, slug: null, version: 1 }, client.editorial);
+      }
+      for (const welcome of seed.welcomes) {
+        const personId = accountFor(welcome.personId);
+        const person = get<{ id: string }>(db, "SELECT id FROM users WHERE id = ? AND status = 'activa' AND anonymized_at IS NULL", personId);
+        const taken = get(db, "SELECT 1 AS x FROM contents WHERE type = 'bienvenida' AND id <> ? AND json_extract(payload, '$.personId') = ?", welcome.id, personId);
+        if (!person || taken) {
+          count('skipped', 'bienvenidas sin persona');
+          continue;
+        }
+        const forAccount: Welcome = { ...welcome, personId };
+        insertContent('bienvenida', forAccount, { title: WELCOME_TITLE, area: null, slug: null, version: 1 }, welcome.editorial);
+      }
+
+      // 5. Festivos y lecturas.
       for (const h of seed.holidays) {
         const changed = run(
           db,
@@ -260,8 +326,8 @@ export async function importSeed(db: Db, seed: SeedData, opts: SeedOptions): Pro
         count(changed ? 'created' : 'skipped', 'lecturas');
       }
 
-      for (const [authorId, n] of reassigned) {
-        report.warnings.push(`La persona autora «${authorId}» no existe en la plataforma: ${n} contenidos se atribuyen a ${fallbackAuthor}.`);
+      for (const [authorId, n] of unattributed) {
+        report.warnings.push(`La persona autora «${authorId}» no existe en la plataforma: ${n} ${n === 1 ? 'contenido se importa' : 'contenidos se importan'} sin autoría (firma neutra).`);
       }
       audit(db, { actorId: null, action: 'semilla.importar', entity: 'sistema', detail: JSON.stringify(report.created) }, opts.now);
     });

@@ -3,18 +3,19 @@ import { useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import { AREAS, currentAttempts, formationStatus, isAreaId, type Formation, type GradeResult } from '@flm/shared';
 import { ButtonLink, EmptyState, Notice, StatusGlyph } from '@/design';
-import { useFormations } from '@/data/selectors';
+import { useByline, useFormations } from '@/data/selectors';
 import { now, uid, useDemo } from '@/data/store';
 import { MESSAGES } from '@/lib/messages';
 import { usePageTitle } from '@/lib/preferences';
 import { Escalon } from '@/motion/Escalon';
-import { bestOf, formationPath, nextFormation, photoOf, sectionForRef, toSections, useLearnFormation, usePerson } from './common/data';
+import { bestOf, formationPath, nextFormation, photoOf, sectionForRef, toSections, useLearnFormation } from './common/data';
 import { QuizEngine, RetryButton, ReviewButton, type ResultApi } from './quiz/QuizEngine';
 import { QuizHeader } from './quiz/QuizHeader';
 import styles from './QuizPage.module.css';
 
 function FormationQuiz({ f, isSample }: { f: Formation; isSample: boolean }) {
-  const author = usePerson(f.editorial.authorId);
+  // Firma de las notas al margen: la persona autora o, sin ella (perfil eliminado), «Área … de FLM».
+  const byline = useByline(f.editorial.authorId, { type: 'test', area: f.area });
   const progress = useDemo((s) => s.progress[f.id]);
   const allProgress = useDemo((s) => s.progress);
   const addAttempt = useDemo((s) => s.addAttempt);
@@ -128,7 +129,7 @@ function FormationQuiz({ f, isSample }: { f: Formation; isSample: boolean }) {
       <QuizEngine
         quiz={f.quiz}
         variant="circles"
-        signature={author ? { name: author.name, role: author.position, photo: photoOf(author) } : { name: `Área ${area.name} de FLM`, area: f.area }}
+        signature={byline.kind === 'persona' ? { name: byline.person.name, role: byline.person.position, photo: photoOf(byline.person) } : { name: byline.name, area: f.area }}
         refHref={refHref}
         onFinish={(g, answers) => addAttempt(f.id, { id: uid(), quizId: f.quiz.id, version: f.version, at: now(), answers, correct: g.correct, total: g.total, passed: g.passed })}
         renderResult={renderResult}

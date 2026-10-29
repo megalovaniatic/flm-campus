@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { CalendarRange, Check, ChevronDown, ChevronLeft, ChevronRight, ListFilter } from 'lucide-react';
+import { ArrowRight, CalendarRange, Check, ChevronDown, ChevronLeft, ChevronRight, ListFilter } from 'lucide-react';
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
-import { useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import {
   addDays,
   addMonthsClamped,
@@ -15,15 +15,17 @@ import {
   weekdayName,
   type CalendarKind,
   type CalendarSources,
+  type CampusEvent,
 } from '@flm/shared';
 import { Button, ButtonLink, Dialog, EmptyState, IconButton, Kbd, Notice, PageHeader } from '@/design';
 import { holidays, useEvents } from '@/data/selectors';
 import { MESSAGES } from '@/lib/messages';
 import { usePageTitle, useReducedMotionPref } from '@/lib/preferences';
 import { countLabel, indexMonths, KIND_ORDER, shiftMonth } from './calendarView';
+import { DateMark } from './DateMark';
 import { DayEntries } from './DayEntries';
-import { capitalize } from './eventView';
-import { useMediaQuery, useToday } from './hooks';
+import { capitalize, eventTiming, nextFeaturedEvent, partitionEvents } from './eventView';
+import { useMediaQuery, useNow, useToday } from './hooks';
 import { KindIcon } from './icons';
 import { MonthGrid } from './MonthGrid';
 import { WeekStrip } from './WeekStrip';
@@ -41,6 +43,7 @@ export default function CalendarPage() {
   usePageTitle('Calendario');
   const [params] = useSearchParams();
   const today = useToday();
+  const now = useNow(today);
   const events = useEvents();
   const reduce = useReducedMotionPref();
   const isMobile = useMediaQuery('(max-width: 719px)');
@@ -56,6 +59,7 @@ export default function CalendarPage() {
   const meetings = useMemo(() => events.filter((e) => e.kind !== 'comunicado'), [events]);
   const eventsById = useMemo(() => new Map(events.map((e) => [e.id, e])), [events]);
   const sources = useMemo<CalendarSources>(() => ({ holidays, events: meetings }), [meetings]);
+  const featured = useMemo(() => nextFeaturedEvent(partitionEvents(events, now).upcoming, now), [events, now]);
 
   const [initial] = useState(() => {
     const dia = params.get('dia');
@@ -194,8 +198,13 @@ export default function CalendarPage() {
   const selEyebrow = Math.abs(selDiff) < 7 ? capitalize(relativeDay(selected, today)) : 'Día seleccionado';
   const selTitle = `${capitalize(formatWeekdayDate(selected))}${selected.slice(0, 4) !== today.slice(0, 4) ? ` de ${selected.slice(0, 4)}` : ''}`;
 
+  // Día sin entradas (ni ocultas por los filtros): en lugar del vacío, lo siguiente de la agenda
+  const upNext = selEntries.length === 0 && hidden === 0 && featured && kinds.has('encuentro') ? featured : undefined;
+
   const dayBody = selEntries.length ? (
     <DayEntries entries={selEntries} eventsById={eventsById} />
+  ) : upNext ? (
+    <NextBlock ev={upNext} now={now} today={today} />
   ) : (
     <div className={styles.none}>
       <p>{hidden > 0 ? `${hidden === 1 ? 'Hay una entrada oculta' : `Hay ${hidden} entradas ocultas`} por los filtros.` : 'No hay encuentros ni festivos este día.'}</p>
@@ -316,6 +325,8 @@ export default function CalendarPage() {
               setSheetOpen(true);
             }}
           />
+          {/* En móvil el panel del día no está a la vista: lo siguiente encabeza la lista */}
+          {upNext && <NextBlock ev={upNext} now={now} today={today} />}
           <section className={styles.monthList} aria-labelledby={listTitleId}>
             <h2 id={listTitleId} className={styles.listTitle}>
               Fechas de {monthName(cursor.m)}
@@ -415,9 +426,30 @@ export default function CalendarPage() {
         </div>
       )}
 
+      {/* En escritorio ancho la hoja nunca se abre: el día ya está en el panel (sin copia oculta) */}
       <Dialog open={sheetOpen && !wide} onClose={() => setSheetOpen(false)} variant="sheet" title={selTitle} description={countLabel(selEntries.length).replace(/^./, (c) => c.toUpperCase())}>
-        {dayBody}
+        {!wide && dayBody}
       </Dialog>
+    </div>
+  );
+}
+
+/** «Lo siguiente» (foco claro): el próximo evento de la agenda, cuando el día elegido no tiene fechas. */
+function NextBlock({ ev, now, today }: { ev: CampusEvent; now: Date; today: string }) {
+  const t = eventTiming(ev, now, today);
+  return (
+    <div className={`spotlight-soft ${styles.nextBlock}`}>
+      <DateMark size="sm" dateKey={t.anchor?.key} caption={t.anchor?.caption} tone="next" />
+      <div className={styles.nextBody}>
+        <h3 className={styles.nextKicker}>Lo siguiente</h3>
+        <p className={styles.nextTitle}>{ev.title}</p>
+        <p className={styles.nextWhen}>{capitalize(t.when)}</p>
+        <Link to={`/participar/agenda/${ev.slug}`} className="link-arrow">
+          Ver en la agenda
+          <span className="sr-only">: {ev.title}</span>
+          <ArrowRight size={16} aria-hidden="true" />
+        </Link>
+      </div>
     </div>
   );
 }

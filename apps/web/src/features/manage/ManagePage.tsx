@@ -1,44 +1,43 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { Archive, BadgeCheck, CornerUpLeft, Ellipsis, ExternalLink, Eye, FlaskConical, Inbox, PencilLine, Plus, RotateCcw, Search, Send, ShieldCheck, Trash, X } from 'lucide-react';
+import { Archive, ArrowRight, BadgeCheck, Copy, Ellipsis, ExternalLink, Eye, FlaskConical, Inbox, PencilLine, Plus, RotateCcw, Search, ShieldCheck, Trash, X } from 'lucide-react';
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
-import {
-  AREAS,
-  can,
-  checkTransition,
-  CREATABLE_TYPES,
-  formatShortDate,
-  madridDateKey,
-  madridParts,
-  normalize,
-  relativeDay,
-  STATUS_LABEL_EDITORIAL,
-  type ContentType,
-  type EditorialStatus,
-} from '@flm/shared';
-import { AreaTag, Avatar, Button, ButtonLink, Chip, Dialog, EditorialChip, EmptyState, Notice, PageHeader, Popover, SelectField, Tabs, toast } from '@/design';
+import { AREAS, can, canHandleType, checkTransition, formatShortDate, madridDateKey, madridParts, neutralSignature, normalize, relativeDay, STATUS_LABEL_EDITORIAL, type ContentType, type EditorialStatus } from '@flm/shared';
+import { AreaTag, Avatar, Button, ButtonLink, Checkbox, Dialog, EditorialChip, EmptyState, Notice, PageHeader, Popover, SelectField, Tabs, toast } from '@/design';
 import { useMe, usePeople } from '@/data/selectors';
 import { MESSAGES } from '@/lib/messages';
-import { usePageTitle, useReducedMotionPref } from '@/lib/preferences';
+import { usePageTitle } from '@/lib/preferences';
 import { announce, applyTransition, removeWorkingDraft, type TransitionAction } from './actions';
 import { ContentPreview } from './ContentPreview';
-import { EditorialTrack, trackLabel } from './EditorialTrack';
-import { loadExampleDrafts } from './examples';
-import { validateForm } from './forms';
-import { canEditRow, canSeeRow, CONTENT_TYPES, editHref, readDraft, rowForm, TYPE_META, useCampusForms, useContentRows, type Actor, type ContentRow } from './model';
-import { ReturnDialog } from './ReturnDialog';
+import {
+  AREA_FILTERS,
+  canCreateType,
+  canEditRow,
+  canSeeRow,
+  CONTENT_TYPES,
+  destinationOf,
+  editHref,
+  isOwnRow,
+  readDraft,
+  rowForm,
+  TYPE_META,
+  useCampusForms,
+  useContentRows,
+  withoutAuthor,
+  type Actor,
+  type ContentRow,
+} from './model';
+import { TypeTile } from './TypeTile';
 import { useMediaQuery } from './useMediaQuery';
 import styles from './ManagePage.module.css';
 
 const base = import.meta.env.BASE_URL;
 const pad = (n: number) => String(n).padStart(2, '0');
-const wait = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));
 
 type TabValue = 'todo' | EditorialStatus;
 const TABS: { value: TabValue; label: string }[] = [
   { value: 'todo', label: 'Todo' },
   { value: 'borrador', label: 'Borradores' },
-  { value: 'en-revision', label: 'En revisión' },
   { value: 'publicado', label: 'Publicado' },
   { value: 'archivado', label: 'Archivado' },
 ];
@@ -46,6 +45,7 @@ const isTab = (v: string | null): v is TabValue => !!v && TABS.some((t) => t.val
 
 /** «hoy, 23:41», «ayer, 10:02» o «22 oct» (con año si no es el actual). */
 function whenLabel(row: ContentRow): string {
+  if (!row.updatedAt) return '';
   const d = new Date(row.updatedAt);
   if (Number.isNaN(d.getTime())) return '';
   const key = madridDateKey(d);
@@ -59,55 +59,44 @@ function whenLabel(row: ContentRow): string {
   return formatShortDate(key, key.slice(0, 4) !== today.slice(0, 4));
 }
 
-/** Tipo de contenido: rectángulo de radio pequeño con su icono (el texto va siempre al lado). */
-export function TypeTile({ type, size = 32 }: { type: ContentType; size?: number }) {
-  const Icon = TYPE_META[type].icon;
-  return (
-    <span className={styles.tile} style={{ width: size, height: size }} aria-hidden="true">
-      <Icon size={Math.round(size * 0.5)} />
-    </span>
-  );
-}
-
 function AreaCell({ area }: { area: ContentRow['area'] }) {
   if (!area) return <span className={styles.none}>—<span className="sr-only">Sin área</span></span>;
-  if (area === 'general') return <Chip size="sm">General</Chip>;
   return <AreaTag area={area} size="sm" />;
 }
 
 interface RowHandlers {
   actor: Actor;
   onPreview: (row: ContentRow) => void;
-  onReturn: (row: ContentRow) => void;
+  onPublish: (row: ContentRow) => void;
   onAction: (row: ContentRow, action: TransitionAction) => void;
   onRemove: (row: ContentRow) => void;
 }
 
 function RowFlags({ row }: { row: ContentRow }) {
   const flags: ReactNode[] = [];
-  if (row.revisionOf) flags.push(<span key="r">Revisión de un contenido publicado</span>);
-  if (row.openRevision) flags.push(<span key="o">Revisión en curso</span>);
-  if (row.returnComment && row.status === 'borrador') flags.push(<span key="d" className={styles.returned}>Devuelto con comentarios</span>);
+  if (row.revisionOf) flags.push(<span key="r">Cambios de algo publicado</span>);
+  if (row.openRevision) flags.push(<span key="o" className={styles.pending}>Cambios sin publicar</span>);
   if (row.example) flags.push(<span key="e" className={styles.example}>Ejemplo</span>);
   if (!flags.length) return null;
   return <span className={styles.flags}>{flags}</span>;
 }
 
-/** Acciones por fila según permisos (checkTransition) y estado: una principal y el resto en «Más acciones». */
-function RowActions({ row, actor, onPreview, onReturn, onAction, onRemove }: RowHandlers & { row: ContentRow }) {
+/**
+ * Acciones por fila según permisos (checkTransition), tipo (canHandleType) y estado: una principal y el
+ * resto en «Más acciones». La propiedad es la del contenido, también en sus cambios guardados (`ownerId`).
+ */
+function RowActions({ row, actor, onPreview, onPublish, onAction, onRemove }: RowHandlers & { row: ContentRow }) {
   const role = actor.effectiveRole;
-  const isOwner = row.authorId === actor.id;
-  const ok = (a: TransitionAction) => checkTransition(role, a, row.status, isOwner).ok;
+  const isOwner = isOwnRow(actor, row);
+  const from: EditorialStatus = row.revisionOf ? 'borrador' : row.status;
+  const ok = (a: TransitionAction) => canHandleType(role, row.type) && checkTransition(role, a, from, isOwner).ok;
   const editable = canEditRow(actor, row) && (row.status === 'borrador' || row.status === 'publicado');
-  const review = row.status === 'en-revision' && can(role, 'contenido:publicar');
   const data = row.draft ? readDraft(row.draft) : null;
-  const removable = !!data && canEditRow(actor, row) && (!!row.revisionOf ? row.status !== 'en-revision' : row.status === 'borrador' && !data.publishedAt);
+  // Los cambios guardados se descartan aunque aún no tengan formulario (la revisión que dejó la migración).
+  const removable = !!row.draft && canEditRow(actor, row) && (!!row.revisionOf || (!!data && row.status === 'borrador' && !data.publishedAt));
+  const copyable = !row.revisionOf && row.type !== 'test' && canCreateType(role, row.type);
 
-  const primary = review ? (
-    <ButtonLink size="sm" variant="secondary" to={editHref(row)} icon={<Eye />}>
-      Revisar
-    </ButtonLink>
-  ) : editable ? (
+  const primary = editable ? (
     <ButtonLink size="sm" variant="secondary" to={editHref(row)} icon={<PencilLine />}>
       Editar
     </ButtonLink>
@@ -118,20 +107,19 @@ function RowActions({ row, actor, onPreview, onReturn, onAction, onRemove }: Row
   );
 
   const items: { key: string; label: string; icon: ReactNode; run: () => void; danger?: boolean; href?: string }[] = [];
-  if (review || editable) items.push({ key: 'preview', label: 'Vista previa', icon: <Eye size={18} />, run: () => onPreview(row) });
-  if (row.draft && ok('enviar') && !can(role, 'contenido:publicar')) items.push({ key: 'enviar', label: 'Enviar a revisión', icon: <Send size={18} />, run: () => onAction(row, 'enviar') });
-  if (ok('publicar')) items.push({ key: 'publicar', label: row.revisionOf ? 'Publicar la revisión' : 'Publicar', icon: <BadgeCheck size={18} />, run: () => onAction(row, 'publicar') });
-  if (ok('devolver')) items.push({ key: 'devolver', label: 'Devolver con comentario', icon: <CornerUpLeft size={18} />, run: () => onReturn(row) });
-  if (ok('archivar') && !row.openRevision) items.push({ key: 'archivar', label: 'Archivar', icon: <Archive size={18} />, run: () => onAction(row, 'archivar') });
-  if (ok('restaurar')) items.push({ key: 'restaurar', label: 'Restaurar', icon: <RotateCcw size={18} />, run: () => onAction(row, 'restaurar') });
-  if (row.publicHref && row.status === 'publicado') items.push({ key: 'ver', label: 'Ver publicado', icon: <ExternalLink size={18} />, run: () => undefined, href: row.publicHref });
-  if (removable) items.push({ key: 'quitar', label: row.revisionOf ? 'Descartar la revisión' : 'Eliminar el borrador', icon: <Trash size={18} />, run: () => onRemove(row), danger: true });
+  if (editable) items.push({ key: 'preview', label: 'Vista previa', icon: <Eye size={18} />, run: () => onPreview(row) });
+  if (data && ok('publicar')) items.push({ key: 'publicar', label: row.revisionOf ? 'Publicar los cambios' : 'Publicar', icon: <BadgeCheck size={18} />, run: () => onPublish(row) });
+  if (row.publicHref && row.status === 'publicado' && !row.revisionOf) items.push({ key: 'ver', label: 'Ver publicado', icon: <ExternalLink size={18} />, run: () => undefined, href: row.publicHref });
+  if (copyable) items.push({ key: 'copiar', label: 'Duplicar como borrador nuevo', icon: <Copy size={18} />, run: () => undefined, href: `/gestion/nuevo/${row.type}?desde=${encodeURIComponent(row.id)}` });
+  if (!row.revisionOf && row.status === 'publicado' && ok('archivar') && !row.openRevision) items.push({ key: 'archivar', label: 'Archivar', icon: <Archive size={18} />, run: () => onAction(row, 'archivar') });
+  if (!row.revisionOf && row.status === 'archivado' && ok('restaurar')) items.push({ key: 'restaurar', label: 'Restaurar', icon: <RotateCcw size={18} />, run: () => onAction(row, 'restaurar') });
+  if (removable) items.push({ key: 'quitar', label: row.revisionOf ? 'Descartar los cambios' : 'Eliminar el borrador', icon: <Trash size={18} />, run: () => onRemove(row), danger: true });
 
   return (
     <div className={styles.rowActions}>
       {primary}
       {items.length > 0 && (
-        <Popover label={`Más acciones para «${row.title}»`} width={250} triggerClassName={styles.more} trigger={<Ellipsis size={20} aria-hidden="true" />}>
+        <Popover label={`Más acciones para «${row.title}»`} width={270} triggerClassName={styles.more} trigger={<Ellipsis size={20} aria-hidden="true" />}>
           {(close) => (
             <ul role="list" className={styles.menu}>
               {items.map((it) => (
@@ -163,14 +151,30 @@ function RowActions({ row, actor, onPreview, onReturn, onAction, onRemove }: Row
   );
 }
 
-function Author({ id, compact }: { id: string; compact?: boolean }) {
+/**
+ * Autoría del contenido de una fila (en unos cambios de algo publicado, la de ese contenido). Si la persona
+ * ya no está en el campus (o nunca la hubo), «Sin autoría» con la firma pública.
+ */
+function Author({ row, compact }: { row: ContentRow; compact?: boolean }) {
   const people = usePeople();
-  const p = people.find((x) => x.id === id);
-  const name = p?.name ?? 'Persona desconocida';
+  const p = row.ownerId ? people.find((x) => x.id === row.ownerId) : undefined;
+  if (!p) {
+    return (
+      <span className={styles.author} data-none>
+        <span className={styles.noAuthor} aria-hidden="true">
+          —
+        </span>
+        <span className={styles.authorText}>
+          <span className={styles.authorName}>Sin autoría</span>
+          <span className={styles.authorSub}>Firma: {neutralSignature({ type: row.type, area: row.area })}</span>
+        </span>
+      </span>
+    );
+  }
   return (
     <span className={styles.author}>
-      <Avatar name={name} photo={p?.photo ? base + p.photo : undefined} size={compact ? 24 : 28} decorative />
-      <span className={styles.authorName}>{name}</span>
+      <Avatar name={p.name} photo={p.photo ? base + p.photo : undefined} size={compact ? 24 : 28} decorative />
+      <span className={styles.authorName}>{p.name}</span>
     </span>
   );
 }
@@ -230,10 +234,10 @@ function ContentTable({ rows, handlers, caption }: { rows: ContentRow[]; handler
                   <AreaCell area={row.area} />
                 </td>
                 <td>
-                  <StatusCell status={row.status} />
+                  <StatusCell status={row.revisionOf ? 'borrador' : row.status} />
                 </td>
                 <td className={styles.colAuthor}>
-                  <Author id={row.authorId} />
+                  <Author row={row} />
                 </td>
                 <td className={styles.when}>{whenLabel(row)}</td>
                 <td>
@@ -259,13 +263,13 @@ function ContentCards({ rows, handlers }: { rows: ContentRow[]; handlers: RowHan
                 <TypeTile type={row.type} size={28} />
                 <span className={styles.typeLabel}>{TYPE_META[row.type].label}</span>
               </span>
-              <StatusCell status={row.status} />
+              <StatusCell status={row.revisionOf ? 'borrador' : row.status} />
             </div>
             <h3 className={styles.cardTitle}>{row.title}</h3>
             <RowFlags row={row} />
             <div className={styles.cardMeta}>
               <AreaCell area={row.area} />
-              <Author id={row.authorId} compact />
+              <Author row={row} compact />
               <span className={styles.when}>{whenLabel(row)}</span>
             </div>
             <RowActions row={row} {...handlers} />
@@ -276,135 +280,36 @@ function ContentCards({ rows, handlers }: { rows: ContentRow[]; handlers: RowHan
   );
 }
 
-/** Cola destacada de administración: lo más antiguo primero; publicar hace fluir el puente hasta «Publicado». */
-function ReviewQueue({ rows, handlers }: { rows: ContentRow[]; handlers: RowHandlers }) {
-  const reduce = useReducedMotionPref();
-  const [settling, setSettling] = useState<Record<string, EditorialStatus>>({});
-  const publish = async (row: ContentRow) => {
-    const data = row.draft ? readDraft(row.draft) : null;
-    if (data && validateForm(data.form).length) {
-      handlers.onAction(row, 'publicar');
-      return;
-    }
-    setSettling((s) => ({ ...s, [row.key]: 'publicado' }));
-    await wait(reduce ? 0 : 520);
-    handlers.onAction(row, 'publicar');
-    setSettling(({ [row.key]: _done, ...rest }) => rest);
-  };
+/**
+ * Crear: acceso rápido a cada tipo (tarjetas normales con la cápsula de acción; sin protagonista en Gestión).
+ * La evaluación del área no está: una por área, se empieza eligiendo el área en «Crear contenido».
+ */
+function QuickCreate({ actor }: { actor: Actor }) {
+  const types = CONTENT_TYPES.filter((t) => t !== 'test' && canCreateType(actor.effectiveRole, t));
+  if (!types.length) return null;
   return (
-    <section className={styles.queue} aria-labelledby="h-cola">
-      <div className={styles.queueHead}>
-        <h2 id="h-cola" className={styles.queueTitle}>
-          <Inbox size={20} aria-hidden="true" /> Pendiente de tu revisión
-          <span className="sr-only">: </span>
-          <span className={styles.queueCount}>{rows.length}</span>
+    <section className={styles.block} aria-labelledby="h-crear">
+      <div className={styles.blockHead}>
+        <h2 id="h-crear" className={styles.blockTitle}>
+          Crear
         </h2>
-        <p className={styles.queueSub}>{rows.length ? 'Lo más antiguo primero. Revisa, publica o devuelve con un comentario.' : 'Nada pendiente.'}</p>
+        <Link to="/gestion/nuevo" className="link-arrow">
+          Ver todos los tipos, con ejemplos <ArrowRight size={16} aria-hidden="true" />
+        </Link>
       </div>
-      {rows.length === 0 ? (
-        <div className={styles.queueEmpty}>
-          <p>Cuando una persona autora envíe un contenido a revisión, aparecerá aquí.</p>
-          {__DEMO__ && (
-            <Button
-              size="sm"
-              variant="secondary"
-              icon={<FlaskConical />}
-              onClick={() => {
-                const n = loadExampleDrafts();
-                if (n) toast.success('Borradores de ejemplo cargados', `${n} contenidos rotulados «Ejemplo», de personas ficticias, para probar la revisión.`);
-                else toast.info('Los ejemplos ya están cargados', 'Búscalos en las pestañas «En revisión» y «Borradores».');
-              }}
-            >
-              Cargar ejemplos para probar la revisión
-            </Button>
-          )}
-        </div>
-      ) : (
-        <ul role="list" className={styles.queueList}>
-          <AnimatePresence initial={false}>
-            {rows.map((row) => {
-              const shown = settling[row.key] ?? row.status;
-              return (
-                <motion.li
-                  key={row.key}
-                  layout
-                  className={styles.queueCard}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.96, x: 18, transition: { duration: 0.22 } }}
-                  transition={{ type: 'spring', stiffness: 380, damping: 34 }}
-                >
-                  <div className={styles.qTop}>
-                    <TypeTile type={row.type} size={28} />
-                    <span className={styles.typeLabel}>
-                      {TYPE_META[row.type].label}
-                      {row.revisionOf ? ' · revisión' : ''}
-                    </span>
-                    {row.example && <span className={styles.example}>Ejemplo</span>}
-                  </div>
-                  <h3 className={styles.qTitle}>
-                    <Link to={editHref(row)}>{row.title}</Link>
-                  </h3>
-                  <div className={styles.qMeta}>
-                    <Author id={row.authorId} compact />
-                    <span className={styles.when}>Enviado {whenLabel(row)}</span>
-                  </div>
-                  <div className={styles.qTrack}>
-                    <EditorialTrack status={shown} />
-                    <span>{trackLabel(shown)}</span>
-                  </div>
-                  <div className={styles.qActions}>
-                    <ButtonLink size="sm" variant="ghost" to={editHref(row)} icon={<Eye />}>
-                      Revisar
-                    </ButtonLink>
-                    <Button size="sm" variant="ghost" icon={<CornerUpLeft />} onClick={() => handlers.onReturn(row)} disabled={!!settling[row.key]}>
-                      Devolver
-                    </Button>
-                    <Button size="sm" icon={<BadgeCheck />} onClick={() => void publish(row)} disabled={!!settling[row.key]}>
-                      Publicar
-                    </Button>
-                  </div>
-                </motion.li>
-              );
-            })}
-          </AnimatePresence>
-        </ul>
-      )}
-    </section>
-  );
-}
-
-/** Actividad propia de la autoría: devueltos con comentarios y envíos pendientes. */
-function AuthorDesk({ rows }: { rows: ContentRow[] }) {
-  if (!rows.length) return null;
-  return (
-    <section className={styles.queue} aria-labelledby="h-mesa">
-      <div className={styles.queueHead}>
-        <h2 id="h-mesa" className={styles.queueTitle}>
-          <Inbox size={20} aria-hidden="true" /> Tus envíos
-          <span className={styles.queueCount}>{rows.length}</span>
-        </h2>
-        <p className={styles.queueSub}>Lo devuelto con comentarios, primero.</p>
-      </div>
-      <ul role="list" className={styles.queueList}>
-        {rows.map((row) => (
-          <li key={row.key} className={styles.queueCard}>
-            <div className={styles.qTop}>
-              <TypeTile type={row.type} size={28} />
-              <span className={styles.typeLabel}>{TYPE_META[row.type].label}</span>
-              <EditorialChip status={row.status} size="sm" />
-            </div>
-            <h3 className={styles.qTitle}>
-              <Link to={editHref(row)}>{row.title}</Link>
-            </h3>
-            {row.returnComment && row.status === 'borrador' ? <p className={styles.comment}>«{row.returnComment}»</p> : <p className={styles.qSub}>Pendiente de administración desde {whenLabel(row)}.</p>}
-            {row.status === 'borrador' && (
-              <div className={styles.qActions}>
-                <ButtonLink size="sm" to={editHref(row)} icon={<PencilLine />}>
-                  Corregir
-                </ButtonLink>
-              </div>
-            )}
+      <ul role="list" className={styles.quick}>
+        {types.map((t) => (
+          <li key={t} className={styles.quickCard} data-cta-host>
+            <TypeTile type={t} size={36} />
+            <span className={styles.quickText}>
+              <Link to={`/gestion/nuevo/${t}`} className={styles.quickLink}>
+                {TYPE_META[t].label}
+              </Link>
+              <span className={styles.quickWhere}>{TYPE_META[t].destination}</span>
+            </span>
+            <span className="cta-pill" aria-hidden="true">
+              <Plus size={16} />
+            </span>
           </li>
         ))}
       </ul>
@@ -412,44 +317,40 @@ function AuthorDesk({ rows }: { rows: ContentRow[] }) {
   );
 }
 
-function NewMenu({ role }: { role: Actor['effectiveRole'] }) {
-  const types = CREATABLE_TYPES[role];
-  if (!types.length) return null;
+/** «Sigue donde lo dejaste»: tus borradores más recientes. */
+function Resume({ rows }: { rows: ContentRow[] }) {
+  if (!rows.length) return null;
   return (
-    <Popover
-      label="Nuevo contenido"
-      align="start"
-      width={380}
-      triggerClassName={styles.newTrigger}
-      trigger={
-        <>
-          <Plus size={18} aria-hidden="true" /> Nuevo
-        </>
-      }
-    >
-      {(close) => (
-        <div className={styles.newMenu}>
-          <p className={styles.newTitle}>Elige una plantilla</p>
-          <ul role="list" className={styles.newList}>
-            {types.map((t, i) => (
-              <motion.li key={t} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.03 * i, duration: 0.2, ease: [0.2, 0, 0, 1] }}>
-                <Link to={`/gestion/nuevo/${t}`} onClick={close} className={styles.newItem}>
-                  <TypeTile type={t} size={36} />
-                  <span className={styles.newText}>
-                    <strong>{TYPE_META[t].label}</strong>
-                    <span>{TYPE_META[t].template}</span>
-                  </span>
-                </Link>
-              </motion.li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </Popover>
+    <section className={styles.block} aria-labelledby="h-seguir">
+      <div className={styles.blockHead}>
+        <h2 id="h-seguir" className={styles.blockTitle}>
+          Sigue donde lo dejaste
+        </h2>
+      </div>
+      <ul role="list" className={styles.resume}>
+        {rows.map((r) => (
+          <li key={r.key} className={styles.resumeCard} data-cta-host>
+            <span className={styles.titleCell}>
+              <TypeTile type={r.type} size={28} />
+              <span className={styles.typeLabel}>{r.revisionOf ? `${TYPE_META[r.type].label} · cambios sin publicar` : TYPE_META[r.type].label}</span>
+            </span>
+            <Link to={editHref(r)} className={styles.resumeLink}>
+              {r.title}
+            </Link>
+            <span className={styles.resumeFoot}>
+              <span className={styles.when}>Guardado {whenLabel(r)}</span>
+              <span className="cta-pill" aria-hidden="true">
+                Seguir <ArrowRight size={16} />
+              </span>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
-/** Espacio de trabajo de Gestión: pestañas por estado, búsqueda, filtros, cola de revisión y acciones. */
+/** Espacio de trabajo de Gestión: crear, seguir con lo empezado y todo el contenido por estado. */
 export default function ManagePage() {
   usePageTitle('Gestión de contenidos');
   const me = useMe();
@@ -461,13 +362,15 @@ export default function ManagePage() {
   const [params, setParams] = useSearchParams();
   const [limit, setLimit] = useState(30);
   const [preview, setPreview] = useState<ContentRow | null>(null);
-  const [returning, setReturning] = useState<ContentRow | null>(null);
+  const [publishing, setPublishing] = useState<ContentRow | null>(null);
+  const [reviewed, setReviewed] = useState(false);
   const [removing, setRemoving] = useState<ContentRow | null>(null);
 
   const tab: TabValue = isTab(params.get('estado')) ? (params.get('estado') as TabValue) : 'todo';
   const q = params.get('q') ?? '';
   const tipo = params.get('tipo') ?? '';
   const area = params.get('area') ?? '';
+  const autoria = params.get('autoria') ?? '';
   const orden = params.get('orden') === 'titulo' ? 'titulo' : 'recientes';
 
   const setParam = (key: string, value: string, replace = false) => {
@@ -481,44 +384,44 @@ export default function ManagePage() {
   const visible = useMemo(() => (me ? all.filter((r) => canSeeRow(me, r)) : []), [all, me]);
   const nameOf = useMemo(() => new Map(people.map((p) => [p.id, p.name])), [people]);
 
+  // La autoría que se filtra y se busca es la de la columna: la del contenido (`ownerId`).
   const filtered = useMemo(() => {
     const nq = normalize(q);
     return visible.filter((r) => {
       if (tipo && r.type !== tipo) return false;
       if (area && r.area !== area) return false;
+      if (autoria === 'mias' && r.ownerId !== me?.id) return false;
+      if (autoria === 'sin' && !withoutAuthor(r, people)) return false;
       if (nq) {
-        const hay = normalize([r.title, TYPE_META[r.type].label, nameOf.get(r.authorId) ?? '', r.area && r.area !== 'general' ? AREAS[r.area].name : r.area ?? ''].join(' '));
+        const hay = normalize([r.title, TYPE_META[r.type].label, (r.ownerId && nameOf.get(r.ownerId)) || 'sin autoria', r.area && r.area !== 'general' ? AREAS[r.area].name : r.area === 'general' ? 'toda la firma' : ''].join(' '));
         if (!nq.split(' ').every((t) => hay.includes(t))) return false;
       }
       return true;
     });
-  }, [visible, q, tipo, area, nameOf]);
+  }, [visible, q, tipo, area, autoria, nameOf, people, me?.id]);
+
+  const statusOf = (r: ContentRow): EditorialStatus => (r.revisionOf ? 'borrador' : r.status);
 
   const counts = useMemo(() => {
-    const c: Record<TabValue, number> = { todo: filtered.length, borrador: 0, 'en-revision': 0, publicado: 0, archivado: 0 };
-    for (const r of filtered) c[r.status]++;
+    const c: Record<TabValue, number> = { todo: filtered.length, borrador: 0, publicado: 0, archivado: 0 };
+    for (const r of filtered) c[statusOf(r)]++;
     return c;
   }, [filtered]);
 
   const shown = useMemo(() => {
-    const list = tab === 'todo' ? filtered : filtered.filter((r) => r.status === tab);
+    const list = tab === 'todo' ? filtered : filtered.filter((r) => statusOf(r) === tab);
     return orden === 'titulo' ? [...list].sort((a, b) => a.title.localeCompare(b.title, 'es')) : list;
   }, [filtered, tab, orden]);
 
   if (!me) return null;
   const role = me.effectiveRole;
-  const isAdmin = can(role, 'contenido:publicar');
-  const queue = isAdmin ? visible.filter((r) => r.status === 'en-revision').sort((a, b) => a.updatedAt.localeCompare(b.updatedAt)) : [];
-  const desk = !isAdmin
-    ? visible
-        .filter((r) => r.authorId === me.id && r.draft && ((r.status === 'borrador' && r.returnComment) || r.status === 'en-revision'))
-        .sort((a, b) => Number(!!b.returnComment) - Number(!!a.returnComment) || a.updatedAt.localeCompare(b.updatedAt))
-    : [];
+  const isAdmin = can(role, 'contenido:editar-cualquiera');
+  const recent = visible.filter((r) => r.draft && statusOf(r) === 'borrador' && r.draft.authorId === me.id).slice(0, 3);
 
-  const onAction = (row: ContentRow, action: TransitionAction) => {
-    const out = applyTransition(me, row, action);
+  const onAction = (row: ContentRow, action: TransitionAction, opts: { reviewed?: boolean } = {}) => {
+    const out = applyTransition(me, row, action, opts);
     if (!out.ok && out.errors) {
-      toast.error(action === 'publicar' ? 'Antes de publicar, completa el contenido' : 'Antes de enviarlo, completa el contenido', MESSAGES.invalidFields(out.errors.length), { label: 'Abrir el editor', onClick: () => navigate(editHref(row)) });
+      toast.error('Antes de publicar, completa el contenido', MESSAGES.invalidFields(out.errors.length), { label: 'Abrir el editor', onClick: () => navigate(editHref(row)) });
       return;
     }
     announce(row, action, out);
@@ -527,16 +430,25 @@ export default function ManagePage() {
   const handlers: RowHandlers = {
     actor: me,
     onPreview: setPreview,
-    onReturn: setReturning,
+    onPublish: (row) => {
+      setReviewed(false);
+      setPublishing(row);
+    },
     onAction,
     onRemove: setRemoving,
   };
 
-  const filtersOn = !!(q || tipo || area);
+  const filtersOn = !!(q || tipo || area || autoria);
   const tabLabel = TABS.find((t) => t.value === tab)?.label ?? 'Todo';
   const previewForm = preview ? rowForm(preview, campus) : null;
   const typeOptions = [{ value: '', label: 'Todos los tipos' }, ...CONTENT_TYPES.map((t) => ({ value: t, label: TYPE_META[t].plural }))];
-  const areaOptions = [{ value: '', label: 'Todas las áreas' }, ...Object.values(AREAS).map((a) => ({ value: a.id, label: a.name })), { value: 'general', label: 'General' }];
+  const areaOptions = [{ value: '', label: 'Todas las áreas' }, ...AREA_FILTERS];
+  const authorOptions = [
+    { value: '', label: 'Cualquier autoría' },
+    { value: 'mias', label: 'Lo mío' },
+    ...(isAdmin ? [{ value: 'sin', label: 'Sin autoría' }] : []),
+  ];
+  const publishType: ContentType | null = publishing?.type ?? null;
 
   return (
     <div className="container page">
@@ -544,10 +456,14 @@ export default function ManagePage() {
         crumbs={[{ label: 'Inicio', to: '/' }, { label: 'Gestión de contenidos' }]}
         eyebrow={isAdmin ? 'Gestión · administración' : 'Gestión · autoría'}
         title="Gestión de contenidos"
-        lede={isAdmin ? 'Revisa, publica y archiva lo que se comparte en el campus.' : 'Prepara formaciones, novedades, documentos y eventos, y envíalos a revisión.'}
+        lede={isAdmin ? 'Crea, publica y archiva lo que se comparte en el campus. Puedes editar cualquier contenido.' : 'Crea formaciones, novedades, documentos y eventos. Guárdalos como borrador y publícalos cuando estén listos.'}
         actions={
           <>
-            <NewMenu role={role} />
+            {CONTENT_TYPES.some((t) => canCreateType(role, t)) && (
+              <ButtonLink to="/gestion/nuevo" icon={<Plus />}>
+                Crear contenido
+              </ButtonLink>
+            )}
             {can(role, 'personas:gestionar') && (
               <ButtonLink variant="ghost" to="/admin" icon={<ShieldCheck />}>
                 Administración
@@ -560,12 +476,13 @@ export default function ManagePage() {
       {__DEMO__ && (
         <div className={styles.sim}>
           <Notice icon={<FlaskConical size={18} />} title="Simulación">
-            En la demostración pública, lo que hagas aquí solo se guarda en tu navegador; en la versión interna lo ejecuta el servidor con permisos. Cambia de perfil en tu avatar («Ver la demo como») para recorrer el flujo de autoría y de administración.
+            En la demostración pública, lo que hagas aquí solo se guarda en tu navegador; en la versión interna lo ejecuta el servidor con permisos. Cambia de perfil en tu avatar («Ver la demo como») para probar la autoría y la administración.
           </Notice>
         </div>
       )}
 
-      {isAdmin ? <ReviewQueue rows={queue} handlers={handlers} /> : <AuthorDesk rows={desk} />}
+      <QuickCreate actor={me} />
+      <Resume rows={recent} />
 
       <section className={styles.workspace} aria-labelledby="h-contenidos">
         <div className={styles.workHead}>
@@ -598,6 +515,7 @@ export default function ManagePage() {
           <div className={styles.filters}>
             <SelectField label="Tipo" value={tipo} onChange={(e) => setParam('tipo', e.target.value)} options={typeOptions} />
             <SelectField label="Área" value={area} onChange={(e) => setParam('area', e.target.value)} options={areaOptions} />
+            <SelectField label="Autoría" value={autoria} onChange={(e) => setParam('autoria', e.target.value)} options={authorOptions} />
             <SelectField
               label="Orden"
               value={orden}
@@ -616,7 +534,7 @@ export default function ManagePage() {
               className={styles.reset}
               onClick={() => {
                 const next = new URLSearchParams(params);
-                ['q', 'tipo', 'area'].forEach((k) => next.delete(k));
+                ['q', 'tipo', 'area', 'autoria'].forEach((k) => next.delete(k));
                 setParams(next, { preventScrollReset: true });
               }}
             >
@@ -636,8 +554,8 @@ export default function ManagePage() {
                 <p>{MESSAGES.emptyFilter.body}</p>
               </EmptyState>
             ) : (
-              <EmptyState icon={<Inbox />} title={tab === 'todo' ? 'Todavía no hay contenidos' : `No hay contenidos en «${tabLabel}»`}>
-                <p>{tab === 'borrador' ? 'Empieza uno nuevo con el botón «Nuevo»: se guarda solo mientras escribes.' : tab === 'en-revision' ? 'Lo que se envíe a revisión aparecerá aquí.' : 'Prueba con otra pestaña.'}</p>
+              <EmptyState icon={<Inbox />} title={tab === 'todo' ? 'Todavía no hay contenidos' : `No hay contenidos en «${tabLabel}»`} action={tab === 'borrador' ? <ButtonLink to="/gestion/nuevo" icon={<Plus />}>Crear contenido</ButtonLink> : undefined}>
+                <p>{tab === 'borrador' ? 'Lo que empieces se guarda solo mientras escribes y aparece aquí hasta que lo publiques.' : 'Prueba con otra pestaña.'}</p>
               </EmptyState>
             )
           ) : compact ? (
@@ -661,16 +579,16 @@ export default function ManagePage() {
         variant="sheet"
         size="lg"
         title={preview ? `Vista previa · ${TYPE_META[preview.type].label}` : 'Vista previa'}
-        description={preview ? `${STATUS_LABEL_EDITORIAL[preview.status]} · así se verá en ${TYPE_META[preview.type].destination}` : undefined}
+        description={preview ? `${STATUS_LABEL_EDITORIAL[statusOf(preview)]} · así se verá en ${destinationOf(preview.type, preview.area)}` : undefined}
         footer={
           preview && (
             <>
-              {preview.publicHref && preview.status === 'publicado' && (
+              {preview.publicHref && preview.status === 'publicado' && !preview.revisionOf && (
                 <ButtonLink variant="ghost" to={preview.publicHref} icon={<ExternalLink />}>
                   Ver publicado
                 </ButtonLink>
               )}
-              {(canEditRow(me, preview) || isAdmin) && (
+              {canEditRow(me, preview) && (
                 <ButtonLink variant="secondary" to={editHref(preview)} icon={<PencilLine />}>
                   Abrir en el editor
                 </ButtonLink>
@@ -682,32 +600,54 @@ export default function ManagePage() {
       >
         {preview && previewForm ? (
           <div className={styles.sheetPaper}>
-            <ContentPreview form={previewForm} meta={{ authorId: preview.authorId, status: preview.status, reviewerName: preview.draft ? readDraft(preview.draft)?.reviewerName : undefined }} />
+            <ContentPreview form={previewForm} meta={{ authorId: preview.ownerId, status: statusOf(preview), reviewerName: preview.draft ? readDraft(preview.draft)?.reviewerName : undefined }} />
           </div>
         ) : (
           preview && <p>{MESSAGES.missingDocument.body}</p>
         )}
       </Dialog>
 
-      <ReturnDialog
-        open={!!returning}
-        title={returning?.title ?? ''}
-        onClose={() => setReturning(null)}
-        onConfirm={(comment) => {
-          if (!returning) return;
-          const row = returning;
-          setReturning(null);
-          const out = applyTransition(me, row, 'devolver', { comment });
-          announce(row, 'devolver', out);
-        }}
-      />
+      <Dialog
+        open={!!publishing}
+        onClose={() => setPublishing(null)}
+        size="sm"
+        title={publishing?.revisionOf ? '¿Publicar los cambios?' : '¿Publicar?'}
+        description={publishType ? `«${publishing?.title ?? ''}» ${publishing?.revisionOf ? 'sustituirá a la versión publicada en' : 'aparecerá en'} ${destinationOf(publishType, publishing?.area)}. Durante unos segundos podrás deshacerlo.` : undefined}
+        footer={
+          <>
+            <Button variant="ghost" data-autofocus onClick={() => setPublishing(null)}>
+              Cancelar
+            </Button>
+            <Button
+              icon={<BadgeCheck />}
+              onClick={() => {
+                if (!publishing) return;
+                const row = publishing;
+                setPublishing(null);
+                onAction(row, 'publicar', { reviewed });
+              }}
+            >
+              {publishing?.revisionOf ? 'Publicar cambios' : 'Publicar'}
+            </Button>
+          </>
+        }
+      >
+        {publishType && ['formacion', 'noticia', 'documento', 'test'].includes(publishType) && (
+          <Checkbox
+            label="Lo ha revisado el área"
+            hint={`Se mostrará «Revisado por ${me.name}». Si no lo marcas, ${publishing?.revisionOf ? 'la revisión vuelve a quedar pendiente' : 'queda pendiente de revisión'}.`}
+            checked={reviewed}
+            onChange={setReviewed}
+          />
+        )}
+      </Dialog>
 
       <Dialog
         open={!!removing}
         onClose={() => setRemoving(null)}
         size="sm"
-        title={removing?.revisionOf ? '¿Descartar la revisión?' : '¿Eliminar el borrador?'}
-        description={removing?.revisionOf ? 'Se pierden los cambios de la revisión. La versión publicada no cambia.' : `«${removing?.title ?? ''}» nunca se ha publicado. Esta acción no se puede deshacer.`}
+        title={removing?.revisionOf ? '¿Descartar los cambios?' : '¿Eliminar el borrador?'}
+        description={removing?.revisionOf ? 'Se pierden los cambios sin publicar. La versión publicada no cambia.' : `«${removing?.title ?? ''}» nunca se ha publicado. Esta acción no se puede deshacer.`}
         footer={
           <>
             <Button variant="ghost" data-autofocus onClick={() => setRemoving(null)}>
@@ -721,7 +661,7 @@ export default function ManagePage() {
                 const row = removing;
                 setRemoving(null);
                 const res = removeWorkingDraft(me, row);
-                if (res.ok) toast.success(row.revisionOf ? 'Revisión descartada' : 'Borrador eliminado', row.revisionOf ? 'La versión publicada sigue siendo la vigente.' : `Se ha eliminado «${row.title}».`);
+                if (res.ok) toast.success(row.revisionOf ? 'Cambios descartados' : 'Borrador eliminado', row.revisionOf ? 'La versión publicada sigue siendo la vigente.' : `Se ha eliminado «${row.title}».`);
                 else toast.error('No se ha podido eliminar', res.reason);
               }}
             >

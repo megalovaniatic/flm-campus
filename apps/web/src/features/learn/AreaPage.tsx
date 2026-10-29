@@ -1,17 +1,20 @@
 import { ArrowRight, BookOpen, Compass } from 'lucide-react';
 import { useMemo } from 'react';
 import { Link, useParams } from 'react-router';
-import { AREAS, formationStatus, isAreaId, type AreaId } from '@flm/shared';
+import { AREAS, formationStatus, isAreaId, type AreaId, type FormationStatus } from '@flm/shared';
 import { Avatar, ButtonLink, EmptyState, PageHeader, ProgressRing } from '@/design';
-import { assessments, useFormations } from '@/data/selectors';
+import { useAssessments, useFormations } from '@/data/selectors';
 import { useDemo } from '@/data/store';
 import { MESSAGES } from '@/lib/messages';
 import { usePageTitle } from '@/lib/preferences';
-import { AreaHeadline } from './common/AreaMark';
+import { AreaDot, AreaHeadline } from './common/AreaMark';
 import { AREA_REFERENCE, areaCounts, bestOf, photoOf, usePerson, useProgressMap } from './common/data';
 import { FormationCard } from './common/FormationCard';
 import { TenDots } from './common/TenDots';
 import styles from './AreaPage.module.css';
+
+/** Estados «en curso»: leída o con el test hecho, todavía sin completar. */
+const STARTED: FormationStatus[] = ['leida', 'test-intentado', 'test-superado'];
 
 function ReferencePerson({ area }: { area: AreaId }) {
   const person = usePerson(AREA_REFERENCE[area]);
@@ -28,15 +31,22 @@ function ReferencePerson({ area }: { area: AreaId }) {
   );
 }
 
-function AssessmentCard({ area }: { area: AreaId }) {
-  const assessment = assessments.find((a) => a.area === area);
+function AssessmentCard({ area, allDone }: { area: AreaId; allDone: boolean }) {
+  const assessment = useAssessments().find((a) => a.area === area);
   const attempts = useDemo((s) => (assessment ? s.assessmentAttempts[assessment.id] : undefined));
   const best = bestOf(attempts);
   const passed = !!attempts?.some((a) => a.passed);
   const total = assessment?.quiz.questions.length ?? 10;
   const name = AREAS[area].name;
+  // Protagonista solo cuando ya no queda ninguna formación pendiente y la evaluación está por superar
+  const spot = allDone && !!assessment && !passed;
   return (
-    <section className={styles.assess} aria-labelledby="h-evaluacion" data-ready={!!assessment || undefined}>
+    <section
+      className={spot ? `${styles.assess} spotlight` : styles.assess}
+      data-tone={spot ? 'spot' : undefined}
+      aria-labelledby="h-evaluacion"
+      data-ready={!!assessment || undefined}
+    >
       <div className={styles.assessText}>
         <p className="eyebrow">Evaluación sectorial</p>
         <h2 id="h-evaluacion" className={styles.assessTitle}>
@@ -58,7 +68,7 @@ function AssessmentCard({ area }: { area: AreaId }) {
                 : `Aún no · mejor resultado ${best.correct}/${best.total}`}
         </p>
         {assessment && (
-          <ButtonLink to={`/aprender/${area}/evaluacion`} variant={passed ? 'secondary' : 'primary'} iconRight={<ArrowRight />}>
+          <ButtonLink to={`/aprender/${area}/evaluacion`} variant={spot ? 'inverse' : 'secondary'} iconRight={<ArrowRight />}>
             {best ? 'Volver a intentarlo' : 'Empezar la evaluación'}
           </ButtonLink>
         )}
@@ -95,71 +105,80 @@ export default function AreaPage() {
 
   const info = AREAS[area];
   const { completed, total } = areaCounts(list, progress);
+  const statuses = list.map((f) => formationStatus(progress[f.id], f));
+  // Siguiente formación: la primera en curso o, si no hay ninguna, la primera sin empezar
+  const started = statuses.findIndex((s) => STARTED.includes(s));
+  const nextIndex = started >= 0 ? started : statuses.indexOf('sin-empezar');
+  const nextKind = started >= 0 ? 'continua' : 'empieza';
+  const allDone = statuses.every((s) => s === 'completada');
 
+  // Atmósfera del área como envoltorio a todo el ancho; el contenedor va dentro
   return (
-    <div className="container page" data-area={area}>
-      <PageHeader
-        crumbs={[{ label: 'Aprender', to: '/aprender' }, { label: `Área ${info.name}` }]}
-        title={<AreaHeadline area={area} />}
-        lede={info.description}
-        aside={
-          <div className={styles.aside}>
-            <div className={styles.progress}>
-              <ProgressRing value={completed} total={total} size={88} stroke={6} label={`Formaciones completadas en ${info.name}`}>
-                <span className={styles.ringNum}>
-                  {total > 0 ? (
-                    <>
-                      {completed}
-                      <span>/{total}</span>
-                    </>
-                  ) : (
-                    '—'
-                  )}
-                </span>
-              </ProgressRing>
-              <p className={styles.progressText}>
-                <strong>Tu itinerario</strong>
-                <span>{total > 0 ? `${completed} de ${total} formaciones completadas` : 'Formaciones en preparación'}</span>
-              </p>
+    <div className="area-atmos" data-area={area}>
+      <div className="container page">
+        <PageHeader
+          crumbs={[{ label: 'Aprender', to: '/aprender' }, { label: `Área ${info.name}`, icon: <AreaDot area={area} size={8} /> }]}
+          title={<AreaHeadline area={area} />}
+          lede={info.description}
+          aside={
+            <div className={styles.aside}>
+              <div className={styles.progress}>
+                <ProgressRing value={completed} total={total} size={88} stroke={6} label={`Formaciones completadas en ${info.name}`} tone="area">
+                  <span className={styles.ringNum}>
+                    {total > 0 ? (
+                      <>
+                        {completed}
+                        <span>/{total}</span>
+                      </>
+                    ) : (
+                      '—'
+                    )}
+                  </span>
+                </ProgressRing>
+                <p className={styles.progressText}>
+                  <strong>Tu itinerario</strong>
+                  <span>{total > 0 ? `${completed} de ${total} formaciones completadas` : 'Formaciones en preparación'}</span>
+                </p>
+              </div>
+              <ReferencePerson area={area} />
             </div>
-            <ReferencePerson area={area} />
+          }
+        />
+
+        <section aria-labelledby="h-formaciones">
+          <div className={styles.head}>
+            <h2 id="h-formaciones" className="section-title">
+              Formaciones de <span className="area-word">{info.name}</span>
+            </h2>
+            <Link to={`/aprender?area=${area}`} className="link-arrow">
+              Ver todas las áreas <ArrowRight size={16} aria-hidden="true" />
+            </Link>
           </div>
-        }
-      />
+          {list.length > 0 ? (
+            <ol role="list" className={styles.grid}>
+              {list.map((f, i) => (
+                <li key={f.id} className={styles.gridItem}>
+                  <FormationCard formation={f} index={i + 1} status={statuses[i]!} next={i === nextIndex ? nextKind : undefined} />
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <EmptyState
+              icon={<BookOpen />}
+              title="Formaciones en preparación"
+              action={
+                <ButtonLink to="/consultar/notas" variant="secondary">
+                  Ver las notas informativas
+                </ButtonLink>
+              }
+            >
+              El área {info.name} está redactando sus formaciones. Aparecerán aquí en cuanto se publiquen; mientras tanto, puedes consultar las notas informativas de la biblioteca.
+            </EmptyState>
+          )}
+        </section>
 
-      <section aria-labelledby="h-formaciones">
-        <div className={styles.head}>
-          <h2 id="h-formaciones" className="section-title">
-            Formaciones del área
-          </h2>
-          <Link to={`/aprender?area=${area}`} className="link-arrow">
-            Ver todas las áreas <ArrowRight size={16} aria-hidden="true" />
-          </Link>
-        </div>
-        {list.length > 0 ? (
-          <ol role="list" className={styles.grid}>
-            {list.map((f, i) => (
-              <li key={f.id} className={styles.gridItem}>
-                <FormationCard formation={f} index={i + 1} status={formationStatus(progress[f.id], f)} />
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <EmptyState
-            icon={<BookOpen />}
-            title="Formaciones en preparación"
-            action={
-              <ButtonLink to="/consultar/notas" variant="secondary">
-                Ver las notas informativas
-              </ButtonLink>
-            }
-          >
-            El área {info.name} está redactando sus formaciones. Aparecerán aquí en cuanto se publiquen; mientras tanto, puedes consultar las notas informativas de la biblioteca.
-          </EmptyState>
-        )}
-      </section>
-
-      <AssessmentCard area={area} />
+        <AssessmentCard area={area} allDone={allDone} />
+      </div>
     </div>
   );
 }

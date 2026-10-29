@@ -8,8 +8,10 @@ import { loadContentSeed } from './load-content.mjs';
 /**
  * Carga los datos semilla que exporta @flm/content (`seed: SeedData`).
  * Inserta solo lo que no existe; nunca sobrescribe cambios hechos en la plataforma.
- * Las personas marcadas como ficticias (`fictional`, solo para la demostración) no se importan
- * salvo que se pida expresamente con --incluir-ficticias (útil en un entorno de pruebas).
+ * Las personas y los clientes marcados como ficticios (`fictional`, solo para la demostración) no se
+ * importan salvo que se pida expresamente con --incluir-ficticias (útil en un entorno de pruebas).
+ * Las bienvenidas solo se importan si su persona ya existe en la plataforma y está activa; el
+ * contenido cuya persona autora no existe se importa sin autoría (firma neutra).
  *
  *   npm run seed -w @flm/api
  *   npm run seed -w @flm/api -- --archivos ../../packages/content/archivos

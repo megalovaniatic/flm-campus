@@ -19,6 +19,8 @@ interface ToastState {
   items: ToastItem[];
   push: (t: Omit<ToastItem, 'id'>) => number;
   dismiss: (id: number) => void;
+  /** Cierra todos los avisos (p. ej., al restablecer la demo: su «Deshacer» ya no tiene sentido). */
+  clear: () => void;
 }
 
 let seq = 0;
@@ -31,7 +33,20 @@ export const useToasts = create<ToastState>((set) => ({
     return id;
   },
   dismiss: (id) => set((s) => ({ items: s.items.filter((i) => i.id !== id) })),
+  clear: () => set({ items: [] }),
 }));
+
+/**
+ * Pulsar la acción de un aviso («Deshacer»…): solo si sigue abierto. Uno que ya se está cerrando, o que
+ * «Restablecer» acaba de quitar, no la ejecuta aunque aún se vea durante su animación de salida.
+ */
+export function runToastAction(item: ToastItem): boolean {
+  const { items, dismiss } = useToasts.getState();
+  if (!items.some((i) => i.id === item.id)) return false;
+  item.action?.onClick();
+  dismiss(item.id);
+  return true;
+}
 
 /** Atajo para lanzar avisos desde cualquier parte. */
 export const toast = {
@@ -79,10 +94,7 @@ function ToastCard({ item }: { item: ToastItem }) {
         <button
           type="button"
           className={styles.action}
-          onClick={() => {
-            item.action?.onClick();
-            dismiss(item.id);
-          }}
+          onClick={() => runToastAction(item)}
         >
           {item.action.label}
         </button>

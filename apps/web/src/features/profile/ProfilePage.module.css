@@ -110,6 +110,25 @@
   margin-top: var(--space-8);
 }
 
+/* «Progreso por área»: el foco claro de la página (lavado de marca, banda de 4 px y sombra) */
+.card.progressCard {
+  background: var(--grad-spotlight-soft);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+}
+
+.card.progressCard::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: var(--flm-gradient-stroke);
+}
+
+.progressCard .cardHead {
+  align-items: center;
+}
+
 .lower {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
@@ -134,6 +153,12 @@
   justify-content: space-between;
   gap: var(--space-2) var(--space-4);
   margin-bottom: var(--space-5);
+}
+
+.cardHeadText {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
 }
 
 .cardTitle {
@@ -218,6 +243,7 @@
   list-style: none;
 }
 
+/* Fichas blancas sobre el lavado: arco del color del área (Contable, en degradado) y pista teñida */
 .area {
   position: relative;
   display: flex;
@@ -226,6 +252,8 @@
   min-width: 0;
   padding: var(--space-3);
   border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--line);
   transition: background-color var(--dur-quick) var(--ease-standard);
 }
 

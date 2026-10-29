@@ -107,6 +107,10 @@
   border: 1px solid var(--line);
 }
 
+.tableWrap:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -339,11 +343,83 @@
   color: var(--ink-2);
 }
 
-.effects {
+/* Eliminar el perfil: a quién, qué pasará y la alternativa de desactivar */
+.removeWho {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.impactBlock {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.impactTitle {
+  font-size: var(--text-sm);
+  font-weight: 650;
+}
+
+.impact {
+  display: grid;
+  gap: var(--space-3);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.impactItem {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
+
+.impactIcon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--surface-sunken);
+  color: var(--ink);
+}
+
+.impactText {
   display: grid;
   gap: 6px;
-  padding-left: 1.2rem;
+  min-width: 0;
+  padding-top: 5px;
+  overflow-wrap: anywhere;
+}
+
+.signatures {
+  display: grid;
+  gap: 4px;
+  padding-left: 1.1rem;
+  margin: 0;
+}
+
+.signatureName {
+  font-weight: 600;
+}
+
+.removeAlt {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--line-strong);
   font-size: var(--text-sm);
+  color: var(--ink-2);
 }
 
 /* Informes */
@@ -606,18 +682,29 @@
 .rulerMark {
   position: absolute;
   display: flex;
+  transform: translateX(-50%);
+}
+
+.rulerMarkBody {
+  display: flex;
   flex-direction: column;
   align-items: center;
-  transform: translateX(-50%);
+  transform-origin: 50% 100%;
 }
 
 .rulerMark[data-edge='start'] {
   transform: translateX(-12px);
+}
+
+.rulerMark[data-edge='start'] .rulerMarkBody {
   align-items: flex-start;
 }
 
 .rulerMark[data-edge='end'] {
   transform: translateX(calc(-100% + 12px));
+}
+
+.rulerMark[data-edge='end'] .rulerMarkBody {
   align-items: flex-end;
 }
 
@@ -627,7 +714,11 @@
 
 .rulerMark[data-side='below'] {
   top: calc(50% + 1px);
+}
+
+.rulerMark[data-side='below'] .rulerMarkBody {
   flex-direction: column-reverse;
+  transform-origin: 50% 0;
 }
 
 .rulerCap {

@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import type { AppContext, AppEnv } from '../context';
 import type { Db } from '../db/database';
-import { all, run } from '../db/database';
+import { all } from '../db/database';
 import { badRequest } from '../lib/errors';
 import { idParam, jsonBody, queryParams, revisionField } from '../lib/validation';
 import { currentUser, requirePermission } from '../middleware/authorize';
@@ -23,14 +23,23 @@ import {
   type ContentRow,
 } from '../services/content';
 
-/** Ficha editorial completa: contenido vigente (con soluciones) y revisión pendiente, si la hay. */
+/**
+ * Fase de un evento o comunicado. Un borrador puede estar a medias (sin sesiones o con alguna sin fecha
+ * de inicio): la fase se calcula con lo que haya, sin dar un error 500.
+ */
+function phaseOf(item: Record<string, unknown>, now: Date) {
+  const sessions = Array.isArray(item.sessions) ? item.sessions.filter((s) => typeof s?.start === 'string') : [];
+  return eventPhase({ ...item, sessions } as unknown as CampusEvent, now);
+}
+
+/** Ficha editorial completa: contenido vigente (con soluciones) y revisión pendiente, si la hay (con el PDF nuevo que espere en ella). */
 export function contentDetail(db: Db, row: ContentRow, now: Date) {
   const open = openRevision(db, row.id);
   const item = composeItem(db, row);
   return {
     ...contentSummary(db, row),
     item,
-    ...(row.type === 'evento' || row.type === 'comunicado' ? { phase: eventPhase(item as unknown as CampusEvent, now) } : {}),
+    ...(row.type === 'evento' || row.type === 'comunicado' ? { phase: phaseOf(item, now) } : {}),
     pendingRevision: open
       ? {
           id: open.id,
@@ -38,19 +47,21 @@ export function contentDetail(db: Db, row: ContentRow, now: Date) {
           authorId: open.author_id,
           createdAt: open.created_at,
           updatedAt: open.updated_at,
-          returnComment: open.return_comment,
-          item: composeItem(db, row, open.payload),
+          item: composeItem(db, row, open.payload, open.id),
         }
       : null,
   };
 }
 
 const typeEnum = z.enum(CONTENT_TYPES);
-const statusEnum = z.enum(['borrador', 'en-revision', 'publicado', 'archivado']);
+const statusEnum = z.enum(['borrador', 'publicado', 'archivado']);
 
 /**
  * Panel editorial (personas autoras y administración). La autorización por acción y la propiedad
- * se comprueban con `checkTransition()`; un autor solo ve y modifica sus propios contenidos.
+ * se comprueban con `checkTransition()`: la autoría guarda y publica lo suyo; administración,
+ * cualquier contenido. Un autor solo ve y modifica sus propios contenidos, y en cada acción se
+ * comprueba que su rol trabaja con el tipo (`canHandleType()`: la evaluación del área, administración).
+ * «Guardar borrador» admite contenido a medias; publicar exige el esquema completo del tipo.
  */
 export function contentRoutes(ctx: AppContext) {
   const r = new Hono<AppEnv>();
@@ -76,7 +87,7 @@ export function contentRoutes(ctx: AppContext) {
     return c.json({ content: contentDetail(db, row, ctx.now()) });
   });
 
-  /** Guardar. Si el contenido está publicado, los cambios quedan en una revisión pendiente de aprobación. */
+  /** Guardar borrador. Si el contenido está publicado, los cambios quedan en una revisión que no se ve hasta publicarla. */
   r.put('/:id', requirePermission('contenido:crear'), async (c) => {
     const input = await jsonBody(c, z.object({ revision: revisionField, payload: z.unknown() }));
     const row = requireContent(db, c.req.param('id'));
@@ -84,14 +95,18 @@ export function contentRoutes(ctx: AppContext) {
     return c.json({ content: contentDetail(db, result.content, ctx.now()) });
   });
 
-  /** Acciones del flujo editorial: enviar, publicar, devolver (con comentario), archivar y restaurar. */
+  /**
+   * Acciones del flujo editorial: publicar (la autoría, lo suyo; administración, cualquier contenido),
+   * archivar y restaurar (administración). `reviewed: true` al publicar anota «Revisado por …» (nombre e
+   * identificador de quien publica); publicar cambios de algo publicado sin marcarlo deja la revisión pendiente.
+   */
   r.post('/:id/transitions', requirePermission('contenido:crear'), async (c) => {
     const input = await jsonBody(
       c,
       z.object({
-        action: z.enum(['enviar', 'publicar', 'devolver', 'archivar', 'restaurar']),
+        action: z.enum(['publicar', 'archivar', 'restaurar'], { error: 'Acción no válida: usa «publicar», «archivar» o «restaurar».' }),
         revision: revisionField,
-        comment: z.string().max(2000).optional(),
+        reviewed: z.boolean().optional(),
       }),
     );
     const row = requireContent(db, c.req.param('id'));
@@ -104,13 +119,13 @@ export function contentRoutes(ctx: AppContext) {
     const row = requireContent(db, c.req.param('id'));
     assertCanEdit(currentUser(c), row);
     const open = openRevision(db, row.id);
-    const item = composeItem(db, row, open?.payload ?? row.payload);
+    const item = composeItem(db, row, open?.payload ?? row.payload, open?.id);
     return c.json({
       preview: true,
       source: open ? 'revision-pendiente' : 'contenido',
       status: open?.status ?? row.status,
       item,
-      ...(row.type === 'evento' || row.type === 'comunicado' ? { phase: eventPhase(item as unknown as CampusEvent, ctx.now()) } : {}),
+      ...(row.type === 'evento' || row.type === 'comunicado' ? { phase: phaseOf(item, ctx.now()) } : {}),
     });
   });
 
@@ -118,9 +133,9 @@ export function contentRoutes(ctx: AppContext) {
   r.get('/:id/revisions', requirePermission('contenido:crear'), (c) => {
     const row = requireContent(db, c.req.param('id'));
     assertCanEdit(currentUser(c), row);
-    const items = all<{ id: string; status: string; author_id: string; created_at: string; decided_at: string | null; decided_by: string | null; return_comment: string | null }>(
+    const items = all<{ id: string; status: string; author_id: string | null; created_at: string; decided_at: string | null; decided_by: string | null }>(
       db,
-      'SELECT id, status, author_id, created_at, decided_at, decided_by, return_comment FROM content_revisions WHERE content_id = ? ORDER BY created_at DESC',
+      'SELECT id, status, author_id, created_at, decided_at, decided_by FROM content_revisions WHERE content_id = ? ORDER BY created_at DESC',
       row.id,
     ).map((rv) => ({
       id: rv.id,
@@ -129,26 +144,23 @@ export function contentRoutes(ctx: AppContext) {
       createdAt: rv.created_at,
       decidedAt: rv.decided_at,
       decidedBy: rv.decided_by,
-      returnComment: rv.return_comment,
     }));
     return c.json({ items });
   });
 
-  r.delete('/:id/revision', requirePermission('contenido:crear'), (c) => {
+  /** Descarta la revisión pendiente (y el PDF nuevo que esperaba en ella, si lo había). */
+  r.delete('/:id/revision', requirePermission('contenido:crear'), async (c) => {
     const { revision } = queryParams(c, z.object({ revision: z.coerce.number().int().positive() }));
-    const row = discardRevision(db, currentUser(c), requireContent(db, c.req.param('id')), revision, ctx.now(), c.get('clientIp'));
-    return c.json({ content: contentDetail(db, row, ctx.now()) });
+    const { content, removedFiles } = discardRevision(db, currentUser(c), requireContent(db, c.req.param('id')), revision, ctx.now(), c.get('clientIp'));
+    for (const name of removedFiles) await ctx.storage.remove(name);
+    return c.json({ content: contentDetail(db, content, ctx.now()) });
   });
 
   /** Elimina un borrador que nunca se ha publicado (y sus archivos). */
   r.delete('/:id', requirePermission('contenido:crear'), async (c) => {
     const { revision } = queryParams(c, z.object({ revision: z.coerce.number().int().positive() }));
-    const fileIds = deleteDraft(db, currentUser(c), requireContent(db, c.req.param('id')), revision, ctx.now(), c.get('clientIp'));
-    for (const id of fileIds) {
-      const file = all<{ storage_name: string }>(db, 'SELECT storage_name FROM files WHERE id = ?', id)[0];
-      run(db, 'DELETE FROM files WHERE id = ?', id);
-      if (file) await ctx.storage.remove(file.storage_name);
-    }
+    const removedFiles = deleteDraft(db, currentUser(c), requireContent(db, c.req.param('id')), revision, ctx.now(), c.get('clientIp'));
+    for (const name of removedFiles) await ctx.storage.remove(name);
     return c.json({ ok: true });
   });
 

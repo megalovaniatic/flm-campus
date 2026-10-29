@@ -8,17 +8,18 @@ import { HttpError } from '../lib/errors';
  * Cada ruta declara el permiso que exige; las comprobaciones de propiedad se hacen en los servicios.
  */
 const PERMISSION_MESSAGES: Partial<Record<Permission, string>> = {
-  'contenido:crear': 'Tu rol no permite preparar contenidos.',
-  'contenido:editar-cualquiera': 'Solo administración puede modificar contenidos de otras personas.',
-  'contenido:publicar': 'Solo administración puede publicar contenidos.',
+  'contenido:crear': 'Tu rol no permite crear contenidos.',
+  'contenido:editar-cualquiera': 'Solo administración puede hacerlo: afecta a contenidos de toda la firma (de otras personas, la agenda o los festivos).',
+  'contenido:publicar': 'Tu rol no permite publicar contenidos.',
   'contenido:archivar': 'Solo administración puede archivar contenidos.',
+  'contenido:restaurar': 'Solo administración puede restaurar contenidos archivados.',
   'documentos:subir': 'Tu rol no permite subir archivos.',
-  'documentos:reemplazar': 'Solo administración puede sustituir el archivo de un documento.',
+  'documentos:reemplazar': 'Solo administración puede sustituir el archivo de un documento publicado.',
   'personas:gestionar': 'Solo administración puede gestionar las cuentas de las personas.',
   'sesiones:revocar': 'Solo administración puede cerrar las sesiones de otras personas.',
   'informes:ver': 'Solo administración puede consultar los informes.',
   'auditoria:ver': 'Solo administración puede consultar el registro de auditoría.',
-  'datos-personales:eliminar': 'Solo administración puede eliminar datos personales.',
+  'datos-personales:eliminar': 'Solo administración puede eliminar el perfil de una persona.',
 };
 
 export function unauthenticated(c: Context<AppEnv>): HttpError {

@@ -8,7 +8,9 @@ import {
   nextSession,
   type CampusEvent,
   type Holiday,
+  type NewClient,
   type Office,
+  type Welcome,
 } from '@flm/shared';
 import { Hono } from 'hono';
 import { z } from 'zod';
@@ -19,8 +21,9 @@ import { conflict, notFound } from '../lib/errors';
 import { jsonBody, queryParams, revisionField } from '../lib/validation';
 import { currentUser, requirePermission } from '../middleware/authorize';
 import { audit } from '../services/audit';
-import { composeItem, findPublished, listPublished, requireContent, setManualPhase } from '../services/content';
+import { composeItem, findPublished, listPublished, requireContent, setManualPhase, type ContentRow } from '../services/content';
 import { contentDisposition } from '../services/files';
+import { directoryEntry, getUser } from '../services/people';
 import { contentDetail } from './contents';
 
 interface HolidayRow {
@@ -110,7 +113,8 @@ export function companyRoutes(ctx: AppContext) {
     return c.json({ items: rows.map(toHoliday) });
   });
 
-  r.post('/holidays', requirePermission('contenido:publicar'), async (c) => {
+  // Los festivos son de toda la firma: solo administración (la autoría publica lo suyo, no el calendario).
+  r.post('/holidays', requirePermission('contenido:editar-cualquiera'), async (c) => {
     const h = await jsonBody(c, holidaySchema);
     const id = newId();
     try {
@@ -123,10 +127,43 @@ export function companyRoutes(ctx: AppContext) {
     return c.json({ holiday: { id, ...h } }, 201);
   });
 
-  r.delete('/holidays/:id', requirePermission('contenido:publicar'), (c) => {
+  r.delete('/holidays/:id', requirePermission('contenido:editar-cualquiera'), (c) => {
     if (run(db, 'DELETE FROM holidays WHERE id = ?', c.req.param('id')) !== 1) throw notFound('No existe ese festivo.');
     audit(db, { actorId: currentUser(c).id, action: 'festivo.eliminar', entity: 'festivo', entityId: c.req.param('id'), ip: c.get('clientIp') }, ctx.now());
     return c.json({ ok: true });
+  });
+
+  /* ── «Ponte al día» (Inicio): nuevos clientes y bienvenidas ─────────────────── */
+
+  /** Nuevos clientes publicados, del más reciente al más antiguo. Solo uso interno: sin datos económicos. */
+  r.get('/clients', requirePermission('campus:leer'), (c) => {
+    const { limit } = queryParams(c, z.object({ limit: z.coerce.number().int().min(1).max(50).optional() }));
+    const items = listPublished(db, ['cliente'])
+      .map((row) => composeItem(db, row) as unknown as NewClient)
+      .sort((a, b) => b.date.localeCompare(a.date));
+    return c.json({ items: limit ? items.slice(0, limit) : items });
+  });
+
+  /**
+   * Bienvenidas publicadas a personas que siguen activas en el equipo, con su ficha del directorio
+   * (sin correo). El anuncio solo tiene su fecha de publicación: la ficha no guarda la de incorporación.
+   */
+  r.get('/welcomes', requirePermission('campus:leer'), (c) => {
+    const { limit } = queryParams(c, z.object({ limit: z.coerce.number().int().min(1).max(50).optional() }));
+    const rows = all<ContentRow & { person_id: string }>(
+      db,
+      `SELECT c.*, u.id AS person_id FROM contents c
+       JOIN users u ON u.id = json_extract(c.payload, '$.personId')
+       WHERE c.type = 'bienvenida' AND c.status = 'publicado' AND u.status = 'activa' AND u.anonymized_at IS NULL`,
+    );
+    const items = rows
+      .map((row) => {
+        const person = getUser(db, row.person_id);
+        return { ...(composeItem(db, row) as unknown as Welcome), person: person ? directoryEntry(person) : null };
+      })
+      .filter((w) => w.person !== null)
+      .sort((a, b) => b.date.localeCompare(a.date));
+    return c.json({ items: limit ? items.slice(0, limit) : items });
   });
 
   return r;

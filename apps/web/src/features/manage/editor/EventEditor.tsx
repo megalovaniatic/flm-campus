@@ -1,11 +1,12 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { addDays, type CampusEvent } from '@flm/shared';
 import { Checkbox, Notice, SelectField, Switch, TextArea, TextField, toast } from '@/design';
-import { useEvents } from '@/data/selectors';
+import { useDocuments, useEvents } from '@/data/selectors';
 import { reclassifyEvent } from '../actions';
 import { EVENT_ICONS } from '../catalog';
 import { CATEGORY_LABEL, DEPARTMENTS, kid, newSession, type EventForm, type LinkForm, type SessionForm } from '../forms';
 import { AddButton, ChoiceGroup, FieldError, ItemTools, itemMotion, move, RICH_HINT, Section, Slot, type EditorProps } from './fields';
+import { PhotoPicker } from './pickers';
 import styles from './Editor.module.css';
 
 type Phase = EventForm['manualPhase'];
@@ -114,6 +115,7 @@ function LinkCard({ l, i, count, update, err }: { l: LinkForm; i: number; count:
 export function EventEditor({ value: f, update, err, ctx }: EditorProps<EventForm>) {
   const set = <K extends keyof EventForm>(k: K, v: EventForm[K]) => update((p) => ({ ...p, [k]: v }));
   const isEvent = f.type === 'evento';
+  const documents = useDocuments();
   const addSession = () =>
     update((prev) => {
       const last = prev.sessions.at(-1);
@@ -176,6 +178,23 @@ export function EventEditor({ value: f, update, err, ctx }: EditorProps<EventFor
         </AnimatePresence>
       </Section>
 
+      <Section title="Fotografía (opcional)" description="Una foto aprobada de FLM para la agenda y el histórico. En la demostración no se pueden subir fotos.">
+        <PhotoPicker
+          legend="Fotografía del evento"
+          allowNone
+          value={f.image?.src ?? ''}
+          onChange={(src, alt) => update((p) => ({ ...p, image: src ? { src, alt: p.image?.alt?.trim() && p.image.src === src ? p.image.alt : alt, credit: p.image?.credit ?? '' } : null }))}
+        />
+        {f.image && (
+          <div className={styles.grid2}>
+            <Slot path="image.alt">
+              <TextField label="Descripción para lectores de pantalla" value={f.image.alt} onChange={(e) => update((p) => ({ ...p, image: p.image ? { ...p.image, alt: e.target.value } : null }))} error={err('image.alt')} />
+            </Slot>
+            <TextField label="Crédito (opcional)" value={f.image.credit} onChange={(e) => update((p) => ({ ...p, image: p.image ? { ...p.image, credit: e.target.value } : null }))} placeholder="p. ej., Foto: Comunicación FLM" />
+          </div>
+        )}
+      </Section>
+
       <Section title="Enlaces" description="Formularios, inscripciones o páginas relacionadas. Marca como «de ejemplo» los que aún no tienen destino real.">
         {f.links.length > 0 && (
           <ol role="list" className={styles.items}>
@@ -188,6 +207,53 @@ export function EventEditor({ value: f, update, err, ctx }: EditorProps<EventFor
         )}
         <AddButton onClick={() => update((p) => ({ ...p, links: [...p.links, { id: kid('l'), label: '', url: '', example: false }] }))}>Añadir enlace</AddButton>
       </Section>
+
+      <Section title="Materiales (opcional)" description="Documentos de la biblioteca que acompañan al evento: presentaciones, notas o guías. Se descargan desde la agenda.">
+        {f.materials.length > 0 && (
+          <ol role="list" className={styles.items}>
+            <AnimatePresence initial={false}>
+              {f.materials.map((m, i) => (
+                <motion.li key={m.id} {...itemMotion} className={styles.itemCard}>
+                  <div className={styles.itemHead}>
+                    <span className={styles.itemTitle}>Material {i + 1}</span>
+                    <ItemTools
+                      label={`el material ${i + 1}`}
+                      index={i}
+                      count={f.materials.length}
+                      onMove={(to) => update((p) => ({ ...p, materials: move(p.materials, i, to) }))}
+                      onRemove={() => update((p) => ({ ...p, materials: p.materials.filter((x) => x.id !== m.id) }))}
+                    />
+                  </div>
+                  <div className={styles.grid2}>
+                    <Slot path={`materials.${i}.documentId`}>
+                      <SelectField
+                        label="Documento"
+                        value={m.documentId}
+                        onChange={(e) => {
+                          const doc = documents.find((d) => d.id === e.target.value);
+                          update((p) => ({ ...p, materials: p.materials.map((x) => (x.id === m.id ? { ...x, documentId: e.target.value, label: x.label.trim() ? x.label : (doc?.title ?? '') } : x)) }));
+                        }}
+                        error={err(`materials.${i}.documentId`)}
+                        options={[{ value: '', label: 'Elige un documento…' }, ...documents.map((d) => ({ value: d.id, label: d.title }))]}
+                      />
+                    </Slot>
+                    <Slot path={`materials.${i}.label`}>
+                      <TextField label="Nombre en la agenda" value={m.label} onChange={(e) => update((p) => ({ ...p, materials: p.materials.map((x) => (x.id === m.id ? { ...x, label: e.target.value } : x)) }))} error={err(`materials.${i}.label`)} />
+                    </Slot>
+                  </div>
+                </motion.li>
+              ))}
+            </AnimatePresence>
+          </ol>
+        )}
+        <AddButton onClick={() => update((p) => ({ ...p, materials: [...p.materials, { id: kid('m'), label: '', documentId: '' }] }))}>Añadir material</AddButton>
+      </Section>
+
+      {isEvent && (
+        <Section title="Después del evento (opcional)" description="Un resumen breve para el histórico: qué se trató y qué conclusiones o materiales quedan.">
+          <TextArea label="Resumen posterior" rows={3} value={f.recap} onChange={(e) => set('recap', e.target.value)} hint={RICH_HINT} />
+        </Section>
+      )}
 
       {ctx.isAdmin && (
         <Section title="Reclasificación manual" description="Solo administración. Prevalece sobre el cálculo automático de la fase (próximo, en curso, histórico).">

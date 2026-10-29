@@ -1,0 +1,104 @@
+/* «Tu siguiente paso»: el fondo y los tokens los pone .spotlight (layout.css) */
+.panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-5) clamp(1.5rem, 1rem + 2vw, 3rem);
+}
+
+.main {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.kicker {
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.title {
+  max-width: 30ch;
+  font-family: var(--font-serif);
+  font-weight: 440;
+  font-variation-settings: 'opsz' 48;
+  font-size: clamp(1.4rem, 1.2rem + 0.8vw, 1.9rem);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  color: var(--ink);
+}
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  min-width: 0;
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+/* La cápsula siempre a la derecha, también cuando los datos ocupan poco */
+.foot > :last-child {
+  margin-left: auto;
+}
+
+.progress {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.ringNum {
+  font-family: var(--font-serif);
+  font-weight: 420;
+  font-size: 1.6rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.ringNum span {
+  font-size: 0.6em;
+  color: var(--ink-2);
+}
+
+.progressText {
+  max-width: 9rem;
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+@media (max-width: 560px) {
+  .panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .progress {
+    grid-auto-flow: column;
+    justify-content: start;
+    align-items: center;
+    gap: var(--space-4);
+    text-align: left;
+  }
+
+  .progressText {
+    max-width: none;
+  }
+}

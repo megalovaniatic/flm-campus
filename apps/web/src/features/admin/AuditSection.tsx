@@ -1,9 +1,9 @@
 import { AnimatePresence, motion } from 'motion/react';
 import type { LucideIcon } from 'lucide-react';
-import { ChartColumn, Download, FileText, KeyRound, Search, Server, Users, X } from 'lucide-react';
+import { ChartColumn, Download, FileText, KeyRound, Search, Server, UserRoundX, Users, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { seed } from '@flm/content';
-import { formatShortDate, madridDateKey, madridParts, normalize, relativeDay } from '@flm/shared';
+import { formatShortDate, madridDateKey, madridParts, normalize, relativeDay, REMOVED_PERSON } from '@flm/shared';
 import { Avatar, Button, Chip, EmptyState, Notice, SelectField, toast } from '@/design';
 import { useMe, usePeople } from '@/data/selectors';
 import { useDemo } from '@/data/store';
@@ -25,6 +25,13 @@ const CATEGORY_ICON: Record<AuditCategory, LucideIcon> = {
   sistema: Server,
 };
 
+/** Acciones cuya persona destino ya no está en el campus por definición. */
+const REMOVES_PERSON = new Set(['persona.eliminar-perfil', 'persona.eliminar-datos']);
+
+/** Claves del filtro «Persona» que agrupan a quien ya no tiene ficha (para no repetir el mismo rótulo). */
+const GONE_KEY = '~eliminada';
+const UNKNOWN_KEY = '~desconocida';
+
 const PERIODS: { value: string; label: string; ms: number }[] = [
   { value: '', label: 'Todo', ms: 0 },
   { value: '1', label: 'Últimas 24 horas', ms: 86_400_000 },
@@ -44,6 +51,8 @@ function when(iso: string) {
 export function AuditSection() {
   const me = useMe();
   const audit = useDemo((s) => s.audit);
+  const removed = useDemo((s) => s.removedPeople);
+  const overrides = useDemo((s) => s.peopleOverrides);
   const people = usePeople();
   const rows = useContentRows();
   const compact = useMediaQuery('(max-width: 979px)');
@@ -68,17 +77,22 @@ export function AuditSection() {
   }, [rows]);
 
   const entries = useMemo(() => {
+    // Sin ficha en el campus: perfil eliminado (o anonimizado con la acción anterior) o desconocido.
+    const gone = (id: string) => !!removed[id] || !!overrides[id]?.email?.endsWith('@anonimizada.invalid');
+    const missing = (id: string) => (gone(id) ? REMOVED_PERSON : 'Persona desconocida');
     const all: AuditEntry[] = [...audit, ...examples].sort((a, b) => b.at.localeCompare(a.at));
     return all.map((e) => {
       const info = actionInfo(e.action);
       const actorP = personName.get(e.actorId);
-      const actorName = e.actorId === 'sistema' ? 'Sistema' : (actorP?.name ?? 'Persona desconocida');
-      const target = e.entityId ? (e.entity === 'persona' ? (personName.get(e.entityId)?.name ?? 'Persona desconocida') : (titleOf.get(e.entityId) ?? e.entityId)) : '';
-      return { ...e, info, actorP, actorName, target };
+      const actorName = e.actorId === 'sistema' ? 'Sistema' : (actorP?.name ?? missing(e.actorId));
+      const actorKey = e.actorId === 'sistema' || actorP ? e.actorId : gone(e.actorId) ? GONE_KEY : UNKNOWN_KEY;
+      const targetP = e.entity === 'persona' && e.entityId ? personName.get(e.entityId) : undefined;
+      const target = !e.entityId ? '' : e.entity !== 'persona' ? (titleOf.get(e.entityId) ?? e.entityId) : (targetP?.name ?? (REMOVES_PERSON.has(e.action) ? REMOVED_PERSON : missing(e.entityId)));
+      return { ...e, info, actorP, actorName, actorKey, target };
     });
-  }, [audit, examples, personName, titleOf]);
+  }, [audit, examples, personName, titleOf, removed, overrides]);
 
-  const actors = useMemo(() => [...new Map(entries.map((e) => [e.actorId, e.actorName])).entries()].sort((a, b) => a[1].localeCompare(b[1], 'es')), [entries]);
+  const actors = useMemo(() => [...new Map(entries.map((e) => [e.actorKey, e.actorName])).entries()].sort((a, b) => a[1].localeCompare(b[1], 'es')), [entries]);
 
   const filtered = useMemo(() => {
     const now = Date.now();
@@ -86,7 +100,7 @@ export function AuditSection() {
     const nq = normalize(q);
     return entries.filter((e) => {
       if (cat && e.info.category !== cat) return false;
-      if (actor && e.actorId !== actor) return false;
+      if (actor && e.actorKey !== actor) return false;
       if (origin === 'demo' && e.example) return false;
       if (origin === 'ejemplo' && !e.example) return false;
       if (ms && now - new Date(e.at).getTime() > ms) return false;
@@ -232,8 +246,12 @@ export function AuditSection() {
                             <span className={styles.catIcon} aria-hidden="true">
                               <Server size={16} />
                             </span>
+                          ) : e.actorP ? (
+                            <Avatar name={e.actorName} photo={e.actorP.photo ? base + e.actorP.photo : undefined} size={28} decorative />
                           ) : (
-                            <Avatar name={e.actorName} photo={e.actorP?.photo ? base + e.actorP.photo : undefined} size={28} decorative />
+                            <span className={styles.catIcon} aria-hidden="true">
+                              <UserRoundX size={16} />
+                            </span>
                           )}
                           <span className={styles.personName}>{e.actorName}</span>
                         </span>

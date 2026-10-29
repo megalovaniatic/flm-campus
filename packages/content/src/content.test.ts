@@ -3,7 +3,7 @@
  * Comprueba estructura, reglas del brief y referencias cruzadas antes de compilar.
  */
 import { describe, expect, it } from 'vitest';
-import { AREA_IDS, assessmentSchema, documentSchema, eventSchema, formationSchema, holidaySchema, newsSchema, personSchema, readingSchema } from '@flm/shared';
+import { AREA_IDS, assessmentSchema, documentSchema, eventSchema, formationSchema, holidaySchema, newClientSchema, newsSchema, personSchema, readingSchema, welcomeSchema } from '@flm/shared';
 import { seed } from './index';
 
 const issues = (schema: { safeParse: (v: unknown) => { success: boolean; error?: { issues: { path: PropertyKey[]; message: string }[] } } }, items: { id?: string; date?: string }[]) =>
@@ -34,7 +34,7 @@ describe('contenido semilla', () => {
   });
 
   it('ids y slugs únicos', () => {
-    const ids = [...seed.formations, ...seed.news, ...seed.documents, ...seed.events, ...seed.readings, ...seed.assessments].map((x) => x.id);
+    const ids = [...seed.formations, ...seed.news, ...seed.documents, ...seed.events, ...seed.readings, ...seed.assessments, ...seed.clients, ...seed.welcomes].map((x) => x.id);
     expect(ids.length - new Set(ids).size).toBe(0);
     const slugs = seed.formations.map((f) => `${f.area}/${f.slug}`);
     expect(slugs.length - new Set(slugs).size).toBe(0);
@@ -45,11 +45,11 @@ describe('contenido semilla', () => {
     const docs = new Set(seed.documents.map((d) => d.id));
     const missing: string[] = [];
     for (const f of seed.formations) {
-      if (!people.has(f.editorial.authorId)) missing.push(`${f.id}: autor ${f.editorial.authorId}`);
+      if (f.editorial.authorId && !people.has(f.editorial.authorId)) missing.push(`${f.id}: autor ${f.editorial.authorId}`);
       for (const d of f.documentIds ?? []) if (!docs.has(d)) missing.push(`${f.id}: documento ${d}`);
     }
     for (const e of seed.events) for (const m of e.materials ?? []) if (!docs.has(m.documentId)) missing.push(`${e.id}: material ${m.documentId}`);
-    for (const n of seed.news) if (!people.has(n.editorial.authorId)) missing.push(`${n.id}: autor ${n.editorial.authorId}`);
+    for (const n of seed.news) if (n.editorial.authorId && !people.has(n.editorial.authorId)) missing.push(`${n.id}: autor ${n.editorial.authorId}`);
     expect(missing).toEqual([]);
   });
 
@@ -71,6 +71,16 @@ describe('contenido semilla', () => {
     expect(issues(documentSchema, seed.documents)).toEqual([]);
     expect(issues(eventSchema, seed.events)).toEqual([]);
     expect(issues(holidaySchema, seed.holidays)).toEqual([]);
+  });
+
+  it('«Ponte al día»: clientes ficticios y bienvenidas a personas de la plantilla de ejemplo', () => {
+    expect(issues(newClientSchema, seed.clients)).toEqual([]);
+    expect(seed.clients.every((c) => c.fictional)).toBe(true);
+    expect(issues(welcomeSchema, seed.welcomes)).toEqual([]);
+    // Ninguna bienvenida puede llevar la fecha de incorporación de la persona
+    expect(welcomeSchema.safeParse({ ...seed.welcomes[0], startDate: '2026-10-01' }).success).toBe(false);
+    const fictional = new Set(seed.people.filter((p) => p.fictional).map((p) => p.id));
+    expect(seed.welcomes.filter((w) => !fictional.has(w.personId)).map((w) => w.id)).toEqual([]);
   });
 
   it('enlaces de ejemplo identificados', () => {

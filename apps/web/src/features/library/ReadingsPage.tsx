@@ -3,7 +3,8 @@ import { ExternalLink, FileText, Library } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { AREA_LIST, formatLongDate, type AreaInfo, type Reading } from '@flm/shared';
-import { AreaTag, ButtonLink, Dialog, EmptyState, PageHeader } from '@/design';
+import { AreaTag, ButtonLink, Chip, Dialog, EmptyState, PageHeader } from '@/design';
+import { useMyArea } from '@/features/learn/common/data';
 import { MESSAGES } from '@/lib/messages';
 import { usePageTitle } from '@/lib/preferences';
 import { BookCover, shortAuthors } from './components/BookCover';
@@ -24,6 +25,7 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 export default function ReadingsPage() {
   const { id } = useParams();
   const readings = useLibraryReadings();
+  const myArea = useMyArea();
   const sample = useSampleMode();
   const link = useLibLink();
   const sheet = useSheetRoute('/consultar/lecturas', id);
@@ -36,7 +38,10 @@ export default function ReadingsPage() {
   const shown = id ? reading : last.current;
   usePageTitle(id ? (reading ? reading.title : 'Lectura no disponible') : 'Lecturas recomendadas');
 
-  const shelves = AREA_LIST.map((area) => ({ area, items: readings.filter((r) => r.area === area.id) }));
+  // La balda de tu área va primero y es el foco claro; las demás, sin tinte y en el orden de siempre
+  const shelves = [...AREA_LIST]
+    .sort((a, b) => Number(b.id === myArea) - Number(a.id === myArea))
+    .map((area) => ({ area, items: readings.filter((r) => r.area === area.id) }));
   const areasWithBooks = shelves.filter((s) => s.items.length > 0).length;
 
   return (
@@ -69,7 +74,7 @@ export default function ReadingsPage() {
       ) : (
         <div className={styles.shelves}>
           {shelves.map((shelf, s) => (
-            <Shelf key={shelf.area.id} area={shelf.area} items={shelf.items} order={s} intro={intro} linkProps={sheet.linkProps} />
+            <Shelf key={shelf.area.id} area={shelf.area} items={shelf.items} order={s} intro={intro} mine={shelf.area.id === myArea} linkProps={sheet.linkProps} />
           ))}
         </div>
       )}
@@ -108,15 +113,21 @@ export default function ReadingsPage() {
 
 type SheetLink = ReturnType<typeof useSheetRoute>['linkProps'];
 
-/** Una balda por área: las portadas se apoyan en ella y se abren un poco al pasar o enfocar. */
-function Shelf({ area, items, order, intro, linkProps }: { area: AreaInfo; items: Reading[]; order: number; intro: boolean; linkProps: SheetLink }) {
+/**
+ * Una balda por área: las portadas se apoyan en ella y se abren un poco al pasar o enfocar.
+ * La de tu área («mine») es el foco claro de la página: lavado del área, banda y «Tu área».
+ */
+function Shelf({ area, items, order, intro, mine, linkProps }: { area: AreaInfo; items: Reading[]; order: number; intro: boolean; mine: boolean; linkProps: SheetLink }) {
   return (
-    <section className={styles.shelf} data-area={area.id} aria-labelledby={`estante-${area.id}`}>
+    <section className={mine ? `${styles.shelf} spotlight-soft` : styles.shelf} data-area={area.id} data-mine={mine || undefined} aria-labelledby={`estante-${area.id}`}>
       <div className={styles.shelfHead}>
-        <h2 id={`estante-${area.id}`} className={styles.shelfTitle}>
-          <span className={styles.shelfDot} aria-hidden="true" />
-          {area.name}
-        </h2>
+        <div className={styles.shelfName}>
+          <h2 id={`estante-${area.id}`} className={styles.shelfTitle}>
+            <span className={styles.shelfDot} aria-hidden="true" />
+            {area.name}
+          </h2>
+          {mine && <Chip size="sm">Tu área</Chip>}
+        </div>
         <p className={styles.shelfCount}>{items.length ? plural(items.length, 'lectura', 'lecturas') : 'Sin lecturas todavía'}</p>
       </div>
 

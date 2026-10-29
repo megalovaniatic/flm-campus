@@ -2,13 +2,21 @@ import { FlaskConical, RotateCcw } from 'lucide-react';
 import { ROLE_LABEL } from '@flm/shared';
 import { useMe } from '@/data/selectors';
 import { useDemo } from '@/data/store';
-import { toast } from '@/design';
+import { toast, useToasts } from '@/design/Toast';
 import styles from './DemoBand.module.css';
+
+/**
+ * «Restablecer» la demostración: borra lo guardado en este navegador y cierra los avisos abiertos,
+ * porque su «Deshacer» devolvería lo que se acaba de borrar.
+ */
+export function resetDemo() {
+  useDemo.getState().reset();
+  useToasts.getState().clear();
+}
 
 /** Banda fija que identifica la demostración pública y el perfil con el que se ve. */
 export function DemoBand() {
   const me = useMe();
-  const reset = useDemo((s) => s.reset);
   return (
     <div className={styles.band} role="note">
       <div className={`container ${styles.inner}`}>
@@ -23,7 +31,7 @@ export function DemoBand() {
             type="button"
             className={styles.reset}
             onClick={() => {
-              reset();
+              resetDemo();
               toast.success('Demostración restablecida', 'Se han borrado tu progreso y los cambios de esta demo.');
             }}
           >

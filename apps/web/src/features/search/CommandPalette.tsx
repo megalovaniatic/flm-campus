@@ -1,14 +1,17 @@
-import { BookOpen, CalendarDays, CornerDownLeft, FileText, Library, Newspaper, Search, Signpost } from 'lucide-react';
+import { BookOpen, CalendarDays, CornerDownLeft, FilePlus2, FileText, Library, Newspaper, Search, Signpost } from 'lucide-react';
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router';
+import { can } from '@flm/shared';
 import { Kbd } from '@/design';
+import { useMe } from '@/data/selectors';
 import { useDemo } from '@/data/store';
 import { MESSAGES } from '@/lib/messages';
-import { search, type ResultGroup } from './searchIndex';
+import { search, useSearchIndex, type ResultGroup } from './searchIndex';
 import { useSearch } from './useSearch';
 import styles from './CommandPalette.module.css';
 
 const ICONS: Record<ResultGroup, typeof Search> = {
+  Crear: FilePlus2,
   Formaciones: BookOpen,
   Actualidad: Newspaper,
   'Notas informativas': FileText,
@@ -31,7 +34,11 @@ export function CommandPalette() {
   const [q, setQ] = useState('');
   const [active, setActive] = useState(0);
   const listId = useId();
-  const results = useMemo(() => search(q), [q]);
+  const index = useSearchIndex();
+  const results = useMemo(() => search(q, index), [q, index]);
+  const me = useMe();
+  // Para quien crea contenidos, «crear» abre las acciones del creador.
+  const suggestions = me && can(me.effectiveRole, 'contenido:crear') ? ['crear', ...SUGGESTIONS] : SUGGESTIONS;
 
   useEffect(() => {
     const onKey = (e: globalThis.KeyboardEvent) => {
@@ -136,7 +143,7 @@ export function CommandPalette() {
             <div className={styles.suggest}>
               <p className={styles.groupLabel}>Prueba con</p>
               <div className={styles.chips}>
-                {SUGGESTIONS.map((s) => (
+                {suggestions.map((s) => (
                   <button key={s} type="button" className={styles.chip} onClick={() => setQ(s)}>
                     {s}
                   </button>

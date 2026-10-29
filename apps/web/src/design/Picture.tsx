@@ -4,6 +4,12 @@ import styles from './Picture.module.css';
 
 export type PhotoName = keyof typeof manifest;
 
+/**
+ * Nombre de una foto aprobada del manifiesto: lo que guardan el bloque «Fotografía» del creador y la foto
+ * de un evento. Lo demás (rutas de archivo) se pinta como imagen normal.
+ */
+export const isApprovedPhoto = (src: string): src is PhotoName => Object.prototype.hasOwnProperty.call(manifest, src);
+
 interface PictureProps {
   name: PhotoName;
   /** Atributo sizes para elegir la resolución adecuada. */
@@ -13,13 +19,15 @@ interface PictureProps {
   priority?: boolean;
   /** Si la imagen es decorativa (el texto ya lo explica). */
   decorative?: boolean;
+  /** Texto alternativo propio (el que escribió quien publica); si no, el del manifiesto. */
+  alt?: string;
   position?: string;
 }
 
 const base = import.meta.env.BASE_URL;
 
 /** Fotografía real de FLM en AVIF/WebP responsive con marcador difuminado (sin saltos de diseño). */
-export function Picture({ name, sizes = '100vw', className, priority = false, decorative = false, position = 'center' }: PictureProps) {
+export function Picture({ name, sizes = '100vw', className, priority = false, decorative = false, alt, position = 'center' }: PictureProps) {
   const meta = manifest[name];
   const [loaded, setLoaded] = useState(false);
   const srcset = (ext: string) => meta.sizes.map((w) => `${base}img/photos/${name}-${w}.${ext} ${w}w`).join(', ');
@@ -31,7 +39,7 @@ export function Picture({ name, sizes = '100vw', className, priority = false, de
         <source type="image/webp" srcSet={srcset('webp')} sizes={sizes} />
         <img
           src={fallback}
-          alt={decorative ? '' : meta.alt}
+          alt={decorative ? '' : (alt ?? meta.alt)}
           width={meta.width}
           height={meta.height}
           loading={priority ? 'eager' : 'lazy'}

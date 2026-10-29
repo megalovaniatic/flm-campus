@@ -1,4 +1,4 @@
-import type { AreaId } from './areas';
+import type { AreaId, Scope } from './areas';
 
 /* ────────────────────────────────────────────────────────────────────────────
  * Personas y roles
@@ -41,13 +41,26 @@ export interface Person {
  * Flujo editorial
  * ──────────────────────────────────────────────────────────────────────────── */
 
-export type EditorialStatus = 'borrador' | 'en-revision' | 'publicado' | 'archivado';
+/**
+ * Flujo editorial: «Guardar borrador» o «Publicar». La autoría publica lo suyo y administración,
+ * cualquier contenido; archivar y restaurar es cosa de administración. No hay revisión previa obligatoria.
+ */
+export type EditorialStatus = 'borrador' | 'publicado' | 'archivado';
 
-export type ContentType = 'formacion' | 'test' | 'noticia' | 'documento' | 'evento' | 'comunicado';
+/**
+ * Tipos de contenido del creador. «test» es la evaluación del área («Pon a prueba tus conocimientos»):
+ * el test final de cada formación va dentro de la propia formación.
+ * «cliente» y «bienvenida» alimentan el tablero «Ponte al día» de Inicio.
+ */
+export type ContentType = 'formacion' | 'test' | 'noticia' | 'documento' | 'evento' | 'comunicado' | 'cliente' | 'bienvenida';
 
 export interface EditorialMeta {
   status: EditorialStatus;
-  authorId: string;
+  /**
+   * Persona autora. Ausente si el contenido no tiene autoría personal: su perfil se eliminó al dejar
+   * FLM y el contenido se conserva con la firma neutra («Área Fiscal de FLM» o «FLM», ver authorship.ts).
+   */
+  authorId?: string;
   /** Fecha de primera publicación (ISO). */
   publishedAt?: string;
   /** Fecha de la última actualización relevante (ISO). */
@@ -56,11 +69,11 @@ export interface EditorialMeta {
   review: {
     state: 'pendiente' | 'revisado';
     reviewerName?: string;
+    /** Persona que lo marcó como revisado: si se elimina su perfil, su nombre se retira de aquí. */
+    reviewerId?: string;
     reviewedAt?: string;
     note?: string;
   };
-  /** Comentario del administrador al devolver un borrador. */
-  returnComment?: string;
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -88,7 +101,8 @@ export interface KeyTerm {
 }
 
 export type Block =
-  | { type: 'heading'; text: string; id?: string }
+  /** Encabezado: el de nivel 2 (por defecto) abre un apartado; el de nivel 3 es un subapartado dentro de él. */
+  | { type: 'heading'; text: string; id?: string; level?: 2 | 3 }
   | { type: 'paragraph'; text: RichText }
   | { type: 'list'; ordered?: boolean; items: RichText[] }
   | { type: 'callout'; tone: 'clave' | 'atencion' | 'consejo' | 'norma'; title?: string; text: RichText; refs?: SourceRef[] }
@@ -387,6 +401,41 @@ export interface CampusEvent {
 
 export type EventPhase = 'en-curso' | 'proximo' | 'historico' | 'archivado';
 
+/* ────────────────────────────────────────────────────────────────────────────
+ * «Ponte al día»: nuevos clientes y bienvenidas
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+/** Nuevo cliente de la firma. En la demo, empresas inventadas y marcadas como ficticias. */
+export interface NewClient {
+  id: string;
+  /** Nombre de la empresa. */
+  name: string;
+  /** Sector al que se dedica. */
+  sector: string;
+  /** País de origen. */
+  country: string;
+  /** Área de FLM que lleva el encargo; «general» si intervienen varias. */
+  area: Scope;
+  /** Fecha del anuncio (AAAA-MM-DD). */
+  date: string;
+  /** En una frase: qué hará FLM con el cliente. */
+  summary?: string;
+  /** Empresa inventada para la demostración. */
+  fictional?: boolean;
+  editorial: EditorialMeta;
+}
+
+/** Bienvenida a una persona que se suma al equipo. Solo el anuncio tiene fecha: la ficha no guarda la de incorporación. */
+export interface Welcome {
+  id: string;
+  personId: string;
+  /** Fecha del anuncio (AAAA-MM-DD). */
+  date: string;
+  /** Mensaje de bienvenida, en una o dos frases. */
+  message: string;
+  editorial: EditorialMeta;
+}
+
 export interface Holiday {
   date: string;
   name: string;
@@ -439,6 +488,8 @@ export interface SeedData {
   readings: Reading[];
   events: CampusEvent[];
   holidays: Holiday[];
+  clients: NewClient[];
+  welcomes: Welcome[];
 }
 
 /* ────────────────────────────────────────────────────────────────────────────

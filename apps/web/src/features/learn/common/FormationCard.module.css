@@ -52,17 +52,13 @@
   transition: transform var(--dur-base) var(--ease-standard);
 }
 
-/* Contable: el término toma la rampa completa del degradado (superficie mínima) */
+/* Contable: el término toma la rampa completa del degradado (superficie mínima);
+   en oscuro, la de trazo, aclarada (siempre en rampa, nunca en plano) */
 .cover[data-area='contable'] .term {
-  background: var(--flm-gradient);
+  background: var(--area-contable-fill);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-}
-
-:root[data-theme='dark'] .cover[data-area='contable'] .term {
-  background: none;
-  color: var(--area);
 }
 
 /* ── Tarjeta ─────────────────────────────────────────────────────────── */
@@ -161,16 +157,14 @@
 @media (hover: hover) {
   .card:hover {
     box-shadow: var(--shadow-2);
-    transform: translateY(-3px);
+  }
+
+  .card:not([data-next]):hover {
     border-color: var(--line-strong);
   }
 
   .card:hover .band {
     height: 16px;
-  }
-
-  .card:hover .term {
-    transform: translateY(-4px);
   }
 
   .card:hover .title {
@@ -180,8 +174,62 @@
   }
 }
 
+/* Los desplazamientos al pasar, solo con movimiento permitido */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  :root:not([data-motion='reduce']) .card:hover {
+    transform: translateY(-3px);
+  }
+
+  :root:not([data-motion='reduce']) .card:hover .term {
+    transform: translateY(-4px);
+  }
+}
+
 .card:focus-within .band {
   height: 16px;
+}
+
+/* Siguiente formación del área: borde de 2 px del área, sombra y chip escrito.
+   Sin degradado de superficie, para no competir con la cápsula oficial del titular. */
+.card[data-next] {
+  border: 2px solid var(--area);
+  box-shadow: var(--shadow-2);
+}
+
+.card[data-next][data-area='contable'] {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    var(--area-contable-fill) border-box;
+}
+
+/* Banda fija: no crece ni late */
+.card[data-next] .band {
+  height: 16px;
+}
+
+/* El término queda siempre por debajo del chip (en móvil, la portada crece unos píxeles) */
+.card[data-next] .cover {
+  padding-top: calc(24px + 26px + var(--space-3));
+}
+
+.nextChip {
+  position: absolute;
+  top: 24px;
+  left: var(--space-6);
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-inverse);
+  color: var(--ink-inverse);
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.footCta {
+  margin-left: auto;
 }
 
 /* ── Fila compacta ──────────────────────────────────────────────────── */
@@ -292,7 +340,6 @@
   }
 
   .row:hover .rowArrow {
-    transform: translateX(3px);
     color: var(--ink);
   }
 
@@ -300,6 +347,12 @@
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.18em;
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  :root:not([data-motion='reduce']) .row:hover .rowArrow {
+    transform: translateX(3px);
   }
 }
 
@@ -331,5 +384,14 @@
 
   .rowTitle {
     font-size: 1.0625rem;
+  }
+}
+
+/* Colores forzados: el término de Contable, legible en el color del sistema */
+@media (forced-colors: active) {
+  .cover[data-area='contable'] .term {
+    background: none;
+    color: CanvasText;
+    -webkit-text-fill-color: CanvasText;
   }
 }

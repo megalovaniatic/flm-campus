@@ -21,7 +21,7 @@ import {
   type QuizAttempt,
   type SectorAssessment,
 } from '@flm/shared';
-import { assessments, useDocuments, useEvents, useFormations, useNews } from '@/data/selectors';
+import { useAssessments, useDocuments, useFormations, useNews } from '@/data/selectors';
 import { useDemo } from '@/data/store';
 
 /* ── Progreso por área ─────────────────────────────────────────────────── */
@@ -110,38 +110,45 @@ export interface AssessmentSummary {
 
 export function useAssessmentSummaries(): AssessmentSummary[] {
   const map = useDemo((s) => s.assessmentAttempts);
+  // Con las revisiones publicadas desde Gestión (las preguntas vigentes de cada área).
+  const current = useAssessments();
   return useMemo(
     () =>
       AREA_IDS.map((area) => {
-        const assessment = assessments.find((a) => a.area === area);
+        const assessment = current.find((a) => a.area === area);
         const attempts = assessment ? (map[assessment.id] ?? []) : [];
         const passed = attempts.filter((a) => a.passed).sort((x, y) => y.correct - x.correct || x.at.localeCompare(y.at))[0];
         return { area, assessment, attempts, best: bestAttempt(attempts), passed };
       }),
-    [map],
+    [map, current],
   );
 }
 
 /* ── Contribución ──────────────────────────────────────────────────────── */
 
-/** Contenidos de la persona que han llegado a publicarse (los archivados también se publicaron). */
+/** Tipos que cuentan como contribución al conocimiento del equipo (no los anuncios de Inicio ni la agenda). */
+const CONTRIBUTION_TYPES = new Set(['formacion', 'noticia', 'documento']);
+
+/**
+ * Formaciones, noticias y documentos de la persona que han llegado a publicarse (los archivados también
+ * se publicaron). Con la publicación directa, «Primera publicación» ya no depende de administración.
+ */
 export function usePublishedCount(personId: string): number {
   const formations = useFormations(true);
   const news = useNews(true);
   const documents = useDocuments(true);
-  const events = useEvents(true);
   const drafts = useDemo((s) => s.drafts);
   return useMemo(() => {
     const ids = new Set<string>();
     const shared = (status: string) => status === 'publicado' || status === 'archivado';
-    for (const item of [...formations, ...news, ...documents, ...events]) {
+    for (const item of [...formations, ...news, ...documents]) {
       if (item.editorial.authorId === personId && shared(item.editorial.status)) ids.add(item.id);
     }
     for (const d of Object.values(drafts)) {
-      if (d.authorId === personId && shared(d.status)) ids.add(d.id);
+      if (d.authorId === personId && CONTRIBUTION_TYPES.has(d.type) && shared(d.status)) ids.add(d.id);
     }
     return ids.size;
-  }, [personId, formations, news, documents, events, drafts]);
+  }, [personId, formations, news, documents, drafts]);
 }
 
 /* ── Reconocimientos ───────────────────────────────────────────────────── */
@@ -149,9 +156,11 @@ export function usePublishedCount(personId: string): number {
 export function useBadges(formations: Formation[], published: number): Badge[] {
   const progress = useDemo((s) => s.progress);
   const assessmentAttempts = useDemo((s) => s.assessmentAttempts);
+  // También las archivadas: quien superó la evaluación de un área conserva su reconocimiento
+  const assessments = useAssessments(true);
   return useMemo(
     () => computeBadges({ formations, progress, assessments, assessmentAttempts, publishedByPerson: published }),
-    [formations, progress, assessmentAttempts, published],
+    [formations, progress, assessments, assessmentAttempts, published],
   );
 }
 

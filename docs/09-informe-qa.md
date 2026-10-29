@@ -1,7 +1,7 @@
 # Informe de QA · FLM Campus
 
 > **Fecha:** 29 de octubre de 2026 · **Versión:** la publicada en `main` con este documento · **Norma de accesibilidad:** WCAG 2.2 AA
-> **Entornos:** compilación de la demo (`npm run build:demo` servida con `vite preview` en `/flm-campus/`) en el navegador integrado (Chromium), y servidor de desarrollo para la revisión experta.
+> **Entornos:** compilación de la demo (`npm run build:demo` servida con `vite preview` en `/flm-campus/`) en Chrome sin interfaz controlado con el protocolo DevTools (emulación de móvil táctil y de escritorio, tema claro y oscuro) y en el navegador integrado (Chromium), y servidor de desarrollo para la revisión experta.
 > **Documentos relacionados:** [crítica de diseño y auditoría de accesibilidad](qa/critica-diseno-y-accesibilidad.md) · [lista de lanzamiento](10-checklist-lanzamiento.md) · [mantenimiento](07-mantenimiento.md)
 
 ## 1. Resumen
@@ -9,10 +9,11 @@
 | Comprobación | Resultado |
 |---|---|
 | Tipos (TypeScript, 4 paquetes) | Sin errores |
-| Pruebas automáticas (`npm run check`) | **154 de 154** superadas: reglas compartidas 21, API 81, apoyos interactivos 42, contenido 10 |
-| Auditoría automática con axe-core 4.10.2 (WCAG 2.0, 2.1 y 2.2, niveles A y AA) | **0 incidencias** en 32 rutas a 360 px y en 19 rutas a 1440 px, más 1 falso positivo explicado en §3.3 |
-| Reajuste sin desplazamiento horizontal (360 px) | **0 px** en todas las rutas, después de corregir 2 desbordamientos encontrados en esta pasada |
+| Pruebas automáticas (`npm run check`) | **295 de 295** superadas: reglas compartidas 38, API 101, web 144, contenido 12 |
+| Auditoría automática con axe-core 4.10.2 (WCAG 2.0, 2.1 y 2.2, niveles A y AA) | **0 incidencias reales** en 35 rutas (18 de empleado y 17 de Gestión y Administración) a 360 y 1440 px, en tema claro y oscuro: 140 pasadas. Quedan 3 falsos positivos explicados en §3.3 |
+| Reajuste sin desplazamiento horizontal (360 px) | **0 px** en todas las rutas, después de corregir los 2 desbordamientos encontrados en esta pasada (§3.4) |
 | Revisión experta de diseño y accesibilidad | 33 hallazgos (1 crítico, 10 importantes y 22 menores): **29 corregidos**; quedan 4 menores, cada uno con su propuesta |
+| Revisión de código del creador, el flujo editorial y la eliminación de perfiles | 42 hallazgos de cuatro revisores; otros cuatro agentes intentaron refutarlos: **41 confirmados y corregidos**, 1 descartado (§4.1) |
 | Robustez ante una publicación nueva | Corregida en esta pasada: antes salía una pantalla de error genérica en inglés; ahora la página se recarga sola una vez (§5) |
 | Compilación de la demo | Correcta. Fragmentos principales en §6 |
 
@@ -24,41 +25,47 @@ Se lanzan con `npm run check`, que también ejecuta el flujo de GitHub Pages ant
 
 | Paquete | Pruebas | Qué garantizan |
 |---|---|---|
-| `packages/shared` | 21 | Fechas en Europe/Madrid. Fases de evento (en curso, próximo, histórico y archivado; varias sesiones; fecha pendiente). Corrección de tests: 2 de 3 y 8 de 10. Estados de aprendizaje. Matriz de permisos y transiciones editoriales con su código de error. Calendario con la semana empezando en lunes y solo con encuentros de equipo y festivos, sin fechas personales. Exportación .ics con `VTIMEZONE`. |
-| `apps/api` | 81 | Autenticación (scrypt N=2¹⁵, solo correos @flmexperts.com, enlaces de un solo uso, cookie `__Host-flm_sid`, caducidad a las 12 h sin actividad y a los 14 días, rotación y revocación de sesiones). Seguridad (CSP estricta, HSTS en producción, token CSRF, comprobación de `Origin`, límites de peticiones con `Retry-After`, matriz de permisos, 401 sin sesión). Flujo editorial (borrador → revisión → devuelto o publicado, revisiones de lo publicado, conflictos 409, archivo). Archivos (tipo real por los primeros bytes, nombres saneados, descarga solo con permiso, historial de versiones). Aprendizaje (el test se corrige en el servidor y nunca envía las respuestas; progreso propio). Informes restringidos, agregados y sin nombres (participación por formación y errores frecuentes por pregunta), con CSV que neutraliza fórmulas. Personas (no se puede quitar el último administrador; borrado de datos personales con confirmación). Operación (auditoría, purgas de retención, migraciones, copias con `VACUUM INTO`, configuración de producción obligatoria). |
-| `apps/web` (apoyos interactivos y datos de la demo) | 42 | Cálculos de los simuladores: recargos del art. 27 LGT, plazos de cuentas anuales, amortización contable y fiscal, devengo y asientos. Se comparan con casos resueltos a mano. Puesta al día de lo que la demo guarda en el navegador: borra cumpleaños, fechas de incorporación y aniversarios sin perder el progreso. |
-| `packages/content` | 10 | Estructura de todo el contenido semilla validada con los esquemas zod. Tres formaciones por área. Tests de 3 preguntas que se superan con 2. Evaluaciones de 10 que se superan con 8. Actualidad con los cinco bloques. Los enlaces de ejemplo están identificados como tales. Las fichas de personas solo llevan datos profesionales: sin cumpleaños ni fecha de incorporación, y el perfil de la demostración, sin fotografía. |
+| `packages/shared` | 38 | Fechas en Europe/Madrid. Fases de evento (en curso, próximo, histórico y archivado; varias sesiones; fecha pendiente). Corrección de tests: 2 de 3 y 8 de 10. Estados de aprendizaje y reconocimientos (el de una evaluación superada se conserva aunque se archive). Matriz de permisos: «Guardar borrador» y «Publicar», la autoría publica lo suyo, archivar y restaurar solo administración, el tipo se comprueba en cada acción (`canHandleType`) y una sola evaluación vigente por área. Firma neutra del contenido sin autoría («Área Fiscal de FLM», «FLM»). Esquemas del creador: subapartados, país de la lista común y apoyos interactivos (árbol de decisión, clasificador y gráfico). Calendario con la semana empezando en lunes y solo con encuentros de equipo y festivos, sin fechas personales. Exportación .ics con `VTIMEZONE`. |
+| `apps/api` | 101 | Autenticación (scrypt N=2¹⁵, solo correos @flmexperts.com, enlaces de un solo uso, cookie `__Host-flm_sid`, caducidad a las 12 h sin actividad y a los 14 días, rotación y revocación de sesiones). Seguridad (CSP estricta, HSTS en producción, token CSRF, comprobación de `Origin`, límites de peticiones con `Retry-After`, matriz de permisos, 401 sin sesión). Flujo editorial (guardar borrador y publicar, sin revisión previa: la autoría publica lo suyo y administración, cualquier contenido; los borradores se guardan a medias y solo al publicar se exige el contenido completo; el tipo se comprueba en cada acción, también tras un cambio de rol; cambios sobre lo publicado que no se ven hasta publicarlos y que, sin «Lo ha revisado el área», vuelven a quedar pendientes de revisión; conflictos 409; archivo y restauración solo por administración; una sola evaluación vigente por área; eventos y comunicados sin direcciones repetidas; nuevos clientes y bienvenidas, una por persona activa). Archivos (tipo real por los primeros bytes, nombres saneados, descarga solo con permiso, historial de versiones; el PDF nuevo de un documento publicado espera en la revisión hasta publicarla). Aprendizaje (el test se corrige en el servidor y nunca envía las respuestas; progreso propio). Informes restringidos, agregados y sin nombres (participación por formación y errores frecuentes por pregunta), con CSV que neutraliza fórmulas. Personas (no se puede quitar el último administrador; eliminación del perfil confirmada con su correo, que conserva su contenido sin autoría, retira su nombre de «Revisado por» y borra sus bienvenidas). Operación (auditoría, purgas de retención, migraciones —también la reconstrucción de tablas sin perder las filas que dependen de ellas—, copias con `VACUUM INTO`, carga de la semilla que asocia cada persona a la cuenta que ya tenga con su correo, configuración de producción obligatoria). |
+| `apps/web` | 144 | Creador: los formularios de los ocho tipos (abrir y guardar un contenido publicado no pierde nada; validación con resumen de errores; apoyos interactivos como el árbol de decisión, el clasificador, la comparativa y el gráfico), publicar, «Deshacer», archivar y restaurar con los permisos de cada rol, la propiedad de las revisiones y una evaluación vigente por área. Eliminación del perfil: recuentos del diálogo, confirmación con el correo, firma neutra e informes sin la persona. Lectura: fotografías del creador, referencias de «Explicamos», «Repasa» que encuentra su apartado aunque cambie de número y fechas en hora de Madrid. Puesta al día de lo que la demo guarda en el navegador (versiones 2 y 3) sin perder progreso ni borradores. Cálculos de los simuladores: recargos del art. 27 LGT, plazos de cuentas anuales, amortización contable y fiscal, devengo y asientos, comparados con casos resueltos a mano. |
+| `packages/content` | 12 | Estructura de todo el contenido semilla validada con los esquemas zod. Tres formaciones por área. Tests de 3 preguntas que se superan con 2. Evaluaciones de 10 que se superan con 8. Actualidad con los cinco bloques. «Ponte al día»: clientes de ejemplo ficticios con país de la lista y bienvenidas solo a personas ficticias. Los enlaces de ejemplo están identificados como tales. Las fichas de personas solo llevan datos profesionales: sin cumpleaños ni fecha de incorporación, y el perfil de la demostración, sin fotografía. |
 
 ## 3. Auditoría automática de accesibilidad
 
 ### 3.1 Método
 
-- Se inyecta axe-core 4.10.2 en la página servida desde la compilación de la demo. Se recorren las rutas cambiando el *hash*: en cada una se espera a que cambie el título y después 1,5 s, para que terminen las animaciones de entrada.
+- Chrome sin interfaz controlado con el protocolo DevTools carga cada ruta de la compilación de la demo, espera al encabezado principal y después 0,6 s, e inyecta axe-core 4.10.2.
 - Etiquetas evaluadas: `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa` y `wcag22aa`.
-- **Móvil:** emulación a 360 × 780 con pantalla táctil (los controles pequeños crecen a 44 px). **Escritorio:** 1440 × 900.
-- En cada ruta también se mide el desbordamiento horizontal (`scrollWidth − clientWidth`).
-- Se recorrió con el perfil de empleado. Las rutas de gestión y administración se repitieron con el perfil de administración («Ver la demo como»). Con el perfil de empleado, esas rutas muestran «Acceso restringido», que también pasó la auditoría.
+- **Móvil:** emulación a 360 × 800 con pantalla táctil (los controles pequeños crecen a 44 px). **Escritorio:** 1440 × 900. Cada ruta, en tema claro y oscuro (`prefers-color-scheme`) y con movimiento reducido.
+- En cada ruta también se mide el desbordamiento horizontal (`scrollWidth − clientWidth`) y se listan los elementos que ensanchan la página fuera de contenedores con desplazamiento propio. Además se cuenta que no haya más de una tarjeta protagonista por pantalla.
+- Las rutas de empleado se recorren con el perfil de la demostración. Las de Gestión y Administración, con «Ver la demo como» › Administración. Con el perfil de empleado, esas rutas muestran «Acceso restringido», que también pasó la auditoría.
 
 ### 3.2 Resultados
 
-| Grupo | Rutas | 360 px | 1440 px |
+| Grupo | Rutas | 360 px (claro y oscuro) | 1440 px (claro y oscuro) |
 |---|---|---|---|
-| Inicio y Aprender | `/`, `/aprender`, `/aprender/fiscal`, `/aprender/laboral`, formaciones `recargos-presentacion-fuera-de-plazo`, `cuando-derivar-a-mercantil` y `boicac-147`, test final, `/aprender/contable/evaluacion` | 0 incidencias · 0 px | 0 incidencias · 0 px |
-| Consultar | `/consultar`, `/consultar/actualidad`, `/consultar/notas`, `/consultar/lecturas` | 0 incidencias · 0 px (lecturas: 61 px antes de la corrección) | 0 incidencias · 0 px |
-| Participar | `/participar`, `/participar/agenda` (también con el evento del desayuno, el de la formación en IA y un enlace a un evento inexistente), `/participar/calendario`, `/participar/contribuye` | 0 incidencias, más 1 falso positivo · 0 px | 0 incidencias · 0 px |
+| Inicio y Aprender | `/`, `/aprender`, `/aprender/fiscal`, las formaciones `devengo-y-periodificacion` y `recargos-presentacion-fuera-de-plazo` (con su test final), `/aprender/fiscal/evaluacion` | 0 incidencias · 0 px | 0 incidencias · 0 px, más 1 falso positivo (término clave junto a un enlace, §3.3) |
+| Consultar | `/consultar`, `/consultar/actualidad`, `/consultar/notas`, `/consultar/lecturas` | 0 incidencias · 0 px | 0 incidencias · 0 px |
+| Participar | `/participar`, `/participar/agenda`, `/participar/calendario`, `/participar/contribuye` | 0 incidencias · 0 px | 0 incidencias · 0 px |
 | Perfil y otras | `/perfil`, `/perfil/ajustes`, `/sobre` y una ruta inexistente (404) | 0 incidencias · 0 px | 0 incidencias · 0 px |
-| Gestión y administración | `/gestion` y los editores de evento, formación, noticia, documento, test y comunicado, `/admin`, `/admin/personas` | 0 incidencias · 0 px (editor de formación: 14 px antes de la corrección) | 0 incidencias · 0 px |
+| Gestión | `/gestion`, el creador `/gestion/nuevo`, los editores nuevos de formación, noticia, documento, evento, comunicado, cliente y bienvenida, y la edición de una formación (`fis-01`) y de una evaluación del área (`eval-fiscal`) | 0 incidencias · 0 px (edición de `fis-01`: 296 px antes de la corrección) | 0 incidencias · 0 px, más 2 falsos positivos en la vista previa del editor (§3.3) |
+| Administración | `/admin`, `/admin/personas`, `/admin/informes`, `/admin/auditoria`, `/admin/retencion` | 0 incidencias · 0 px (Retención: 38 px antes de la corrección) | 0 incidencias · 0 px |
 
-### 3.3 Falso positivo
+### 3.3 Falsos positivos
 
-Con un enlace a un evento inexistente, axe marcó «contraste insuficiente» en la pestaña activa «Actuales y próximos»: texto blanco sobre `#EBEAE7`. Ese fondo no es el real. La cápsula activa es un elemento hermano que se desliza entre pestañas (`layoutId`), y axe no siempre lo detecta. Comprobado en el DOM: la cápsula está presente, es opaca y es marino `#172641`, así que el contraste real es 15,1:1. La revisión experta ya identificó este mismo caso.
+- **Pestaña activa de la Agenda** (de la pasada anterior). Con un enlace a un evento inexistente, axe marcó «contraste insuficiente» en «Actuales y próximos»: texto blanco sobre `#EBEAE7`. Ese fondo no es el real. La cápsula activa es un elemento hermano que se desliza entre pestañas (`layoutId`), y axe no siempre lo detecta. Comprobado en el DOM: la cápsula está presente, es opaca y es marino `#172641`, así que el contraste real es 15,1:1.
+- **«Idea clave» en la vista previa del editor.** axe calcula blanco sobre el crema de la página (1,06:1). La vista previa es una columna fija con desplazamiento propio y axe no resuelve bien el fondo de lo que hay dentro. Comprobado en el DOM, con la caja a la vista: el texto es blanco sobre marino `#172641` en tema claro y marino sobre crema en oscuro, por encima de 10:1. En la edición de `fis-01`, desplazando la columna hasta la caja, axe ya no la marca.
+- **Término clave junto a un enlace partido en dos líneas** (`target-size`). axe toma la caja que une las dos líneas del enlace «Marco Conceptual del PGC» y la superpone al término «devengo». Los dos son objetivos dentro de una frase, que WCAG 2.5.8 exime. axe no aplica esa excepción porque Chrome trata siempre un `<button>` como `inline-block`, aunque se declare `inline`. Con el término a la vista, nada lo tapa.
 
 ### 3.4 Correcciones de esta pasada
 
 | Hallazgo | Corrección |
 |---|---|
-| A 360 px, la estantería de Lecturas ensanchaba la página 61 px: la balda (`max-content`) agrandaba la columna de la rejilla | `grid-template-columns: minmax(0, 1fr)` en `features/library/ReadingsPage.module.css`. La balda se desplaza dentro de su propio contenedor, como estaba previsto |
-| Los botones de subir, bajar y eliminar bloque del editor de formaciones (3 × 44 px en táctil) se salían 14 px | La cabecera del bloque admite salto de línea y los botones bajan a la línea siguiente, alineados a la derecha (`features/manage/editor/Editor.module.css`) |
+| A 360 px, la regla de plazos de Retención ensanchaba la página 38 px. La animación de cada marca escribía su propio `transform` y borraba el `translateX` que la centra, así que en escritorio las marcas tampoco quedaban centradas en su punto | La posición va en un contenedor y la animación, dentro (`features/admin/RetentionSection.tsx` y `Admin.module.css`) |
+| A 360 px, editar una formación con tablas ensanchaba la página 296 px. Los textos solo para lectores de pantalla de los botones de cada columna (`position: absolute`) escapaban del desplazamiento de la tabla | `position: relative` en el contenedor de la tabla del editor (`features/manage/editor/Editor.module.css`) |
+| La tabla de participación de Informes se desplaza en móvil, pero no se podía alcanzar con el teclado | Región con nombre y enfocable, con anillo de foco (`features/admin/ReportsSection.tsx`) |
+| La columna de vista previa del editor se desplaza, pero no se podía alcanzar con el teclado | Enfocable y con anillo de foco (`features/manage/EditorPage.tsx`) |
+| «Insertar aquí» del editor bajaba el contraste del texto con `opacity: 0.55` | Discreto por el color (`--ink-3`, que cumple 4,5:1) y no por la opacidad (`Editor.module.css`) |
 
 ## 4. Revisión experta de diseño y accesibilidad
 
@@ -72,13 +79,31 @@ La revisión completa, con capturas, medidas y archivos modificados, está en [`
 | M14 | El asterisco de obligatorio no se explicaba | **Corregido.** «Los campos marcados con * son obligatorios» al principio de cada formulario de gestión. El asterisco es decorativo y los lectores anuncian «obligatorio» por el atributo `required` |
 | M15 | El foco inicial de «¿Salir del test?» iba a «Cerrar» | **Corregido.** `Dialog` admite `data-autofocus`: el foco va a la acción segura («Seguir con el test», «Seguir editando», «Cancelar») o, al borrar datos personales, al campo de confirmación. Verificado en el navegador |
 | M16 | En móvil, la píldora «Te quedan N min» tapaba el texto | **Corregido.** Por debajo de 720 px solo queda el filete de progreso |
-| M19 | Contadores dentro de círculos | **Corregido.** La insignia de avisos es una cápsula también con un solo dígito. El contador de «Pendiente de tu revisión» ya lo era |
+| M19 | Contadores dentro de círculos | **Corregido.** La insignia de avisos es una cápsula también con un solo dígito. Los contadores de las pestañas de Gestión (Todo, Borradores, Publicado, Archivado) ya lo eran |
 | M20 | El botón «Cerrar» de los diálogos medía 36 px en escritorio | **Corregido.** Mide 44 px (verificado) |
 | M22 | Faltaban los festivos de diciembre | **Resuelto en el contenido:** 8, 25 y 26 de diciembre, con la fuente oficial (DOGC). El 6 de diciembre de 2026 cae en domingo y no figura en el calendario laboral de Cataluña |
 | M12 | Demasiadas regiones con nombre en formación, perfil y editor | **Pendiente (menor).** Nombrar solo las secciones de primer nivel; el resto se navega por encabezados |
 | M17 | El H1 de la evaluación sectorial es genérico | **Se mantiene a propósito.** «Pon a prueba tus conocimientos» es el nombre fijado en el encargo. El área aparece en el antetítulo y en el título de la página («… · Contable») |
 | M18 | Al enfocar una expresión de «La llegada», no se resalta la tarjeta asociada | **Pendiente (pulido).** Resaltar la tarjeta con `data-index` |
 | M21 | Enlaces de fuentes de 17–22 px de alto | **Pendiente (opcional).** Ya cumplen 2.5.8 por la excepción de espaciado |
+
+### 4.1 Revisión de código del creador, el flujo editorial y la eliminación de perfiles
+
+Cuatro revisores independientes leyeron el código del creador, del flujo editorial, de la eliminación de perfiles, de los datos de la demo y de la API, y comprobaron cada sospecha con pruebas temporales. Otros cuatro agentes intentaron refutar cada hallazgo. De 42, **41 se confirmaron y se corrigieron**, cada uno con su prueba automática. El descartado era solo una diferencia de redacción entre la auditoría de la demo y la de la API. Los más relevantes:
+
+| Ámbito | Hallazgo | Corrección |
+|---|---|---|
+| Creador | El bloque «Fotografía» se publicaba como imagen rota | Las fotos aprobadas se pintan con su componente y con el texto alternativo de quien publica |
+| Creador | En el árbol de decisión, renombrar, duplicar o borrar un paso dejaba saltos rotos y se podía publicar | Las referencias se actualizan y la validación, también en la API, exige un árbol completo |
+| Creador | Clasificador, comparativa, gráfico y ejemplo resuelto admitían datos que la lectura no podía mostrar | Validación y editores coherentes con lo que se ve publicado |
+| Flujo editorial | Un autor podía publicar los cambios de una formación ajena si los había empezado administración | La propiedad de una revisión es la del contenido, en la demo y en la API |
+| Flujo editorial | Tras un cambio de rol, un autor podía editar una evaluación del área | El tipo se comprueba en cada acción (`canHandleType`) |
+| Flujo editorial | Publicar una segunda evaluación del área sustituía a la anterior y dejaba sin efecto los intentos superados | Una sola evaluación vigente por área; archivar la retira de verdad y el reconocimiento ya conseguido se conserva |
+| Flujo editorial | Publicar cambios sin «Lo ha revisado el área» conservaba el «Revisado por» anterior | Vuelven a quedar pendientes de revisión |
+| Eliminación del perfil | La API conservaba el nombre de la persona en «Revisado por» | Se retira junto con su autoría |
+| Eliminación del perfil | La demo pedía el nombre para confirmar y la API, el correo | Las dos piden el correo |
+| Datos de la demo | Al ponerse al día, un navegador con datos anteriores podía perder el test final de una formación publicada desde Gestión | La migración conserva todo y lleva cada test a su formación |
+| API | «Guardar borrador» exigía el contenido completo | Los borradores se guardan a medias; el esquema completo se exige al publicar |
 
 ## 5. Pruebas funcionales en el navegador
 
@@ -91,7 +116,9 @@ Recorridos hechos con teclado y ratón sobre la demo. Los resultados detallados 
 | Agenda y calendario: fases en Europe/Madrid, detalle de evento, «Copiar enlace», rejilla con flechas, Inicio/Fin y Re Pág/Av Pág | Correcto. La exportación .ics la cubren las pruebas automáticas |
 | Notas informativas: filtros, hoja lateral con miniatura del PDF, versiones y descarga | Correcto. La hoja atrapa el foco y lo devuelve al cerrar |
 | Búsqueda global (Ctrl K) | Correcta. Esc cierra a la primera y el foco vuelve al origen |
-| Gestión: los seis editores, validación y resumen de errores con enlace a cada campo | Correcto. El flujo borrador → revisión → publicado o devuelto se simula en el navegador y lo cubren las pruebas de la API |
+| Gestión: el creador por destino (`/gestion/nuevo`), los editores de los ocho tipos, validación y resumen de errores con enlace a cada campo | Correcto. Los 26 tipos de bloque de la paleta (apartado y subapartado, texto, los cuatro recuadros, ejemplo resuelto, tabla, fotografía y los 13 apoyos interactivos) se añaden sin errores ni avisos en la consola, y la vista previa los pinta todos. «Partir de un ejemplo» → «Publicar» con confirmación → «Ver publicado» abre la formación en Aprender › Laboral con su firma y «Pendiente de revisión por el área». Publicar sin completar muestra, en cada tipo, el resumen de campos pendientes. Las reglas de cada rol las cubren `forms.test.ts`, `actions.test.ts` y la API |
+| Eliminar el perfil (Administración › Personas) | Correcto. Bloqueado para la propia cuenta. El diálogo explica con recuentos reales qué se conserva y con qué firma, y qué bienvenida se retira. Pide el correo de la persona y los errores quedan enlazados al campo. El foco empieza en «Cancelar» y, al terminar, pasa al título «Personas». Las formaciones de la persona pasan a firmar «Área Fiscal de FLM» y sus noticias, «FLM». La auditoría lo anota sin datos personales. A 360 px, el diálogo no se sale |
+| «Ponte al día» en Inicio | Correcto. Noticias, nuevos clientes, incorporaciones y próximos eventos tras la bienvenida. Quien es autor o administrador ve en cada recuadro un atajo al creador («Nueva noticia», «Nuevo cliente», «Nueva bienvenida», «Nuevo evento») |
 | Roles: Empleado, Autor y Administrador con «Ver la demo como»; rutas protegidas | Correcto. Sin permiso se ve «Acceso restringido» |
 | 404 con sugerencia de sección | Correcto |
 | **Versión nueva publicada con el campus abierto** (simulado ocultando un fragmento de la compilación) | **Corregido en esta pasada.** Antes salía «Unexpected Application Error!», la pantalla genérica en inglés de React Router. Ahora `RouteError` recarga la página una vez y, si vuelve a fallar en menos de 15 s, explica qué pasa y ofrece «Recargar la página» y «Volver al inicio» sin perder la cabecera. Vite también avisa (`vite:preloadError`) y la recarga es la misma |
@@ -104,11 +131,12 @@ Compilación de la demo del 29/10/2026. Tamaños comprimidos con gzip.
 
 | Fragmento | Tamaño | Cuándo se carga |
 |---|---|---|
-| `index` (armazón e Inicio) | 36,3 KB | Siempre |
+| `index` (armazón) | 25,2 KB | Siempre |
 | `react` | 100,3 KB | Siempre (en caché entre versiones si no cambia) |
 | `motion` | 56,2 KB | Siempre |
-| `contenido` (contenido semilla de la demo) | 133,4 KB | Siempre en la demo; la versión privada lo pide a la API |
-| `FormationPage` | 40,3 KB | Al abrir una formación |
+| `contenido` (contenido semilla de la demo) | 133,5 KB | Siempre en la demo; la versión privada lo pide a la API |
+| `FormationPage` | 6,2 KB | Al abrir una formación (la lectura y los apoyos interactivos van en fragmentos propios) |
+| `EditorPage` | 37,9 KB | Solo en Gestión, al abrir el editor |
 | `pdf` (pdf.js) | 129,3 KB | Solo al previsualizar un PDF |
 
 Cada página es un fragmento propio. Las fotografías se sirven en AVIF o WebP con dimensiones explícitas, así que la página no salta al cargar. Las tipografías están en el propio servidor, sin peticiones a terceros.
@@ -118,7 +146,7 @@ Cada página es un fragmento propio. Las fotografías se sirven en AVIF o WebP c
 - La demo no tiene servidor: no contiene secretos ni claves, y todo lo que se hace se guarda solo en el navegador (`localStorage`). Se puede borrar con «Restablecer».
 - Solo se publican documentos de FLM aprobados para la demo. Los documentos de terceros (revista de AEDAF, presentación de la campaña de Sociedades y novedades de Cataluña) aparecen como fichas sin archivo.
 - Las personas reales aparecen con su nombre y área públicos y con la fuente anotada. Solo llevan fotografía cuando FLM la ha aportado; el perfil de la demostración aparece con sus iniciales, sin foto. Las personas ficticias de relleno están marcadas como tales en Administración, y a las reales no se les atribuye ningún dato inventado.
-- En la versión privada, la seguridad la cubren las 81 pruebas de la API (§2). Configuración y despliegue en [`apps/api/README.md`](../apps/api/README.md).
+- En la versión privada, la seguridad la cubren las 101 pruebas de la API (§2). Configuración y despliegue en [`apps/api/README.md`](../apps/api/README.md).
 
 ## 8. Qué no se ha probado
 
@@ -129,6 +157,7 @@ Cada página es un fragmento propio. Las fotografías se sirven en AVIF o WebP c
 | Dispositivos reales | Un iPhone y un Android de gama media: gestos, teclado virtual en los editores y rendimiento de las animaciones |
 | Zoom del 200 % en escritorio | Comprobación manual. El reajuste a 320 px, equivalente al 400 %, ya está verificado |
 | Despliegue privado | Docker y Caddy con HTTPS, SMTP real para los enlaces de activación, copias de seguridad en el servidor y restauración de prueba |
+| Gestión y Administración contra la API | Hoy las dos compilaciones trabajan sobre el almacén del navegador; el cliente `apps/web/src/data/api.ts` ya sigue el contrato de la API, pero ninguna pantalla lo usa todavía. Las reglas de la API las cubren sus 101 pruebas |
 | Contenido | Validación jurídica de las 12 formaciones y sus tests por cada área (todas en «pendiente de revisión»), festivos locales de 2027 y sustitución de los enlaces de ejemplo |
 
 ## 9. Procedimiento manual antes de cada publicación
@@ -137,6 +166,6 @@ Cada página es un fragmento propio. Las fotografías se sirven en AVIF o WebP c
 2. `npm run build:demo` y `vite preview` (configuración «demo-build» de `.claude/launch.json`).
 3. Recorrido con teclado desde una carga limpia: el primer Tab va a «Saltar al contenido»; Intro lleva al contenido sin cambiar de página.
 4. Formación de prueba: confirmar la lectura, test con 2/3 y «El escalón». Después, «Restablecer».
-5. Auditoría de axe en las rutas de §3.2 a 360 y 1440 px: 0 incidencias y 0 px de desbordamiento.
+5. Auditoría de axe en las rutas de §3.2 a 360 y 1440 px, en claro y oscuro: 0 incidencias (salvo los falsos positivos de §3.3) y 0 px de desbordamiento.
 6. Tema oscuro y movimiento reducido en Inicio, en una formación y en el calendario.
 7. Tras publicar, abrir la URL pública en una ventana privada: carga sin iniciar sesión, los enlaces directos con `#/…` funcionan y no hay errores en la consola.

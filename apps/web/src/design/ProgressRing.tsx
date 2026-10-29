@@ -6,6 +6,7 @@ import { useReducedMotionPref } from '@/lib/preferences';
  * Anillo de progreso con el degradado del logotipo (rojo → burdeos → marino).
  * El valor también se expone como texto accesible. En modo oscuro las paradas se aclaran
  * (tokens --ring-*) para que el arco no desaparezca sobre el fondo marino.
+ * Con `tone='area'`, el arco y la pista toman el color del área que lo envuelve (Contable, su rampa).
  */
 export function ProgressRing({
   value,
@@ -14,6 +15,7 @@ export function ProgressRing({
   stroke = 5,
   label,
   decorative = false,
+  tone,
   children,
 }: {
   value: number;
@@ -23,6 +25,7 @@ export function ProgressRing({
   label: string;
   /** El mismo dato ya está escrito al lado (p. ej., dentro de un enlace): el anillo se oculta a los lectores. */
   decorative?: boolean;
+  tone?: 'brand' | 'area';
   children?: React.ReactNode;
 }) {
   const id = useId();
@@ -34,6 +37,7 @@ export function ProgressRing({
   return (
     <span
       {...(decorative ? { 'aria-hidden': true } : { role: 'img', 'aria-label': `${label}: ${value} de ${total}` })}
+      data-ring-tone={tone}
       style={{ position: 'relative', display: 'inline-grid', placeItems: 'center', width: size, height: size, flex: 'none' }}
     >
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true" style={{ transform: 'rotate(-90deg)' }}>
@@ -44,7 +48,7 @@ export function ProgressRing({
             <stop offset="100%" style={{ stopColor: 'var(--ring-3, #172641)' }} />
           </linearGradient>
         </defs>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--ring-track, var(--line))" strokeWidth={stroke} />
         <motion.circle
           cx={size / 2}
           cy={size / 2}

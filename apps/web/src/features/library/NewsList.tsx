@@ -44,6 +44,8 @@ export default function NewsList() {
   const filtered = inQuery.filter((n) => (!area || n.area === area) && (!kind || n.kind === kind));
   const groups = groupByMonth(filtered, (n) => n.date);
   const active = !!(area || kind || q.trim());
+  // Sin filtros ni búsqueda, la última novedad es el foco claro de la lista (el único)
+  const featuredId = !active ? groups[0]?.items[0]?.id : undefined;
   const latest = news[0];
   const from = `${location.pathname}${location.search}`;
 
@@ -156,8 +158,9 @@ export default function NewsList() {
                         exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.16 } }}
                         transition={{ duration: 0.28, ease: EASE, layout: { duration: 0.32, ease: EASE } }}
                         className={styles.item}
+                        data-featured={n.id === featuredId || undefined}
                       >
-                        <NewsCard item={n} to={link(`/consultar/actualidad/${n.slug}`)} state={{ from }} tokens={tokens} headingLevel={3} withYear={false} />
+                        <NewsCard item={n} to={link(`/consultar/actualidad/${n.slug}`)} state={{ from }} tokens={tokens} headingLevel={3} withYear={false} featured={n.id === featuredId} />
                       </motion.li>
                     ))}
                   </AnimatePresence>

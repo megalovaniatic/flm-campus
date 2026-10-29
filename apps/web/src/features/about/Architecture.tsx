@@ -110,16 +110,16 @@ const JOURNEYS: Record<Journey, { intro: string; steps: Step[] }> = {
     ],
   },
   autor: {
-    intro: 'Compartir conocimiento con el equipo con una revisión previa.',
+    intro: 'Compartir conocimiento con el equipo: crear, guardar como borrador y publicar lo propio.',
     steps: [
-      { title: 'Gestión · Nuevo', text: 'Plantilla por tipo: formación, test, noticia, documento, evento o comunicado.' },
-      { title: 'Editor con vista previa', text: 'Autoguardado en el dispositivo y aviso de cambios sin guardar.' },
+      { title: 'Crear contenido', text: 'Ocho tipos en tarjetas, por dónde aparecen: formación, evaluación, noticia, documento, evento, comunicado, cliente nuevo y bienvenida. Con plantilla o a partir de un ejemplo real.' },
+      { title: 'Editor con vista previa', text: 'Apartados y bloques en cualquier posición, apoyos interactivos y test final; autoguardado y aviso de cambios sin guardar.' },
       {
-        title: 'Enviar a revisión',
-        text: 'Administración revisa el contenido.',
+        title: '«Guardar borrador» o «Publicar»',
+        text: 'Sin revisión previa: la autoría publica lo suyo.',
         branches: [
-          { when: 'Lo publica', result: 'Publicado y visible para todo el equipo' },
-          { when: 'Lo devuelve', result: 'Vuelve a borrador con un comentario' },
+          { when: 'Lo publica', result: 'Aparece en su sitio («Ver publicado»), con «Deshacer» durante unos segundos' },
+          { when: 'Lo guarda', result: 'Queda como borrador en Gestión, sin que nadie más lo vea' },
         ],
       },
       { title: 'Reconocimiento', text: '«Primera publicación» en tu perfil, con fecha.' },
@@ -128,9 +128,9 @@ const JOURNEYS: Record<Journey, { intro: string; steps: Step[] }> = {
   admin: {
     intro: 'Mantener el campus al día y en orden, con trazabilidad.',
     steps: [
-      { title: 'Gestión · Pendiente de tu revisión', text: 'Contenidos enviados por las personas autoras.' },
-      { title: 'Publicar', text: 'Con «Deshacer» durante unos segundos, o devolver con comentarios.' },
-      { title: 'Administración · Personas', text: 'Altas con enlace de activación de 7 días; desactivar cierra sus sesiones.' },
+      { title: 'Gestión de contenidos', text: 'Edita, publica, archiva y restaura cualquier contenido, también el que se ha quedado sin autoría.' },
+      { title: 'Publicar', text: 'Con «Deshacer» durante unos segundos; si el área lo ha revisado, se indica al publicar.' },
+      { title: 'Administración · Personas', text: 'Altas con enlace de activación de 7 días; desactivar cierra sus sesiones; eliminar el perfil de quien deja FLM conserva su contenido sin autoría.' },
       { title: 'Informes', text: 'Participación por formación, sin nombres, y errores más frecuentes, exportables en CSV.' },
       { title: 'Auditoría', text: 'Quién hizo qué y cuándo.' },
     ],

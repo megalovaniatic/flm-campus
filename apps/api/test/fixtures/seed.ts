@@ -19,6 +19,10 @@ export const IDS = {
   multisesion: 'ev-multisesion',
   pasado: 'ev-pasado',
   comunicado: 'com-pendiente',
+  cliente: 'cl-industrias-vall',
+  clienteFicticio: 'cl-ficticio',
+  bienvenida: 'bv-reservada',
+  bienvenidaFicticia: 'bv-ficticia',
 } as const;
 
 export const EMAILS = {
@@ -93,18 +97,24 @@ export function formationPayload(overrides: Partial<Formation> = {}): Formation 
 /** Respuestas: correctas en las tres preguntas de la formación. */
 export const FORMATION_CORRECT = { q1: 'a', q2: 'b', q3: 'c' } as const;
 
-const assessment: SectorAssessment = {
-  id: IDS.assessment,
-  area: 'fiscal',
-  title: 'Pon a prueba tus conocimientos',
-  intro: 'Diez preguntas para comprobar lo aprendido en el área Fiscal.',
-  quiz: {
-    id: 'quiz-eval-fiscal',
-    title: 'Evaluación Fiscal',
-    passMark: 8,
-    questions: Array.from({ length: 10 }, (_, i) => question(`e${i + 1}`, 'a')),
-  },
-};
+/** Evaluación del área: 10 preguntas (la correcta, siempre la «a»), aprobado con 8. */
+export function assessmentPayload(overrides: Partial<SectorAssessment> = {}): SectorAssessment {
+  return {
+    id: IDS.assessment,
+    area: 'fiscal',
+    title: 'Pon a prueba tus conocimientos',
+    intro: 'Diez preguntas para comprobar lo aprendido en el área Fiscal.',
+    quiz: {
+      id: 'quiz-eval-fiscal',
+      title: 'Evaluación Fiscal',
+      passMark: 8,
+      questions: Array.from({ length: 10 }, (_, i) => question(`e${i + 1}`, 'a')),
+    },
+    ...overrides,
+  };
+}
+
+const assessment = assessmentPayload();
 
 function event(patch: Partial<CampusEvent> & Pick<CampusEvent, 'id' | 'slug' | 'title'>): CampusEvent {
   return {
@@ -264,5 +274,31 @@ export const fixtureSeed: SeedData = {
   holidays: [
     { date: '2026-12-25', name: 'Navidad', scope: 'nacional', offices: [], source: 'https://www.boe.es/diario_boe/' },
     { date: '2026-12-26', name: 'Sant Esteve', scope: 'autonomico', offices: ['Barcelona', 'Vic', 'Granollers'], source: 'https://dogc.gencat.cat' },
+  ],
+  clients: [
+    {
+      id: IDS.cliente,
+      name: 'Industrias del Vall, S.L.',
+      sector: 'Maquinaria agrícola',
+      country: 'España',
+      area: 'mercantil',
+      date: '2026-10-20',
+      summary: 'Reorganización societaria del grupo.',
+      editorial: published(IDS.admin),
+    },
+    {
+      id: IDS.clienteFicticio,
+      name: 'Ejemplo Ficticio AB',
+      sector: 'Robótica',
+      country: 'Suecia',
+      area: 'laboral',
+      date: '2026-10-21',
+      fictional: true,
+      editorial: published(IDS.admin),
+    },
+  ],
+  welcomes: [
+    { id: IDS.bienvenida, personId: IDS.reservada, date: '2026-10-26', message: 'Se suma al Área Contable en Barcelona.', editorial: published(IDS.admin) },
+    { id: IDS.bienvenidaFicticia, personId: IDS.ficticia, date: '2026-10-19', message: 'Bienvenida de ejemplo para la demostración.', editorial: published(IDS.admin) },
   ],
 };

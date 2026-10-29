@@ -36,6 +36,15 @@
   gap: clamp(2.5rem, 2rem + 2vw, 4rem);
 }
 
+/* Una balda; la de tu área lleva además .spotlight-soft (fondo, borde, radio y sombra) */
+.shelf {
+  min-width: 0;
+}
+
+.shelf[data-mine] {
+  padding: var(--space-6);
+}
+
 .shelfHead {
   display: flex;
   flex-wrap: wrap;
@@ -44,6 +53,13 @@
   gap: var(--space-2) var(--space-4);
   padding-bottom: var(--space-3);
   border-bottom: 1px solid var(--line);
+}
+
+.shelfName {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
 }
 
 .shelfTitle {
@@ -59,8 +75,8 @@
 
 .shelfDot {
   flex: none;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: var(--area-fill);
 }
@@ -263,6 +279,7 @@
   overflow: hidden;
 }
 
+/* Canto vertical del área (Contable, su rampa en vertical; aclarada en oscuro) */
 .value::before {
   content: '';
   position: absolute;
@@ -270,11 +287,7 @@
   top: 0;
   bottom: 0;
   width: 4px;
-  background: var(--area-fill);
-}
-
-.detail[data-area='contable'] .value::before {
-  background: var(--flm-gradient-diagonal);
+  background: var(--area-fill-v);
 }
 
 .value p {
@@ -330,11 +343,7 @@
 .ghostSpine {
   width: 1.4rem;
   border-radius: 3px 3px 2px 2px;
-  background: var(--area-fill);
-}
-
-.ghostSpine[data-area='contable'] {
-  background: var(--flm-gradient-diagonal);
+  background: var(--area-fill-v);
 }
 
 .ghostSpine[data-empty] {

@@ -1,4 +1,5 @@
 .header {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
@@ -6,6 +7,22 @@
   padding-bottom: clamp(1.5rem, 1rem + 2vw, 2.75rem);
   margin-bottom: clamp(1.5rem, 1rem + 2vw, 2.75rem);
   border-bottom: 1px solid var(--line);
+}
+
+/* Filete corto con el tramo de la sección (o el color del área); sin sección, sin trazo */
+.header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: clamp(3rem, 2rem + 3vw, 5rem);
+  height: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--tramo, none);
+}
+
+:global([data-area]) .header::after {
+  background: var(--area-fill);
 }
 
 .main {
@@ -37,6 +54,13 @@
   min-height: 32px;
   display: inline-flex;
   align-items: center;
+  gap: 6px;
+}
+
+.crumbs span[aria-current] {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .crumbs a:hover {
@@ -79,5 +103,10 @@
   .header {
     grid-template-columns: minmax(0, 1fr);
     align-items: start;
+  }
+
+  /* La foto que se oculta en móvil no deja hueco bajo la entradilla */
+  .aside:has(> [data-mobile='hide']) {
+    display: none;
   }
 }

@@ -68,8 +68,8 @@ export function ArbolDecision({ spec, headingLevel = 3 }: { spec: Spec; headingL
       {import.meta.env.DEV && problems.length > 0 && (
         <Notice tone="warning" title="Revisa la estructura del árbol (aviso solo en desarrollo)">
           <ul>
-            {problems.map((p) => (
-              <li key={p}>{p}</li>
+            {problems.map((p, i) => (
+              <li key={i}>{p}</li>
             ))}
           </ul>
         </Notice>
@@ -106,12 +106,19 @@ export function ArbolDecision({ spec, headingLevel = 3 }: { spec: Spec; headingL
                 <Sub ref={headingRef} tabIndex={-1} className={styles.question}>
                   Este camino todavía no tiene respuesta
                 </Sub>
-                <p className={styles.help}>Vuelve atrás o empieza de nuevo.</p>
-                <div className={styles.actions}>
-                  <Button variant="secondary" icon={<Undo2 size={16} />} onClick={back}>
-                    Volver atrás
-                  </Button>
-                </div>
+                {history.length > 0 ? (
+                  <>
+                    <p className={styles.help}>Vuelve atrás o empieza de nuevo.</p>
+                    <div className={styles.actions}>
+                      <Button variant="secondary" icon={<Undo2 size={16} />} onClick={back}>
+                        Volver atrás
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  // Sin un primer paso válido no hay adónde volver (el editor no deja publicarlo así).
+                  <p className={styles.help}>El árbol aún no tiene un primer paso válido.</p>
+                )}
               </>
             ) : node.outcome ? (
               <>
@@ -141,7 +148,7 @@ export function ArbolDecision({ spec, headingLevel = 3 }: { spec: Spec; headingL
                 </Sub>
                 <div className={styles.options} role="group" aria-labelledby={`${uid}-q`}>
                   {(node.options ?? []).map((o, i) => (
-                    <motion.button key={o.label} type="button" className={styles.option} onClick={() => choose(i)} initial={reduce ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.24, 0.05 + i * 0.05)}>
+                    <motion.button key={i} type="button" className={styles.option} onClick={() => choose(i)} initial={reduce ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={t(0.24, 0.05 + i * 0.05)}>
                       <span>{o.label}</span>
                       <ArrowRight size={18} aria-hidden="true" className={styles.optionIcon} />
                     </motion.button>

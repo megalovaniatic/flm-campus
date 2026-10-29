@@ -32,29 +32,14 @@
   color: var(--ink-2);
 }
 
-/* ── Pantalla previa de la evaluación ───────────────────────────────── */
+/* ── Pantalla previa de la evaluación: rejilla sobre la atmósfera del área ── */
 
 .intro {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
   gap: clamp(1.5rem, 1rem + 3vw, 4rem);
   align-items: start;
-  padding: clamp(1.5rem, 1rem + 2vw, 2.75rem);
-  border-radius: var(--radius-xl);
-  background: var(--surface);
-  border: 1px solid var(--line);
   position: relative;
-}
-
-.intro::before {
-  content: '';
-  position: absolute;
-  left: 28px;
-  right: 28px;
-  top: -1px;
-  height: 3px;
-  border-radius: 0 0 3px 3px;
-  background: var(--area-fill);
 }
 
 .introText {
@@ -93,18 +78,45 @@
   border: 1.5px solid var(--ink);
 }
 
+/* La meta, como protagonista: fondo, radio y relleno, de .spotlight (layout.css) */
 .introSide {
   display: grid;
   gap: var(--space-3);
-  padding: var(--space-5);
-  border-radius: var(--radius-lg);
-  background: var(--surface-sunken);
+}
+
+.sideKicker {
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+/* Sello sobre placa clara (nunca sobre el degradado); igual en los dos temas */
+.sealPlate {
+  display: inline-flex;
+  justify-self: start;
+  padding: 12px 16px;
+}
+
+:root[data-theme='dark'] .sealPlate :global(.logo-plate) {
+  padding: 0;
+}
+
+.sideGoal {
+  font-size: var(--text-sm);
+  line-height: 1.5;
 }
 
 .introBest {
   font-size: var(--text-sm);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+}
+
+.introSide > :last-child {
+  margin-top: var(--space-2);
 }
 
 /* ── Sello del área ─────────────────────────────────────────────────── */
@@ -147,10 +159,10 @@
   color: var(--ink-2);
 }
 
+/* En móvil, el panel va debajo del texto (orden del DOM) */
 @media (max-width: 720px) {
   .intro {
     grid-template-columns: minmax(0, 1fr);
-    border-radius: var(--radius-lg);
   }
 
   .status {

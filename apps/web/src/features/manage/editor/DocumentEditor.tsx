@@ -1,8 +1,8 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { FileCheck, FileUp, LoaderCircle, RefreshCw, X } from 'lucide-react';
 import { useId, useRef, useState, type DragEvent } from 'react';
-import { AREA_LIST, fileSize, formatShortDate, type AreaId, type LibraryDocument } from '@flm/shared';
-import { Button, SelectField, Switch, TextArea, TextField } from '@/design';
+import { AREA_LIST, can, fileSize, formatShortDate, type AreaId, type LibraryDocument } from '@flm/shared';
+import { Button, Notice, SelectField, Switch, TextArea, TextField } from '@/design';
 import { DOC_KIND_LABEL, type DocumentForm } from '../forms';
 import { checkPdf } from '../pdf';
 import { FieldError, Section, Slot, type EditorProps } from './fields';
@@ -115,12 +115,26 @@ function UploadZone({ form, onFile, onClear, error }: { form: DocumentForm; onFi
 export function DocumentEditor({ value: f, update, err, ctx }: EditorProps<DocumentForm>) {
   const set = <K extends keyof DocumentForm>(k: K, v: DocumentForm[K]) => update((p) => ({ ...p, [k]: v }));
   const history = [...f.versions].sort((a, b) => b.version - a.version);
+  // Como en la API: la autoría sustituye el PDF de su borrador nunca publicado; en uno publicado, administración,
+  // y el PDF nuevo queda pendiente con los cambios (el campus sigue mostrando el vigente hasta publicarlos).
+  const canUpload = !ctx.isRevision || can(ctx.role, 'documentos:reemplazar');
+  const description = ctx.isRevision
+    ? canUpload
+      ? 'El PDF nuevo queda pendiente con el resto de los cambios: el campus sigue mostrando el vigente hasta que los publiques, y el anterior queda en el historial.'
+      : 'El archivo publicado y su historial de versiones.'
+    : history.length
+      ? 'Sustituir el archivo crea una versión nueva al publicar; las anteriores quedan en el historial.'
+      : 'Sube el documento original. El PDF se valida antes de guardarlo.';
   return (
     <>
-      <Section title="Archivo PDF" description={history.length ? 'Sustituir el archivo crea una versión nueva al publicar; las anteriores quedan en el historial.' : 'Sube el documento original. El PDF se valida antes de guardarlo.'}>
-        <Slot path="upload">
-          <UploadZone form={f} error={err('upload')} onFile={(u) => set('upload', u)} onClear={() => update((p) => ({ ...p, upload: undefined, versionNote: '' }))} />
-        </Slot>
+      <Section title="Archivo PDF" description={description}>
+        {canUpload ? (
+          <Slot path="upload">
+            <UploadZone form={f} error={err('upload')} onFile={(u) => set('upload', u)} onClear={() => update((p) => ({ ...p, upload: undefined, versionNote: '' }))} />
+          </Slot>
+        ) : (
+          <Notice title="El PDF lo sustituye administración">Puedes cambiar la ficha del documento. Si hay que sustituir el archivo, pídeselo a administración: la versión anterior se conserva en el historial.</Notice>
+        )}
         {f.upload && (
           <TextField label="Qué cambia en esta versión (opcional)" value={f.versionNote} onChange={(e) => set('versionNote', e.target.value)} hint="Aparece en el historial: «Corrige el calendario de la página 3»." maxLength={160} />
         )}

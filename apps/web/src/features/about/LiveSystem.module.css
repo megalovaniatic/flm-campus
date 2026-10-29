@@ -231,6 +231,59 @@
   color: var(--ink-2);
 }
 
+/* Protagonistas: el panel profundo (el único de /sobre), el foco claro y la placa clara */
+.stars {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: stretch;
+}
+
+.starDeep,
+.starSoft,
+.starPlate {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: var(--space-3);
+}
+
+.starSoft,
+.starPlate {
+  padding: clamp(1.25rem, 0.9rem + 1.6vw, 2.25rem);
+}
+
+/* La placa es igual en los dos temas: sin la placa extra del logotipo en oscuro */
+.starPlate {
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+:root[data-theme='dark'] .starPlate :global(.logo-plate) {
+  padding: 0;
+}
+
+.starKicker {
+  font-size: var(--text-xs);
+  font-weight: 650;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--flm-vino-texto);
+}
+
+.starTitle {
+  font-family: var(--font-serif);
+  font-weight: 440;
+  font-variation-settings: 'opsz' 48;
+  font-size: clamp(1.3rem, 1.15rem + 0.6vw, 1.6rem);
+  line-height: 1.15;
+  letter-spacing: -0.012em;
+}
+
+.starText {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
 .glyphs {
   display: flex;
   flex-wrap: wrap;
@@ -374,9 +427,21 @@
   .motion {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  .stars {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .starDeep {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 760px) {
+  .stars {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .typeRow {
     grid-template-columns: minmax(0, 1fr);
   }

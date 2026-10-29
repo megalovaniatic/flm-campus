@@ -17,6 +17,8 @@ interface AgendaEntryProps {
   now: Date;
   today: string;
   expanded: boolean;
+  /** Lo siguiente de la agenda: foco claro, fecha con el anillo del tramo y la única acción principal. */
+  featured?: boolean;
   onToggle: () => void;
 }
 
@@ -24,7 +26,7 @@ interface AgendaEntryProps {
  * Entrada de «Actuales y próximos»: fecha grande en su círculo, texto editorial y detalle
  * desplegable en el sitio (la altura se anima; el resto de la agenda se desplaza con ella).
  */
-export function AgendaEntry({ ev, now, today, expanded, onToggle }: AgendaEntryProps) {
+export function AgendaEntry({ ev, now, today, expanded, featured = false, onToggle }: AgendaEntryProps) {
   const reduce = useReducedMotionPref();
   const t = eventTiming(ev, now, today);
   const refYear = Number(today.slice(0, 4));
@@ -35,7 +37,7 @@ export function AgendaEntry({ ev, now, today, expanded, onToggle }: AgendaEntryP
 
   // Acción adecuada a cada entrada: calendario para los eventos con fecha, enlace oficial para los comunicados.
   let action = null;
-  if (ev.kind === 'evento' && canIcs) action = <AddToCalendarButton ev={ev} sessions={t.sessions.length} size="sm" />;
+  if (ev.kind === 'evento' && canIcs) action = <AddToCalendarButton ev={ev} sessions={t.sessions.length} size="sm" variant={featured ? 'primary' : 'secondary'} />;
   else if (external)
     action = (
       <ButtonLink to={external.url} target="_blank" rel="noreferrer" variant="secondary" size="sm" iconRight={<ArrowUpRight />}>
@@ -45,16 +47,19 @@ export function AgendaEntry({ ev, now, today, expanded, onToggle }: AgendaEntryP
     );
 
   return (
-    <li id={`evento-${ev.slug}`} className={styles.item} data-expanded={expanded}>
-      <article className={styles.entry} data-expanded={expanded} aria-labelledby={titleId}>
+    <li id={`evento-${ev.slug}`} className={styles.item} data-expanded={expanded} data-featured={featured || undefined}>
+      <article className={styles.entry} data-expanded={expanded} data-featured={featured || undefined} aria-labelledby={titleId}>
         <div className={styles.head} data-media={!!ev.image}>
           <div className={styles.dateCol}>
-            <DateMark dateKey={t.anchor?.key} caption={t.anchor?.caption} tone={t.phase === 'en-curso' ? 'current' : 'default'} />
+            <DateMark dateKey={t.anchor?.key} caption={t.anchor?.caption} tone={t.phase === 'en-curso' ? 'current' : featured ? 'next' : 'default'} />
           </div>
           <div className={styles.body}>
             <p className={styles.kicker}>
               <EventIcon icon={ev.icon} size={16} className={styles.kickerIcon} />
-              <span>{eventKicker(ev)}</span>
+              <span>
+                {featured && 'Lo siguiente · '}
+                {eventKicker(ev)}
+              </span>
             </p>
             <h3 id={titleId} className={styles.title} tabIndex={-1} data-focus-target="">
               {ev.title}

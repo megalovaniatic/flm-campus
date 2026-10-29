@@ -1,126 +1,90 @@
 import { AnimatePresence, motion } from 'motion/react';
-import type { LucideIcon } from 'lucide-react';
-import { Heading, Lightbulb, List, Lock, Pilcrow, SquarePen } from 'lucide-react';
-import { Link } from 'react-router';
+import { BookOpenText, CircleCheck, FileText, Images, ListChecks, NotebookText } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { AREA_LIST, type AreaId } from '@flm/shared';
 import { Checkbox, Notice, SelectField, TextArea, TextField } from '@/design';
-import { BLOCK_LABEL, CALLOUT_LABEL, formationMinutes, kid, newBlock, type CalloutTone, type EditableBlockType, type EditorBlock, type FormationForm } from '../forms';
-import { AddButton, FieldError, ItemTools, itemMotion, move, RICH_HINT, Section, Slot, type EditorProps } from './fields';
+import { formationMinutes, kid, QUIZ_RULES, reviewTargets, type FieldError as FieldErrorType, type FormationForm } from '../forms';
+import { BlockList, RefsEditor } from './blocks';
+import { AddButton, FieldError, ItemTools, itemMotion, move, Section, Slot, type EditorProps } from './fields';
+import { DocumentChecklist } from './pickers';
+import { QuizEditor } from './QuizEditor';
+import { RichTextArea } from './RichTextArea';
 import styles from './Editor.module.css';
 
-const BLOCK_ICON: Record<EditableBlockType | 'locked', LucideIcon> = {
-  heading: Heading,
-  paragraph: Pilcrow,
-  callout: Lightbulb,
-  list: List,
-  example: SquarePen,
-  locked: Lock,
-};
+/** Pasos de la formación: cada uno agrupa sus campos y cuenta sus errores pendientes. */
+export const FORMATION_STEPS = [
+  { id: 'portada', label: 'Portada y resumen', icon: Images, match: (p: string) => /^(title|coverTerm|summary|intro|outcomes|area|version)/.test(p) },
+  { id: 'contenido', label: 'Contenido', icon: BookOpenText, match: (p: string) => p.startsWith('blocks') },
+  { id: 'terminos', label: 'Términos e idea clave', icon: NotebookText, match: (p: string) => p.startsWith('keyTerms') || p.startsWith('takeaway') },
+  { id: 'fuentes', label: 'Fuentes y documentos', icon: FileText, match: (p: string) => p.startsWith('sources') || p.startsWith('verifiedAt') || p.startsWith('documentIds') },
+  { id: 'test', label: 'Test final', icon: ListChecks, match: (p: string) => p.startsWith('quiz') },
+] as const;
 
-const ADDABLE: EditableBlockType[] = ['heading', 'paragraph', 'callout', 'list', 'example'];
+export type FormationStep = (typeof FORMATION_STEPS)[number]['id'];
 
-function BlockFields({ b, i, update, err }: { b: EditorBlock; i: number; update: EditorProps<FormationForm>['update']; err: EditorProps<FormationForm>['err'] }) {
-  const patch = (p: Partial<EditorBlock>) => update((prev) => ({ ...prev, blocks: prev.blocks.map((x) => (x.id === b.id ? ({ ...x, ...p } as EditorBlock) : x)) }));
-  const path = (k: string) => `blocks.${i}.${k}`;
-  switch (b.type) {
-    case 'heading':
-      return (
-        <Slot path={path('text')}>
-          <TextField label="Título de la sección" value={b.text} onChange={(e) => patch({ text: e.target.value })} error={err(path('text'))} placeholder="p. ej., Qué cambia y desde cuándo" />
-        </Slot>
-      );
-    case 'paragraph':
-      return (
-        <Slot path={path('text')}>
-          <TextArea label="Párrafo" rows={4} value={b.text} onChange={(e) => patch({ text: e.target.value })} error={err(path('text'))} hint={`Deja una línea en blanco para separar párrafos. ${RICH_HINT}`} />
-        </Slot>
-      );
-    case 'callout':
-      return (
-        <>
-          <div className={styles.grid2}>
-            <SelectField
-              label="Tipo de recuadro"
-              value={b.tone}
-              onChange={(e) => patch({ tone: e.target.value as CalloutTone })}
-              options={(Object.keys(CALLOUT_LABEL) as CalloutTone[]).map((t) => ({ value: t, label: t === 'clave' ? 'Explicamos (término)' : CALLOUT_LABEL[t] }))}
-            />
-            <TextField label={b.tone === 'clave' ? 'Término que se explica' : 'Título (opcional)'} value={b.title} onChange={(e) => patch({ title: e.target.value })} hint={b.tone === 'clave' ? 'Se muestra como «EXPLICAMOS [TÉRMINO]».' : undefined} />
-          </div>
-          <Slot path={path('text')}>
-            <TextArea label="Texto del recuadro" rows={3} value={b.text} onChange={(e) => patch({ text: e.target.value })} error={err(path('text'))} hint={RICH_HINT} />
-          </Slot>
-        </>
-      );
-    case 'list':
-      return (
-        <>
-          <Checkbox label="Lista numerada" hint="Para pasos o plazos en orden." checked={b.ordered} onChange={(v) => patch({ ordered: v })} />
-          <Slot path={path('items')}>
-            <TextArea label="Elementos (uno por línea)" rows={4} value={b.items} onChange={(e) => patch({ items: e.target.value })} error={err(path('items'))} hint={RICH_HINT} />
-          </Slot>
-        </>
-      );
-    case 'example':
-      return (
-        <>
-          <Slot path={path('title')}>
-            <TextField label="Título del ejemplo" value={b.title} onChange={(e) => patch({ title: e.target.value })} error={err(path('title'))} placeholder="p. ej., Una sociedad que presenta fuera de plazo" />
-          </Slot>
-          <Slot path={path('scenario')}>
-            <TextArea label="Planteamiento" rows={3} value={b.scenario} onChange={(e) => patch({ scenario: e.target.value })} error={err(path('scenario'))} hint="El caso del cliente, con datos realistas y cifras redondas." />
-          </Slot>
-          <Slot path={path('steps')}>
-            <fieldset className={styles.subfields}>
-              <legend className={styles.legend}>Pasos (se muestran uno a uno: «Siguiente paso» / «Ver todo»)</legend>
-              <FieldError message={err(path('steps'))} />
-              <ol role="list" className={styles.items}>
-                <AnimatePresence initial={false}>
-                  {b.steps.map((s, j) => (
-                    <motion.li key={s.id} {...itemMotion} className={styles.stepRow}>
-                      <div className={styles.itemHead}>
-                        <span className={styles.itemTitle}>Paso {j + 1}</span>
-                        <ItemTools
-                          label={`el paso ${j + 1}`}
-                          index={j}
-                          count={b.steps.length}
-                          min={1}
-                          onMove={(to) => patch({ steps: move(b.steps, j, to) })}
-                          onRemove={() => patch({ steps: b.steps.filter((x) => x.id !== s.id) })}
-                        />
-                      </div>
-                      <TextField label={`Qué se hace en el paso ${j + 1}`} value={s.label} onChange={(e) => patch({ steps: b.steps.map((x) => (x.id === s.id ? { ...x, label: e.target.value } : x)) })} />
-                      <div className={styles.grid2}>
-                        <TextField label="Cálculo (opcional)" value={s.formula} onChange={(e) => patch({ steps: b.steps.map((x) => (x.id === s.id ? { ...x, formula: e.target.value } : x)) })} placeholder="p. ej., 1.000 € × 5 %" />
-                        <TextField label="Resultado (opcional)" value={s.result} onChange={(e) => patch({ steps: b.steps.map((x) => (x.id === s.id ? { ...x, result: e.target.value } : x)) })} placeholder="p. ej., 50 €" />
-                      </div>
-                    </motion.li>
-                  ))}
-                </AnimatePresence>
-              </ol>
-              <AddButton onClick={() => patch({ steps: [...b.steps, { id: kid('s'), label: '', formula: '', result: '' }] })}>Añadir paso</AddButton>
-            </fieldset>
-          </Slot>
-          <Slot path={path('conclusion')}>
-            <TextArea label="Conclusión" rows={2} value={b.conclusion} onChange={(e) => patch({ conclusion: e.target.value })} error={err(path('conclusion'))} />
-          </Slot>
-        </>
-      );
-    case 'locked':
-      return (
-        <p className={styles.lockedNote}>
-          Bloque avanzado ({b.block.type}): tablas, apoyos interactivos y figuras se conservan tal cual. Puedes moverlo o eliminarlo.
-        </p>
-      );
-  }
+const stepAnchor = (id: string) => `paso-${id}`;
+
+/** Lleva a un paso: desplaza la página hasta su sección y deja el foco en su título. */
+export function goToStep(id: string, reduce: boolean) {
+  const el = document.getElementById(stepAnchor(id));
+  if (!el) return;
+  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  el.querySelector<HTMLElement>('h2')?.focus({ preventScroll: true });
 }
 
-/** Formación: portada tipográfica, resultados, bloques sencillos, términos, idea clave y fuentes. */
-export function FormationEditor({ value: f, update, err }: EditorProps<FormationForm>) {
+function StepNav({ errors, showCounts, reduce }: { errors: FieldErrorType[]; showCounts: boolean; reduce: boolean }) {
+  return (
+    <nav className={styles.steps} aria-label="Pasos de la formación">
+      <ol role="list">
+        {FORMATION_STEPS.map((s, i) => {
+          const pending = errors.filter((e) => s.match(e.path)).length;
+          const Icon = s.icon;
+          return (
+            <li key={s.id}>
+              <button type="button" className={styles.step} onClick={() => goToStep(s.id, reduce)} data-pending={(showCounts && pending > 0) || undefined}>
+                <span className={styles.stepNum} aria-hidden="true">
+                  {i + 1}
+                </span>
+                <Icon size={16} aria-hidden="true" className={styles.stepIcon} />
+                <span>{s.label}</span>
+                {showCounts && (pending > 0 ? <span className={styles.stepCount}>{pending === 1 ? '1 pendiente' : `${pending} pendientes`}</span> : <CircleCheck size={16} aria-label="completo" className={styles.stepOk} />)}
+              </button>
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
+
+/** Apartados actuales, para el «Repasa» de cada pregunta del test (y para ver cuáles ya no coinciden). */
+const useReviewTargets = (form: FormationForm) => useMemo(() => reviewTargets(form.blocks), [form.blocks]);
+
+/**
+ * Formación: portada tipográfica, resumen y resultados; contenido por apartados con todos los bloques
+ * (texto, recuadros, ejemplo resuelto, tablas, fotos y apoyos interactivos); términos e idea clave;
+ * fuentes y documentos; y el test final de tres preguntas.
+ */
+export function FormationEditor({ value: f, update, err, ctx, errors, showErrors, reduce, initialStep }: EditorProps<FormationForm> & { errors: FieldErrorType[]; showErrors: boolean; reduce: boolean; initialStep?: string | null }) {
   const set = <K extends keyof FormationForm>(k: K, v: FormationForm[K]) => update((p) => ({ ...p, [k]: v }));
+  const terms = f.keyTerms.map((k) => k.term.trim()).filter(Boolean);
+  const sections = useReviewTargets(f);
+  // Los apartados al abrir el editor: un «Repasa» que nombraba uno que luego se renombra o se borra se avisa.
+  const [openedSections] = useState(sections);
+
+  useEffect(() => {
+    if (!initialStep) return;
+    const t = window.setTimeout(() => goToStep(initialStep, reduce), 220);
+    return () => window.clearTimeout(t);
+    // Solo al abrir el editor.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <>
-      <Section title="Portada" description="La portada es tipográfica: un «término de portada» del color del área, nunca una foto de archivo.">
+      <StepNav errors={errors} showCounts={showErrors} reduce={reduce} />
+
+      <Section id={stepAnchor('portada')} kicker={1} title="Portada y resumen" description="La portada es tipográfica: un «término de portada» en el color del área, nunca una foto de archivo.">
         <div className={styles.grid2}>
           <SelectField label="Área" value={f.area} onChange={(e) => set('area', e.target.value as AreaId)} options={AREA_LIST.map((a) => ({ value: a.id, label: a.name }))} />
           <Slot path="coverTerm">
@@ -133,14 +97,8 @@ export function FormationEditor({ value: f, update, err }: EditorProps<Formation
         <Slot path="summary">
           <TextArea label="Resumen para las tarjetas" required rows={2} maxLength={220} value={f.summary} onChange={(e) => set('summary', e.target.value)} error={err('summary')} hint="Una frase que invite a leerla." />
         </Slot>
-        <p className={styles.metaNote}>
-          Lectura estimada: <strong>{formationMinutes(f)} min</strong> · versión {f.version}
-        </p>
-      </Section>
-
-      <Section title="Introducción y resultados">
         <Slot path="intro">
-          <TextArea label="Introducción práctica" required rows={4} value={f.intro} onChange={(e) => set('intro', e.target.value)} error={err('intro')} hint={`Por qué importa, con una situación real de cliente. ${RICH_HINT}`} />
+          <RichTextArea label="Introducción práctica" required rows={4} value={f.intro} onChange={(intro) => set('intro', intro)} terms={terms} error={err('intro')} hint="Por qué importa, con una situación real de cliente." />
         </Slot>
         <Slot path="outcomes">
           <fieldset className={styles.subfields}>
@@ -163,49 +121,28 @@ export function FormationEditor({ value: f, update, err }: EditorProps<Formation
             </AddButton>
           </fieldset>
         </Slot>
+        <p className={styles.metaNote}>
+          Lectura estimada: <strong>{formationMinutes(f)} min</strong> · versión {f.version}
+          {f.majorChange ? ` → ${f.version + 1} al publicar` : ''}
+        </p>
+        {ctx.isRevision && (
+          <Checkbox
+            label="Cambio importante: pedir de nuevo la confirmación de lectura"
+            hint={`Al publicar, la formación pasa a la versión ${f.version + 1}: quien ya la había completado tendrá que volver a leerla y confirmar. Úsalo para cambios de criterio o de norma, no para erratas.`}
+            checked={f.majorChange}
+            onChange={(v) => set('majorChange', v)}
+          />
+        )}
       </Section>
 
-      <Section title="Contenido" description="Bloques sencillos en orden de lectura. Ordénalos con las flechas; el ejemplo resuelto es obligatorio.">
+      <Section id={stepAnchor('contenido')} kicker={2} title="Contenido" description="Apartados y subapartados con sus bloques, en orden de lectura. Inserta un bloque donde quieras con «+»; muévelos con las flechas. El ejemplo resuelto es obligatorio.">
         <Slot path="blocks">
           <FieldError message={err('blocks')} />
         </Slot>
-        <ol role="list" className={styles.items}>
-          <AnimatePresence initial={false}>
-            {f.blocks.map((b, i) => {
-              const Icon = BLOCK_ICON[b.type];
-              return (
-                <motion.li key={b.id} {...itemMotion} className={styles.blockCard} data-type={b.type}>
-                  <div className={styles.itemHead}>
-                    <span className={styles.blockType}>
-                      <span className={styles.blockIcon} aria-hidden="true">
-                        <Icon size={16} />
-                      </span>
-                      {BLOCK_LABEL[b.type]} <span className={styles.muted}>· bloque {i + 1}</span>
-                    </span>
-                    <ItemTools label={`el bloque ${i + 1}`} index={i} count={f.blocks.length} onMove={(to) => update((p) => ({ ...p, blocks: move(p.blocks, i, to) }))} onRemove={() => update((p) => ({ ...p, blocks: p.blocks.filter((x) => x.id !== b.id) }))} />
-                  </div>
-                  <BlockFields b={b} i={i} update={update} err={err} />
-                </motion.li>
-              );
-            })}
-          </AnimatePresence>
-        </ol>
-        <div className={styles.addRow} role="group" aria-label="Añadir bloque">
-          <span className={styles.addLabel}>Añadir:</span>
-          {ADDABLE.map((t) => {
-            const Icon = BLOCK_ICON[t];
-            return (
-              <AddButton key={t} onClick={() => update((p) => ({ ...p, blocks: [...p.blocks, newBlock(t)] }))}>
-                <span className={styles.addInner}>
-                  <Icon size={14} aria-hidden="true" /> {BLOCK_LABEL[t]}
-                </span>
-              </AddButton>
-            );
-          })}
-        </div>
+        <BlockList blocks={f.blocks} update={(fn) => update((p) => ({ ...p, blocks: fn(p.blocks) }))} err={err} errors={errors} terms={terms} today={ctx.today} />
       </Section>
 
-      <Section title="Términos clave" description="Al menos 3. En el texto, enlázalos escribiendo [[término]]: la definición aparecerá al margen.">
+      <Section id={stepAnchor('terminos')} kicker={3} title="Términos clave e idea clave" description="Al menos 3 términos. En el texto, enlázalos con el botón «Término» o escribiendo [[término]]: la definición aparece al margen.">
         <Slot path="keyTerms">
           <FieldError message={err('keyTerms')} />
         </Slot>
@@ -228,45 +165,29 @@ export function FormationEditor({ value: f, update, err }: EditorProps<Formation
           </AnimatePresence>
         </ol>
         <AddButton onClick={() => update((p) => ({ ...p, keyTerms: [...p.keyTerms, { id: kid('t'), term: '', definition: '' }] }))}>Añadir término</AddButton>
-      </Section>
-
-      <Section title="Idea clave">
         <Slot path="takeaway">
-          <TextArea label="La idea que debe quedar" required rows={2} value={f.takeaway} onChange={(e) => set('takeaway', e.target.value)} error={err('takeaway')} hint="Una o dos frases. Se destaca al final de la formación." />
+          <RichTextArea label="Idea clave" required rows={2} value={f.takeaway} onChange={(takeaway) => set('takeaway', takeaway)} terms={terms} error={err('takeaway')} hint="La idea que debe quedar, en una o dos frases. Se destaca al final con el punto rojo." />
         </Slot>
       </Section>
 
-      <Section title="Fuentes" description="Normas, resoluciones o criterios con su enlace oficial (https://).">
+      <Section id={stepAnchor('fuentes')} kicker={4} title="Fuentes y documentos" description="Normas, resoluciones o criterios con su enlace oficial (https://) y los documentos originales de la biblioteca.">
         <Slot path="sources">
           <FieldError message={err('sources')} />
         </Slot>
-        <ol role="list" className={styles.items}>
-          <AnimatePresence initial={false}>
-            {f.sources.map((s, i) => (
-              <motion.li key={s.id} {...itemMotion} className={styles.itemCard}>
-                <div className={styles.itemHead}>
-                  <span className={styles.itemTitle}>Fuente {i + 1}</span>
-                  <ItemTools label={`la fuente ${i + 1}`} index={i} count={f.sources.length} min={1} onMove={(to) => update((p) => ({ ...p, sources: move(p.sources, i, to) }))} onRemove={() => update((p) => ({ ...p, sources: p.sources.filter((x) => x.id !== s.id) }))} />
-                </div>
-                <Slot path={`sources.${i}.label`}>
-                  <TextField label="Nombre" value={s.label} onChange={(e) => update((p) => ({ ...p, sources: p.sources.map((x) => (x.id === s.id ? { ...x, label: e.target.value } : x)) }))} error={err(`sources.${i}.label`)} placeholder="p. ej., Real Decreto 1007/2023, art. 3" />
-                </Slot>
-                <div className={styles.grid2}>
-                  <Slot path={`sources.${i}.url`}>
-                    <TextField label="Enlace" type="url" inputMode="url" value={s.url} onChange={(e) => update((p) => ({ ...p, sources: p.sources.map((x) => (x.id === s.id ? { ...x, url: e.target.value } : x)) }))} error={err(`sources.${i}.url`)} placeholder="https://www.boe.es/…" />
-                  </Slot>
-                  <TextField label="Fecha de consulta" type="date" value={s.date} onChange={(e) => update((p) => ({ ...p, sources: p.sources.map((x) => (x.id === s.id ? { ...x, date: e.target.value } : x)) }))} />
-                </div>
-              </motion.li>
-            ))}
-          </AnimatePresence>
-        </ol>
-        <AddButton onClick={() => update((p) => ({ ...p, sources: [...p.sources, { id: kid('f'), label: '', url: '', date: '' }] }))}>Añadir fuente</AddButton>
+        <RefsEditor refs={f.sources} onChange={(sources) => set('sources', sources)} base="sources" err={err} what="Fuente" min={1} add="Añadir fuente" today={ctx.today} />
+        <Slot path="verifiedAt">
+          <TextField label="Normativa comprobada a fecha de" type="date" value={f.verifiedAt} onChange={(e) => set('verifiedAt', e.target.value)} error={err('verifiedAt')} hint="Se muestra como «Normativa comprobada a …» al final de la formación." />
+        </Slot>
+        <DocumentChecklist legend="Documentos originales (opcional)" hint="Aparecen como «Documentos originales» junto a las fuentes, con su descarga." selected={f.documentIds} onChange={(documentIds) => set('documentIds', documentIds)} />
       </Section>
 
-      <Notice title="El test final va aparte">
-        Prepara sus tres preguntas con la plantilla <Link to="/gestion/nuevo/test">Test</Link> y vincúlalo a esta formación.
-      </Notice>
+      <Section id={stepAnchor('test')} kicker={5} title="Test final" description="Tres preguntas de 3 o 4 opciones con «por qué no» en cada incorrecta. Se supera con 2 de 3; con la lectura confirmada, la formación queda completada.">
+        <Slot path="quiz.title">
+          <TextField label="Título del test" value={f.quiz.title} onChange={(e) => update((p) => ({ ...p, quiz: { ...p.quiz, title: e.target.value } }))} />
+        </Slot>
+        {sections.length === 0 && <Notice title="«Repasa» necesita apartados">Añade apartados en «Contenido» para enlazar cada pregunta con el apartado que conviene repasar.</Notice>}
+        <QuizEditor quiz={f.quiz} update={(fn) => update((p) => ({ ...p, quiz: fn(p.quiz) }))} err={err} base="quiz" count={QUIZ_RULES.formacion.count} passMark={QUIZ_RULES.formacion.passMark} sections={sections} openedSections={openedSections} terms={terms} />
+      </Section>
     </>
   );
 }

@@ -81,7 +81,8 @@ export interface SelectFieldProps extends Omit<SelectHTMLAttributes<HTMLSelectEl
   label: ReactNode;
   hint?: ReactNode;
   error?: string;
-  options: { value: string; label: string }[];
+  /** `disabled`: la opción se ve pero no se puede elegir (la pista del campo explica por qué). */
+  options: { value: string; label: string; disabled?: boolean }[];
 }
 
 export function SelectField({ label, hint, error, required, options, className, ...rest }: SelectFieldProps) {
@@ -90,7 +91,7 @@ export function SelectField({ label, hint, error, required, options, className, 
     <FieldShell id={id} label={label} hint={hint} error={error} required={required}>
       <select id={id} className={[styles.control, styles.select, className ?? ''].join(' ')} aria-invalid={!!error || undefined} aria-describedby={describedBy(id, hint, error)} required={required} {...rest}>
         {options.map((o) => (
-          <option key={o.value} value={o.value}>
+          <option key={o.value} value={o.value} disabled={o.disabled}>
             {o.label}
           </option>
         ))}

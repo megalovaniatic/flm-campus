@@ -16,13 +16,15 @@ import {
   type KeyTerm,
 } from '@flm/shared';
 import { ActionButton, AreaTag, Avatar, ButtonLink, Chip, Dialog, EmptyState, Notice, StatusGlyph, type ActionStatus } from '@/design';
-import { useDocuments } from '@/data/selectors';
+import { useByline, useDocuments } from '@/data/selectors';
 import { useDemo } from '@/data/store';
 import { MESSAGES } from '@/lib/messages';
 import { usePageTitle, useReducedMotionPref } from '@/lib/preferences';
 import { Rich, RichParagraphs, TermsProvider } from '@/lib/rich';
 import { Escalon } from '@/motion/Escalon';
-import { editorialDates, formationPath, photoOf, toSections, useLearnFormation, usePerson, type ReadingSection } from './common/data';
+import { AreaDot } from './common/AreaMark';
+import { editorialDates, formationPath, photoOf, toSections, useLearnFormation, type ReadingSection } from './common/data';
+import { FormationCover } from './common/FormationCard';
 import { useMediaQuery } from './common/util';
 import { Blocks, ExternalAnchor, SOURCE_KIND } from './reading/Blocks';
 import { KeyTermsInline, KeyTermsMargin, ReadingRule, Toc, useActiveSection, type TocItem } from './reading/ReadingAids';
@@ -34,7 +36,8 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 /* ── Cabecera ────────────────────────────────────────────────────────── */
 
 function Header({ f, isSample, titleId }: { f: Formation; isSample: boolean; titleId: string }) {
-  const author = usePerson(f.editorial.authorId);
+  // Sin autoría (perfil eliminado), la formación la firma su área: «Área Fiscal de FLM».
+  const byline = useByline(f.editorial.authorId, { type: 'formacion', area: f.area });
   const progress = useDemo((s) => s.progress[f.id]);
   const status = formationStatus(progress, f);
   const dates = editorialDates(f);
@@ -49,7 +52,10 @@ function Header({ f, isSample, titleId }: { f: Formation; isSample: boolean; tit
             <ChevronRight size={14} aria-hidden="true" />
           </li>
           <li>
-            <Link to={`/aprender/${f.area}`}>Área {area.name}</Link>
+            <Link to={`/aprender/${f.area}`}>
+              <AreaDot area={f.area} size={8} />
+              Área {area.name}
+            </Link>
             <ChevronRight size={14} aria-hidden="true" />
           </li>
           <li>
@@ -62,7 +68,7 @@ function Header({ f, isSample, titleId }: { f: Formation; isSample: boolean; tit
       <motion.div className={styles.kicker} {...item(1)}>
         <AreaTag area={f.area} />
         {f.editorial.review.state === 'pendiente' && (
-          <Chip tone="warning" icon={<Hourglass size={14} />}>
+          <Chip tone="neutral" icon={<Hourglass size={14} />}>
             Pendiente de revisión por el área
           </Chip>
         )}
@@ -76,17 +82,17 @@ function Header({ f, isSample, titleId }: { f: Formation; isSample: boolean; tit
       </motion.div>
       <motion.div className={styles.byline} {...item(4)}>
         <div className={styles.author}>
-          {author ? (
+          {byline.kind === 'persona' ? (
             <>
-              <Avatar name={author.name} photo={photoOf(author)} size={44} decorative />
+              <Avatar name={byline.person.name} photo={photoOf(byline.person)} size={44} decorative />
               <span>
-                <span className={styles.authorName}>{author.name}</span>
-                <span className={styles.authorRole}>{author.position}</span>
+                <span className={styles.authorName}>{byline.person.name}</span>
+                <span className={styles.authorRole}>{byline.person.position}</span>
               </span>
             </>
           ) : (
             <span>
-              <span className={styles.authorName}>Área {area.name} de FLM</span>
+              <span className={styles.authorName}>{byline.name}</span>
             </span>
           )}
         </div>
@@ -103,6 +109,8 @@ function Header({ f, isSample, titleId }: { f: Formation; isSample: boolean; tit
           </li>
         </ul>
       </motion.div>
+      {/* La misma portada de la tarjeta, a la derecha del título (solo a partir de 1200 px) */}
+      <FormationCover formation={f} className={styles.headerCover} />
     </header>
   );
 }
@@ -263,53 +271,58 @@ function Finish({ f }: { f: Formation }) {
 
   const readDay = progress?.readAt ? madridDateKey(new Date(progress.readAt)) : undefined;
   return (
-    <section id="terminar" className={styles.finish} aria-labelledby="terminar-t">
-      <h2 id="terminar-t" className={styles.finishTitle} tabIndex={-1} data-focus-target>
-        Terminar la formación
-      </h2>
+    <>
+      {/* El aviso va fuera del protagonista: dentro del panel no hay ámbar */}
       {readOld && (
-        <Notice tone="warning" title="La formación se ha actualizado">
-          Confirmaste una versión anterior. Revisa los cambios y vuelve a confirmar la lectura para mantenerla completada.
-        </Notice>
-      )}
-      <p className={styles.finishText}>
-        {readCurrent && readDay
-          ? `Confirmaste la lectura el ${formatLongDate(readDay)}. ${nextStepHint(progress, f)}`
-          : 'Cuando hayas llegado hasta aquí, confirma la lectura. Después, haz el test final: tres preguntas; se supera con dos aciertos.'}
-      </p>
-      <div className={styles.finishRow} ref={row}>
-        {readCurrent ? (
-          // Ya confirmada: es un estado, no un botón apagado (se anuncia una sola vez).
-          <span className={styles.readDone}>
-            <Check size={18} aria-hidden="true" /> Lectura confirmada
-          </span>
-        ) : (
-          <ActionButton
-            status={st}
-            label="Marcar la lectura como terminada"
-            pendingLabel="Confirmando…"
-            successLabel="Lectura confirmada"
-            icon={<BookOpen />}
-            variant="primary"
-            onClick={onConfirm}
-          />
-        )}
-        <ButtonLink to={`${formationPath(f)}/test`} variant={readCurrent && status !== 'completada' ? 'primary' : 'secondary'} iconRight={<ArrowRight />}>
-          {status === 'completada' ? 'Repetir el test' : 'Hacer el test'}
-        </ButtonLink>
-      </div>
-      <div className={styles.finishStatus}>
-        <StatusGlyph status={status} />
-      </div>
-      {celebrate && (
-        <div className={styles.celebrate}>
-          <Escalon read passed play />
+        <div className={styles.finishNotice}>
+          <Notice tone="warning" title="La formación se ha actualizado">
+            Confirmaste una versión anterior. Revisa los cambios y vuelve a confirmar la lectura para mantenerla completada.
+          </Notice>
         </div>
       )}
-      <p className="sr-only" aria-live="polite">
-        {announce}
-      </p>
-    </section>
+      <section id="terminar" className={`${styles.finish} spotlight`} aria-labelledby="terminar-t">
+        <h2 id="terminar-t" className={styles.finishTitle} tabIndex={-1} data-focus-target>
+          Terminar la formación
+        </h2>
+        <p className={styles.finishText}>
+          {readCurrent && readDay
+            ? `Confirmaste la lectura el ${formatLongDate(readDay)}. ${nextStepHint(progress, f)}`
+            : 'Cuando hayas llegado hasta aquí, confirma la lectura. Después, haz el test final: tres preguntas; se supera con dos aciertos.'}
+        </p>
+        <div className={styles.finishRow} ref={row}>
+          {readCurrent ? (
+            // Ya confirmada: es un estado, no un botón apagado (se anuncia una sola vez).
+            <span className={styles.readDone}>
+              <Check size={18} aria-hidden="true" /> Lectura confirmada
+            </span>
+          ) : (
+            <ActionButton
+              status={st}
+              label="Marcar la lectura como terminada"
+              pendingLabel="Confirmando…"
+              successLabel="Lectura confirmada"
+              icon={<BookOpen />}
+              variant="inverse"
+              onClick={onConfirm}
+            />
+          )}
+          <ButtonLink to={`${formationPath(f)}/test`} variant={readCurrent && status !== 'completada' ? 'inverse' : 'secondary'} iconRight={<ArrowRight />}>
+            {status === 'completada' ? 'Repetir el test' : 'Hacer el test'}
+          </ButtonLink>
+        </div>
+        <div className={styles.finishStatus}>
+          <StatusGlyph status={status} />
+        </div>
+        {celebrate && (
+          <div className={styles.celebrate}>
+            <Escalon read passed play />
+          </div>
+        )}
+        <p className="sr-only" aria-live="polite">
+          {announce}
+        </p>
+      </section>
+    </>
   );
 }
 
@@ -393,7 +406,7 @@ function Reader({ f, isSample }: { f: Formation; isSample: boolean }) {
   );
 
   return (
-    <div className={styles.page} data-area={f.area}>
+    <div className={`${styles.page} area-atmos`} data-area={f.area}>
       <ReadingRule target={articleRef} minutes={f.readingMinutes} />
       <TermsProvider terms={f.keyTerms} onTerm={onTerm}>
         <div className={`container ${styles.wrap}`}>

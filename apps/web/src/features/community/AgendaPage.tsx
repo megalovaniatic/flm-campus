@@ -8,7 +8,7 @@ import { useEvents } from '@/data/selectors';
 import { MESSAGES } from '@/lib/messages';
 import { usePageTitle, useReducedMotionPref } from '@/lib/preferences';
 import { AgendaEntry } from './AgendaEntry';
-import { groupHistory, groupUpcoming, partitionEvents } from './eventView';
+import { groupHistory, groupUpcoming, nextFeaturedEvent, partitionEvents } from './eventView';
 import { HistoryList } from './HistoryList';
 import { useNow, useToday } from './hooks';
 import styles from './Agenda.module.css';
@@ -28,6 +28,8 @@ export default function AgendaPage() {
   const { upcoming, history } = useMemo(() => partitionEvents(events, now), [events, now]);
   const upcomingGroups = useMemo(() => groupUpcoming(upcoming, now, today), [upcoming, now, today]);
   const historyGroups = useMemo(() => groupHistory(history), [history]);
+  // La siguiente entrada es el foco claro de la agenda (el «En curso» conserva su círculo lleno)
+  const featured = nextFeaturedEvent(upcoming, now);
 
   const found = slug ? events.find((e) => e.slug === slug) : undefined;
   const target = found && eventPhase(found, now) !== 'archivado' ? found : undefined;
@@ -155,7 +157,7 @@ export default function AgendaPage() {
                     </div>
                     <ol role="list" className={styles.list}>
                       {g.items.map((ev) => (
-                        <AgendaEntry key={ev.id} ev={ev} now={now} today={today} expanded={open.has(ev.id)} onToggle={() => toggle(ev.id)} />
+                        <AgendaEntry key={ev.id} ev={ev} now={now} today={today} expanded={open.has(ev.id)} featured={ev.id === featured?.id} onToggle={() => toggle(ev.id)} />
                       ))}
                     </ol>
                   </section>

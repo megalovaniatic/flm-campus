@@ -7,4 +7,6 @@ export * from './permissions';
 export * from './calendar';
 export * from './badges';
 export * from './text';
+export * from './authorship';
+export * from './countries';
 export * from './schemas';

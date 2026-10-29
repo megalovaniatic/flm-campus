@@ -32,9 +32,11 @@
 | Papel — fondo general | `--paper` | #F8F6F2 |
 | Degradado oficial | `--flm-gradient` | rojo → burdeos → marino (muestreado) |
 
-**Áreas** (meseta de color de cada cápsula oficial): Fiscal = rojo, Laboral = burdeos, Mercantil = marino, **Contable = la rampa completa del degradado** («la suma de las tres»). En la interfaz el área se muestra con un punto o anillo de su color + el nombre escrito. Variable CSS por área: `--area` vía `[data-area='fiscal|laboral|mercantil|contable']`. Para Contable, donde se necesite un relleno usar `var(--flm-gradient)`; donde se necesite un color plano (texto, borde fino) usar `--flm-marino`.
+**Áreas** (meseta de color de cada cápsula oficial): Fiscal = rojo, Laboral = burdeos, Mercantil = marino, **Contable = la rampa completa del degradado** («la suma de las tres»). En la interfaz el área se muestra con un punto o anillo de su color + el nombre escrito. Variable CSS por área: `--area` vía `[data-area='fiscal|laboral|mercantil|contable']`. Para Contable, donde se necesite un relleno usar `var(--area-contable-fill)` (el degradado de trazo, aclarado en oscuro); donde se necesite un color plano (texto, borde fino) usar `--flm-marino`.
 
-**Degradado**: como máximo un 2–3 % de la superficie de una pantalla (trazos, anillos, filetes, conectores).
+**Degradado**: el completo (con #E53327) solo en trazos, anillos, filetes, bandas y conectores. Como superficie, solo su tramo desde #B8302D (`--grad-spotlight`) o la pieza de redes recreada con círculos (`--grad-redes`, en Participar), en una única tarjeta protagonista por pantalla —la de la acción principal—, que no ocupa más de 1/6 de la primera vista a 1440 × 900. Como mucho, un segundo foco claro con lavados ≤ 8 % (12 % en oscuro). Lo demás, papel y tarjetas blancas.
+
+**Secciones** = tramos del degradado, solo como trazo en el cromo; **áreas** = mesetas en el contenido; **Toda la firma** = las tres mesetas.
 
 ## 3. Tipografía
 
@@ -46,12 +48,12 @@
 
 ## 4. Estructura y navegación
 
-- **Escritorio (≥ 1024 px)**: cabecera fija de 72 px (papel 85 % + desenfoque, filete inferior al desplazar). Izquierda: `flm-horizontal.png` (32 px de alto) + filete vertical 1×24 px + «Campus» (Inter 600, 17 px). Navegación: **Inicio · Aprender · Consultar · Participar**; indicador activo = punto rojo de 6 px bajo la etiqueta que viaja con `layoutId` (se estira como una gota). Derecha: cápsula «Buscar · Ctrl K», campana de avisos, avatar con menú (Perfil, Ajustes, Gestión, Administración, Ver como, Cerrar sesión).
+- **Escritorio (≥ 1024 px)**: cabecera fija de 72 px (papel 85 % + desenfoque, filete inferior al desplazar). Izquierda: `flm-horizontal.png` (32 px de alto) + filete vertical 1×24 px + «Campus» (Inter 600, 17 px). Navegación: **Inicio · Aprender · Consultar · Participar**; indicador activo = cápsula tintada (rojo al 8 %) más la gota: un punto rojo de 6 px bajo la etiqueta que viaja con `layoutId` (se estira como una gota). Derecha: cápsula «Buscar · Ctrl K», campana de avisos, avatar con menú (Perfil, Ajustes, Gestión, Administración, Ver como, Cerrar sesión).
 - **Móvil (< 1024 px)**: barra superior de 56 px (logotipo + «Campus», buscar, avatar) y barra inferior de 64 px + zona segura: Inicio, Aprender, Consultar, Participar, Perfil. Pestaña activa = icono dentro de un círculo marino de 40 px + etiqueta en negrita.
 - **Pie**: `flm-crowe-horizontal.png` (oficial, con «A business associate of Crowe Global»), sedes (Barcelona · C/ Bailèn, 71 bis, 2º · 08009; Vic · C/ de Figueres, 12, Pol. Sot del Pradals · 08500; Granollers · C/ Girona, 15-17 · 08402), enlaces (Sobre el campus, Accesibilidad, Privacidad), lema y aviso de demostración.
 - **Rutas** (hash): `/`, `/aprender`, `/aprender/:area`, `/aprender/:area/:slug`, `/aprender/:area/:slug/test`, `/aprender/:area/evaluacion`, `/consultar`, `/consultar/actualidad(/:slug)`, `/consultar/notas(/:id)`, `/consultar/lecturas(/:id)`, `/participar`, `/participar/agenda(/:slug)`, `/participar/calendario`, `/participar/contribuye`, `/perfil`, `/perfil/ajustes`, `/gestion(...)`, `/admin(...)`, `/sobre`, `/acceso`, `*`.
 - Rejilla: contenedor `--content-max` (82 rem) con `--gutter`; lectura `--reading-max` (42 rem).
-- Tarjetas: superficie blanca, borde 1 px `--line`, radio 24 px (20 px en móvil), sin sombra en reposo; sombra `--shadow-2` solo en elevación (hover en escritorio, capas flotantes).
+- Tarjetas: superficie blanca, borde 1 px `--line`, radio 24 px (20 px en móvil), sin sombra en reposo, salvo la tarjeta protagonista y el foco claro; sombra `--shadow-2` solo en elevación (hover en escritorio, capas flotantes).
 
 ## 5. Momentos firma
 
@@ -86,7 +88,7 @@ Círculo de dos mitades (SVG 20–24 px): mitad izquierda = lectura (llena si es
 - **Agenda**: «Actuales y próximos» como agenda editorial con fecha grande; varias sesiones = círculos de fecha unidos por puente; «Fecha por confirmar» = anillo discontinuo; detalle desplegable (layout); «Añadir a mi calendario (.ics)». «Histórico» compacto por meses, con foto real y material.
 - **Calendario**: mes con lunes como primer día; solo encuentros de equipo y festivos, sin fechas personales; tipos con icono + color + texto (Encuentro de equipo: grupo/marino; Festivo: sol/gris, siempre rotulado «Festivo»); panel del día; navegación de mes y año; en móvil, tira semanal + lista.
 - **Perfil**: progreso por área, tus formaciones, historial de intentos, evaluaciones sectoriales, reconocimientos de aprendizaje y contribución (cápsulas) y ajustes.
-- **Gestión**: tabla unificada con estados (Borrador, En revisión, Publicado, Archivado), plantillas por tipo, editor con vista previa, autoguardado local, aviso de cambios sin guardar, «Deshacer» tras publicar.
+- **Gestión**: pestañas Todo · Borradores · Publicado · Archivado, creador por destino (`/gestion/nuevo`) con «Guardar borrador» y «Publicar», plantillas por tipo, editor con vista previa, autoguardado local, aviso de cambios sin guardar, «Deshacer» tras publicar.
 
 ## 8. Accesibilidad (WCAG 2.2 AA)
 

@@ -1,5 +1,6 @@
 import { Bell, Check, Play, Plus, RotateCcw, Save, Search } from 'lucide-react';
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+import { Link } from 'react-router';
 import { AREAS, AREA_LIST, isCorporateEmail, type AreaId, type FormationStatus } from '@flm/shared';
 import {
   ActionButton,
@@ -15,6 +16,7 @@ import {
   PhaseChip,
   ProgressRing,
   SelectField,
+  SpotlightCta,
   StatusGlyph,
   Switch,
   Tabs,
@@ -23,6 +25,7 @@ import {
   toast,
   type ActionStatus,
 } from '@/design';
+import { Logo } from '@/layout/Logo';
 import { DossierSection, SubHead } from './Section';
 import styles from './LiveSystem.module.css';
 
@@ -74,7 +77,7 @@ const TEXT_TOKENS = [
   { token: '--accent-text', name: 'Acento en texto', use: 'Texto rojo pequeño: el día de hoy y el asterisco de los formularios' },
   { token: '--flm-vino-texto', name: 'Vino', use: 'Antetítulos' },
   { token: '--success', name: 'Éxito', use: 'Completada, superado' },
-  { token: '--warning', name: 'Atención', use: 'En revisión, por confirmar' },
+  { token: '--warning', name: 'Atención', use: 'Test intentado, por confirmar' },
   { token: '--flm-rojo', name: 'Rojo FLM', use: 'Puntos, trazos y gráficos', graphic: true },
 ] as const;
 
@@ -270,6 +273,38 @@ function MotionTokens() {
   );
 }
 
+/* ── Protagonistas ─────────────────────────────────────────────────────── */
+
+/** Panel profundo (el único de esta página), foco claro y placa clara, con sus tokens reales. */
+function Protagonists() {
+  const titleId = useId();
+  return (
+    <div className={styles.block}>
+      <div className={styles.stars}>
+        <article className={`spotlight ${styles.starDeep}`} data-link aria-labelledby={titleId}>
+          <p className={styles.starKicker}>Protagonista</p>
+          <h4 id={titleId} className={styles.starTitle}>
+            <Link to="/aprender" data-stretch>
+              Tu siguiente paso
+            </Link>
+          </h4>
+          <SpotlightCta>Ir a Aprender</SpotlightCta>
+        </article>
+        <div className={`spotlight-soft ${styles.starSoft}`}>
+          <p className={styles.starKicker}>Foco claro</p>
+          <p className={styles.starText}>Lavado de marca al 8&nbsp;% (12&nbsp;% en oscuro), banda de 4&nbsp;px y sombra. Como mucho, uno por pantalla.</p>
+        </div>
+        <div className={`spotlight-plate ${styles.starPlate}`}>
+          <p className={styles.starKicker}>Placa clara</p>
+          <Logo variant="fiscal" height={26} />
+          <p className={styles.starText}>Igual en los dos temas: la única base para sellos y logotipos dentro de un protagonista.</p>
+        </div>
+      </div>
+      <p className={styles.caption}>Regla: el degradado completo, solo como trazo; como superficie, solo su tramo desde #B8302D y en un único protagonista por pantalla.</p>
+    </div>
+  );
+}
+
 /* ── Apartado ──────────────────────────────────────────────────────────── */
 
 const STATUSES: FormationStatus[] = ['sin-empezar', 'leida', 'test-intentado', 'test-superado', 'completada'];
@@ -331,6 +366,9 @@ export function LiveSystem() {
         <p className={styles.caption}>«Guardar borrador» muestra la respuesta de guardado: la cápsula se contrae mientras trabaja y vuelve a abrirse con la confirmación.</p>
       </div>
 
+      <SubHead hint="El color dice qué pulsar y dónde estás: un protagonista profundo por pantalla, con la acción principal dentro, y como mucho un foco claro.">Protagonistas</SubHead>
+      <Protagonists />
+
       <SubHead hint="Cápsulas con icono y texto: el color nunca va solo.">Etiquetas y estados</SubHead>
       <div className={styles.specimen}>
         <div className={styles.labelled}>
@@ -345,7 +383,6 @@ export function LiveSystem() {
           <span className={styles.rowLabel}>Flujo editorial</span>
           <div className={styles.row}>
             <EditorialChip status="borrador" />
-            <EditorialChip status="en-revision" />
             <EditorialChip status="publicado" />
             <EditorialChip status="archivado" />
           </div>

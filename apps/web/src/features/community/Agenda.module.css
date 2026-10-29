@@ -77,7 +77,9 @@
 
 .item:first-child,
 .item[data-expanded='true'],
-.item[data-expanded='true'] + .item {
+.item[data-expanded='true'] + .item,
+.item[data-featured],
+.item[data-featured] + .item {
   border-top-color: transparent;
 }
 
@@ -98,8 +100,25 @@
   box-shadow: 0 0 0 1px var(--line), var(--shadow-2);
 }
 
+/* Lo siguiente: el foco claro de la agenda, con lavado de marca y banda de 4 px (también desplegada) */
+.entry[data-featured] {
+  margin-block: var(--space-2);
+  background: var(--grad-spotlight-soft);
+  box-shadow: 0 0 0 1px var(--line), var(--shadow-2);
+  overflow: hidden;
+}
+
+.entry[data-featured]::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: var(--flm-gradient-stroke);
+  pointer-events: none;
+}
+
 @media (hover: hover) {
-  .entry:not([data-expanded='true']):hover {
+  .entry:not([data-expanded='true'], [data-featured]):hover {
     background: color-mix(in srgb, var(--ink) 3%, transparent);
   }
 }

@@ -2,13 +2,25 @@ import { AREA_IDS, can, type DocumentVersion, type NewsItem } from '@flm/shared'
 import { Hono } from 'hono';
 import { z } from 'zod';
 import type { AppContext, AppEnv, AuthUser } from '../context';
-import { all, get, run, transaction } from '../db/database';
-import { badRequest, conflict, HttpError, notFound } from '../lib/errors';
+import { all, transaction } from '../db/database';
+import { badRequest, HttpError, notFound } from '../lib/errors';
 import { parseWith, queryParams } from '../lib/validation';
 import { currentUser, requirePermission } from '../middleware/authorize';
 import { enforce, RATE_RULES } from '../middleware/rate-limit';
 import { audit } from '../services/audit';
-import { canEdit, composeItem, createContent, findPublished, getContent, listPublished, requireContent } from '../services/content';
+import {
+  assertCanReplaceFile,
+  canEdit,
+  composeItem,
+  createContent,
+  findPublished,
+  getContent,
+  insertDocumentVersion,
+  listPublished,
+  replaceDocumentFile,
+  requireContent,
+  type FileChange,
+} from '../services/content';
 import { contentDisposition, getFile, publicFile, readMultipart, registerFile, type FileRow, type StoredFile } from '../services/files';
 import { contentDetail } from './contents';
 
@@ -30,20 +42,6 @@ export function libraryRoutes(ctx: AppContext) {
     ...(note ? { note } : {}),
   });
 
-  const insertVersion = (contentId: string, stored: StoredFile, version: number, user: AuthUser, nowIso: string, note?: string) => {
-    run(
-      db,
-      `INSERT INTO document_versions (content_id, version, file_id, size_kb, note, uploaded_at, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      contentId,
-      version,
-      stored.id,
-      Math.max(1, Math.round(stored.size / 1024)),
-      note ?? null,
-      nowIso,
-      user.id,
-    );
-  };
-
   /* ── Documentos ──────────────────────────────────────────────────────────── */
 
   r.get('/documents', requirePermission('campus:leer'), (c) => {
@@ -59,7 +57,8 @@ export function libraryRoutes(ctx: AppContext) {
 
   /**
    * Alta de documento: formulario multipart con `archivo` (PDF ≤ 15 MB) y `datos` (JSON con
-   * title, area, issuer, date, summary, kind, tags y publicDemo). Queda como borrador.
+   * title, area, issuer, date, summary, kind, tags y publicDemo). Queda como borrador, que puede estar
+   * a medias: al publicarlo se exigen todos los datos.
    */
   r.post('/documents', requirePermission('contenido:crear', 'documentos:subir'), async (c) => {
     const user = currentUser(c);
@@ -79,7 +78,7 @@ export function libraryRoutes(ctx: AppContext) {
       const row = transaction(db, () => {
         registerFile(db, stored, 'documento', user.id, nowIso);
         const created = createContent(db, user, 'documento', data, now, { versions: [versionOf(stored, 1, user, nowIso, nota)], ip: c.get('clientIp') });
-        insertVersion(created.id, stored, 1, user, nowIso, nota);
+        insertDocumentVersion(db, { contentId: created.id, version: 1, stored, userId: user.id, nowIso, note: nota });
         audit(db, { actorId: user.id, action: 'documento.subir', entity: 'documento', entityId: created.id, detail: `Archivo ${stored.id} (v1)`, ip: c.get('clientIp') }, now);
         return created;
       });
@@ -90,32 +89,29 @@ export function libraryRoutes(ctx: AppContext) {
     }
   });
 
-  /** Sustitución del archivo: añade una versión nueva y conserva las anteriores en el historial. */
-  r.post('/documents/:id/versions', requirePermission('documentos:reemplazar'), async (c) => {
+  /**
+   * Sustitución del archivo con historial. En un borrador que nunca se ha publicado, su autoría (o
+   * administración) lo cambia al momento. En un documento publicado, solo administración, y el PDF nuevo
+   * espera en la revisión pendiente hasta publicarla, como el resto de los cambios de algo publicado.
+   */
+  r.post('/documents/:id/versions', requirePermission('contenido:crear', 'documentos:subir'), async (c) => {
     const user = currentUser(c);
-    const row = requireContent(db, c.req.param('id'));
-    if (row.type !== 'documento') throw notFound('No existe ningún documento con ese identificador.');
-    if (row.status === 'archivado') throw conflict('El documento está archivado. Restáuralo antes de sustituir el archivo.', 'DOCUMENTO_ARCHIVADO');
+    assertCanReplaceFile(user, requireContent(db, c.req.param('id')));
     enforce(ctx.limiter, `subidas:${user.id}`, RATE_RULES.uploads, uploadMessage);
     const form = await readMultipart(c);
     const nota = parseWith(z.string().max(500).optional(), typeof form.nota === 'string' && form.nota.trim() ? form.nota.trim() : undefined);
     const stored = await ctx.storage.store(form.archivo, ['pdf']);
     const now = ctx.now();
-    const nowIso = now.toISOString();
+    let result: FileChange;
     try {
-      transaction(db, () => {
-        const next = (get<{ v: number | null }>(db, 'SELECT MAX(version) AS v FROM document_versions WHERE content_id = ?', row.id)?.v ?? 0) + 1;
-        registerFile(db, stored, 'documento', user.id, nowIso);
-        insertVersion(row.id, stored, next, user, nowIso, nota);
-        const changed = run(db, 'UPDATE contents SET revision = revision + 1, updated_at = ? WHERE id = ?', nowIso, row.id);
-        if (changed !== 1) throw new HttpError(409, 'CONFLICTO', 'No se ha podido actualizar el documento.');
-        audit(db, { actorId: user.id, action: 'documento.sustituir', entity: 'documento', entityId: row.id, detail: `Versión ${next} (archivo ${stored.id})`, ip: c.get('clientIp') }, now);
-      });
+      // Se vuelve a leer: el documento puede haber cambiado mientras se recibía el archivo.
+      result = replaceDocumentFile(db, user, requireContent(db, c.req.param('id')), { stored, note: nota }, now, c.get('clientIp'));
     } catch (err) {
       await ctx.storage.remove(stored.storageName);
       throw err;
     }
-    return c.json({ content: contentDetail(db, requireContent(db, row.id), now) }, 201);
+    for (const name of result.removedFiles) await ctx.storage.remove(name);
+    return c.json({ content: contentDetail(db, result.content, now) }, 201);
   });
 
   /* ── Archivos ────────────────────────────────────────────────────────────── */
@@ -142,7 +138,8 @@ export function libraryRoutes(ctx: AppContext) {
 
   /**
    * Descarga con sesión y permisos. Los PDF heredan la visibilidad de su documento: publicados para
-   * todo el campus; borradores, en revisión o archivados, solo para su autoría y administración.
+   * todo el campus; borradores o archivados, solo para su autoría y administración. El PDF nuevo que
+   * espera en una revisión aún no es público: solo lo descargan su autoría y administración.
    */
   r.get('/files/:id', requirePermission('campus:leer'), async (c) => {
     const user = currentUser(c);
@@ -167,10 +164,11 @@ export function libraryRoutes(ctx: AppContext) {
 
   function assertCanDownload(user: AuthUser, file: FileRow): void {
     if (file.purpose !== 'documento') return; // imágenes y fotos: cualquier sesión del campus
-    const owners = all<{ content_id: string }>(db, 'SELECT content_id FROM document_versions WHERE file_id = ?', file.id);
-    const visible = owners.some(({ content_id }) => {
+    const owners = all<{ content_id: string; revision_id: string | null }>(db, 'SELECT content_id, revision_id FROM document_versions WHERE file_id = ?', file.id);
+    const visible = owners.some(({ content_id, revision_id }) => {
       const row = getContent(db, content_id);
       if (!row) return false;
+      if (revision_id) return canEdit(user, row);
       if (row.status === 'publicado') return true;
       if (row.status === 'archivado') return can(user.role, 'contenido:editar-cualquiera');
       return canEdit(user, row);

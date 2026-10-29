@@ -3,7 +3,7 @@ import { ArrowRight, BookOpen, FileText, Lock, Newspaper, SearchX } from 'lucide
 import { useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { AREAS, areaName, diffDays, fileSize, formatShortDate, madridDateKey, plainText, relativeDay, type LibraryDocument, type NewsItem, type Reading } from '@flm/shared';
-import { Button, ButtonLink, EmptyState, PageHeader } from '@/design';
+import { Button, ButtonLink, EmptyState, PageHeader, PhotoCapsule } from '@/design';
 import { useDocuments, usePeople } from '@/data/selectors';
 import { MESSAGES } from '@/lib/messages';
 import { usePageTitle } from '@/lib/preferences';
@@ -25,7 +25,8 @@ const SUGGESTIONS = ['IVA', 'factura electrónica', 'BOICAC', 'no residentes', '
 
 /**
  * Consultar: la biblioteca del campus. Un gran buscador que filtra a la vez actualidad,
- * notas y lecturas; tres puertas con datos vivos; y lo último que ha llegado.
+ * notas y lecturas (el protagonista de la pantalla); tres puertas con datos vivos; y lo
+ * último que ha llegado.
  */
 export default function ConsultHub() {
   usePageTitle('Consultar');
@@ -52,7 +53,7 @@ export default function ConsultHub() {
   const searching = tokens.length > 0;
 
   const index = useMemo(() => {
-    const author = (id: string) => people.find((p) => p.id === id);
+    const author = (id: string | undefined) => (id ? people.find((p) => p.id === id) : undefined);
     return {
       news: news.map((n) => ({ item: n, fields: newsFields(n, author(n.editorial.authorId)) })),
       docs: docs.map((d) => ({ item: d, fields: docFields(d) })),
@@ -90,13 +91,19 @@ export default function ConsultHub() {
           </>
         }
         lede="Novedades verificadas, documentos originales y lecturas de referencia: lo que necesitas para responder con criterio."
+        aside={
+          // Encuadre vertical a la derecha: deja fuera el roll-up con el logotipo antiguo
+          <PhotoCapsule name="biblioteca" aspect="5 / 7" width="clamp(7.5rem, 10vw, 10rem)" position="100% 50%" sizes="(min-width: 860px) 10rem, 1px" mobile="hide" decorative={false} />
+        }
       />
 
       {sample && <SampleNotice />}
 
-      <div className={styles.searchBlock}>
+      {/* Protagonista de la pantalla: el buscador. Al buscar, los resultados salen debajo. */}
+      <div className={`${styles.searchBlock} spotlight`}>
         <SearchBox
           size="lg"
+          tone="brand"
           label="¿Qué necesitas consultar?"
           value={q}
           onChange={setQ}
@@ -332,7 +339,7 @@ function Doors({ news, docs, readings, link }: { news: NewsItem[]; docs: Library
         text="Cada novedad en cinco bloques: qué cambia, a quién afecta, qué debemos hacer, un ejemplo y la fuente."
         art={<NewsArt />}
         stats={news.length ? [{ value: lastMonth.length, label: lastMonth.length === 1 ? 'novedad en 30 días' : 'novedades en 30 días' }, { value: urgent, label: 'de urgencia alta' }] : null}
-        empty="Las primeras novedades están en revisión editorial."
+        empty="Todavía no hay novedades publicadas."
         note={latestNews ? `Última: ${relativeDay(latestNews.date)}` : undefined}
         cta="Ver la actualidad"
       />
@@ -381,6 +388,7 @@ function Door({ index, kind, to, title, text, art, stats, empty, note, cta }: Do
     <motion.li
       className={styles.door}
       data-door={kind}
+      data-cta-host
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.42, delay: 0.05 + index * 0.07, ease: EASE }}
@@ -408,7 +416,7 @@ function Door({ index, kind, to, title, text, art, stats, empty, note, cta }: Do
       )}
       <div className={styles.doorFoot}>
         {note && <span className={styles.doorNote}>{note}</span>}
-        <span className={styles.doorGo} aria-hidden="true">
+        <span className={`cta-pill ${styles.doorGo}`} aria-hidden="true">
           {cta} <ArrowRight size={16} />
         </span>
       </div>
@@ -494,7 +502,7 @@ function LatestNews({ news, link }: { news: NewsItem[]; link: (to: string) => st
           </span>
           <div>
             <h3 className={styles.newsEmptyTitle}>Aún no hay novedades publicadas</h3>
-            <p className={styles.newsEmptyText}>Cada novedad pasa por revisión editorial antes de publicarse. Cuando llegue la primera, la verás aquí y en tu inicio, explicada en cinco bloques.</p>
+            <p className={styles.newsEmptyText}>Las novedades las publica la autoría de cada área. Cuando llegue la primera, la verás aquí y en tu inicio, explicada en cinco bloques.</p>
             <DevSampleHint />
           </div>
           <ButtonLink to="/consultar/notas" variant="secondary" icon={<FileText />}>

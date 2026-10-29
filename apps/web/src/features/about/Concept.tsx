@@ -293,7 +293,7 @@ export function Concept() {
           </li>
         ))}
       </ul>
-      <p className={styles.rule}>Nunca hay letras dentro de un círculo ni pseudologotipos; el puente nunca se une al logotipo y el degradado completo no pasa del 2–3 % de una pantalla.</p>
+      <p className={styles.rule}>Nunca hay letras dentro de un círculo ni pseudologotipos; el puente nunca se une al logotipo, y el degradado solo es superficie en la tarjeta protagonista de cada pantalla.</p>
 
       <SubHead hint="Dos como máximo, una vez al día o por logro, de menos de 1,5 segundos e interrumpibles.">Momentos firma</SubHead>
       <div className={styles.moments}>

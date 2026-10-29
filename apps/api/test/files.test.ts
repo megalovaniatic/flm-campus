@@ -79,9 +79,17 @@ describe('biblioteca y archivos', () => {
 
   it('valida los datos del documento y no deja archivos huérfanos', async () => {
     const author = await loginAs(env, EMAILS.autor);
-    const res = await author.upload('POST', '/api/documents', fileForm(pdfBytes(), 'nota.pdf', 'application/pdf', { datos: JSON.stringify({ title: 'Sin área' }) }));
+    const res = await author.upload('POST', '/api/documents', fileForm(pdfBytes(), 'nota.pdf', 'application/pdf', { datos: JSON.stringify({ title: 'Nota', area: 'marte' }) }));
     expect(res.status).toBe(400);
     expect(readdirSync(join(env.storageDir, 'files'))).toHaveLength(0);
+
+    // El borrador puede quedar a medias (el PDF y el título); publicarlo exige el resto de los datos.
+    const partial = await author.upload('POST', '/api/documents', fileForm(pdfBytes(), 'nota.pdf', 'application/pdf', { datos: JSON.stringify({ title: 'Solo el título' }) }));
+    expect(partial.status).toBe(201);
+    const draft = (await json(partial)).content;
+    const publish = await author.post(`/api/contents/${draft.id}/transitions`, { action: 'publicar', revision: draft.revision });
+    expect(publish.status).toBe(400);
+    expect((await json(publish)).error.details.map((d: { path: string }) => d.path)).toEqual(expect.arrayContaining(['area', 'issuer', 'date']));
   });
 
   it('descarga solo con sesión y permisos, con Content-Disposition y nosniff', async () => {
@@ -114,21 +122,73 @@ describe('biblioteca y archivos', () => {
     expect((await employee.get(url)).status).toBe(200);
   });
 
-  it('sustituye el archivo conservando el historial de versiones', async () => {
+  it('la autoría sustituye al momento el PDF de su borrador nunca publicado; el de un documento publicado, solo administración', async () => {
     const author = await loginAs(env, EMAILS.autor);
+    const other = await loginAs(env, EMAILS.autora2);
     const admin = await loginAs(env, EMAILS.admin);
     const content = (await json(await author.upload('POST', '/api/documents', fileForm(pdfBytes(1000), 'v1.pdf', 'application/pdf', { datos: documentData() })))).content;
-    expect((await author.upload('POST', `/api/documents/${content.id}/versions`, fileForm(pdfBytes(2000), 'v2.pdf', 'application/pdf'))).status).toBe(403);
+    expect((await other.upload('POST', `/api/documents/${content.id}/versions`, fileForm(pdfBytes(2000), 'v2.pdf', 'application/pdf'))).status).toBe(403);
 
-    const res = await admin.upload('POST', `/api/documents/${content.id}/versions`, fileForm(pdfBytes(3000), 'v2.pdf', 'application/pdf', { nota: 'Corrige la tabla de plazos' }));
+    const res = await author.upload('POST', `/api/documents/${content.id}/versions`, fileForm(pdfBytes(3000), 'v2.pdf', 'application/pdf', { nota: 'Corrige la tabla de plazos' }));
     expect(res.status).toBe(201);
-    const versions = (await json(res)).content.item.versions;
+    const draft = (await json(res)).content;
+    const versions = draft.item.versions;
     expect(versions).toHaveLength(2);
-    expect(versions[1]).toMatchObject({ version: 2, note: 'Corrige la tabla de plazos', uploadedBy: 'Ana Admin Puig' });
+    expect(versions[1]).toMatchObject({ version: 2, note: 'Corrige la tabla de plazos', uploadedBy: 'Jordi Autor Vidal' });
+    expect(versions[1]).not.toHaveProperty('pending');
     expect(versions[0].file).not.toBe(versions[1].file);
-    expect((await admin.get(versions[0].file)).status).toBe(200);
-    expect(new Uint8Array(await (await admin.get(versions[1].file)).arrayBuffer())).toHaveLength(3000);
+    expect((await author.get(versions[0].file)).status).toBe(200);
+    expect(new Uint8Array(await (await author.get(versions[1].file)).arrayBuffer())).toHaveLength(3000);
     expect(readdirSync(join(env.storageDir, 'files'))).toHaveLength(2);
+
+    // Una vez publicado, el PDF ya no lo cambia la autoría: solo administración.
+    expect((await admin.post(`/api/contents/${content.id}/transitions`, { action: 'publicar', revision: draft.revision })).status).toBe(200);
+    const denied = await author.upload('POST', `/api/documents/${content.id}/versions`, fileForm(pdfBytes(4000), 'v3.pdf', 'application/pdf'));
+    expect(denied.status).toBe(403);
+    expect((await json(denied)).error.message).toBe('Solo administración puede sustituir el archivo de un documento publicado.');
+    expect((await author.upload('POST', `/api/documents/${IDS.document}/versions`, fileForm(pdfBytes(4000), 'v2.pdf', 'application/pdf'))).status).toBe(403);
+    expect(readdirSync(join(env.storageDir, 'files'))).toHaveLength(2);
+  });
+
+  it('en un documento publicado, el PDF nuevo espera en la revisión hasta publicarla (o se descarta con ella)', async () => {
+    const admin = await loginAs(env, EMAILS.admin);
+    const employee = await loginAs(env, EMAILS.empleado);
+    const stored = () => readdirSync(join(env.storageDir, 'files'));
+    const numbers = (versions: { version: number }[]) => versions.map((v) => v.version);
+    const publicVersions = async () => numbers((await json(await employee.get(`/api/documents/${IDS.document}`))).document.versions);
+    const upload = async (size: number) => {
+      const res = await admin.upload('POST', `/api/documents/${IDS.document}/versions`, fileForm(pdfBytes(size), `nota-${size}.pdf`, 'application/pdf', { nota: 'Nueva edición' }));
+      expect(res.status).toBe(201);
+      return (await json(res)).content;
+    };
+
+    let content = await upload(3000);
+    expect(numbers(content.item.versions)).toEqual([1]);
+    expect(content.pendingRevision.item.versions[1]).toMatchObject({ version: 2, note: 'Nueva edición', uploadedBy: 'Ana Admin Puig', pending: true });
+    const pendingFile = content.pendingRevision.item.versions[1].file as string;
+    expect(await publicVersions()).toEqual([1]);
+    expect((await employee.get(pendingFile)).status).toBe(403);
+    expect((await admin.get(pendingFile)).status).toBe(200);
+
+    // Otro PDF sustituye al que esperaba: sigue habiendo una sola versión pendiente.
+    content = await upload(5000);
+    expect(numbers(content.pendingRevision.item.versions)).toEqual([1, 2]);
+    expect(stored()).toHaveLength(1);
+
+    // Al publicar la revisión, pasa a ser la versión vigente para todo el campus.
+    content = (await json(await admin.post(`/api/contents/${IDS.document}/transitions`, { action: 'publicar', revision: content.revision }))).content;
+    expect(content.pendingRevision).toBeNull();
+    expect(await publicVersions()).toEqual([1, 2]);
+    expect(content.item.versions[1]).not.toHaveProperty('pending');
+    expect(new Uint8Array(await (await employee.get(content.item.versions[1].file)).arrayBuffer())).toHaveLength(5000);
+
+    // Si la revisión se descarta, el PDF que esperaba se descarta con ella.
+    content = await upload(7000);
+    expect(stored()).toHaveLength(2);
+    expect((await admin.delete(`/api/contents/${IDS.document}/revision?revision=${content.revision}`)).status).toBe(200);
+    expect(await publicVersions()).toEqual([1, 2]);
+    expect(stored()).toHaveLength(1);
+    expect(get(env.db, 'SELECT COUNT(*) AS n FROM document_versions WHERE content_id = ?', IDS.document)).toEqual({ n: 2 });
   });
 
   it('los documentos semilla sin archivo indican que no está disponible', async () => {

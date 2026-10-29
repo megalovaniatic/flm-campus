@@ -1,7 +1,16 @@
+/* Pie en crema con el filete del degradado */
 .footer {
+  position: relative;
   margin-top: var(--section-gap);
-  border-top: 1px solid var(--line);
-  background: var(--surface-2);
+  background: var(--surface-sunken);
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: var(--flm-gradient-stroke);
 }
 
 .inner {

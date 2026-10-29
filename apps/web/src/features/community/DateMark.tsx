@@ -7,8 +7,8 @@ interface DateMarkProps {
   /** Leyenda pequeña sobre el día: «hasta», «hoy», «próxima». */
   caption?: string;
   size?: 'lg' | 'md' | 'sm';
-  /** «current»: en curso (círculo lleno) · «muted»: histórico. */
-  tone?: 'default' | 'current' | 'muted';
+  /** «current»: en curso (círculo lleno) · «next»: lo siguiente (anillo del tramo de Participar) · «muted»: histórico. */
+  tone?: 'default' | 'current' | 'next' | 'muted';
 }
 
 /**

@@ -28,7 +28,7 @@ En castellano, *círculo de confianza* es la gente a la que puedes preguntar sin
 
 ## Dirección de arte
 
-- **Papel cálido y tinta marino**, la marca como acento (rojo para puntos y trazos, degradado solo en filetes, anillos y conectores).
+- **Papel cálido y tinta marino**, la marca como acento (rojo para puntos y trazos; degradado completo solo en filetes, anillos y conectores; como superficie, solo en la tarjeta protagonista de cada pantalla).
 - **Tipografía con dos voces**: Newsreader para titulares y lectura (rigor de publicación profesional), Inter para la interfaz (la tipografía de la web) y Belleza solo en «Explicamos».
 - **Fotografía real** de la oficina de Barcelona, en cápsulas y círculos, con pie; cero stock de personas. Portadas tipográficas para las formaciones («Art. 27», «147», «¿A Mercantil?»).
 - **Áreas** con la meseta de color de su cápsula oficial; **Contable** como la rampa completa del degradado («la suma de las tres»).

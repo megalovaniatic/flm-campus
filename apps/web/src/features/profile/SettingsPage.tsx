@@ -26,6 +26,7 @@ import { AREAS, madridDateKey, number as formatNumber, ROLE_LABEL } from '@flm/s
 import { Button, Dialog, Kbd, Notice, PageHeader, Switch, toast } from '@/design';
 import { useMe } from '@/data/selectors';
 import { useDemo, type MotionPref, type ThemePref } from '@/data/store';
+import { resetDemo } from '@/layout/DemoBand';
 import { downloadText } from '@/lib/download';
 import { usePageTitle, useReducedMotionPref } from '@/lib/preferences';
 import { scrollToSection, useHashScroll, useScrollSpy } from '@/features/about/useSectionNav';
@@ -190,7 +191,6 @@ export default function SettingsPage() {
   const setMotion = useDemo((s) => s.setMotion);
   const singleKey = useDemo((s) => s.singleKeyShortcuts);
   const setSingleKey = useDemo((s) => s.setSingleKeyShortcuts);
-  const reset = useDemo((s) => s.reset);
   const signOut = useDemo((s) => s.signOut);
   const prefs = useNoticePrefs();
   const systemDark = useMediaQuery('(prefers-color-scheme: dark)');
@@ -241,7 +241,8 @@ export default function SettingsPage() {
   };
 
   const confirmReset = () => {
-    reset();
+    // También cierra los avisos abiertos: su «Deshacer» devolvería lo que se acaba de borrar.
+    resetDemo();
     useNoticePrefs.getState().resetPrefs();
     setConfirm(false);
     setRun(0);

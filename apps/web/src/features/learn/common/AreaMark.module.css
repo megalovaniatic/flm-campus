@@ -14,6 +14,12 @@
   box-shadow: 0 0 0 2px var(--flm-marino);
 }
 
+/* Dentro de un protagonista: anillo blanco (6:1 frente al panel), también en oscuro */
+:global(.spotlight) .dot,
+:root[data-theme='dark'] :global(.spotlight) .dot[data-ring] {
+  box-shadow: 0 0 0 2px #fff;
+}
+
 /* Anillo del degradado: en modo oscuro, sobre placa clara (el degradado nunca se recolorea) */
 .ringPlate {
   display: inline-grid;

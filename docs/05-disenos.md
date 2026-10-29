@@ -6,7 +6,7 @@ Capturas de la demostración compilada (modo demo), generadas con `node scripts/
 
 | Pantalla | Captura |
 |---|---|
-| Inicio — «La llegada»: el titular es el menú, foto real en cápsula y tira de datos vivos | ![Inicio](capturas/escritorio-inicio.webp) |
+| Inicio — «La llegada»: el titular es el menú y la foto real va en cápsula; al bajar, «Ponte al día» con noticias, nuevos clientes, incorporaciones y próximos eventos | ![Inicio](capturas/escritorio-inicio.webp) |
 | Aprender — itinerarios por área en cápsulas, progreso y evaluaciones | ![Aprender](capturas/escritorio-aprender.webp) |
 | Área Fiscal — cápsula oficial del departamento, referente y portadas tipográficas | ![Área Fiscal](capturas/escritorio-area-fiscal.webp) |
 | Formación — lectura editorial con índice, glosario al margen y revisión pendiente | ![Formación](capturas/escritorio-formacion.webp) |
@@ -33,4 +33,4 @@ Capturas de la demostración compilada (modo demo), generadas con `node scripts/
 
 ## Pantallas no capturadas
 
-Gestión de contenidos y Administración requieren cambiar de perfil en la demo (avatar › «Ver la demo como» › Autor o Administrador) y no se capturan automáticamente. Se pueden recorrer en la demostración pública.
+Gestión de contenidos (el creador `/gestion/nuevo` y los editores de los ocho tipos) y Administración requieren cambiar de perfil en la demo (avatar › «Ver la demo como» › Autor o Administrador) y no se capturan automáticamente. Se pueden recorrer en la demostración pública; su auditoría de accesibilidad está en el [informe de QA](09-informe-qa.md) §3.

@@ -170,6 +170,14 @@ export function partitionEvents(events: CampusEvent[], now: Date) {
   return { upcoming, history };
 }
 
+/**
+ * «Lo siguiente»: el primer evento con fecha que aún no ha empezado (nunca un comunicado).
+ * Es la única fuente del destacado en Inicio, Participar, la Agenda y el Calendario.
+ */
+export function nextFeaturedEvent(upcoming: CampusEvent[], now: Date): CampusEvent | undefined {
+  return upcoming.find((e) => e.kind === 'evento' && e.sessions.length > 0 && eventPhase(e, now) === 'proximo');
+}
+
 export interface EventGroup {
   key: string;
   label: string;

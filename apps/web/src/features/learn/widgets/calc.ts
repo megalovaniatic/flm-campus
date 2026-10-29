@@ -12,7 +12,7 @@
  * Las fechas son claves «AAAA-MM-DD» (sin zonas horarias) y los importes, euros.
  */
 import type { JournalEntry } from '@flm/shared';
-import { addDays, addMonthsClamped, daysInMonth, diffDays, isLeapYear } from '@flm/shared';
+import { addDays, addMonthsClamped, daysInMonth, decisionTreeProblems, diffDays, isLeapYear } from '@flm/shared';
 
 /* ────────────────────────────────────────────────────────────────────────────
  * Utilidades
@@ -630,16 +630,12 @@ export interface NodoArbol {
   outcome?: { title: string; text: string; tone: 'derivar' | 'resolver' | 'atencion' };
 }
 
-/** Problemas de estructura (destinos inexistentes, nodos sin salida) para avisar al equipo editorial. */
+/**
+ * Problemas de estructura (identificadores repetidos, destinos inexistentes, pasos sin salida) para avisar
+ * al equipo editorial. Es la misma comprobación que aplica el esquema al publicar (web y API).
+ */
 export function revisarArbol(start: string, nodes: NodoArbol[]): string[] {
-  const ids = new Set(nodes.map((n) => n.id));
-  const problems: string[] = [];
-  if (!ids.has(start)) problems.push(`El nodo inicial «${start}» no existe.`);
-  for (const n of nodes) {
-    if (!n.outcome && !(n.options && n.options.length)) problems.push(`El nodo «${n.id}» no tiene opciones ni resultado.`);
-    for (const o of n.options ?? []) if (!ids.has(o.next)) problems.push(`La opción «${o.label}» de «${n.id}» apunta a «${o.next}», que no existe.`);
-  }
-  return problems;
+  return decisionTreeProblems(start, nodes).map((p) => `${p.message}.`);
 }
 
 /** Profundidad máxima (número de preguntas) desde el nodo inicial, sin ciclos. */

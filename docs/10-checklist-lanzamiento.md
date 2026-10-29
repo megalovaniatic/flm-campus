@@ -2,8 +2,9 @@
 
 ## Contenido y marca
 
-- [ ] Cada área revisa y valida sus tres formaciones, tests y bancos de preguntas (estado de revisión «revisado»).
-- [ ] Confirmar la autoría de cada formación con las personas que figuran como autoras.
+- [ ] Cada área revisa y valida sus tres formaciones, tests y bancos de preguntas (estado de revisión «revisado»: en la plataforma, al publicar se marca «Lo ha revisado el área» y se muestra «Revisado por …»).
+- [ ] Confirmar la autoría de cada formación con las personas que figuran como autoras. Si alguna ya no está en FLM, eliminar su perfil: su contenido se conserva con la firma neutra del área.
+- [ ] Decidir quién tiene el rol de autor en cada área: publica lo suyo directamente, sin revisión previa (administración puede editar, archivar y restaurar cualquier contenido).
 - [ ] Revisar la vigencia de Actualidad (fechas de entrada en vigor y aplazamientos).
 - [ ] Confirmar los festivos de 2027 de Barcelona, Vic y Granollers cuando se publiquen.
 - [ ] Validar con Crowe la mención «A business associate of Crowe Global» y la discrepancia con la web nueva.
@@ -37,5 +38,5 @@
 ## Comunicación
 
 - [ ] Anuncio interno del lanzamiento (comunicado en la agenda). Debe explicar que las formaciones son voluntarias, que los tests sirven para aprender y no para evaluar a nadie, y que administración solo ve datos agregados, sin nombres.
-- [ ] Sesión de bienvenida de 15 minutos y guía rápida para autores.
+- [ ] Sesión de bienvenida de 15 minutos y guía rápida para autores: «Crear» (cabecera, menú de usuario o Ctrl K), plantillas, «Guardar borrador» y «Publicar».
 - [ ] Buzón de sugerencias activo (barcelona@flmexperts.com).

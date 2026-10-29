@@ -19,6 +19,10 @@ export interface UserRow {
   password_changed_at: string | null;
   activated_at: string | null;
   deactivated_at: string | null;
+  /**
+   * Solo en bases anteriores a la migración 0004 (que convierte esas cuentas en perfiles eliminados):
+   * hoy quien deja FLM se elimina con «Eliminar el perfil» y su fila desaparece.
+   */
   anonymized_at: string | null;
   created_at: string;
   updated_at: string;
@@ -26,8 +30,7 @@ export interface UserRow {
 
 export type AccountState = 'pendiente-activacion' | 'activa' | 'desactivada' | 'anonimizada';
 
-export const ANONYMIZED_NAME = 'Persona eliminada';
-/** Plazo tras la baja a partir del cual conviene anonimizar la ficha (política de retención). */
+/** Plazo tras la baja a partir del cual conviene eliminar el perfil (política de retención). */
 export const RETENTION_AFTER_LEAVING_DAYS = 365;
 
 export const fileUrl = (fileId: string) => `/api/files/${fileId}`;

@@ -1,4 +1,4 @@
-import { BookOpenCheck, ChevronDown, Info, LayoutDashboard, LogOut, Settings, ShieldCheck, UserRound } from 'lucide-react';
+import { BookOpenCheck, ChevronDown, FilePlus2, Info, LayoutDashboard, LogOut, Settings, ShieldCheck, UserRound } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import { ROLE_LABEL, type Role } from '@flm/shared';
 import { Avatar, Popover } from '@/design';
@@ -49,11 +49,18 @@ export function UserMenu() {
               </Link>
             </li>
             {(role === 'autor' || role === 'admin') && (
-              <li>
-                <Link to="/gestion" onClick={close} className={styles.item}>
-                  <LayoutDashboard size={18} aria-hidden="true" /> Gestión de contenidos
-                </Link>
-              </li>
+              <>
+                <li>
+                  <Link to="/gestion/nuevo" onClick={close} className={styles.item}>
+                    <FilePlus2 size={18} aria-hidden="true" /> Crear contenido
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/gestion" onClick={close} className={styles.item}>
+                    <LayoutDashboard size={18} aria-hidden="true" /> Gestión de contenidos
+                  </Link>
+                </li>
+              </>
             )}
             {role === 'admin' && (
               <li>

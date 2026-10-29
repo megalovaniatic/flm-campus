@@ -133,6 +133,26 @@
   color: var(--ink-2);
 }
 
+/* Dentro del protagonista: campo blanco macizo con su propia tinta (también en oscuro).
+   La etiqueta hereda el blanco del panel, la ayuda su crema y el foco su anillo inverso. */
+.form[data-tone='brand'] .field {
+  --ink: var(--flm-marino);
+  --ink-2: var(--flm-gris);
+  --ink-3: #5c636e;
+  background: #fff;
+  border-color: transparent;
+  box-shadow: 0 10px 28px -14px rgb(0 0 0 / 0.45);
+}
+
+.form[data-tone='brand'] .field:hover {
+  border-color: transparent;
+}
+
+.form[data-tone='brand'] .field:has(.input:focus-visible) {
+  border-color: transparent;
+  box-shadow: var(--focus-ring);
+}
+
 @media (max-width: 560px) {
   .form[data-size='lg'] .field {
     min-height: 60px;

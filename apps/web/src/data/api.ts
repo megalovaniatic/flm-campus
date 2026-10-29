@@ -28,8 +28,13 @@ export interface SessionPayload {
   csrfToken: string;
 }
 
-function messageFor(status: number, body: { error?: string; message?: string } | null): string {
-  if (body?.message) return body.message;
+/** Cuerpo de error de la API: `{ error: { code, message, details? } }`; en las validaciones, `details` lista los campos. */
+interface ErrorBody {
+  error?: { code?: string; message?: string; details?: unknown };
+}
+
+function messageFor(status: number, body: ErrorBody | null): string {
+  if (body?.error?.message) return body.error.message;
   switch (status) {
     case 401:
       return MESSAGES.sessionExpired.body;
@@ -48,6 +53,84 @@ function messageFor(status: number, body: { error?: string; message?: string } |
     default:
       return MESSAGES.saveFailed.body;
   }
+}
+
+/** Campos con error de una validación (`details`: `{ path, message }[]`), como { ruta: mensaje }. */
+function fieldsOf(details: unknown): Record<string, string> | undefined {
+  if (!Array.isArray(details)) return undefined;
+  const out: Record<string, string> = {};
+  for (const d of details as { path?: unknown; message?: unknown }[]) {
+    if (typeof d?.path === 'string' && typeof d.message === 'string' && !(d.path in out)) out[d.path] = d.message;
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
+/**
+ * Conflictos entre contenidos (409) que se deben a un campo del formulario: el editor muestra el mensaje de
+ * la API junto a ese campo. Una evaluación vigente por área; un solo espacio de slugs para eventos y
+ * comunicados (comparten la dirección de la agenda); una bienvenida por persona. Los demás 409
+ * (CONFLICTO_REVISION, REVISION_PENDIENTE, TRANSICION_NO_VALIDA…) se muestran como aviso.
+ */
+const CONFLICT_FIELD: Record<string, string> = {
+  EVALUACION_DUPLICADA: 'area',
+  SLUG_DUPLICADO: 'slug',
+  BIENVENIDA_DUPLICADA: 'personId',
+};
+
+/** Versión de un documento según la API (la de número más alto es la vigente). */
+export interface ApiDocumentVersion {
+  version: number;
+  file: string;
+  sizeKb: number;
+  pages?: number;
+  uploadedAt: string;
+  /** Quien la subió o, si su perfil ya no existe, la firma neutra «FLM». */
+  uploadedBy: string;
+  note?: string;
+  /** El archivo está en el servidor (las versiones importadas sin PDF no se descargan). */
+  available: boolean;
+  /** PDF nuevo que espera en los cambios sin publicar: lo ven quien edita y administración, no el campus. */
+  pending?: boolean;
+}
+
+/** Ficha editorial de un contenido (`GET /contents/:id` y respuesta de crear, guardar, publicar o sustituir el PDF). */
+export interface ApiContentDetail {
+  id: string;
+  type: string;
+  title: string;
+  area: string | null;
+  slug: string | null;
+  status: 'borrador' | 'publicado' | 'archivado';
+  /** `null`: sin autoría (perfil eliminado o contenido institucional). */
+  authorId: string | null;
+  authorName: string | null;
+  revision: number;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string | null;
+  manualPhase: 'proximo' | 'historico' | null;
+  /**
+   * Contenido vigente. Un borrador puede estar a medias («Guardar borrador» no exige los campos obligatorios,
+   * solo publicar): no hay que darlo por completo. En un documento, `versions` son `ApiDocumentVersion`.
+   */
+  item: Record<string, unknown>;
+  /** Fase de un evento o comunicado (también de uno a medias). */
+  phase?: string;
+  /** Cambios sin publicar de algo publicado (con el PDF nuevo que espere en ellos, `pending`). */
+  pendingRevision: { id: string; status: string; authorId: string | null; createdAt: string; updatedAt: string; item: Record<string, unknown> } | null;
+}
+
+/** Resultado de «Eliminar el perfil»: solo recuentos, sin datos de la persona. */
+export interface RemovedProfile {
+  id: string;
+  contentsWithoutAuthor: number;
+  revisionsWithoutAuthor: number;
+  /** Contenidos de los que se retira su nombre de «Revisado por» (siguen constando como revisados). */
+  reviewerNamesRemoved: number;
+  welcomesDeleted: number;
+  sessionsClosed: number;
+  attemptsAnonymized: number;
 }
 
 async function request<T>(method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE', path: string, body?: unknown): Promise<T> {
@@ -74,8 +157,11 @@ async function request<T>(method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE', p
     data = null;
   }
   if (!res.ok) {
-    const b = data as { error?: string; message?: string; fields?: Record<string, string> } | null;
-    throw new ApiError(res.status, b?.error ?? `http-${res.status}`, messageFor(res.status, b), b?.fields);
+    const b = data as ErrorBody | null;
+    const code = b?.error?.code ?? `http-${res.status}`;
+    const message = messageFor(res.status, b);
+    const field = res.status === 409 ? CONFLICT_FIELD[code] : undefined;
+    throw new ApiError(res.status, code, message, fieldsOf(b?.error?.details) ?? (field ? { [field]: message } : undefined));
   }
   return data as T;
 }
@@ -108,8 +194,25 @@ export const api = {
   documents: () => request<unknown[]>('GET', '/documents'),
   events: () => request<unknown[]>('GET', '/events'),
   calendar: (year: number, month: number) => request<unknown>('GET', `/calendar?year=${year}&month=${month}`),
-  contents: () => request<unknown[]>('GET', '/contents'),
-  saveContent: (id: string | null, payload: unknown) => (id ? request<unknown>('PUT', `/contents/${id}`, payload) : request<unknown>('POST', '/contents', payload)),
-  transition: (id: string, action: string, comment?: string) => request<unknown>('POST', `/contents/${id}/transitions`, { action, comment }),
-  uploadDocument: (form: FormData) => request<unknown>('POST', '/documents', form),
+  contents: () => request<{ items: unknown[] }>('GET', '/contents'),
+  /** Ficha editorial. Un borrador puede estar a medias: a `item` le pueden faltar campos obligatorios. */
+  content: (id: string) => request<{ content: ApiContentDetail }>('GET', `/contents/${encodeURIComponent(id)}`),
+  /** Vista previa de la versión de trabajo (los cambios sin publicar, si los hay); como la ficha, puede estar a medias. */
+  preview: (id: string) =>
+    request<{ preview: true; source: 'contenido' | 'revision-pendiente'; status: string; item: Record<string, unknown>; phase?: string }>('GET', `/contents/${encodeURIComponent(id)}/preview`),
+  /** Crea un borrador nuevo de ese tipo, aunque esté a medias (los documentos se suben con `uploadDocument`). */
+  createContent: (type: string, payload: unknown) => request<{ content: ApiContentDetail }>('POST', '/contents', { type, payload }),
+  /** «Guardar borrador». `revision`: la que se tiene abierta; si otra persona guardó antes, 409. */
+  saveContent: (id: string, revision: number, payload: unknown) => request<{ content: ApiContentDetail }>('PUT', `/contents/${encodeURIComponent(id)}`, { revision, payload }),
+  /** «Publicar» (con `reviewed` si lo ha revisado el área), «Archivar» o «Restaurar» (administración). */
+  transition: (id: string, action: 'publicar' | 'archivar' | 'restaurar', revision: number, reviewed?: boolean) =>
+    request<{ content: ApiContentDetail }>('POST', `/contents/${encodeURIComponent(id)}/transitions`, { action, revision, ...(reviewed === undefined ? {} : { reviewed }) }),
+  /** «Eliminar el perfil» de quien deja FLM; `confirm` es su correo. Su contenido queda sin autoría y se retira su nombre de «Revisado por». */
+  removePerson: (id: string, confirm: string) => request<{ removed: RemovedProfile }>('POST', `/people/${encodeURIComponent(id)}/remove`, { confirm }),
+  uploadDocument: (form: FormData) => request<{ content: ApiContentDetail }>('POST', '/documents', form),
+  /**
+   * Sustituye el PDF (formulario con `archivo` y, opcional, `nota`). En un borrador nunca publicado, al momento
+   * (su autoría o administración); en uno publicado, solo administración, y espera en los cambios (`pending`).
+   */
+  replaceDocumentFile: (id: string, form: FormData) => request<{ content: ApiContentDetail }>('POST', `/documents/${encodeURIComponent(id)}/versions`, form),
 };

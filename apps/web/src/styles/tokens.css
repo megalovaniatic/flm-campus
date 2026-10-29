@@ -8,6 +8,10 @@
  *     negro #081225 · crema #EFEBE4 · gris #4F5661.
  *   - Fondo abstracto de redes: rojo vivo #FD1910 · vino #6C131C · azul profundo #002149 · noche #151024.
  * El resto de valores son decisiones de diseño del campus (superficies, tintes de accesibilidad, escalas).
+ *
+ * El degradado completo va en trazos, anillos, filetes y conectores. Como superficie, solo su tramo desde
+ * #B8302D o la pieza de redes recreada, en una tarjeta protagonista por pantalla. Las paradas oscuras de
+ * trazo son mezclas exactas de las oficiales con blanco: ningún tono nuevo.
  */
 
 :root {
@@ -34,12 +38,54 @@
   --ring-2: #792c35;
   --ring-3: #172641;
 
+  /* Paradas de los trazos (0, 30, 58, 82 y 100 % del logotipo); --stroke-34, mitad entre la 3 y la 4 */
+  --stroke-1: #e53327;
+  --stroke-2: #b8302d;
+  --stroke-3: #792c35;
+  --stroke-4: #3f293c;
+  --stroke-5: #172641;
+  --stroke-34: #5c2b39;
+  --flm-gradient-stroke: linear-gradient(90deg, var(--stroke-1) 0%, var(--stroke-2) 30%, var(--stroke-3) 58%, var(--stroke-4) 82%, var(--stroke-5) 100%);
+  --flm-gradient-stroke-v: linear-gradient(180deg, var(--stroke-1) 0%, var(--stroke-2) 30%, var(--stroke-3) 58%, var(--stroke-4) 82%, var(--stroke-5) 100%);
+  /* Tramos de sección: el mismo que subraya cada expresión de «La llegada» */
+  --tramo-consultar: linear-gradient(90deg, var(--stroke-1), var(--stroke-2));
+  --tramo-participar: linear-gradient(90deg, var(--stroke-2), var(--stroke-3) 70%, var(--stroke-34));
+  --tramo-aprender: linear-gradient(90deg, var(--stroke-4), var(--stroke-5));
+
+  /* Tarjeta protagonista: el degradado desde su parada del 30 % (texto blanco ≥ 6:1 en todo el recorrido) */
+  --grad-spotlight: linear-gradient(135deg, #b8302d 0%, #792c35 40%, #3f293c 74%, #172641 100%);
+  /* «Superponer» de las redes de FLM, recreado con círculos de su paleta sobre noche */
+  --grad-redes:
+    radial-gradient(circle 16rem at 100% 0%, rgb(253 25 16 / 0.5) 99.5%, transparent 100%),
+    radial-gradient(circle 12rem at 72% 112%, rgb(108 19 28 / 0.7) 99.5%, transparent 100%),
+    radial-gradient(circle 20rem at -6% 115%, rgb(0 33 73 / 0.8) 99.5%, transparent 100%), var(--flm-noche);
+  --spotlight-ink: #ffffff;
+  --spotlight-ink-2: var(--flm-crema);
+  --spotlight-glass: rgb(255 255 255 / 0.14);
+  --spotlight-line: rgb(255 255 255 / 0.24);
+  --spotlight-line-strong: rgb(255 255 255 / 0.7);
+  --spotlight-edge: transparent;
+  --spotlight-shadow: 0 18px 40px -24px rgb(23 38 65 / 0.55);
+  --focus-ring-inverse: 0 0 0 2px var(--flm-marino), 0 0 0 4px #ffffff;
+  /* Lavados y atmósferas: topes para que la tinta terciaria siga ≥ 4,5:1 */
+  --tint-soft: 8%;
+  --tint-atmos: 10%;
+  --grad-spotlight-soft: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--stroke-1) var(--tint-soft), var(--surface)),
+    color-mix(in srgb, var(--stroke-3) var(--tint-soft), var(--surface)) 50%,
+    color-mix(in srgb, var(--stroke-5) var(--tint-soft), var(--surface))
+  );
+  --nav-active: color-mix(in srgb, var(--flm-rojo) 8%, transparent);
+
   /* ── Áreas: meseta de color de cada cápsula oficial; Contable = la rampa completa ── */
   --area-fiscal: var(--flm-rojo);
   --area-laboral: var(--flm-burdeos);
   --area-mercantil: var(--flm-marino);
   --area-contable: var(--flm-marino);
-  --area-contable-fill: var(--flm-gradient);
+  --area-contable-fill: var(--flm-gradient-stroke);
+  /* «Toda la firma»: las tres mesetas seguidas, para no confundirla con la rampa de Contable */
+  --area-general-fill: linear-gradient(90deg, var(--area-fiscal) 0 33.33%, var(--area-laboral) 0 66.67%, var(--area-mercantil) 0);
   --flm-vino-texto: var(--flm-vino);
 
   /* ── Calendario ────────────────────────────────────────────────────── */
@@ -62,8 +108,9 @@
   --accent: var(--flm-rojo);
   /* Rojo para texto pequeño: el rojo oscuro de la web cumple 4,5:1 sobre papel. */
   --accent-text: var(--flm-rojo-oscuro);
-  --focus: #1f6feb;
   --focus-ring: 0 0 0 3px var(--paper), 0 0 0 5px var(--flm-marino);
+  /* Anillo de página, ya resuelto aquí: dentro de un protagonista --focus-ring pasa a ser el inverso */
+  --focus-ring-page: var(--focus-ring);
   --success: #1d6b45;
   --success-soft: #e3f1ea;
   --warning: #8a5a00;
@@ -149,6 +196,15 @@
   color-scheme: light;
 }
 
+@media (max-width: 720px) {
+  :root {
+    --grad-redes:
+      radial-gradient(circle 9rem at 100% 0%, rgb(253 25 16 / 0.5) 99.5%, transparent 100%),
+      radial-gradient(circle 7rem at 72% 112%, rgb(108 19 28 / 0.7) 99.5%, transparent 100%),
+      radial-gradient(circle 11rem at -6% 115%, rgb(0 33 73 / 0.8) 99.5%, transparent 100%), var(--flm-noche);
+  }
+}
+
 /* ── Tema oscuro: el marino y el negro de FLM como base ───────────────── */
 :root[data-theme='dark'] {
   --paper: var(--flm-negro);
@@ -183,6 +239,19 @@
   --ring-3: #8fa3c7;
   --cal-encuentro: #8fa3c7;
   --cal-festivo: #a3aab6;
+  /* Paradas de trazo aclaradas: mezclas exactas de las oficiales con blanco (en hexadecimal, interpolan en sRGB) */
+  --stroke-1: #e95247;
+  --stroke-2: #cc6a68;
+  --stroke-3: #bc969a;
+  --stroke-4: #a99fa7;
+  --stroke-5: #9ea4af;
+  --stroke-34: #b39ba1;
+  --tint-soft: 12%;
+  --tint-atmos: 14%;
+  /* El extremo marino del protagonista se separa del negro con un filo crema */
+  --spotlight-edge: rgb(239 235 228 / 0.4);
+  --spotlight-shadow: 0 18px 40px -24px rgb(0 0 0 / 0.7);
+  --nav-active: color-mix(in srgb, var(--flm-rojo) 16%, transparent);
   --shadow-1: 0 1px 2px rgb(0 0 0 / 0.3);
   --shadow-2: 0 2px 6px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.5);
   --shadow-3: 0 4px 12px rgb(0 0 0 / 0.35), 0 24px 56px -16px rgb(0 0 0 / 0.6);

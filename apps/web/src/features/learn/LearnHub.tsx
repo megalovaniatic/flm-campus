@@ -3,13 +3,14 @@ import { ArrowRight, BookOpen } from 'lucide-react';
 import { useId, useMemo, useRef, type KeyboardEvent } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { AREA_LIST, AREAS, formationStatus, isAreaId, type AreaId, type FormationStatus } from '@flm/shared';
-import { Avatar, ButtonLink, EmptyState, PageHeader, ProgressRing, StatusGlyph } from '@/design';
-import { assessments, useFormations } from '@/data/selectors';
+import { Avatar, ButtonLink, EmptyState, PageHeader, PhotoCapsule, ProgressRing, StatusGlyph } from '@/design';
+import { useAssessments, useFormations } from '@/data/selectors';
 import { useDemo } from '@/data/store';
 import { usePageTitle } from '@/lib/preferences';
 import { AreaDot } from './common/AreaMark';
 import { AREA_REFERENCE, areaCounts, bestOf, photoOf, useMyArea, usePerson, useProgressMap } from './common/data';
 import { FormationRow } from './common/FormationCard';
+import { NextStepPanel } from './common/NextStepPanel';
 import { TenDots } from './common/TenDots';
 import styles from './LearnHub.module.css';
 
@@ -96,7 +97,7 @@ function AreaPanel({ area }: { area: AreaId }) {
     <div className={styles.panelGrid}>
       <div className={styles.summary}>
         <div className={styles.summaryTop}>
-          <ProgressRing value={completed} total={total} size={112} stroke={7} label={`Formaciones completadas en ${info.name}`}>
+          <ProgressRing value={completed} total={total} size={112} stroke={7} label={`Formaciones completadas en ${info.name}`} tone="area">
             <span className={styles.ringNum}>
               {total > 0 ? (
                 <>
@@ -186,6 +187,7 @@ function Itineraries() {
 
 function Assessments() {
   const attemptsMap = useDemo((s) => s.assessmentAttempts);
+  const assessments = useAssessments();
   return (
     <section className={styles.block} aria-labelledby="h-evaluaciones">
       <div className={styles.head}>
@@ -203,7 +205,7 @@ function Assessments() {
           const total = assessment?.quiz.questions.length ?? 10;
           const status = !assessment ? 'En preparación' : !best ? `${total} preguntas · se supera con ${assessment.quiz.passMark}` : passed ? `Superada · mejor resultado ${best.correct}/${best.total}` : `Aún no · mejor resultado ${best.correct}/${best.total}`;
           return (
-            <li key={a.id} className={styles.assess} data-area={a.id} data-ready={!!assessment || undefined}>
+            <li key={a.id} className={styles.assess} data-area={a.id} data-ready={!!assessment || undefined} data-cta-host>
               <span className={styles.assessArea}>
                 <AreaDot area={a.id} /> {a.name}
               </span>
@@ -219,7 +221,7 @@ function Assessments() {
               <TenDots total={total} filled={best?.correct ?? 0} pending={!assessment} />
               <p className={styles.assessStatus}>{status}</p>
               {assessment && (
-                <span className={styles.assessGo} aria-hidden="true">
+                <span className={`cta-pill ${styles.assessGo}`} aria-hidden="true">
                   {best ? 'Volver a intentarlo' : 'Empezar'} <ArrowRight size={16} />
                 </span>
               )}
@@ -266,29 +268,16 @@ export default function LearnHub() {
     <div className="container page">
       <PageHeader
         eyebrow="Formación de FLM"
-        title="Aprender"
-        lede="Formaciones breves de las cuatro áreas de la firma. Lee cada una a tu ritmo, comprueba lo aprendido con un test de tres preguntas y completa tu itinerario."
-        aside={
-          <div className={styles.overall}>
-            <ProgressRing value={overall.completed} total={overall.total} size={104} stroke={6} label="Formaciones completadas">
-              <span className={styles.ringNum}>
-                {overall.total > 0 ? (
-                  <>
-                    {overall.completed}
-                    <span>/{overall.total}</span>
-                  </>
-                ) : (
-                  '—'
-                )}
-              </span>
-            </ProgressRing>
-            <p className={styles.overallText}>
-              <strong>Formaciones completadas</strong>
-              <span>{overall.total === 0 ? 'Las formaciones se están publicando' : overall.completed === overall.total ? 'Itinerario completo' : `${overall.total - overall.completed} por completar`}</span>
-            </p>
-          </div>
+        title={
+          <>
+            Aprender<span className="red-dot" aria-hidden="true" />
+          </>
         }
+        lede="Formaciones breves de las cuatro áreas de la firma. Lee cada una a tu ritmo, comprueba lo aprendido con un test de tres preguntas y completa tu itinerario."
+        aside={<PhotoCapsule name="libreta-mesa" aspect="12 / 5" width="clamp(15rem, 22vw, 20rem)" position="50% 85%" sizes="(min-width: 860px) 20rem, 1px" mobile="hide" />}
       />
+      {/* El anillo global va dentro del protagonista, en blanco */}
+      <NextStepPanel context="aprender" progress={overall} className={styles.next} />
       <Itineraries />
       <Assessments />
       <States />

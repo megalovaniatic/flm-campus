@@ -1,13 +1,13 @@
 import { motion } from 'motion/react';
 import type { LucideIcon } from 'lucide-react';
-import { ArrowRight, ChartColumn, FileQuestionMark, FlaskConical, Inbox, LayoutGrid, ScrollText, Timer, Users } from 'lucide-react';
+import { ArrowRight, ChartColumn, FileQuestionMark, FlaskConical, Inbox, LayoutGrid, ScrollText, Timer, UserRoundX, Users } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import { ButtonLink, EmptyState, Notice, PageHeader } from '@/design';
 import { useFormations, usePeople } from '@/data/selectors';
 import { useDemo } from '@/data/store';
 import { MESSAGES } from '@/lib/messages';
 import { usePageTitle } from '@/lib/preferences';
-import { useContentRows } from '@/features/manage/model';
+import { useContentRows, withoutAuthor } from '@/features/manage/model';
 import { AuditSection } from './AuditSection';
 import { PeopleSection } from './PeopleSection';
 import { ReportsSection } from './ReportsSection';
@@ -17,7 +17,7 @@ import styles from './AdminPage.module.css';
 type SectionId = 'personas' | 'informes' | 'auditoria' | 'retencion';
 
 const SECTIONS: { id: SectionId; label: string; icon: LucideIcon; title: string; lede: string }[] = [
-  { id: 'personas', label: 'Personas', icon: Users, title: 'Personas y accesos', lede: 'Roles, activación, sesiones y eliminación controlada de datos personales.' },
+  { id: 'personas', label: 'Personas', icon: Users, title: 'Personas y accesos', lede: 'Roles, activación, sesiones y eliminación del perfil de quien deja FLM: su contenido se conserva sin autoría.' },
   { id: 'informes', label: 'Informes', icon: ChartColumn, title: 'Informes restringidos', lede: 'Participación en las formaciones, sin nombres, y errores frecuentes por pregunta.' },
   { id: 'auditoria', label: 'Auditoría', icon: ScrollText, title: 'Auditoría', lede: 'Quién hizo qué, sobre qué y cuándo. Sin contraseñas, tokens ni datos personales en el detalle.' },
   { id: 'retencion', label: 'Retención', icon: Timer, title: 'Retención de datos', lede: 'Cuánto se conserva cada dato y cómo se elimina.' },
@@ -54,7 +54,10 @@ function Overview() {
   const active = people.filter((p) => p.status === 'activa');
   const admins = active.filter((p) => p.role === 'admin').length;
   const real = people.filter((p) => !p.fictional).length;
-  const pending = rows.filter((r) => r.status === 'en-revision').length;
+  // Sin revisión previa: lo que queda por hacer son los borradores (también los cambios sin publicar).
+  const drafts = rows.filter((r) => r.status === 'borrador' || !!r.revisionOf).length;
+  // Con la regla del filtro «Autoría › Sin autoría» de Gestión: la cifra es la que se ve al abrirlo.
+  const orphan = rows.filter((r) => withoutAuthor(r, people)).length;
 
   const cards: { id: SectionId; figure: string; caption: string; detail: string }[] = [
     { id: 'personas', figure: String(active.length), caption: active.length === 1 ? 'persona activa' : 'personas activas', detail: `${admins} ${admins === 1 ? 'administrador' : 'administradores'} · ${real} ${real === 1 ? 'persona real' : 'personas reales'} en la demo` },
@@ -90,13 +93,22 @@ function Overview() {
           );
         })}
       </ul>
-      <Link to="/gestion?estado=en-revision" className={styles.pendingLink}>
+      <Link to="/gestion?estado=borrador" className={styles.pendingLink}>
         <Inbox size={18} aria-hidden="true" />
         <span>
-          Gestión de contenidos: <strong>{pending === 0 ? 'nada pendiente' : pending === 1 ? '1 contenido pendiente' : `${pending} contenidos pendientes`}</strong> de revisión
+          Gestión de contenidos: <strong>{drafts === 0 ? 'ningún borrador' : drafts === 1 ? '1 borrador' : `${drafts} borradores`}</strong> sin publicar
         </span>
         <ArrowRight size={16} aria-hidden="true" />
       </Link>
+      {orphan > 0 && (
+        <Link to="/gestion?autoria=sin" className={styles.pendingLink}>
+          <UserRoundX size={18} aria-hidden="true" />
+          <span>
+            Sin autoría: <strong>{orphan === 1 ? '1 contenido' : `${orphan} contenidos`}</strong> con la firma neutra, que solo edita administración
+          </span>
+          <ArrowRight size={16} aria-hidden="true" />
+        </Link>
+      )}
     </>
   );
 }

@@ -212,10 +212,10 @@ export function Chart({ type, title, showTitle, series, xLabel, yLabel, formatVa
     ) : (
       <>
         <strong>{xTexts[shown]}</strong>
-        {series.map((s) => {
+        {series.map((s, si) => {
           const v = valueAt(s, cats[shown]!);
           return (
-            <span key={s.name}>
+            <span key={si}>
               {' · '}
               {s.name}: <strong>{v === undefined ? 'sin dato' : formatValue(v)}</strong>
             </span>
@@ -248,9 +248,9 @@ export function Chart({ type, title, showTitle, series, xLabel, yLabel, formatVa
               </g>
             ))}
             <line className={styles.baseline} x1={ml} x2={ml + pw} y1={r2(yBase)} y2={r2(yBase)} />
-            {cats.map((c, i) =>
+            {cats.map((_, i) =>
               i % step === 0 ? (
-                <text key={String(c)} className={styles.tick} data-emph={emphasis?.(i) || undefined} x={xc(i)} y={mt + ph + 18} textAnchor="middle">
+                <text key={i} className={styles.tick} data-emph={emphasis?.(i) || undefined} x={xc(i)} y={mt + ph + 18} textAnchor="middle">
                   {(xLines[i] ?? []).map((line, li) => (
                     <tspan key={li} x={xc(i)} dy={li === 0 ? 0 : 14}>
                       {line}
@@ -291,7 +291,7 @@ export function Chart({ type, title, showTitle, series, xLabel, yLabel, formatVa
                     const zero = barPath(x, bw, yBase, yBase);
                     const full = barPath(x, bw, y(v), yBase);
                     return (
-                      <Fragment key={`${s.name}-${String(c)}`}>
+                      <Fragment key={`${si}-${i}`}>
                         <motion.path d={full} className={styles.bar} data-dim={shown !== null && shown !== i ? true : undefined} style={{ fill: SERIES_VAR[si % 4] }} initial={reduce ? false : { d: zero }} animate={{ d: seen || reduce ? full : zero }} transition={t(0.5, i * 0.04 + si * 0.06)} />
                         {labelBars && (
                           <motion.text className={styles.barLabel} x={x + bw / 2} y={v >= 0 ? y(v) - 6 : y(v) + 14} textAnchor="middle" initial={{ opacity: 0 }} animate={{ opacity: seen || reduce ? 1 : 0 }} transition={t(0.3, 0.45)}>
@@ -306,7 +306,7 @@ export function Chart({ type, title, showTitle, series, xLabel, yLabel, formatVa
                   const d = linePath(s);
                   const dashed = si % 4 !== 0;
                   return (
-                    <g key={s.name}>
+                    <g key={si}>
                       <motion.path
                         d={d}
                         className={styles.line}
@@ -321,7 +321,7 @@ export function Chart({ type, title, showTitle, series, xLabel, yLabel, formatVa
                           if (v === undefined) return null;
                           const mx = type === 'escalones' ? ml + bandW * (i + 0.5) : xc(i);
                           return (
-                            <motion.g key={String(c)} initial={reduce ? false : { opacity: 0 }} animate={{ opacity: seen || reduce ? 1 : 0 }} transition={t(0.25, 0.4 + i * 0.03)}>
+                            <motion.g key={i} initial={reduce ? false : { opacity: 0 }} animate={{ opacity: seen || reduce ? 1 : 0 }} transition={t(0.25, 0.4 + i * 0.03)}>
                               <Marker shape={si} x={r2(mx)} y={r2(y(v))} active={shown === i} />
                             </motion.g>
                           );
@@ -359,8 +359,8 @@ export function Chart({ type, title, showTitle, series, xLabel, yLabel, formatVa
               <thead>
                 <tr>
                   <th scope="col">{xLabel ?? 'Categoría'}</th>
-                  {series.map((s) => (
-                    <th key={s.name} scope="col">
+                  {series.map((s, si) => (
+                    <th key={si} scope="col">
                       {s.name}
                     </th>
                   ))}
@@ -368,11 +368,11 @@ export function Chart({ type, title, showTitle, series, xLabel, yLabel, formatVa
               </thead>
               <tbody>
                 {cats.map((c, i) => (
-                  <tr key={String(c)} className={cx(shown === i && styles.rowActive)}>
+                  <tr key={i} className={cx(shown === i && styles.rowActive)}>
                     <th scope="row">{xTexts[i]}</th>
-                    {series.map((s) => {
+                    {series.map((s, si) => {
                       const v = valueAt(s, c);
-                      return <td key={s.name}>{v === undefined ? '—' : formatValue(v)}</td>;
+                      return <td key={si}>{v === undefined ? '—' : formatValue(v)}</td>;
                     })}
                   </tr>
                 ))}

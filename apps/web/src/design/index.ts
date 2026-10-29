@@ -12,3 +12,5 @@ export * from './BrandGlyphs';
 export * from './Popover';
 export * from './StatusGlyph';
 export * from './PageHeader';
+export * from './Spotlight';
+export * from './PhotoCapsule';

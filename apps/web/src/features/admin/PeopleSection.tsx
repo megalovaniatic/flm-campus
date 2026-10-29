@@ -1,40 +1,46 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { BadgeCheck, CircleCheck, CircleSlash, Ellipsis, Eraser, FlaskConical, Lock, LogOut, PenLine, Search, ShieldCheck, UserCheck, UserCog, UserRound, Users, UserX, X } from 'lucide-react';
-import { useMemo, useState, type ReactNode } from 'react';
-import { madridParts, normalize, relativeDay, madridDateKey, ROLE_DESCRIPTION, ROLE_LABEL, type Office, type Person, type Role } from '@flm/shared';
-import { Avatar, Button, Chip, Dialog, EmptyState, Popover, SelectField, TextField, toast } from '@/design';
-import { useMe, usePeople } from '@/data/selectors';
+import { BadgeCheck, CircleCheck, CircleSlash, Ellipsis, FlaskConical, Lock, LogOut, PenLine, Search, ShieldCheck, UserCheck, UserCog, UserRound, UserRoundMinus, Users, UserX, X } from 'lucide-react';
+import { useMemo, useRef, useState, type ReactNode } from 'react';
+import { can, madridParts, normalize, relativeDay, madridDateKey, ROLE_DESCRIPTION, ROLE_LABEL, type Office, type Person, type Role } from '@flm/shared';
+import { Avatar, Button, Chip, Dialog, EmptyState, Popover, SelectField, toast } from '@/design';
+import { DEMO_USER_ID, useMe, usePeople } from '@/data/selectors';
 import { useDemo } from '@/data/store';
 import { MESSAGES } from '@/lib/messages';
 import { ChoiceGroup } from '@/features/manage/editor/fields';
 import { useMediaQuery } from '@/features/manage/useMediaQuery';
+import { confirmsRemoval, removalAuditDetail, type RemovalImpact } from './removal';
+import { RemoveProfileDialog } from './RemoveProfileDialog';
 import styles from './Admin.module.css';
 
 const base = import.meta.env.BASE_URL;
-const ANON_NAME = 'Persona eliminada';
 const pad = (n: number) => String(n).padStart(2, '0');
 
-export const isAnonymized = (p: Person) => p.email.endsWith('@anonimizada.invalid');
-
 function activeAdmins(people: Person[], excludeId?: string) {
-  return people.filter((p) => p.role === 'admin' && p.status === 'activa' && !isAnonymized(p) && p.id !== excludeId).length;
+  return people.filter((p) => p.role === 'admin' && p.status === 'activa' && p.id !== excludeId).length;
 }
 
-type Act = 'rol' | 'desactivar' | 'reactivar' | 'revocar' | 'eliminar';
+type Act = 'rol' | 'desactivar' | 'reactivar' | 'revocar' | 'eliminar-perfil';
+
+/** Quién actúa: su id y el rol con el que ve el campus. */
+interface Actor {
+  id: string;
+  effectiveRole: Role;
+}
 
 /** Motivo por el que una acción no está disponible (mismas reglas que la API), o null. */
-function guard(p: Person, act: Act, meId: string, people: Person[], nextRole?: Role): string | null {
-  if (isAnonymized(p)) return act === 'reactivar' ? 'Una cuenta anonimizada no se puede reactivar. Crea una cuenta nueva si la persona vuelve.' : 'Los datos personales de esta cuenta ya se eliminaron.';
-  if (p.id === meId) {
+function guard(p: Person, act: Act, actor: Actor, people: Person[], nextRole?: Role): string | null {
+  if (act === 'eliminar-perfil' && !can(actor.effectiveRole, 'datos-personales:eliminar')) return 'Solo administración puede eliminar perfiles.';
+  if (p.id === actor.id) {
     if (act === 'rol') return 'No puedes cambiar tu propio rol desde la administración. Pídeselo a otra persona administradora.';
     if (act === 'desactivar') return 'No puedes desactivar tu propia cuenta desde la administración.';
-    if (act === 'eliminar') return 'No puedes eliminar tus propios datos personales desde la administración. Pídeselo a otra persona administradora.';
+    if (act === 'eliminar-perfil') return 'No puedes eliminar tu propio perfil. Pídeselo a otra persona administradora.';
   }
+  if (act === 'eliminar-perfil' && __DEMO__ && p.id === DEMO_USER_ID) return 'Es el perfil con el que se recorre esta demostración: no se puede eliminar.';
   const lastAdmin = p.role === 'admin' && p.status === 'activa' && activeAdmins(people, p.id) === 0;
   if (lastAdmin) {
     if (act === 'rol' && nextRole && nextRole !== 'admin') return 'No se puede quitar el rol de administración al último administrador activo. Nombra antes a otra persona administradora.';
     if (act === 'desactivar') return 'No se puede desactivar al último administrador activo. Nombra antes a otra persona administradora.';
-    if (act === 'eliminar') return 'No se pueden eliminar los datos del último administrador activo. Nombra antes a otra persona administradora.';
+    if (act === 'eliminar-perfil') return 'No se puede eliminar el perfil del último administrador activo. Nombra antes a otra persona administradora.';
   }
   if (act === 'desactivar' && p.status === 'inactiva') return 'La cuenta ya está desactivada.';
   if (act === 'reactivar' && p.status === 'activa') return 'La cuenta ya está activa.';
@@ -52,12 +58,6 @@ function RoleChip({ role }: { role: Role }) {
 }
 
 function StatusChip({ p }: { p: Person }) {
-  if (isAnonymized(p))
-    return (
-      <Chip size="sm" tone="inverse" icon={<Eraser size={14} />}>
-        Datos eliminados
-      </Chip>
-    );
   return p.status === 'activa' ? (
     <Chip size="sm" tone="success" icon={<CircleCheck size={14} />}>
       Activa
@@ -88,14 +88,14 @@ function revokedLabel(iso: string | undefined) {
   return `Sesiones revocadas ${relativeDay(madridDateKey(d))}, ${pad(p.hour)}:${pad(p.minute)}`;
 }
 
-function PersonActions({ p, people, meId, onPick }: { p: Person; people: Person[]; meId: string; onPick: (p: Person, act: Act) => void }) {
+function PersonActions({ p, people, actor, onPick }: { p: Person; people: Person[]; actor: Actor; onPick: (p: Person, act: Act) => void }) {
   const items: { act: Act; label: string; icon: ReactNode; danger?: boolean; reason: string | null }[] = [
-    { act: 'rol', label: 'Cambiar rol…', icon: <UserCog size={18} />, reason: guard(p, 'rol', meId, people) },
+    { act: 'rol', label: 'Cambiar rol…', icon: <UserCog size={18} />, reason: guard(p, 'rol', actor, people) },
     p.status === 'activa'
-      ? { act: 'desactivar', label: 'Desactivar la cuenta…', icon: <UserX size={18} />, reason: guard(p, 'desactivar', meId, people) }
-      : { act: 'reactivar', label: 'Reactivar la cuenta', icon: <UserCheck size={18} />, reason: guard(p, 'reactivar', meId, people) },
-    { act: 'revocar', label: 'Revocar sesiones…', icon: <LogOut size={18} />, reason: isAnonymized(p) ? 'Esta cuenta no tiene sesiones: sus datos se eliminaron.' : null },
-    { act: 'eliminar', label: 'Eliminar datos personales…', icon: <Eraser size={18} />, danger: true, reason: guard(p, 'eliminar', meId, people) },
+      ? { act: 'desactivar', label: 'Desactivar la cuenta…', icon: <UserX size={18} />, reason: guard(p, 'desactivar', actor, people) }
+      : { act: 'reactivar', label: 'Reactivar la cuenta', icon: <UserCheck size={18} />, reason: guard(p, 'reactivar', actor, people) },
+    { act: 'revocar', label: 'Revocar sesiones…', icon: <LogOut size={18} />, reason: null },
+    { act: 'eliminar-perfil', label: 'Eliminar el perfil…', icon: <UserRoundMinus size={18} />, danger: true, reason: guard(p, 'eliminar-perfil', actor, people) },
   ];
   return (
     <Popover label={`Acciones para ${p.name}`} width={290} triggerClassName={styles.more} trigger={<Ellipsis size={20} aria-hidden="true" />}>
@@ -137,7 +137,7 @@ function PersonName({ p }: { p: Person }) {
       <Avatar name={p.name} photo={p.photo ? base + p.photo : undefined} size={36} decorative />
       <span className={styles.personText}>
         <span className={styles.personName}>{p.name}</span>
-        <span className={styles.personMail}>{isAnonymized(p) ? 'Correo anonimizado' : p.email}</span>
+        <span className={styles.personMail}>{p.email}</span>
       </span>
     </span>
   );
@@ -151,12 +151,18 @@ const rowMotion = {
   transition: { duration: 0.2 },
 };
 
-/** Personas: roles, activación, sesiones y eliminación controlada de datos personales. */
+/**
+ * Personas: roles, activación, sesiones y eliminación del perfil de quien deja FLM.
+ * «Eliminar el perfil» sustituye a la antigua «Eliminar datos personales» (anonimizar la ficha):
+ * hace todo lo que hacía y además retira a la persona del campus y deja su contenido sin autoría.
+ */
 export function PeopleSection() {
   const me = useMe();
   const people = usePeople();
   const revoked = useDemo((s) => s.revokedSessions);
+  const removedCount = useDemo((s) => Object.keys(s.removedPeople).length);
   const compact = useMediaQuery('(max-width: 979px)');
+  const headingRef = useRef<HTMLHeadingElement>(null);
   const [q, setQ] = useState('');
   const [role, setRole] = useState('');
   const [estado, setEstado] = useState('');
@@ -165,16 +171,13 @@ export function PeopleSection() {
   const [limit, setLimit] = useState(24);
   const [dialog, setDialog] = useState<{ p: Person; act: Exclude<Act, 'reactivar'> } | null>(null);
   const [nextRole, setNextRole] = useState<Role>('empleado');
-  const [confirmName, setConfirmName] = useState('');
 
   const filtered = useMemo(() => {
     const nq = normalize(q);
     return people
       .filter((p) => {
         if (role && p.role !== role) return false;
-        if (estado === 'activa' && (p.status !== 'activa' || isAnonymized(p))) return false;
-        if (estado === 'inactiva' && (p.status !== 'inactiva' || isAnonymized(p))) return false;
-        if (estado === 'anonimizada' && !isAnonymized(p)) return false;
+        if (estado && p.status !== estado) return false;
         if (sede && p.office !== sede) return false;
         if (origen === 'real' && p.fictional) return false;
         if (origen === 'ficticia' && !p.fictional) return false;
@@ -185,7 +188,7 @@ export function PeopleSection() {
   }, [people, q, role, estado, sede, origen]);
 
   if (!me) return null;
-  const actor = me;
+  const actor: Actor = { id: me.id, effectiveRole: me.effectiveRole };
   const activeCount = people.filter((p) => p.status === 'activa').length;
   const adminCount = activeAdmins(people);
   const realCount = people.filter((p) => !p.fictional).length;
@@ -200,20 +203,18 @@ export function PeopleSection() {
       return;
     }
     if (act === 'rol') setNextRole(p.role);
-    setConfirmName('');
     setDialog({ p, act });
   };
 
   const close = () => setDialog(null);
   const d = dialog;
-  const roleReason = d?.act === 'rol' ? guard(d.p, 'rol', actor.id, people, nextRole) : null;
-  const nameMatches = !!d && normalize(confirmName) === normalize(d.p.name);
+  const roleReason = d?.act === 'rol' ? guard(d.p, 'rol', actor, people, nextRole) : null;
 
   const confirm = () => {
     if (!d) return;
     const st = useDemo.getState();
     const { p, act } = d;
-    const reason = guard(p, act, actor.id, people, nextRole);
+    const reason = guard(p, act, actor, people, nextRole);
     if (reason) {
       toast.error('Acción no disponible', reason);
       return;
@@ -233,22 +234,36 @@ export function PeopleSection() {
       st.revokeSessions(p.id);
       log('sesion.revocar-todas', p, 'Sesiones cerradas.');
       toast.success('Sesiones revocadas', `${p.name} tendrá que volver a iniciar sesión en todos sus dispositivos.`);
-    } else if (act === 'eliminar') {
-      if (!nameMatches) return;
-      // Cadenas vacías (no undefined) para que la anonimización sobreviva al guardado local.
-      st.patchPerson(p.id, {
-        name: ANON_NAME,
-        email: `eliminada-${p.id}@anonimizada.invalid`,
-        position: '',
-        photo: '',
-        publicSource: '',
-        status: 'inactiva',
-      });
-      st.revokeSessions(p.id);
-      log('persona.eliminar-datos', p, 'Anonimizados nombre, correo, foto y puesto. Intentos de test desvinculados.');
-      toast.success('Datos personales eliminados', 'La ficha queda anonimizada y la acción consta en la auditoría.');
     }
     close();
+  };
+
+  /**
+   * Elimina el perfil: la persona desaparece del campus (usePeople), su contenido queda sin autoría
+   * y con firma neutra, sus bienvenidas se retiran y sus intentos solo cuentan como agregados anónimos.
+   * `confirm` es el correo escrito en el diálogo. En la versión interna lo hace la API con
+   * `api.removePerson(p.id, confirm)` (borrado real de la cuenta, que vuelve a comprobar el correo)
+   * y no se puede deshacer.
+   */
+  const removeProfile = (impact: RemovalImpact, confirm: string) => {
+    if (d?.act !== 'eliminar-perfil') return;
+    const { p } = d;
+    const reason = guard(p, 'eliminar-perfil', actor, people);
+    if (reason) {
+      toast.error('Acción no disponible', reason);
+      return;
+    }
+    // La misma comprobación que la API: sin su correo no se elimina.
+    if (!confirmsRemoval(confirm, p.email)) {
+      toast.error('Falta la confirmación', `Para eliminar el perfil, escribe su correo: «${p.email}».`);
+      return;
+    }
+    log('persona.eliminar-perfil', p, removalAuditDetail(impact));
+    useDemo.getState().removePerson(p.id);
+    close();
+    toast.success('Perfil eliminado', `${p.name} ya no aparece en el campus.${impact.keptTotal + impact.drafts > 0 ? ' Sus contenidos se conservan sin autoría.' : ''}`);
+    // Su fila desaparece: el foco pasa al título de la sección para no perderse.
+    window.setTimeout(() => headingRef.current?.focus(), 0);
   };
 
   const filtersOn = !!(q || role || estado || sede || origen);
@@ -257,11 +272,12 @@ export function PeopleSection() {
   return (
     <section className={styles.section} aria-labelledby="h-personas">
       <div className={styles.sectionHead}>
-        <h2 id="h-personas" className="section-title">
+        <h2 id="h-personas" ref={headingRef} tabIndex={-1} className="section-title">
           Personas
         </h2>
         <p className={styles.summary}>
           <Users size={16} aria-hidden="true" /> {people.length} personas · {activeCount} activas · {adminCount} {adminCount === 1 ? 'administrador activo' : 'administradores activos'} · {realCount} reales y {people.length - realCount} ficticias
+          {removedCount > 0 ? ` · ${removedCount} ${removedCount === 1 ? 'perfil eliminado' : 'perfiles eliminados'}` : ''}
         </p>
       </div>
 
@@ -288,7 +304,6 @@ export function PeopleSection() {
               { value: '', label: 'Todos' },
               { value: 'activa', label: 'Activa' },
               { value: 'inactiva', label: 'Inactiva' },
-              { value: 'anonimizada', label: 'Datos eliminados' },
             ]}
           />
           <SelectField label="Sede" value={sede} onChange={(e) => setSede(e.target.value)} options={[{ value: '', label: 'Todas' }, ...(['Barcelona', 'Vic', 'Granollers'] as Office[]).map((o) => ({ value: o, label: o }))]} />
@@ -320,7 +335,7 @@ export function PeopleSection() {
               <motion.li key={p.id} {...rowMotion} className={styles.card}>
                 <div className={styles.cardTop}>
                   <PersonName p={p} />
-                  <PersonActions p={p} people={people} meId={actor.id} onPick={onPick} />
+                  <PersonActions p={p} people={people} actor={actor} onPick={onPick} />
                 </div>
                 <p className={styles.cardLine}>{[p.position, p.department, p.office].filter(Boolean).join(' · ') || 'Sin datos de puesto'}</p>
                 <div className={styles.chips}>
@@ -375,7 +390,7 @@ export function PeopleSection() {
                       <OriginChip p={p} />
                     </td>
                     <td className={styles.actionsCell}>
-                      <PersonActions p={p} people={people} meId={actor.id} onPick={onPick} />
+                      <PersonActions p={p} people={people} actor={actor} onPick={onPick} />
                     </td>
                   </motion.tr>
                 ))}
@@ -391,6 +406,14 @@ export function PeopleSection() {
           </Button>
         </div>
       )}
+
+      {/* Antes que los demás diálogos: al pasar de «Eliminar el perfil» a «Desactivar», este se cierra primero y el foco vuelve bien. */}
+      <RemoveProfileDialog
+        person={d?.act === 'eliminar-perfil' ? d.p : null}
+        onClose={close}
+        onConfirm={removeProfile}
+        onDeactivate={d?.act === 'eliminar-perfil' && !guard(d.p, 'desactivar', actor, people) ? () => setDialog({ p: d.p, act: 'desactivar' }) : undefined}
+      />
 
       <Dialog
         open={d?.act === 'rol'}
@@ -419,7 +442,7 @@ export function PeopleSection() {
         onClose={close}
         size="sm"
         title="¿Desactivar la cuenta?"
-        description={d ? `${d.p.name} no podrá entrar en el campus y se cerrarán todas sus sesiones. Podrás reactivarla más adelante.` : undefined}
+        description={d ? `${d.p.name} no podrá entrar en el campus y se cerrarán todas sus sesiones. Su perfil y sus contenidos no cambian, y podrás reactivarla más adelante.` : undefined}
         footer={
           <>
             <Button variant="ghost" data-autofocus onClick={close}>
@@ -449,42 +472,6 @@ export function PeopleSection() {
           </>
         }
       />
-
-      <Dialog
-        open={d?.act === 'eliminar'}
-        onClose={close}
-        title="Eliminar datos personales"
-        description={d ? `Anonimiza la ficha de ${d.p.name}. En la versión interna no se puede deshacer.` : undefined}
-        footer={
-          <>
-            <Button variant="ghost" onClick={close}>
-              Cancelar
-            </Button>
-            <Button variant="danger" icon={<Eraser />} onClick={confirm} disabled={!nameMatches}>
-              Eliminar datos personales
-            </Button>
-          </>
-        }
-      >
-        {d && (
-          <form
-            className={styles.dialogBody}
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (nameMatches) confirm();
-            }}
-          >
-            <ul className={styles.effects}>
-              <li>Nombre y correo pasan a «{ANON_NAME}» y a una dirección no válida.</li>
-              <li>Se borran la fotografía y el puesto.</li>
-              <li>Se cierran sus sesiones; los intentos de test se desvinculan y quedan solo como agregados anónimos.</li>
-              <li>Queda constancia en la auditoría, sin datos personales en el detalle.</li>
-            </ul>
-            <TextField label={`Para confirmar, escribe «${d.p.name}»`} value={confirmName} onChange={(e) => setConfirmName(e.target.value)} autoComplete="off" spellCheck={false} hint="Es la confirmación explícita que exige la política de retención." data-autofocus />
-            {__DEMO__ && <p className={styles.dialogNote}>En esta demostración puedes recuperarlo con «Restablecer», en la banda superior.</p>}
-          </form>
-        )}
-      </Dialog>
     </section>
   );
 }

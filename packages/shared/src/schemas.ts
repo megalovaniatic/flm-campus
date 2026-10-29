@@ -5,6 +5,8 @@
  */
 import { z } from 'zod';
 import { AREA_IDS } from './areas';
+import { COUNTRY_NAMES } from './countries';
+import { normalize } from './text';
 
 const dateKey = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha con formato AAAA-MM-DD');
 const localDateTime = z.string().regex(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/, 'Fecha u hora local con formato AAAA-MM-DD o AAAA-MM-DDTHH:mm');
@@ -18,17 +20,18 @@ const nonEmpty = (label: string) => z.string().trim().min(1, `${label}: campo ob
 export const areaSchema = z.enum(AREA_IDS);
 
 export const editorialSchema = z.object({
-  status: z.enum(['borrador', 'en-revision', 'publicado', 'archivado']),
-  authorId: nonEmpty('Autor'),
+  status: z.enum(['borrador', 'publicado', 'archivado']),
+  /** Opcional: el contenido de quien deja FLM se conserva sin autoría (nunca con un autor vacío). */
+  authorId: nonEmpty('Autor').optional(),
   publishedAt: z.string().optional(),
   updatedAt: z.string().optional(),
   review: z.object({
     state: z.enum(['pendiente', 'revisado']),
     reviewerName: z.string().optional(),
+    reviewerId: z.string().min(1).optional(),
     reviewedAt: z.string().optional(),
     note: z.string().optional(),
   }),
-  returnComment: z.string().optional(),
 });
 
 export const sourceSchema = z.object({
@@ -75,6 +78,72 @@ export const quizSchema = z
 
 const exampleStepSchema = z.object({ label: nonEmpty('Paso'), formula: z.string().optional(), result: z.string().optional() });
 
+/** Problema de un apoyo interactivo, con la ruta del campo dentro del apoyo («nodes.2.options.0.next»). */
+export interface WidgetProblem {
+  path: (string | number)[];
+  message: string;
+}
+
+const quoted = (s: string, fallback: string) => (s.trim() ? `«${s.trim()}»` : fallback);
+
+/**
+ * Estructura de un árbol de decisión: identificadores únicos, un primer paso que existe, cada paso con
+ * opciones o con resultado, y cada opción con un paso de destino que existe. La aplican el esquema (en la
+ * web y en la API) y el aviso de desarrollo del propio apoyo.
+ */
+export function decisionTreeProblems(start: string, nodes: readonly { id: string; options?: readonly { label: string; next: string }[]; outcome?: unknown }[]): WidgetProblem[] {
+  const out: WidgetProblem[] = [];
+  const ids = new Set<string>();
+  nodes.forEach((n, i) => {
+    const id = n.id.trim();
+    if (id && ids.has(id)) out.push({ path: ['nodes', i, 'id'], message: `Hay dos pasos con el identificador «${id}»` });
+    ids.add(id);
+  });
+  if (!start.trim()) out.push({ path: ['start'], message: 'Elige el primer paso del árbol' });
+  else if (!ids.has(start.trim())) out.push({ path: ['start'], message: `El primer paso «${start.trim()}» no existe` });
+  nodes.forEach((n, i) => {
+    const step = quoted(n.id, `${i + 1}`);
+    if (!n.outcome && !n.options?.length) out.push({ path: ['nodes', i], message: `El paso ${step} no tiene opciones ni resultado` });
+    n.options?.forEach((o, j) => {
+      const option = quoted(o.label, `${j + 1}`);
+      const next = o.next.trim();
+      if (!next) out.push({ path: ['nodes', i, 'options', j, 'next'], message: `Elige a qué paso lleva la opción ${option} del paso ${step}` });
+      else if (!ids.has(next)) out.push({ path: ['nodes', i, 'options', j, 'next'], message: `La opción ${option} del paso ${step} lleva a «${next}», que no existe` });
+    });
+  });
+  return out;
+}
+
+/** Clasificador: categorías distintas y la respuesta de cada elemento entre ellas (si no, nadie podría acertarla). */
+function classifierProblems(categories: readonly string[], items: readonly { answer: string }[]): WidgetProblem[] {
+  const out: WidgetProblem[] = [];
+  const seen = new Set<string>();
+  categories.forEach((c, i) => {
+    const key = normalize(c);
+    if (key && seen.has(key)) out.push({ path: ['categories', i], message: `La categoría «${c.trim()}» está repetida` });
+    seen.add(key);
+  });
+  items.forEach((it, i) => {
+    if (it.answer.trim() && !categories.includes(it.answer)) out.push({ path: ['items', i, 'answer'], message: `La categoría correcta «${it.answer.trim()}» ya no está entre las categorías` });
+  });
+  return out;
+}
+
+/** Nombres distintos para cada serie de un gráfico (la leyenda y la tabla las distinguen por su nombre). */
+function seriesProblems(series: readonly { name: string }[]): WidgetProblem[] {
+  const seen = new Set<string>();
+  return series.flatMap((s, i) => {
+    const key = normalize(s.name);
+    const repeated = !!key && seen.has(key);
+    seen.add(key);
+    return repeated ? [{ path: ['series', i, 'name'], message: `Hay dos series con el nombre «${s.name.trim()}»` }] : [];
+  });
+}
+
+const report = (problems: WidgetProblem[], ctx: z.RefinementCtx) => {
+  for (const p of problems) ctx.addIssue({ code: 'custom', message: p.message, path: p.path });
+};
+
 const widgetSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('recargo-extemporaneo'), cuota: z.number().positive() }),
   z.object({ kind: z.literal('indemnizacion-despido'), salarioAnual: z.number().positive(), inicio: dateKey, fin: dateKey }),
@@ -99,38 +168,49 @@ const widgetSchema = z.discriminatedUnion('kind', [
         }, 'El asiento no cuadra: el debe y el haber deben sumar lo mismo'),
     ),
   }),
-  z.object({
-    kind: z.literal('arbol-decision'),
-    title: nonEmpty('Título'),
-    start: nonEmpty('Nodo inicial'),
-    nodes: z.array(
-      z.object({
-        id: nonEmpty('Nodo'),
-        question: z.string().optional(),
-        options: z.array(z.object({ label: nonEmpty('Opción'), next: nonEmpty('Destino') })).optional(),
-        outcome: z.object({ title: nonEmpty('Resultado'), text: nonEmpty('Texto'), tone: z.enum(['derivar', 'resolver', 'atencion']) }).optional(),
-      }),
-    ),
-  }),
+  z
+    .object({
+      kind: z.literal('arbol-decision'),
+      title: nonEmpty('Título'),
+      // El primer paso y los destinos se comprueban con el resto de la estructura (decisionTreeProblems).
+      start: z.string(),
+      nodes: z.array(
+        z.object({
+          id: nonEmpty('Identificador del paso'),
+          question: z.string().optional(),
+          options: z.array(z.object({ label: nonEmpty('Opción'), next: z.string() })).optional(),
+          outcome: z.object({ title: nonEmpty('Resultado'), text: nonEmpty('Texto'), tone: z.enum(['derivar', 'resolver', 'atencion']) }).optional(),
+        }),
+      ),
+    })
+    .superRefine((w, ctx) => report(decisionTreeProblems(w.start, w.nodes), ctx)),
   z.object({ kind: z.literal('linea-tiempo'), title: z.string().optional(), items: z.array(z.object({ date: nonEmpty('Fecha'), title: nonEmpty('Hito'), text: z.string().optional(), tone: z.enum(['hito', 'plazo', 'pendiente']).optional() })).min(2) }),
   z.object({ kind: z.literal('tarjetas-verdad'), title: z.string().optional(), cards: z.array(z.object({ claim: nonEmpty('Afirmación'), verdict: z.enum(['verdadero', 'falso', 'depende']), explanation: nonEmpty('Explicación') })).min(2) }),
   z.object({ kind: z.literal('comparativa'), title: z.string().optional(), columns: z.array(z.string()).min(2), rows: z.array(z.object({ label: nonEmpty('Fila'), values: z.array(z.string()) })).min(1) }),
-  z.object({ kind: z.literal('clasificador'), title: nonEmpty('Título'), prompt: nonEmpty('Instrucción'), categories: z.array(z.string()).min(2), items: z.array(z.object({ label: nonEmpty('Elemento'), answer: nonEmpty('Categoría'), explanation: nonEmpty('Explicación') })).min(2) }),
+  z
+    .object({ kind: z.literal('clasificador'), title: nonEmpty('Título'), prompt: nonEmpty('Instrucción'), categories: z.array(nonEmpty('Categoría')).min(2), items: z.array(z.object({ label: nonEmpty('Elemento'), answer: nonEmpty('Categoría correcta'), explanation: nonEmpty('Explicación') })).min(2) })
+    .superRefine((w, ctx) => report(classifierProblems(w.categories, w.items), ctx)),
   z.object({
     kind: z.literal('grafico'),
-    chart: z.object({
-      type: z.enum(['barras', 'lineas', 'escalones']),
-      title: nonEmpty('Título del gráfico'),
-      unit: z.string().optional(),
-      xLabel: z.string().optional(),
-      yLabel: z.string().optional(),
-      series: z.array(z.object({ name: nonEmpty('Serie'), values: z.array(z.object({ x: z.union([z.string(), z.number()]), y: z.number() })).min(1) })).min(1),
-    }),
+    chart: z
+      .object({
+        type: z.enum(['barras', 'lineas', 'escalones']),
+        title: nonEmpty('Título del gráfico'),
+        unit: z.string().optional(),
+        xLabel: z.string().optional(),
+        yLabel: z.string().optional(),
+        // Cuatro como máximo: el gráfico distingue cuatro colores, trazos y marcadores.
+        series: z
+          .array(z.object({ name: nonEmpty('Serie'), values: z.array(z.object({ x: z.union([z.string(), z.number()]), y: z.number() })).min(1) }))
+          .min(1)
+          .max(4, 'Como mucho 4 series: el gráfico solo distingue cuatro colores y trazos'),
+      })
+      .superRefine((c, ctx) => report(seriesProblems(c.series), ctx)),
   }),
 ]);
 
 export const blockSchema = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('heading'), text: nonEmpty('Título de sección'), id: z.string().optional() }),
+  z.object({ type: z.literal('heading'), text: nonEmpty('Título de sección'), id: z.string().optional(), level: z.union([z.literal(2), z.literal(3)]).optional() }),
   z.object({ type: z.literal('paragraph'), text: nonEmpty('Párrafo') }),
   z.object({ type: z.literal('list'), ordered: z.boolean().optional(), items: z.array(nonEmpty('Elemento')).min(1) }),
   z.object({ type: z.literal('callout'), tone: z.enum(['clave', 'atencion', 'consejo', 'norma']), title: z.string().optional(), text: nonEmpty('Texto destacado'), refs: z.array(sourceSchema).optional() }),
@@ -242,6 +322,28 @@ export const eventSchema = z.object({
   links: z.array(z.object({ label: nonEmpty('Enlace'), url: safeLink, example: z.boolean().optional() })).optional(),
   materials: z.array(z.object({ label: nonEmpty('Material'), documentId: nonEmpty('Documento') })).optional(),
   recap: z.string().optional(),
+  editorial: editorialSchema,
+});
+
+/* «Ponte al día» */
+export const newClientSchema = z.object({
+  id: nonEmpty('Id'),
+  name: nonEmpty('Nombre de la empresa').max(80, 'Nombre de 80 caracteres como máximo'),
+  sector: nonEmpty('Sector').max(80, 'Sector de 80 caracteres como máximo'),
+  country: z.enum(COUNTRY_NAMES, { message: 'Elige el país de origen de la lista' }),
+  area: z.union([areaSchema, z.literal('general')]),
+  date: dateKey,
+  summary: z.string().trim().max(160, 'Resumen de 160 caracteres como máximo').optional(),
+  fictional: z.boolean().optional(),
+  editorial: editorialSchema,
+});
+
+/** Estricto: una bienvenida nunca guarda la fecha de incorporación ni otros datos de la persona. */
+export const welcomeSchema = z.strictObject({
+  id: nonEmpty('Id'),
+  personId: nonEmpty('Persona'),
+  date: dateKey,
+  message: nonEmpty('Mensaje de bienvenida').max(240, 'Mensaje de 240 caracteres como máximo'),
   editorial: editorialSchema,
 });
 

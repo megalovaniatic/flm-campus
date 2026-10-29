@@ -1,4 +1,4 @@
-import { AREA_LIST, type AreaId, type NewsKind } from '@flm/shared';
+import { AREA_LIST, type NewsKind, type Scope } from '@flm/shared';
 import { SelectField, TextArea, TextField } from '@/design';
 import { NEWS_KIND_ICON } from '../catalog';
 import { NEWS_KIND_LABEL, URGENCY_LABEL, type NewsForm, type Urgency } from '../forms';
@@ -30,8 +30,16 @@ export function NewsEditor({ value: f, update, err }: EditorProps<NewsForm>) {
           })}
         />
         <div className={styles.grid2}>
-          <SelectField label="Área" value={f.area} onChange={(e) => set('area', e.target.value as AreaId)} options={AREA_LIST.map((a) => ({ value: a.id, label: a.name }))} />
-          <TextField label="Fecha en el campus" type="date" hint="Con esta fecha aparece en Actualidad." value={f.date} onChange={(e) => set('date', e.target.value)} />
+          <SelectField
+            label="Área"
+            value={f.area}
+            onChange={(e) => set('area', e.target.value as Scope)}
+            options={[...AREA_LIST.map((a) => ({ value: a.id, label: a.name })), { value: 'general', label: 'Toda la firma (general)' }]}
+            hint={f.kind === 'aviso-interno' ? 'Los avisos internos suelen ser para toda la firma.' : undefined}
+          />
+          <Slot path="date">
+            <TextField label="Fecha en el campus" type="date" hint="Con esta fecha aparece en Actualidad." value={f.date} onChange={(e) => set('date', e.target.value)} error={err('date')} />
+          </Slot>
         </div>
         <ChoiceGroup<Urgency>
           legend="Urgencia"
@@ -88,19 +96,26 @@ export function NewsEditor({ value: f, update, err }: EditorProps<NewsForm>) {
         <fieldset className={styles.subfields}>
           <legend className={styles.legend}>5 · Fuente y fecha</legend>
           <Slot path="sourceLabel">
-            <TextField label="Fuente" required value={f.sourceLabel} onChange={(e) => set('sourceLabel', e.target.value)} error={err('sourceLabel')} hint="Norma, resolución o criterio, con su nombre oficial." />
+            <TextField
+              label="Fuente"
+              required
+              value={f.sourceLabel}
+              onChange={(e) => set('sourceLabel', e.target.value)}
+              error={err('sourceLabel')}
+              hint={f.kind === 'aviso-interno' ? 'Quién lo comunica: «Dirección de FLM», «Comunicación»…' : 'Norma, resolución o criterio, con su nombre oficial.'}
+            />
           </Slot>
           <Slot path="sourceUrl">
             <TextField
-              label="Enlace oficial"
+              label={f.kind === 'aviso-interno' ? 'Enlace' : 'Enlace oficial'}
               required
-              type="url"
+              type="text"
               inputMode="url"
-              placeholder="https://"
+              placeholder={f.kind === 'aviso-interno' ? 'https:// o #/participar/agenda/…' : 'https://'}
               value={f.sourceUrl}
               onChange={(e) => set('sourceUrl', e.target.value)}
               error={err('sourceUrl')}
-              hint="Empieza por https:// (BOE, DOGC, sede de la AEAT, CENDOJ…)."
+              hint={f.kind === 'aviso-interno' ? 'Un enlace https:// o una página del campus que empiece por #/ (por ejemplo, el evento en la agenda).' : 'Empieza por https:// (BOE, DOGC, sede de la AEAT, CENDOJ…).'}
             />
           </Slot>
           <div className={styles.grid2}>

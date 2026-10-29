@@ -98,6 +98,27 @@
   flex: none;
 }
 
+/* Contable lleva su rampa también en el punto (si no, sería igual que Mercantil) */
+.area[data-area='contable'] .dot {
+  background: var(--area-contable-fill);
+}
+
+.area[data-on='wash'] {
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+/* Dentro de un protagonista: cápsula de cristal con texto blanco (4,72:1) */
+:global(.spotlight) .area {
+  background: var(--spotlight-glass);
+  color: #fff;
+  box-shadow: none;
+}
+
+:global(.spotlight) .dot {
+  box-shadow: 0 0 0 2px #fff;
+}
+
 .areaSolid {
   background: var(--area);
   color: #fff;

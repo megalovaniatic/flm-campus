@@ -88,7 +88,7 @@ export function Brand() {
       <div className={styles.gradientRow}>
         <span className={styles.gradientBar} aria-hidden="true" />
         <p>
-          <strong>Degradado del logotipo</strong>, muestreado en el archivo oficial: rojo → burdeos → marino. Solo en trazos, anillos, filetes y conectores, y como máximo en un 2–3 % de la pantalla.
+          <strong>Degradado del logotipo</strong>, muestreado en el archivo oficial: rojo → burdeos → marino. Completo, solo en trazos, anillos, filetes y conectores. Como superficie, solo su tramo desde #B8302D y en una única tarjeta protagonista por pantalla: la de la acción principal.
         </p>
       </div>
 

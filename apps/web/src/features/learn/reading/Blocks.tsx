@@ -1,6 +1,7 @@
 import { ExternalLink, Lightbulb, Scale, TriangleAlert } from 'lucide-react';
 import { useEffect, useId, useRef, useState, type ReactNode, type RefObject } from 'react';
-import type { Block, SourceRef } from '@flm/shared';
+import { slugify, type Block, type SourceRef } from '@flm/shared';
+import { isApprovedPhoto, Picture } from '@/design';
 import { Rich, RichParagraphs } from '@/lib/rich';
 import { asset } from '@/lib/download';
 import { Widget } from '../widgets';
@@ -48,6 +49,21 @@ const CALLOUT: Record<Exclude<CalloutBlock['tone'], 'clave'>, { label: string; i
   norma: { label: 'Norma', icon: <Scale size={18} /> },
 };
 
+/** Referencias oficiales de un recuadro (en todos los tonos, también en «Explicamos»). */
+function CalloutRefs({ refs }: { refs: CalloutBlock['refs'] }) {
+  if (!refs?.length) return null;
+  return (
+    <ul role="list" className={styles.refs} aria-label="Referencias">
+      {refs.map((r, i) => (
+        <li key={`${i}-${r.url}`}>
+          <span className={styles.refKind}>{SOURCE_KIND[r.kind ?? 'web']}</span>
+          <ExternalAnchor href={r.url}>{r.label}</ExternalAnchor>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function Callout({ block }: { block: CalloutBlock }) {
   const id = useId();
   if (block.tone === 'clave') {
@@ -66,6 +82,7 @@ function Callout({ block }: { block: CalloutBlock }) {
         <div className={styles.explainText}>
           <RichParagraphs text={block.text} />
         </div>
+        <CalloutRefs refs={block.refs} />
       </div>
     );
   }
@@ -84,16 +101,7 @@ function Callout({ block }: { block: CalloutBlock }) {
       <div className={styles.calloutText}>
         <RichParagraphs text={block.text} />
       </div>
-      {block.refs && block.refs.length > 0 && (
-        <ul role="list" className={styles.refs} aria-label="Referencias">
-          {block.refs.map((r) => (
-            <li key={r.url + r.label}>
-              <span className={styles.refKind}>{SOURCE_KIND[r.kind ?? 'web']}</span>
-              <ExternalAnchor href={r.url}>{r.label}</ExternalAnchor>
-            </li>
-          ))}
-        </ul>
-      )}
+      <CalloutRefs refs={block.refs} />
     </div>
   );
 }
@@ -167,20 +175,34 @@ function Quote({ block }: { block: Extract<Block, { type: 'quote' }> }) {
 }
 
 function Figure({ block }: { block: Extract<Block, { type: 'figure' }> }) {
-  const src = /^(https?:|data:|\/)/.test(block.src) ? block.src : asset(block.src);
   return (
     <figure className={styles.figure}>
-      <img src={src} alt={block.alt} loading="lazy" decoding="async" />
+      {isApprovedPhoto(block.src) ? (
+        // Foto aprobada del manifiesto (la que se elige en el creador): AVIF/WebP a la medida de la columna de lectura.
+        <Picture name={block.src} alt={block.alt} sizes="(min-width: 48rem) 44rem, 100vw" className={styles.photo} />
+      ) : (
+        <img src={/^(https?:|data:|\/)/.test(block.src) ? block.src : asset(block.src)} alt={block.alt} loading="lazy" decoding="async" />
+      )}
       {block.caption && <figcaption>{block.caption}</figcaption>}
     </figure>
   );
 }
 
-/** Un bloque de contenido de la formación (salvo los encabezados, que abren apartado). */
+/** Subapartado (encabezado de nivel 3) dentro de un apartado: Newsreader, como los títulos de lectura. */
+function Subheading({ block }: { block: Extract<Block, { type: 'heading' }> }) {
+  const id = block.id ? slugify(block.id) : undefined;
+  return (
+    <h3 id={id} className={styles.subheading}>
+      {block.text}
+    </h3>
+  );
+}
+
+/** Un bloque de contenido de la formación. Los encabezados de nivel 2 abren apartado; los de nivel 3 son subapartados. */
 export function BlockView({ block }: { block: Block }) {
   switch (block.type) {
     case 'heading':
-      return null;
+      return block.level === 3 ? <Subheading block={block} /> : null;
     case 'paragraph':
       return <RichParagraphs text={block.text} />;
     case 'list': {

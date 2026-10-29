@@ -5,6 +5,7 @@ import type { Badge, Formation, FormationProgress, QuizAttempt, SectorAssessment
 export interface BadgeInputs {
   formations: Formation[];
   progress: Record<string, FormationProgress>;
+  /** Todas las evaluaciones del área, también las archivadas: un reconocimiento conseguido no se pierde. */
   assessments: SectorAssessment[];
   assessmentAttempts: Record<string, QuizAttempt[]>;
   publishedByPerson: number;
@@ -30,9 +31,12 @@ export function computeBadges(input: BadgeInputs): Badge[] {
         mark: AREAS[area].initial,
       });
     }
-    const assessment = input.assessments.find((a) => a.area === area);
-    const passed = assessment && (input.assessmentAttempts[assessment.id] ?? []).find((a) => a.passed);
-    if (assessment && passed) {
+    // Cuenta cualquier evaluación del área superada, aunque después se haya archivado o sustituido
+    const passed = input.assessments
+      .filter((a) => a.area === area)
+      .map((a) => (input.assessmentAttempts[a.id] ?? []).find((x) => x.passed))
+      .find((x) => !!x);
+    if (passed) {
       badges.push({
         id: `evaluacion-${area}`,
         family: 'aprendizaje',

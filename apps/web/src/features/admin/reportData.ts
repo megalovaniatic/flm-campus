@@ -6,10 +6,14 @@
  * - Las personas FICTICIAS reciben datos SIMULADOS y DETERMINISTAS (misma semilla → mismo
  *   resultado), rotulados «Datos simulados».
  * - Las personas REALES distintas de la de la demo se excluyen: nunca se inventa su progreso.
+ * - Como en la API, la participación se calcula sobre las personas activas, pero los errores
+ *   frecuentes cuentan todos los intentos: también los de las personas ficticias con la cuenta
+ *   desactivada o con el perfil eliminado, que quedan como agregados anónimos, sin persona.
  *
  * La estructura replica la del servicio de informes de la API (byFormation y totals) y los CSV
  * usan las mismas columnas; la demo añade al final «Origen de los datos».
  */
+import { seed } from '@flm/content';
 import {
   commonErrors,
   formationStatus,
@@ -122,16 +126,36 @@ export interface ReportData {
   formations: Formation[];
   people: number;
   rows: ProgressRow[];
+  /** Intentos sin persona por formación: cuentas desactivadas o perfiles eliminados (solo para los errores frecuentes). */
+  anonymousAttempts: Record<string, QuizAttempt[]>;
   byFormation: FormationParticipation[];
   totals: { withCompleted: number; completed: number };
   excludedReal: number;
 }
 
-export function buildReport(input: { people: Person[]; formations: Formation[]; demoUserId: string | null; progress: Record<string, FormationProgress>; now?: Date }): ReportData {
+/**
+ * `people`: las personas que siguen en el campus (sin perfiles eliminados).
+ * `roster`: la plantilla completa de la demo (por defecto, la semilla), para conservar como
+ * anónimos los intentos de quien ya no está en la población activa.
+ */
+export function buildReport(input: { people: Person[]; formations: Formation[]; demoUserId: string | null; progress: Record<string, FormationProgress>; now?: Date; roster?: readonly Person[] }): ReportData {
   const today = madridDateKey(input.now);
-  const active = input.people.filter((p) => p.status === 'activa' && !p.email.endsWith('@anonimizada.invalid'));
+  const active = input.people.filter((p) => p.status === 'activa');
   const population = active.filter((p) => p.fictional || p.id === input.demoUserId);
   const excludedReal = active.length - population.length;
+
+  // Personas ficticias fuera de la población (cuenta desactivada o perfil eliminado): sus intentos simulados
+  // siguen contando en los errores frecuentes, desvinculados de la persona.
+  const counted = new Set(population.map((p) => p.id));
+  const former = (input.roster ?? seed.people).filter((p) => p.fictional && !counted.has(p.id));
+  const anonymousAttempts: Record<string, QuizAttempt[]> = {};
+  let n = 0;
+  for (const formation of input.formations) {
+    anonymousAttempts[formation.id] = former
+      .flatMap((person) => simulatedProgress(person, formation).attempts)
+      .filter((a) => a.version === formation.version)
+      .map(({ id: _id, ...attempt }) => ({ ...attempt, id: `anonimo-${++n}` }));
+  }
 
   const rows: ProgressRow[] = population.flatMap((person) =>
     input.formations.map((formation): ProgressRow => {
@@ -160,15 +184,16 @@ export function buildReport(input: { people: Person[]; formations: Formation[]; 
     formations: input.formations,
     people: population.length,
     rows,
+    anonymousAttempts,
     byFormation,
     totals: { withCompleted: new Set(done.map((r) => r.personId)).size, completed: done.length },
     excludedReal,
   };
 }
 
-/** Errores frecuentes por pregunta con `commonErrors()` sobre los intentos (reales y simulados). */
+/** Errores frecuentes por pregunta con `commonErrors()` sobre los intentos (reales, simulados y anónimos). */
 export function errorsFor(report: ReportData, formation: Formation) {
-  const attempts = report.rows.filter((r) => r.formation.id === formation.id).flatMap((r) => r.attempts);
+  const attempts = [...report.rows.filter((r) => r.formation.id === formation.id).flatMap((r) => r.attempts), ...(report.anonymousAttempts[formation.id] ?? [])];
   const realAttempts = report.rows.filter((r) => r.formation.id === formation.id && r.origin === 'real').reduce((n, r) => n + r.attempts.length, 0);
   return { attempts: attempts.length, realAttempts, passed: attempts.filter((a) => a.passed).length, questions: commonErrors(formation.quiz, attempts) };
 }

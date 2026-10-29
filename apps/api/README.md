@@ -4,7 +4,7 @@ API privada de la plataforma interna de formación de FLM (≈ 50 personas). Sir
 sesiones, contenidos editoriales, aprendizaje, biblioteca, vida de empresa, informes y
 auditoría, y puede servir también la web compilada desde el mismo origen.
 
-Las reglas de negocio **no se duplican**: permisos (`can()`, `checkTransition()`), corrección de
+Las reglas de negocio **no se duplican**: permisos (`can()`, `checkTransition()`, `canHandleType()`), corrección de
 tests (`gradeQuiz()`), estados de aprendizaje (`formationStatus()`), errores frecuentes
 (`commonErrors()`), fases de eventos (`eventPhase()`), calendario (`entriesForMonth()`) y
 esquemas zod se importan de `@flm/shared`, igual que en la demo pública.
@@ -61,10 +61,15 @@ apps/api/
 
 **Modelo de datos.** `users` (solo datos profesionales: sin cumpleaños ni fecha de
 incorporación), `sessions`, `auth_tokens` (activación y recuperación), `contents` (tabla genérica:
-tipo, estado editorial, autoría, `payload` JSON validado con el esquema del tipo, número de
-revisión para concurrencia), `content_revisions` (cambios sobre contenido publicado),
-`document_versions` + `files` (biblioteca), `read_confirmations`, `quiz_attempts`, `holidays`,
-`readings` y `audit_log`.
+tipo —formación, evaluación del área, noticia, documento, evento, comunicado, cliente nuevo o
+bienvenida—, estado editorial —borrador, publicado o archivado—, autoría opcional, `payload` JSON
+validado con el esquema del tipo, número de revisión para concurrencia), `content_revisions`
+(cambios guardados sobre contenido publicado, que no se ven hasta publicarlos),
+`document_versions` + `files` (biblioteca; el PDF nuevo de un documento publicado espera en su
+revisión, `revision_id`, hasta publicarla), `read_confirmations`, `quiz_attempts`, `holidays`,
+`readings` y `audit_log`. La autoría (`contents.author_id`, `content_revisions.author_id` y
+`decided_by`) es opcional: al eliminar el perfil de una persona pasa a `NULL` (`ON DELETE SET
+NULL`) y el contenido se conserva con una firma neutra.
 
 **Esquema.** Las migraciones (`src/db/migrations/NNNN_descripcion.sql`) se aplican solas al
 arrancar, una sola vez y en orden; una migración publicada no se edita, se añade otra:
@@ -74,6 +79,15 @@ arrancar, una sola vez y en orden; una migración publicada no se edita, se aña
 | 1 | `0001_esquema_inicial.sql` | Esquema inicial |
 | 2 | `0002_sin_cumpleanos_ni_incorporacion.sql` | Quita de `users` el cumpleaños, su consentimiento y la fecha de incorporación (con sus datos) y borra de la auditoría las preferencias de cumpleaños |
 | 3 | `0003_formaciones_voluntarias.sql` | Elimina la tabla de asignaciones de formaciones y sus fechas límite: todas las formaciones son voluntarias |
+| 4 | `0004_creador_y_autoria_opcional.sql` | Flujo sin revisión previa (lo que estaba «en revisión» vuelve a borrador y desaparece el comentario de devolución), tipos `cliente` y `bienvenida` del tablero «Ponte al día», autoría opcional (`author_id` y `decided_by` con `ON DELETE SET NULL`) y las cuentas anonimizadas por versiones anteriores pasan a ser perfiles eliminados. Reconstruye `contents` y `content_revisions` |
+| 5 | `0005_pdf_pendiente_en_revision.sql` | `document_versions.revision_id`: el PDF nuevo de un documento publicado espera en su revisión pendiente (no se ve en el campus) y pasa a ser la versión vigente al publicarla; si la revisión se descarta, se borra con su archivo |
+
+Una migración que reconstruye tablas con claves foráneas (crear la nueva, copiar, borrar la antigua
+y renombrar) empieza por la línea `-- flm:sin-claves-foraneas`. El migrador desactiva entonces las
+claves foráneas **fuera** de la transacción (con ellas activas, `DROP TABLE` borraría en cascada las
+filas que dependen de la tabla), comprueba `PRAGMA foreign_key_check` antes de confirmar y las vuelve
+a activar al terminar, también si falla. Dos archivos con la misma versión detienen el arranque con
+un error: uno de los dos se saltaría para siempre.
 
 ## 2. Puesta en marcha (desarrollo)
 
@@ -187,13 +201,41 @@ devuelve el progreso propio en cada formación publicada (`formations`), sin má
 
 | Método | Ruta | Permiso |
 | --- | --- | --- |
-| GET | `/api/contents?type&status&authorId&q` | `contenido:crear` (autor: solo los suyos) |
-| POST | `/api/contents` `{ type, payload }` | `contenido:crear` + `CREATABLE_TYPES` |
-| GET | `/api/contents/:id` · `/preview` · `/revisions` | `contenido:crear` + propiedad (o `contenido:editar-cualquiera`) |
-| PUT | `/api/contents/:id` `{ revision, payload }` | `checkTransition('guardar')`; si está publicado, crea una revisión |
-| POST | `/api/contents/:id/transitions` `{ action, revision, comment? }` | `checkTransition(action)`: enviar, publicar, devolver (con comentario), archivar, restaurar |
-| DELETE | `/api/contents/:id/revision?revision=` | propiedad o `contenido:editar-cualquiera` |
-| DELETE | `/api/contents/:id?revision=` | propiedad; solo borradores nunca publicados |
+| GET | `/api/contents?type&status&authorId&q` | `contenido:crear` (autor: solo los suyos de los tipos de su rol; administración: todos, también los que no tienen autoría) |
+| POST | `/api/contents` `{ type, payload }` | `contenido:crear` + `canHandleType(rol, tipo)` (la evaluación del área, `test`, solo administración; los documentos se crean con `POST /api/documents`). Crea el primer borrador, que puede estar a medias |
+| GET | `/api/contents/:id` · `/preview` · `/revisions` | `contenido:crear` + `canHandleType` + propiedad (o `contenido:editar-cualquiera`) |
+| PUT | `/api/contents/:id` `{ revision, payload }` | «Guardar borrador» (`canHandleType` + `checkTransition('guardar')`), con el esquema laxo. Si está publicado, guarda una revisión (borrador) que no cambia la versión pública hasta publicarla |
+| POST | `/api/contents/:id/transitions` `{ action, revision, reviewed? }` | `canHandleType` + `checkTransition(action)`: `publicar` (la autoría, lo suyo; administración, cualquier contenido; si hay una revisión pendiente, publica la revisión), `archivar` y `restaurar` (administración). Publicar exige el esquema completo. `reviewed: true` anota «Revisado por …» (nombre e identificador de quien publica); publicar cambios de algo publicado sin `reviewed` deja la revisión pendiente |
+| DELETE | `/api/contents/:id/revision?revision=` | `canHandleType` + propiedad o `contenido:editar-cualquiera` (descarta la revisión pendiente y el PDF nuevo que esperaba en ella) |
+| DELETE | `/api/contents/:id?revision=` | `canHandleType` + propiedad o `contenido:editar-cualquiera`; solo borradores nunca publicados |
+
+No hay revisión previa ni cola de revisión: los estados son `borrador`, `publicado` y `archivado`.
+El tipo se comprueba en cada acción, no solo al crear: tras un cambio de rol, la evaluación del área
+sigue siendo de administración aunque figure como propia (403 `SIN_PERMISO`).
+
+**Borradores y publicación.** «Guardar borrador» (crear, `PUT` y los cambios de algo publicado) valida
+una versión laxa del esquema del tipo: la misma forma (los campos desconocidos se descartan y la
+bienvenida sigue sin admitir campos de más), los mismos tipos, valores de las listas cerradas,
+formatos (enlaces, fechas, slugs) y longitudes máximas, pero todos los campos son opcionales, un texto
+vacío cuenta como campo sin rellenar y no hay mínimos (de caracteres ni de elementos) ni reglas de
+publicación (las 3 preguntas del test final, el ejemplo realista…). Publicar valida el esquema
+completo (400 `VALIDACION` con la ruta de cada campo). Un borrador sin slug no ocupa ninguna dirección;
+su ficha y su vista previa funcionan aunque esté a medias (un evento sin sesiones queda como próximo).
+
+Los errores del flujo salen del código estable de `checkTransition()`: 403 `SIN_PERMISO` (el rol no
+permite la acción o no trabaja con ese tipo), 403 `SOLO_LO_PROPIO` (contenido de otra persona o sin
+autoría, sin `contenido:editar-cualquiera`) y 409 `TRANSICION_NO_VALIDA` (la acción no se aplica a
+ese estado); además, 409 `REVISION_PENDIENTE` al archivar algo con una revisión sin publicar ni
+descartar y 409 `CONFLICTO_REVISION` si otra persona guardó antes. Reglas entre contenidos (al crear,
+al guardar lo ya rellenado y otra vez al publicar):
+
+- **Slugs:** únicos por tipo, salvo eventos y comunicados, que comparten la dirección de la agenda
+  (`/participar/agenda/:slug`) y, por tanto, un solo espacio de slugs: 409 `SLUG_DUPLICADO`.
+- **Evaluación del área:** como mucho una vigente (no archivada, borradores incluidos) por área: 409
+  `EVALUACION_DUPLICADA` al crear otra, al cambiar de área, al publicar o al restaurar una archivada.
+  Archivada, deja de verse en `/api/assessments`.
+- **Bienvenidas:** una por persona activa: 400 `PERSONA_NO_DISPONIBLE` y 409 `BIENVENIDA_DUPLICADA`; su
+  título en `contents.title` es siempre «Bienvenida al equipo», nunca el nombre de la persona.
 
 **Biblioteca y archivos**
 
@@ -201,10 +243,10 @@ devuelve el progreso propio en cada formación publicada (`formations`), sin má
 | --- | --- | --- |
 | GET | `/api/news` · `/api/news/:ref` · `/api/readings` | `campus:leer` |
 | GET | `/api/documents` · `/api/documents/:id` | `campus:leer` (publicados) |
-| POST | `/api/documents` (PDF ≤ 15 MB + `datos`) | `contenido:crear` + `documentos:subir` |
-| POST | `/api/documents/:id/versions` (sustitución con historial) | `documentos:reemplazar` |
+| POST | `/api/documents` (PDF ≤ 15 MB + `datos`) | `contenido:crear` + `documentos:subir` (borrador, que puede estar a medias) |
+| POST | `/api/documents/:id/versions` (sustitución con historial) | `contenido:crear` + `documentos:subir`. En un borrador nunca publicado, su autoría o administración, y la versión nueva es la vigente al momento. En un documento publicado, solo administración (`documentos:reemplazar`), y el PDF nuevo espera en la revisión pendiente (`pending: true` en sus versiones) hasta publicarla; otro PDF sustituye al que esperaba y, al descartar la revisión, se borra |
 | POST | `/api/files` (JPEG, PNG o WebP ≤ 5 MB) | `documentos:subir` |
-| GET | `/api/files/:id` | `campus:leer` + visibilidad del documento (borradores y archivados: autoría o administración) |
+| GET | `/api/files/:id` | `campus:leer` + visibilidad del documento (borradores, archivados y el PDF que espera en una revisión: autoría o administración) |
 
 **Vida de empresa**
 
@@ -214,7 +256,9 @@ devuelve el progreso propio en cada formación publicada (`formations`), sin má
 | PATCH | `/api/events/:id/phase` `{ manualPhase, revision }` | `contenido:editar-cualquiera` |
 | GET | `/api/calendar?year&month` (festivos y encuentros de equipo; sin fechas personales) | `campus:leer` |
 | GET | `/api/holidays?year` | `campus:leer` |
-| POST · DELETE | `/api/holidays` · `/api/holidays/:id` | `contenido:publicar` |
+| POST · DELETE | `/api/holidays` · `/api/holidays/:id` | `contenido:editar-cualquiera` (administración: con la publicación directa, `contenido:publicar` ya lo tiene la autoría) |
+| GET | `/api/clients?limit` (nuevos clientes publicados de «Ponte al día», sin datos económicos) | `campus:leer` |
+| GET | `/api/welcomes?limit` (bienvenidas publicadas a personas activas, con su ficha del directorio, sin correo ni fecha de incorporación) | `campus:leer` |
 
 **Personas, informes y auditoría**
 
@@ -225,11 +269,24 @@ devuelve el progreso propio en cada formación publicada (`formations`), sin má
 | GET · PATCH | `/api/people/:id` | `personas:gestionar` (cambiar el rol cierra sus sesiones) |
 | POST | `/api/people/:id/deactivate` · `/reactivate` · `/activation-link` | `personas:gestionar` |
 | PUT · DELETE | `/api/people/:id/photo` | `personas:gestionar` |
-| POST | `/api/people/:id/anonymize` `{ confirm: "<correo>" }` | `datos-personales:eliminar` |
+| POST | `/api/people/:id/remove` `{ confirm: "<correo>" }` (eliminar el perfil de quien deja FLM; nunca el propio ni el del último administrador) | `datos-personales:eliminar` |
 | GET · DELETE | `/api/people/:id/sessions` · DELETE `/api/people/:id/sessions/:sessionId` | `sesiones:revocar` |
 | GET | `/api/reports/participation?format=json\|csv` | `informes:ver` (recuentos por formación, sin nombres) |
 | GET | `/api/reports/errors/:contentId?format=json\|csv` | `informes:ver` (agregado, sin nombres) |
 | GET | `/api/audit?action&entity&entityId&actorId&from&to&limit&offset` | `auditoria:ver` |
+
+**Eliminar el perfil.** `POST /api/people/:id/remove` borra a la persona en una sola transacción:
+sus sesiones, enlaces y confirmaciones de lectura se van con ella y su foto se borra; su contenido
+(publicado, archivado o en borrador) **no se borra**: queda sin autoría y se firma con la firma neutra
+de `neutralSignature()` («Área Fiscal de FLM», con su área, en formaciones y evaluaciones; «FLM» en
+el resto); su nombre se retira de «Revisado por» en lo que revisó (`review.reviewerName` y
+`reviewerId`; las anotaciones anteriores que solo guardaban el nombre se reconocen por él), que sigue
+constando como revisado y con su fecha; las bienvenidas que la
+anuncian (publicadas o en borrador) se borran; sus intentos de test se conservan como agregados
+anónimos; y su IP desaparece de la auditoría. Responde con los recuentos (`contentsWithoutAuthor`,
+`revisionsWithoutAuthor`, `reviewerNamesRemoved`, `welcomesDeleted`, `sessionsClosed`,
+`attemptsAnonymized`), que también constan en la auditoría (`persona.eliminar-perfil`). Detalle en
+[docs/retencion-datos.md](docs/retencion-datos.md).
 
 **Informes.** Solo dan recuentos agregados: ningún nombre, correo ni dato por persona.
 
@@ -284,8 +341,9 @@ neutralizadas, `Content-Disposition: attachment`) y la exportación queda en la 
   `Cross-Origin-Resource-Policy`; `Cache-Control: no-store` en la API.
 - **Entradas:** todo se valida con zod (400 con campos y mensajes en castellano); 2 MB máximo
   para JSON.
-- **Auditoría:** seguridad (inicios, fallos, sesiones, contraseñas, cuentas) y edición
-  (crear, guardar, enviar, publicar, devolver, archivar…), consultable por administración.
+- **Auditoría:** seguridad (inicios, fallos, sesiones, contraseñas, cuentas, perfiles eliminados) y
+  edición (crear, guardar, publicar, archivar, restaurar, descartar revisión…), consultable por
+  administración.
   Retención en [docs/retencion-datos.md](docs/retencion-datos.md).
 
 ## 7. Despliegue
@@ -385,8 +443,8 @@ docker compose exec -u campus api node dist/backup.mjs --archivos --conservar 14
    conservando la estructura `files/<nombre aleatorio>`.
 5. Asegura la propiedad (`chown -R 10001:10001` en Docker) y arranca la API: las migraciones
    pendientes se aplican solas.
-6. Repite las anonimizaciones registradas en la auditoría después de la fecha de la copia
-   (ver [docs/retencion-datos.md](docs/retencion-datos.md)).
+6. Repite las eliminaciones de perfil registradas en la auditoría (`persona.eliminar-perfil`) después
+   de la fecha de la copia (ver [docs/retencion-datos.md](docs/retencion-datos.md)).
 
 ## 9. Datos semilla
 
@@ -394,6 +452,16 @@ docker compose exec -u campus api node dist/backup.mjs --archivos --conservar 14
 avisa y termina con código 1. Valida todo con los esquemas compartidos antes de escribir, inserta
 solo lo que no existe (no pisa cambios hechos en la plataforma), no crea contraseñas y **no
 importa las personas ficticias de la demo** (`fictional: true`) salvo con `--incluir-ficticias`.
+Con la misma opción se importan los clientes ficticios de «Ponte al día»; las bienvenidas solo se
+importan si su persona está activa en la plataforma y no tiene otra. Una persona de la semilla que
+ya tiene cuenta (por su identificador o por su correo: p. ej. la primera administradora, creada con
+`create-admin` y un identificador aleatorio) no se duplica: su autoría, las versiones de documento que
+subió y su bienvenida se atribuyen a esa cuenta. Un contenido cuya autoría no está en la plataforma se
+importa sin autoría (firma neutra) y se avisa; una versión subida por una persona sin cuenta lleva la
+firma neutra (nunca su identificador como nombre). También aquí rige una evaluación vigente por área y
+un solo espacio de slugs para la agenda: la semilla no puede repetirlos y lo que choque con lo ya
+creado en la plataforma no se importa (se avisa). Volver a sembrar repone la clase (`kind`) de las
+noticias y los documentos que una versión anterior de la carga guardó sin ella (solo si falta; se avisa).
 De cada persona importa solo la ficha profesional (nombre, correo, puesto, departamento, oficina,
 rol y estado): ni la foto (se avisa para subirla desde la administración) ni fechas personales.
 Los PDF de la biblioteca se buscan en `--archivos <carpeta>` (por defecto `packages/content` y
@@ -415,7 +483,7 @@ Los PDF de la biblioteca se buscan en `--archivos <carpeta>` (por defecto `packa
 
 - Los límites de frecuencia están en memoria: se reinician al reiniciar el servidor y no se
   comparten entre instancias (con SQLite solo debe haber una).
-- Los borradores se validan con el esquema completo del tipo: no se pueden guardar contenidos a
-  medias que no cumplan el esquema (p. ej., una formación con menos de 3 preguntas).
+- Un borrador puede estar a medias (ver § 5): quien lea `/api/contents/:id` o `/preview` debe admitir
+  que falten campos obligatorios hasta que se publique.
 - Los informes analizan la versión vigente: el de errores frecuentes, la del test, y el de
   participación, la de cada formación (lo hecho en una versión anterior no cuenta).

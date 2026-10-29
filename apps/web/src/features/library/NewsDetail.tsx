@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from
 import { Link, useLocation, useParams } from 'react-router';
 import { areaName, formatLongDate, formatShortDate, type NewsItem } from '@flm/shared';
 import { AreaTag, Avatar, Button, ButtonLink, Notice, PageHeader, toast } from '@/design';
-import { useDocuments, usePeople } from '@/data/selectors';
+import { useByline, useDocuments } from '@/data/selectors';
 import { asset } from '@/lib/download';
 import { MESSAGES } from '@/lib/messages';
 import { usePageTitle, useReducedMotionPref } from '@/lib/preferences';
@@ -367,9 +367,9 @@ function CopyReference({ text }: { text: string }) {
 
 /** Ficha lateral: datos de la novedad, autoría y documentos del área para ampliar. */
 function Aside({ item }: { item: NewsItem }) {
-  const people = usePeople();
   const docs = useDocuments();
-  const author = people.find((p) => p.id === item.editorial.authorId);
+  // Sin autoría (perfil eliminado), la novedad la firma «FLM».
+  const byline = useByline(item.editorial.authorId, { type: 'noticia', area: item.area });
   const related = docs.filter((d) => d.area === item.area).slice(0, 3);
   const review = item.editorial.review;
 
@@ -398,18 +398,22 @@ function Aside({ item }: { item: NewsItem }) {
               <UrgencyLabel urgency={item.urgency} />
             </dd>
           </div>
-          {author && (
-            <div>
-              <dt>Redacta</dt>
-              <dd className={styles.author}>
-                <Avatar name={author.name} photo={author.photo ? asset(author.photo) : undefined} size={32} decorative />
-                <span>
-                  <span className={styles.authorName}>{author.name}</span>
-                  <span className={styles.authorRole}>{author.position}</span>
-                </span>
-              </dd>
-            </div>
-          )}
+          <div>
+            <dt>Redacta</dt>
+            <dd className={styles.author}>
+              {byline.kind === 'persona' ? (
+                <>
+                  <Avatar name={byline.person.name} photo={byline.person.photo ? asset(byline.person.photo) : undefined} size={32} decorative />
+                  <span>
+                    <span className={styles.authorName}>{byline.person.name}</span>
+                    <span className={styles.authorRole}>{byline.person.position}</span>
+                  </span>
+                </>
+              ) : (
+                <span className={styles.authorName}>{byline.name}</span>
+              )}
+            </dd>
+          </div>
           <div>
             <dt>Revisión</dt>
             <dd>{review.state === 'revisado' ? `Revisada${review.reviewerName ? ` · ${review.reviewerName}` : ''}` : 'Pendiente de revisión editorial'}</dd>

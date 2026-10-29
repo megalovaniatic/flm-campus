@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import type { LucideIcon } from 'lucide-react';
-import { Clock, DatabaseBackup, Eraser, KeyRound, ListChecks, MailCheck, RefreshCw, ScrollText, Timer } from 'lucide-react';
+import { Clock, DatabaseBackup, KeyRound, ListChecks, MailCheck, RefreshCw, ScrollText, Timer, UserRoundMinus } from 'lucide-react';
 import { Link } from 'react-router';
 import { useDemo } from '@/data/store';
 import { useReducedMotionPref } from '@/lib/preferences';
@@ -24,7 +24,7 @@ const POLICIES: Policy[] = [
   { id: 'inactividad', figure: '12 h', label: 'Sesión sin actividad', detail: 'Tras 12 horas sin actividad, la sesión se cierra y hay que volver a entrar.', ms: 12 * 60 * MIN, icon: Timer },
   { id: 'activacion', figure: '7 días', label: 'Enlace de activación de la cuenta', detail: 'De un solo uso. Si caduca, administración envía uno nuevo.', ms: 7 * DAY, icon: MailCheck },
   { id: 'maxima', figure: '14 días', label: 'Duración máxima de una sesión', detail: 'Aunque haya actividad, a los 14 días se pide iniciar sesión de nuevo.', ms: 14 * DAY, icon: Clock },
-  { id: 'intentos', figure: '+1 año', label: 'Intentos de test y lecturas', detail: 'Mientras la persona esté activa y hasta 1 año después de su baja. Después, los intentos se desvinculan (quedan como agregados anónimos) y las lecturas se borran.', ms: 365 * DAY, icon: ListChecks },
+  { id: 'intentos', figure: '+1 año', label: 'Intentos de test y lecturas', detail: 'Mientras la persona esté activa y hasta 1 año después de su baja, o hasta que se elimine su perfil. Después, los intentos se desvinculan (quedan como agregados anónimos) y las lecturas se borran.', ms: 365 * DAY, icon: ListChecks },
   { id: 'auditoria', figure: '2 años', label: 'Registro de auditoría', detail: 'Quién, qué y cuándo. Nunca guarda contraseñas, tokens, correos ni nombres en el detalle.', ms: 730 * DAY, icon: ScrollText },
 ];
 
@@ -54,20 +54,19 @@ function Ruler() {
       {POLICIES.map((p, i) => {
         const x = pos(p.ms);
         const edge = x < 0.08 ? 'start' : x > 0.92 ? 'end' : 'mid';
+        // La posición (left y su translateX) va en el contenedor; la animación, dentro: así no la pisa el transform de motion
         return (
-          <motion.span
-            key={p.id}
-            className={styles.rulerMark}
-            data-side={i % 2 ? 'below' : 'above'}
-            data-edge={edge}
-            style={{ left: `${x * 100}%` }}
-            initial={reduce ? false : { opacity: 0, scale: 0.6 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: reduce ? 0 : 0.2 + i * 0.06, type: 'spring', stiffness: 420, damping: 28 }}
-          >
-            <span className={styles.rulerCap}>{p.figure}</span>
-            <span className={styles.rulerStem} />
-          </motion.span>
+          <span key={p.id} className={styles.rulerMark} data-side={i % 2 ? 'below' : 'above'} data-edge={edge} style={{ left: `${x * 100}%` }}>
+            <motion.span
+              className={styles.rulerMarkBody}
+              initial={reduce ? false : { opacity: 0, scale: 0.6 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: reduce ? 0 : 0.2 + i * 0.06, type: 'spring', stiffness: 420, damping: 28 }}
+            >
+              <span className={styles.rulerCap}>{p.figure}</span>
+              <span className={styles.rulerStem} />
+            </motion.span>
+          </span>
         );
       })}
     </div>
@@ -80,6 +79,7 @@ export function RetentionSection() {
   const audit = useDemo((s) => s.audit.length);
   const attempts = useDemo((s) => Object.values(s.progress).reduce((n, p) => n + p.attempts.length, 0));
   const peopleChanges = useDemo((s) => Object.keys(s.peopleOverrides).length);
+  const removedProfiles = useDemo((s) => Object.keys(s.removedPeople).length);
 
   return (
     <section className={styles.section} aria-labelledby="h-retencion">
@@ -111,14 +111,15 @@ export function RetentionSection() {
       <div className={styles.retentionGrid}>
         <article className={styles.retCard}>
           <h3 className={styles.retTitle}>
-            <Eraser size={18} aria-hidden="true" /> Eliminación controlada de datos personales
+            <UserRoundMinus size={18} aria-hidden="true" /> Eliminar el perfil de quien deja FLM
           </h3>
           <ol className={styles.steps}>
-            <li>Se hace a petición de la persona o al revisar las cuentas dadas de baja hace más de 1 año.</li>
-            <li>Exige una confirmación explícita: escribir el nombre de la persona.</li>
-            <li>Anonimiza nombre, correo, fotografía y puesto; cierra sus sesiones y borra sus enlaces y lecturas.</li>
+            <li>Lo hace administración cuando una persona deja la firma, a más tardar al revisar las cuentas desactivadas hace más de 1 año. Si solo se ausenta una temporada, basta con desactivar la cuenta.</li>
+            <li>Exige una confirmación explícita: escribir el correo de la persona.</li>
+            <li>El perfil desaparece del campus: de Personas, de las búsquedas, de los informes y de «Ponte al día». Se retiran las bienvenidas que la anuncian, también las que están en borrador. Se cierran sus sesiones y se borran su fotografía, sus enlaces y sus lecturas.</li>
+            <li>Sus contenidos se conservan sin autoría: las formaciones y las evaluaciones firman «Área … de FLM»; las noticias, los eventos, los documentos y los anuncios, «FLM». Si era la persona de referencia de un área, el área deja de mostrarla.</li>
             <li>Los intentos de test se desvinculan y solo cuentan como agregados anónimos.</li>
-            <li>Queda constancia en la auditoría, sin datos personales en el detalle. No se puede aplicar al último administrador activo ni a una misma.</li>
+            <li>Queda constancia en la auditoría, sin datos personales en el detalle. No se puede aplicar a la propia cuenta ni al último administrador activo, y en la versión interna no se puede deshacer.</li>
           </ol>
           <Link to="/admin/personas" className="link-arrow">
             Ir a Personas
@@ -164,6 +165,10 @@ export function RetentionSection() {
               <div>
                 <dt>Fichas modificadas</dt>
                 <dd>{peopleChanges}</dd>
+              </div>
+              <div>
+                <dt>Perfiles eliminados</dt>
+                <dd>{removedProfiles}</dd>
               </div>
             </dl>
           </article>

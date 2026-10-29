@@ -93,6 +93,14 @@
   color: rgb(23 38 65 / 0.78);
 }
 
+/* Lo siguiente: anillo con el tramo de Participar (6,00:1 frente a blanco; 4,81:1 en oscuro) */
+.mark[data-tone='next'] {
+  border: 2.5px solid transparent;
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    var(--tramo-participar) border-box;
+}
+
 .mark[data-tone='muted'] {
   border-color: var(--line-strong);
   background: transparent;

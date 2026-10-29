@@ -41,7 +41,8 @@ export function adminRoutes(ctx: AppContext) {
   r.get('/reports/errors/:contentId', requirePermission('informes:ver'), (c) => {
     const { format } = queryParams(c, z.object({ format: z.enum(['json', 'csv']).default('json') }));
     const row = getContent(db, c.req.param('contentId'));
-    if (!row || (row.type !== 'formacion' && row.type !== 'test')) throw notFound('No existe ninguna formación ni evaluación con ese identificador.');
+    // Un borrador nunca publicado no tiene intentos y puede no tener aún su test (se guarda a medias).
+    if (!row || (row.type !== 'formacion' && row.type !== 'test') || !row.published_at) throw notFound('No existe ninguna formación ni evaluación publicada con ese identificador.');
     const report = commonErrorsReport(db, row);
     if (format === 'csv') {
       const now = ctx.now();

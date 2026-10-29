@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
+import { computeBadges } from './badges';
 import { entriesForMonth, monthGrid } from './calendar';
 import { addMonthsClamped, fromMadrid, madridDateKey } from './dates';
 import { eventPhase, eventToIcs, nextSession } from './events';
-import { can, checkTransition, isCorporateEmail } from './permissions';
+import { assessmentClashReason, can, canHandleType, checkTransition, CREATABLE_TYPES, isCorporateEmail, ROLE_PERMISSIONS, STATUS_LABEL_EDITORIAL } from './permissions';
 import { formationStatus, gradeQuiz } from './progress';
+import { blockSchema, editorialSchema, newClientSchema, welcomeSchema } from './schemas';
+import { countryCode } from './countries';
 import { normalize, slugify } from './text';
 import type { CampusEvent, Quiz } from './types';
 
@@ -107,27 +110,86 @@ describe('progreso de aprendizaje', () => {
     expect(formationStatus({ formationId: 'f', readAt: 'x', readVersion: 1, attempts: [attempt(true)] }, f)).toBe('completada');
     expect(formationStatus({ formationId: 'f', readAt: 'x', readVersion: 1, attempts: [attempt(true)] }, { version: 2 })).toBe('sin-empezar');
   });
+  it('el reconocimiento de una evaluación superada se conserva aunque se archive o se sustituya', () => {
+    const assessment = (id: string) => ({ id, area: 'fiscal' as const, title: 'Fiscal', intro: '', quiz: { ...quiz, id: `quiz-${id}` } });
+    const passed = { id: 'i', quizId: 'quiz-vieja', version: 1, at: '2026-10-01', answers: {}, correct: 9, total: 10, passed: true };
+    const input = { formations: [], progress: {}, assessmentAttempts: { vieja: [passed] }, publishedByPerson: 0 };
+    // La vigente es la nueva (sin intentos); la archivada es la que se superó
+    const badges = computeBadges({ ...input, assessments: [assessment('nueva'), assessment('vieja')] });
+    expect(badges.find((b) => b.id === 'evaluacion-fiscal')).toMatchObject({ mark: '9/10', earnedAt: '2026-10-01' });
+    expect(computeBadges({ ...input, assessments: [assessment('nueva')] }).some((b) => b.id === 'evaluacion-fiscal')).toBe(false);
+  });
 });
 
 describe('permisos y flujo editorial', () => {
-  it('solo administración publica', () => {
-    expect(can('autor', 'contenido:publicar')).toBe(false);
-    expect(can('admin', 'contenido:publicar')).toBe(true);
-    expect(checkTransition('autor', 'publicar', 'en-revision', true).ok).toBe(false);
-    expect(checkTransition('admin', 'publicar', 'en-revision', false)).toMatchObject({ ok: true, to: 'publicado' });
+  it('la autoría publica lo suyo, nunca lo de otra persona; administración publica cualquier contenido', () => {
+    expect(can('autor', 'contenido:publicar')).toBe(true);
+    expect(can('empleado', 'contenido:publicar')).toBe(false);
+    expect(checkTransition('autor', 'publicar', 'borrador', true)).toMatchObject({ ok: true, to: 'publicado' });
+    expect(checkTransition('autor', 'publicar', 'borrador', false)).toMatchObject({ ok: false, code: 'propiedad' });
+    expect(checkTransition('admin', 'publicar', 'borrador', false)).toMatchObject({ ok: true, to: 'publicado' });
+    expect(checkTransition('empleado', 'publicar', 'borrador', true)).toMatchObject({ ok: false, code: 'permiso' });
   });
-  it('un autor solo envía sus propios borradores', () => {
-    expect(checkTransition('autor', 'enviar', 'borrador', true).ok).toBe(true);
-    expect(checkTransition('autor', 'enviar', 'borrador', false).ok).toBe(false);
+  it('solo dos estados de trabajo: guardar un borrador y publicarlo (sin revisión previa)', () => {
+    expect(checkTransition('autor', 'guardar', 'borrador', true)).toMatchObject({ ok: true, to: 'borrador' });
+    expect(checkTransition('autor', 'guardar', 'borrador', false)).toMatchObject({ ok: false, code: 'propiedad' });
+    expect(checkTransition('admin', 'guardar', 'borrador', false).ok).toBe(true);
+    expect(checkTransition('admin', 'publicar', 'publicado', false)).toMatchObject({ ok: false, code: 'estado' });
+    expect(STATUS_LABEL_EDITORIAL).toEqual({ borrador: 'Borrador', publicado: 'Publicado', archivado: 'Archivado' });
+    const all = Object.values(ROLE_PERMISSIONS).flatMap((set) => [...set]);
+    expect(all.filter((p) => /revision|devolver/.test(p))).toEqual([]);
   });
-  it('archivado y restauración', () => {
+  it('archivar y restaurar es cosa de administración', () => {
     expect(checkTransition('admin', 'archivar', 'publicado', false).to).toBe('archivado');
     expect(checkTransition('admin', 'restaurar', 'archivado', false).to).toBe('publicado');
-    expect(checkTransition('admin', 'archivar', 'borrador', false).ok).toBe(false);
+    expect(checkTransition('admin', 'archivar', 'borrador', false)).toMatchObject({ ok: false, code: 'estado' });
+    expect(checkTransition('autor', 'archivar', 'publicado', true)).toMatchObject({ ok: false, code: 'permiso' });
+    expect(checkTransition('autor', 'restaurar', 'archivado', true)).toMatchObject({ ok: false, code: 'permiso' });
+  });
+  it('autoría crea siete tipos, incluidos clientes y bienvenidas; la evaluación del área es de administración', () => {
+    expect(CREATABLE_TYPES.empleado).toEqual([]);
+    expect(CREATABLE_TYPES.autor).toEqual(expect.arrayContaining(['formacion', 'noticia', 'documento', 'evento', 'comunicado', 'cliente', 'bienvenida']));
+    expect(CREATABLE_TYPES.autor).not.toContain('test');
+    expect(CREATABLE_TYPES.admin).toEqual(expect.arrayContaining(['formacion', 'test', 'noticia', 'documento', 'evento', 'comunicado', 'cliente', 'bienvenida']));
+    expect(can('autor', 'datos-personales:eliminar')).toBe(false);
+    expect(can('admin', 'datos-personales:eliminar')).toBe(true);
+  });
+  it('el tipo se comprueba en cada acción: la evaluación del área, solo administración', () => {
+    expect(canHandleType('admin', 'test')).toBe(true);
+    expect(canHandleType('autor', 'test')).toBe(false);
+    expect(canHandleType('autor', 'formacion')).toBe(true);
+    expect(canHandleType('empleado', 'noticia')).toBe(false);
+  });
+  it('una evaluación vigente por área: el mismo motivo en la demo y en la API', () => {
+    expect(assessmentClashReason('Fiscal', 'publicado', 'publicar')).toBe('El área Fiscal ya tiene su evaluación publicada. Edítala en lugar de publicar otra, o archívala antes.');
+    expect(assessmentClashReason('Fiscal', 'publicado', 'restaurar')).toBe('El área Fiscal ya tiene otra evaluación publicada. Archívala antes de restaurar esta.');
+    expect(assessmentClashReason('Laboral', 'borrador', 'preparar')).toBe('El área Laboral ya tiene un borrador de evaluación. Sigue con ese borrador en lugar de preparar otra.');
+    expect(assessmentClashReason('Laboral', 'borrador', 'restaurar')).toContain('Elimínalo antes de restaurar esta');
   });
   it('exige correo corporativo', () => {
     expect(isCorporateEmail('nombre@flmexperts.com')).toBe(true);
     expect(isCorporateEmail('nombre@gmail.com')).toBe(false);
+  });
+});
+
+describe('esquemas del creador', () => {
+  it('el estado «en revisión» ya no existe', () => {
+    expect(editorialSchema.safeParse({ status: 'en-revision', authorId: 'a', review: { state: 'pendiente' } }).success).toBe(false);
+    expect(editorialSchema.safeParse({ status: 'borrador', authorId: 'a', review: { state: 'pendiente' } }).success).toBe(true);
+  });
+  it('los encabezados admiten subapartados de nivel 3', () => {
+    expect(blockSchema.safeParse({ type: 'heading', text: 'Plazos', level: 3 }).success).toBe(true);
+    expect(blockSchema.safeParse({ type: 'heading', text: 'Plazos', level: 4 }).success).toBe(false);
+  });
+  it('nuevo cliente: país de la lista común y bienvenida sin datos de la persona', () => {
+    const editorial = { status: 'borrador' as const, authorId: 'a', review: { state: 'pendiente' as const } };
+    const client = { id: 'c', name: 'Empresa', sector: 'Software', country: 'Suecia', area: 'mercantil', date: '2026-10-29', editorial };
+    expect(newClientSchema.safeParse(client).success).toBe(true);
+    expect(newClientSchema.safeParse({ ...client, country: 'Narnia' }).success).toBe(false);
+    expect(countryCode('Suecia')).toBe('SE');
+    const welcome = { id: 'w', personId: 'p', date: '2026-10-29', message: 'Bienvenida al equipo.', editorial };
+    expect(welcomeSchema.safeParse(welcome).success).toBe(true);
+    expect(welcomeSchema.safeParse({ ...welcome, name: 'Nombre Apellido' }).success).toBe(false);
   });
 });
 

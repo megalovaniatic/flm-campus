@@ -163,6 +163,50 @@
   border-color: transparent;
 }
 
+/* Dentro de un protagonista: la acción principal es la cápsula blanca; el resto, en blanco sobre el panel */
+:global(.spotlight) .primary,
+:global(.spotlight) .inverse,
+:root[data-theme='dark'] :global(.spotlight) .primary {
+  background: #fff;
+  color: var(--flm-marino);
+}
+
+/* Sin la sombra de reposo, pero sin tapar el anillo de foco (que también es una box-shadow) */
+:global(.spotlight) :is(.primary, .inverse):not(:focus-visible) {
+  box-shadow: none;
+}
+
+:global(.spotlight) .primary:hover,
+:global(.spotlight) .inverse:hover,
+:root[data-theme='dark'] :global(.spotlight) .primary:hover {
+  background: var(--flm-crema);
+}
+
+:global(.spotlight) .secondary {
+  background: transparent;
+  color: #fff;
+  border-color: var(--spotlight-line-strong);
+}
+
+:global(.spotlight) .secondary:hover {
+  background: var(--spotlight-glass);
+  border-color: #fff;
+}
+
+:global(.spotlight) .soft {
+  background: var(--spotlight-glass);
+  color: #fff;
+}
+
+:global(.spotlight) .ghost {
+  color: #fff;
+}
+
+:global(.spotlight) .action[data-status='success'] {
+  background: #fff;
+  color: var(--flm-marino);
+}
+
 .spin {
   animation: spin 900ms linear infinite;
 }

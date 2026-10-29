@@ -9,6 +9,7 @@ import { Logo } from '@/layout/Logo';
 import { downloadText, toCsv } from '@/lib/download';
 import { usePageTitle } from '@/lib/preferences';
 import { scrollToSection, useHashScroll } from '@/features/about/useSectionNav';
+import { formationPath, useNextStep, type NextStep } from '@/features/learn/common/data';
 import { Portrait } from './Portrait';
 import { Recognitions } from './Recognitions';
 import {
@@ -48,16 +49,30 @@ const timeOfIso = (iso: string) => {
 
 /* ── Progreso por área ─────────────────────────────────────────────────── */
 
-function AreaProgress({ summaries }: { summaries: AreaSummary[] }) {
+/** Foco claro de la página, con su única acción principal: lo siguiente que conviene hacer. */
+function AreaProgress({ summaries, next }: { summaries: AreaSummary[]; next: NextStep | null }) {
   const done = summaries.reduce((n, s) => n + s.completed, 0);
   const total = summaries.reduce((n, s) => n + s.total, 0);
   return (
     <section id="progreso" aria-labelledby="h-progreso" className={`${styles.card} ${styles.progressCard}`}>
       <div className={styles.cardHead}>
-        <h2 id="h-progreso" className={styles.cardTitle}>
-          Progreso por área
-        </h2>
-        <p className={styles.cardMeta}>{total ? `${done} de ${total} formaciones completadas` : 'Formaciones en preparación'}</p>
+        <div className={styles.cardHeadText}>
+          <h2 id="h-progreso" className={styles.cardTitle}>
+            Progreso por área
+          </h2>
+          <p className={styles.cardMeta}>{total ? `${done} de ${total} formaciones completadas` : 'Formaciones en preparación'}</p>
+        </div>
+        {next?.kind === 'formation' && (
+          <ButtonLink to={formationPath(next.formation)} variant="primary" iconRight={<ArrowRight />}>
+            Seguir con tu siguiente formación
+            <span className="sr-only">: {next.formation.title}</span>
+          </ButtonLink>
+        )}
+        {next?.kind === 'assessment' && (
+          <ButtonLink to={`/aprender/${next.area}/evaluacion`} variant="primary" iconRight={<ArrowRight />}>
+            Hacer la evaluación de {AREAS[next.area].name}
+          </ButtonLink>
+        )}
       </div>
       <ul role="list" className={styles.areas}>
         {summaries.map((s) => {
@@ -65,7 +80,7 @@ function AreaProgress({ summaries }: { summaries: AreaSummary[] }) {
           const status = !s.total ? 'En preparación' : left === 0 ? 'Itinerario completado' : left === 1 ? 'Te queda 1 formación' : `Te quedan ${left} formaciones`;
           return (
             <li key={s.area} className={styles.area} data-area={s.area} data-complete={s.total > 0 && left === 0}>
-              <ProgressRing value={s.completed} total={s.total} size={60} stroke={5} label={`Formaciones completadas de ${AREAS[s.area].name}`}>
+              <ProgressRing value={s.completed} total={s.total} size={60} stroke={5} label={`Formaciones completadas de ${AREAS[s.area].name}`} tone="area">
                 <span className={styles.ringValue}>{s.total ? `${s.completed}/${s.total}` : '—'}</span>
               </ProgressRing>
               <span className={styles.areaText}>
@@ -176,7 +191,7 @@ function FormationsTable({ groups }: { groups: ReturnType<typeof useFormationGro
 
 const PAGE = 8;
 
-function AttemptsHistory({ rows, next }: { rows: AttemptRow[]; next?: { title: string; to: string } }) {
+function AttemptsHistory({ rows, next }: { rows: AttemptRow[]; next?: { title: string; to: string; started: boolean } }) {
   const [all, setAll] = useState(false);
   const shown = all ? rows : rows.slice(0, PAGE);
 
@@ -219,7 +234,7 @@ function AttemptsHistory({ rows, next }: { rows: AttemptRow[]; next?: { title: s
           <p className={styles.quiet}>Todavía no has hecho ningún test. Cuando termines uno, verás aquí la fecha, los aciertos, el resultado y la versión de la formación.</p>
           {next && (
             <Link to={next.to} className="link-arrow">
-              Empieza por «{next.title}» <ArrowRight size={16} aria-hidden="true" />
+              {next.started ? 'Sigue con' : 'Empieza por'} «{next.title}» <ArrowRight size={16} aria-hidden="true" />
             </Link>
           )}
         </div>
@@ -374,6 +389,8 @@ export default function ProfilePage() {
   const assessmentSummaries = useAssessmentSummaries();
   const published = usePublishedCount(me?.id ?? DEMO_USER_ID);
   const badges = useBadges(formations, published);
+  // Lo siguiente que conviene hacer (el mismo orden que «Tu siguiente paso» de Inicio y Aprender)
+  const next = useNextStep();
   // Insignias que aún no se han celebrado al abrir la página (se fija al montar).
   const [fresh] = useState<ReadonlySet<string>>(() => {
     const done = new Set(useDemo.getState().celebrated);
@@ -393,8 +410,8 @@ export default function ProfilePage() {
   const upcoming = upcomingBadges(me, badges, summaries, published, assessmentSummaries);
   const viewingAs = me.effectiveRole !== me.role;
   const freshCount = badges.filter((b) => fresh.has(b.id)).length;
-  // Sin intentos todavía: se invita a empezar por la primera formación de su área
-  const firstStep = formations.find((f) => AREAS[f.area].name === me.department) ?? formations[0];
+  // Sin intentos todavía: se invita a seguir con la siguiente formación
+  const nextFormation = next?.kind === 'formation' ? { title: next.formation.title, to: formationPath(next.formation), started: next.status !== 'sin-empezar' } : undefined;
 
   return (
     <div className={`container page ${styles.page}`}>
@@ -465,12 +482,12 @@ export default function ProfilePage() {
         </ul>
       </nav>
 
-      <AreaProgress summaries={summaries} />
+      <AreaProgress summaries={summaries} next={next} />
 
       <FormationsTable groups={groups} />
 
       <div className={styles.lower}>
-        <AttemptsHistory rows={attempts} next={firstStep ? { title: firstStep.title, to: `/aprender/${firstStep.area}/${firstStep.slug}` } : undefined} />
+        <AttemptsHistory rows={attempts} next={nextFormation} />
         <Assessments summaries={assessmentSummaries} />
       </div>
 

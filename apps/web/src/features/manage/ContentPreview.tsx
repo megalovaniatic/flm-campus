@@ -1,44 +1,54 @@
 import { animate } from 'motion/react';
-import { CalendarPlus, Check, Copy, Download, ExternalLink, FileText, Lock, PenLine } from 'lucide-react';
+import { CalendarPlus, Check, Clock3, Copy, Download, ExternalLink, FileText, Hourglass, PenLine, Target } from 'lucide-react';
 import { useEffect, useId, useMemo, useState, type ReactNode } from 'react';
 import {
   AREAS,
+  countryCode,
   eventPhase,
   fileSize,
   formatLongDate,
   formatShortDate,
   formatWeekdayDate,
   monthShort,
-  STATUS_LABEL_EDITORIAL,
+  type ContentType,
   type EditorialStatus,
-  type KeyTerm,
+  type Scope,
 } from '@flm/shared';
 import { AreaTag, Avatar, Button, Chip, Notice, PhaseChip } from '@/design';
-import { useFormations, usePeople } from '@/data/selectors';
-import { useDemo } from '@/data/store';
-import { Rich, RichParagraphs, TermsProvider, useTerms } from '@/lib/rich';
+import { useByline, useDocuments, usePeople } from '@/data/selectors';
+import { EventPhoto } from '@/features/community/EventParts';
+import { AreaDot } from '@/features/learn/common/AreaMark';
+import { toSections } from '@/features/learn/common/data';
+import { FormationCover } from '@/features/learn/common/FormationCard';
+import { BlockView, ExternalAnchor, SOURCE_KIND } from '@/features/learn/reading/Blocks';
+import { Rich, RichParagraphs, TermsProvider } from '@/lib/rich';
 import { useReducedMotionPref } from '@/lib/preferences';
 import { bridgePath, easeOut } from '@/motion/liquid';
 import { eventIcon, NEWS_KIND_ICON } from './catalog';
 import {
-  CALLOUT_LABEL,
+  ASSESSMENT_TITLE,
+  blockToShared,
   CATEGORY_LABEL,
   DEMO_FILE_PREFIX,
   DOC_KIND_LABEL,
   formationMinutes,
   formToEvent,
+  formToFormation,
   NEWS_KIND_LABEL,
   OPTION_LETTERS,
+  QUIZ_RULES,
   sessionToShared,
   splitTags,
   URGENCY_LABEL,
   type AnyForm,
+  type AssessmentForm,
+  type ClientForm,
   type DocumentForm,
-  type EditorBlock,
   type EventForm,
   type FormationForm,
   type NewsForm,
-  type TestForm,
+  type QuizForm,
+  type WelcomeForm,
 } from './forms';
 import { TYPE_META } from './model';
 import styles from './ContentPreview.module.css';
@@ -60,18 +70,28 @@ export interface PreviewMeta {
   reviewerName?: string;
 }
 
-function Byline({ meta }: { meta?: PreviewMeta }) {
-  const people = usePeople();
-  const author = meta?.authorId ? people.find((p) => p.id === meta.authorId) : undefined;
-  if (!author) return null;
-  const reviewed = meta?.status === 'publicado' || meta?.status === 'archivado';
+/**
+ * Firma, como en la página publicada: la persona autora o, sin autoría (perfil eliminado o contenido
+ * institucional), la firma neutra «Área X de FLM» o «FLM».
+ */
+function Byline({ meta, type, area }: { meta?: PreviewMeta; type: ContentType; area?: Scope | null }) {
+  const byline = useByline(meta?.authorId, { type, area: area ?? undefined });
+  const status = meta?.status ?? 'borrador';
+  const state = status === 'borrador' ? 'Borrador: aún no se ve en el campus' : meta?.reviewerName ? `Revisado por ${meta.reviewerName}` : status === 'archivado' ? 'Archivado' : 'Publicado';
   return (
     <div className={styles.byline}>
-      <Avatar name={author.name} photo={author.photo ? base + author.photo : undefined} size={36} decorative />
+      {byline.kind === 'persona' ? (
+        <Avatar name={byline.person.name} photo={byline.person.photo ? base + byline.person.photo : undefined} size={36} decorative />
+      ) : (
+        <span className={styles.neutralMark} aria-hidden="true">
+          {byline.area ? <AreaDot area={byline.area} size={12} /> : <span className="red-dot" />}
+        </span>
+      )}
       <p>
-        <span className={styles.bylineName}>{author.name}</span>
+        <span className={styles.bylineName}>{byline.kind === 'persona' ? byline.person.name : byline.name}</span>
         <span className={styles.bylineRole}>
-          {author.position} · {reviewed ? `Revisado${meta?.reviewerName ? ` por ${meta.reviewerName}` : ''}` : `Pendiente de revisión (${STATUS_LABEL_EDITORIAL[meta?.status ?? 'borrador'].toLowerCase()})`}
+          {byline.kind === 'persona' ? `${byline.person.position} · ` : ''}
+          {state}
         </span>
       </p>
     </div>
@@ -86,6 +106,7 @@ function NewsPreview({ form, meta }: { form: NewsForm; meta?: PreviewMeta }) {
   const KindIcon = NEWS_KIND_ICON[form.kind];
   const [copied, setCopied] = useState(false);
   const reference = `${form.sourceLabel.trim() || 'Fuente'}${form.publishedOn ? `, ${formatLongDate(form.publishedOn)}` : ''}${form.sourceUrl.trim() ? `. ${form.sourceUrl.trim()}` : ''}`;
+  const url = form.sourceUrl.trim();
   return (
     <article className={styles.doc} data-area={form.area}>
       <div className={styles.topline}>
@@ -97,63 +118,37 @@ function NewsPreview({ form, meta }: { form: NewsForm; meta?: PreviewMeta }) {
           {URGENCY_LABEL[form.urgency]}
         </Chip>
       </div>
-      <h2 className={styles.headline}>{form.headline.trim() || <Ph>Titular de la novedad</Ph>}</h2>
+      <h3 className={styles.headline}>{form.headline.trim() || <Ph>Titular de la novedad</Ph>}</h3>
       <p className={styles.dateline}>{form.date ? formatLongDate(form.date) : <Ph>Fecha</Ph>}</p>
       <ol className={styles.five}>
-        <li>
-          <span className={styles.n} aria-hidden="true">
-            1
-          </span>
-          <div>
-            <h3 className={styles.blockTitle}>La novedad, en una frase</h3>
-            <p className={styles.lead}>
-              <RichOr text={form.oneLiner} ph="Qué cambia, en una sola frase." />
-            </p>
-          </div>
-        </li>
-        <li>
-          <span className={styles.n} aria-hidden="true">
-            2
-          </span>
-          <div>
-            <h3 className={styles.blockTitle}>A quién afecta</h3>
-            <p>
-              <RichOr text={form.affects} ph="Tipo de cliente o de persona afectada." />
-            </p>
-          </div>
-        </li>
-        <li className={styles.key}>
-          <span className={styles.n} aria-hidden="true">
-            3
-          </span>
-          <div>
-            <h3 className={styles.blockTitle}>Qué debemos hacer</h3>
-            <p>
-              <RichOr text={form.action} ph="La acción concreta para el equipo, con plazo si lo hay." />
-            </p>
-          </div>
-        </li>
-        <li>
-          <span className={styles.n} aria-hidden="true">
-            4
-          </span>
-          <div>
-            <h3 className={styles.blockTitle}>Un ejemplo sencillo</h3>
-            <p>
-              <RichOr text={form.example} ph="Un caso breve con cifras redondas." />
-            </p>
-          </div>
-        </li>
+        {[
+          { title: 'La novedad, en una frase', text: form.oneLiner, ph: 'Qué cambia, en una sola frase.', lead: true },
+          { title: 'A quién afecta', text: form.affects, ph: 'Tipo de cliente o de persona afectada.' },
+          { title: 'Qué debemos hacer', text: form.action, ph: 'La acción concreta para el equipo, con plazo si lo hay.', key: true },
+          { title: 'Un ejemplo sencillo', text: form.example, ph: 'Un caso breve con cifras redondas.' },
+        ].map((b, i) => (
+          <li key={b.title} className={b.key ? styles.key : undefined}>
+            <span className={styles.n} aria-hidden="true">
+              {i + 1}
+            </span>
+            <div>
+              <h4 className={styles.blockTitle}>{b.title}</h4>
+              <p className={b.lead ? styles.lead : undefined}>
+                <RichOr text={b.text} ph={b.ph} />
+              </p>
+            </div>
+          </li>
+        ))}
         <li>
           <span className={styles.n} aria-hidden="true">
             5
           </span>
           <div>
-            <h3 className={styles.blockTitle}>Fuente y fecha</h3>
+            <h4 className={styles.blockTitle}>Fuente y fecha</h4>
             <p>
               {form.sourceLabel.trim() ? (
-                form.sourceUrl.trim().startsWith('https://') ? (
-                  <a href={form.sourceUrl.trim()} target="_blank" rel="noreferrer">
+                url.startsWith('https://') ? (
+                  <a href={url} target="_blank" rel="noreferrer">
                     {form.sourceLabel.trim()}
                     <span className="sr-only"> (se abre en una pestaña nueva)</span>
                   </a>
@@ -161,7 +156,7 @@ function NewsPreview({ form, meta }: { form: NewsForm; meta?: PreviewMeta }) {
                   form.sourceLabel.trim()
                 )
               ) : (
-                <Ph>Norma, resolución o criterio con su enlace oficial.</Ph>
+                <Ph>Norma, resolución, criterio o comunicación interna, con su enlace.</Ph>
               )}
             </p>
             <p className={styles.small}>
@@ -187,13 +182,13 @@ function NewsPreview({ form, meta }: { form: NewsForm; meta?: PreviewMeta }) {
       </ol>
       {form.nuance.trim() && (
         <aside className={styles.nuance}>
-          <h3 className={styles.blockTitle}>Matices</h3>
+          <h4 className={styles.blockTitle}>Matices</h4>
           <p>
             <Rich text={form.nuance} />
           </p>
         </aside>
       )}
-      <Byline meta={meta} />
+      <Byline meta={meta} type="noticia" area={form.area} />
     </article>
   );
 }
@@ -204,7 +199,8 @@ function NewsPreview({ form, meta }: { form: NewsForm; meta?: PreviewMeta }) {
 
 function DocumentPreview({ form, meta }: { form: DocumentForm; meta?: PreviewMeta }) {
   const people = usePeople();
-  const nameOf = (id: string) => people.find((p) => p.id === id)?.name ?? id;
+  // Quien subió una versión: su nombre si sigue en el campus; un id de persona que ya no está no se muestra.
+  const uploader = (by: string) => people.find((p) => p.id === by)?.name ?? (/^p-/.test(by) ? '' : by);
   const history = [...form.versions].sort((a, b) => b.version - a.version);
   const current = history[0];
   const pending = form.upload;
@@ -233,9 +229,9 @@ function DocumentPreview({ form, meta }: { form: DocumentForm; meta?: PreviewMet
           <p className={styles.kicker}>
             {DOC_KIND_LABEL[form.kind]} · {form.issuer.trim() || <Ph>Emisor</Ph>}
           </p>
-          <h2 className={styles.docTitle}>{form.title.trim() || <Ph>Título del documento</Ph>}</h2>
+          <h3 className={styles.docTitle}>{form.title.trim() || <Ph>Título del documento</Ph>}</h3>
           <div className={styles.metaRow}>
-            {form.area === 'general' ? <Chip size="sm">General</Chip> : <AreaTag area={form.area} size="sm" />}
+            <AreaTag area={form.area} size="sm" />
             <span className={styles.small}>
               {form.date ? formatShortDate(form.date) : ''}
               {shown ? ` · Versión ${shown.version}` : ''}
@@ -267,7 +263,7 @@ function DocumentPreview({ form, meta }: { form: DocumentForm; meta?: PreviewMet
         </ul>
       )}
       <section className={styles.subsection} aria-label="Historial de versiones">
-        <h3 className={styles.blockTitle}>Historial de versiones</h3>
+        <h4 className={styles.blockTitle}>Historial de versiones</h4>
         {history.length === 0 && !pending ? (
           <p className={styles.small}>
             <Ph>Sube el PDF para crear la versión 1.</Ph>
@@ -288,30 +284,34 @@ function DocumentPreview({ form, meta }: { form: DocumentForm; meta?: PreviewMet
                 </span>
               </li>
             )}
-            {history.map((v, i) => (
-              <li key={v.version}>
-                <span className={styles.vNum}>v{v.version}</span>
-                <span>
-                  <strong>{i === 0 && !pending ? 'Vigente' : 'Anterior'}</strong>
-                  <span className={styles.small}>
-                    {' '}
-                    · {formatShortDate(v.uploadedAt.slice(0, 10))} · {nameOf(v.uploadedBy)} · {fileSize(v.sizeKb)}
-                    {v.pages ? ` · ${v.pages} págs.` : ''}
+            {history.map((v, i) => {
+              const by = uploader(v.uploadedBy);
+              return (
+                <li key={v.version}>
+                  <span className={styles.vNum}>v{v.version}</span>
+                  <span>
+                    <strong>{i === 0 && !pending ? 'Vigente' : 'Anterior'}</strong>
+                    <span className={styles.small}>
+                      {' '}
+                      · {formatShortDate(v.uploadedAt.slice(0, 10))}
+                      {by ? ` · ${by}` : ''} · {fileSize(v.sizeKb)}
+                      {v.pages ? ` · ${v.pages} págs.` : ''}
+                    </span>
+                    {v.note && <span className={styles.vNote}>{v.note}</span>}
                   </span>
-                  {v.note && <span className={styles.vNote}>{v.note}</span>}
-                </span>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ol>
         )}
       </section>
-      <Byline meta={meta} />
+      <Byline meta={meta} type="documento" area={form.area} />
     </article>
   );
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
- * Evento: círculos de fecha unidos por puentes, sesiones y enlaces
+ * Evento: círculos de fecha unidos por puentes, sesiones, foto, materiales y enlaces
  * ──────────────────────────────────────────────────────────────────────────── */
 
 function Bridge({ a, b, r }: { a: [number, number]; b: [number, number]; r: number }) {
@@ -372,14 +372,14 @@ function DateChain({ days, pending }: { days: string[]; pending: boolean }) {
   );
 }
 
+const PREVIEW_META = { id: 'vista-previa', slug: 'vista-previa', editorial: { status: 'borrador' as const, review: { state: 'pendiente' as const } }, uploadedBy: '', today: '2026-01-01' };
+
 function EventPreview({ form, meta }: { form: EventForm; meta?: PreviewMeta }) {
   const { Icon, label: iconLabel } = eventIcon(form.icon);
+  const documents = useDocuments();
   const built = useMemo(() => {
     try {
-      return formToEvent(
-        { ...form, sessions: form.sessions.filter((s) => /^\d{4}-\d{2}-\d{2}$/.test(s.startDate)) },
-        { id: 'vista-previa', slug: 'vista-previa', editorial: { status: 'borrador', authorId: '', review: { state: 'pendiente' } }, uploadedBy: '', today: '' },
-      );
+      return formToEvent({ ...form, sessions: form.sessions.filter((s) => /^\d{4}-\d{2}-\d{2}$/.test(s.startDate)) }, PREVIEW_META);
     } catch {
       return null;
     }
@@ -387,6 +387,7 @@ function EventPreview({ form, meta }: { form: EventForm; meta?: PreviewMeta }) {
   const phase = built ? eventPhase(built) : 'proximo';
   const sessions = form.pendingDate ? [] : form.sessions.filter((s) => /^\d{4}-\d{2}-\d{2}$/.test(s.startDate));
   const days = [...new Set(sessions.map((s) => s.startDate))].sort();
+  const materials = form.materials.filter((m) => m.documentId || m.label.trim());
   return (
     <article className={styles.doc}>
       <div className={styles.eventHead}>
@@ -399,13 +400,14 @@ function EventPreview({ form, meta }: { form: EventForm; meta?: PreviewMeta }) {
             {TYPE_META[form.type].label} · {CATEGORY_LABEL[form.category]}
             {form.department.trim() ? ` · ${form.department}` : ''}
           </p>
-          <h2 className={styles.docTitle}>{form.title.trim() || <Ph>Título del {TYPE_META[form.type].lower}</Ph>}</h2>
+          <h3 className={styles.docTitle}>{form.title.trim() || <Ph>Título del {TYPE_META[form.type].lower}</Ph>}</h3>
           <div className={styles.metaRow}>
             <PhaseChip phase={phase} pending={form.pendingDate || sessions.length === 0} size="sm" />
             {form.manualPhase && <Chip size="sm">Reclasificado a mano</Chip>}
           </div>
         </div>
       </div>
+      {form.image?.src && <EventPhoto image={{ src: form.image.src, alt: form.image.alt, ...(form.image.credit.trim() ? { credit: form.image.credit } : {}) }} className={styles.photo} frameClassName={styles.photoFrame} sizes="(min-width: 1100px) 28rem, 92vw" />}
       <DateChain days={days} pending={form.pendingDate} />
       <p className={styles.summaryText}>{form.summary.trim() || <Ph>Descripción breve: qué es y para quién.</Ph>}</p>
       {form.body.trim() && (
@@ -415,7 +417,7 @@ function EventPreview({ form, meta }: { form: EventForm; meta?: PreviewMeta }) {
       )}
       {!form.pendingDate && sessions.length > 0 && (
         <section className={styles.subsection} aria-label={sessions.length === 1 ? 'Sesión' : 'Sesiones'}>
-          <h3 className={styles.blockTitle}>{sessions.length === 1 ? 'Sesión' : `${sessions.length} sesiones`}</h3>
+          <h4 className={styles.blockTitle}>{sessions.length === 1 ? 'Sesión' : `${sessions.length} sesiones`}</h4>
           <ol role="list" className={styles.sessions}>
             {sessions.map((s) => {
               const sh = sessionToShared(s);
@@ -437,6 +439,22 @@ function EventPreview({ form, meta }: { form: EventForm; meta?: PreviewMeta }) {
         </section>
       )}
       {form.pendingDate && form.pendingDateNote.trim() && <p className={styles.small}>{form.pendingDateNote}</p>}
+      {materials.length > 0 && (
+        <section className={styles.subsection} aria-label="Materiales">
+          <h4 className={styles.blockTitle}>Materiales</h4>
+          <ul role="list" className={styles.links}>
+            {materials.map((m) => {
+              const doc = documents.find((d) => d.id === m.documentId);
+              return (
+                <li key={m.id} className={styles.fakeLink}>
+                  <FileText size={16} aria-hidden="true" /> {m.label.trim() || doc?.title || <Ph>Material sin nombre</Ph>}
+                  {doc && <span className={styles.small}> · {DOC_KIND_LABEL[doc.kind]}</span>}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
       {form.links.some((l) => l.label.trim()) && (
         <ul role="list" className={styles.links}>
           {form.links
@@ -464,123 +482,110 @@ function EventPreview({ form, meta }: { form: EventForm; meta?: PreviewMeta }) {
           </Button>
         </div>
       )}
-      <Byline meta={meta} />
+      {form.recap.trim() && (
+        <aside className={styles.nuance}>
+          <h4 className={styles.blockTitle}>Cómo fue</h4>
+          <RichParagraphs text={form.recap} />
+        </aside>
+      )}
+      <Byline meta={meta} type={form.type} />
     </article>
   );
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
- * Formación: portada tipográfica, bloques, términos, idea clave y fuentes
+ * Cuestionarios: «pruebas de imprenta» con la corrección al margen
  * ──────────────────────────────────────────────────────────────────────────── */
 
-function BlockView({ b }: { b: EditorBlock }) {
-  switch (b.type) {
-    case 'heading':
-      return <h3 className={styles.fHeading}>{b.text.trim() || <Ph>Título de sección</Ph>}</h3>;
-    case 'paragraph':
-      return b.text.trim() ? <RichParagraphs text={b.text} /> : <p><Ph>Párrafo</Ph></p>;
-    case 'list': {
-      const items = b.items.split('\n').map((x) => x.trim()).filter(Boolean);
-      const Tag = b.ordered ? 'ol' : 'ul';
-      return items.length ? (
-        <Tag className={styles.fList}>
-          {items.map((it, i) => (
-            <li key={i}>
-              <Rich text={it} />
-            </li>
-          ))}
-        </Tag>
-      ) : (
-        <p>
-          <Ph>Lista (un elemento por línea)</Ph>
-        </p>
-      );
-    }
-    case 'callout':
-      return (
-        <aside className={styles.callout} data-tone={b.tone}>
-          <p className={b.tone === 'clave' ? styles.explicamos : styles.calloutLabel}>
-            {CALLOUT_LABEL[b.tone]}
-            {b.title.trim() ? ` ${b.title.trim()}` : ''}
-          </p>
-          <p>
-            <RichOr text={b.text} ph="Texto del recuadro" />
-          </p>
-        </aside>
-      );
-    case 'example':
-      return (
-        <section className={styles.example} aria-label={b.title || 'Ejemplo resuelto'}>
-          <p className={styles.exampleLabel}>Ejemplo resuelto</p>
-          <h3 className={styles.exampleTitle}>{b.title.trim() || <Ph>Título del ejemplo</Ph>}</h3>
-          <p>
-            <RichOr text={b.scenario} ph="Planteamiento: el caso del cliente." />
-          </p>
-          <ol className={styles.steps}>
-            {b.steps.map((s, i) => (
-              <li key={s.id}>
-                <span className={styles.stepN}>Paso {i + 1}</span>
-                <span>
-                  <RichOr text={s.label} ph="Qué se hace en este paso" />
-                  {s.formula.trim() && <code className={styles.formula}>{s.formula}</code>}
-                  {s.result.trim() && <strong className={styles.result}> = {s.result}</strong>}
-                </span>
-              </li>
-            ))}
-          </ol>
-          <p className={styles.conclusion}>
-            <RichOr text={b.conclusion} ph="Conclusión del ejemplo" />
-          </p>
-        </section>
-      );
-    case 'locked':
-      return (
-        <p className={styles.locked}>
-          <Lock size={15} aria-hidden="true" /> Bloque avanzado ({b.block.type}): se conserva tal cual y se muestra en la formación publicada.
-        </p>
-      );
-  }
-}
-
-function TermsList({ terms }: { terms: KeyTerm[] }) {
-  const ctx = useTerms();
+function QuizProof({ quiz, total }: { quiz: QuizForm; total: number }) {
+  const id = useId();
   return (
-    <dl className={styles.terms}>
-      {terms.map((t) => (
-        <div key={t.term}>
-          <dt>{t.term}</dt>
-          <dd id={ctx?.idFor(t.term)}>
-            <Rich text={t.definition} />
-          </dd>
-        </div>
-      ))}
-    </dl>
+    <ol role="list" className={styles.questions}>
+      {quiz.questions.map((q, i) => {
+        const correctIndex = q.options.findIndex((o) => o.id === q.correctOptionId);
+        return (
+          <li key={q.id} className={styles.question}>
+            <p className={styles.qn}>
+              Pregunta {i + 1} de {total}
+            </p>
+            <p id={`${id}-q${i}`} className={styles.prompt}>
+              <RichOr text={q.prompt} ph="Enunciado de la pregunta" />
+            </p>
+            <ul role="list" className={styles.options}>
+              {q.options.map((o, j) => {
+                const correct = o.id === q.correctOptionId;
+                return (
+                  <li key={o.id} data-correct={correct || undefined}>
+                    <span className={styles.letter}>{OPTION_LETTERS[j]}</span>
+                    <span className={styles.optBody}>
+                      <span className={styles.optText}>
+                        <RichOr text={o.text} ph="Texto de la opción" />
+                        {correct && (
+                          <span className={styles.correctTag}>
+                            <Check size={14} aria-hidden="true" /> Correcta
+                          </span>
+                        )}
+                      </span>
+                      {!correct && q.correctOptionId && (
+                        <span className={styles.why}>
+                          <PenLine size={13} aria-hidden="true" /> Por qué no… <RichOr text={o.feedback} ph="falta la explicación" />
+                        </span>
+                      )}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className={styles.explanation}>
+              {correctIndex >= 0 ? <strong>La respuesta correcta es la {OPTION_LETTERS[correctIndex]}. </strong> : <Ph>Marca la respuesta correcta. </Ph>}
+              {q.explanation.trim() && <Rich text={q.explanation} />}
+            </p>
+            {q.ref.trim() && <p className={styles.small}>Repasa: {q.ref}</p>}
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
+/* ────────────────────────────────────────────────────────────────────────────
+ * Formación: portada, apartados con los bloques reales, idea clave, fuentes y test
+ * ──────────────────────────────────────────────────────────────────────────── */
+
 function FormationPreview({ form, meta }: { form: FormationForm; meta?: PreviewMeta }) {
-  const terms = form.keyTerms.filter((k) => k.term.trim()).map((k) => ({ term: k.term.trim(), definition: k.definition }));
+  const documents = useDocuments();
+  const terms = useMemo(() => form.keyTerms.filter((k) => k.term.trim()).map((k) => ({ term: k.term.trim(), definition: k.definition })), [form.keyTerms]);
+  const blocks = useMemo(() => form.blocks.map(blockToShared), [form.blocks]);
+  const sections = useMemo(() => toSections(blocks), [blocks]);
+  const cover = useMemo(() => formToFormation(form, { ...PREVIEW_META, editorial: { ...PREVIEW_META.editorial } }), [form]);
   const outcomes = form.outcomes.filter((o) => o.text.trim());
   const sources = form.sources.filter((s) => s.label.trim());
+  const docs = form.documentIds.map((docId) => documents.find((d) => d.id === docId)).filter((d): d is NonNullable<typeof d> => !!d);
+  const area = AREAS[form.area];
   return (
     <TermsProvider terms={terms}>
       <article className={styles.doc} data-area={form.area}>
-        <header className={styles.cover}>
-          <p className={styles.coverTerm} data-area={form.area}>
-            {form.coverTerm.trim() || AREAS[form.area].name}
-          </p>
+        <header className={styles.fHeader}>
+          <FormationCover formation={cover} className={styles.fCover} />
           <div className={styles.metaRow}>
             <AreaTag area={form.area} size="sm" />
-            <span className={styles.small}>
-              {formationMinutes(form)} min de lectura · versión {form.version}
-            </span>
+            {meta?.status !== 'borrador' && !meta?.reviewerName && (
+              <Chip size="sm" tone="neutral" icon={<Hourglass size={14} />}>
+                Pendiente de revisión por el área
+              </Chip>
+            )}
           </div>
-          <h2 className={styles.fTitle}>{form.title.trim() || <Ph>Título de la formación</Ph>}</h2>
-          <p className={styles.fSummary}>{form.summary.trim() || <Ph>Resumen breve para las tarjetas.</Ph>}</p>
+          <h3 className={styles.fTitle}>{form.title.trim() || <Ph>Título de la formación</Ph>}</h3>
+          <div className={`prose ${styles.prose}`}>{form.intro.trim() ? <RichParagraphs text={form.intro} /> : <p><Ph>Introducción práctica: por qué importa, con una situación real de cliente.</Ph></p>}</div>
+          <p className={styles.facts}>
+            <Clock3 size={15} aria-hidden="true" /> {formationMinutes(form)} min de lectura · versión {form.version + (form.majorChange ? 1 : 0)}
+          </p>
+          <p className={styles.small}>Tarjeta: {form.summary.trim() || <Ph>resumen breve para las tarjetas</Ph>}</p>
         </header>
-        <div className={`prose ${styles.prose}`}>{form.intro.trim() ? <RichParagraphs text={form.intro} /> : <p><Ph>Introducción práctica: por qué importa, con una situación real de cliente.</Ph></p>}</div>
         <section className={styles.outcomes} aria-label="Resultados de aprendizaje">
-          <h3 className={styles.blockTitle}>Al terminar, sabrás…</h3>
+          <h4 className={`${styles.blockTitle} ${styles.withIcon}`}>
+            <Target size={14} aria-hidden="true" /> Al terminar sabrás…
+          </h4>
           {outcomes.length ? (
             <ul role="list">
               {outcomes.map((o) => (
@@ -595,109 +600,159 @@ function FormationPreview({ form, meta }: { form: FormationForm; meta?: PreviewM
             </p>
           )}
         </section>
-        <div className={`prose ${styles.prose} ${styles.blocks}`}>
-          {form.blocks.map((b) => (
-            <BlockView key={b.id} b={b} />
+        {terms.length > 0 && (
+          <p className={styles.small}>
+            Términos clave: {terms.map((t) => t.term).join(' · ')}
+          </p>
+        )}
+        <div className={`prose ${styles.prose} ${styles.flow}`}>
+          {sections.length === 0 && (
+            <p>
+              <Ph>Añade apartados y bloques en «Contenido».</Ph>
+            </p>
+          )}
+          {sections.map((s) => (
+            <section key={s.id} className={styles.fSection} aria-label={s.title ? `Apartado ${s.number}: ${s.title}` : 'Introducción'}>
+              {s.title && (
+                <h4 className={styles.fHeading}>
+                  <span className={styles.fNum}>Apartado {s.number}</span>
+                  <span className="sr-only">. </span>
+                  {s.title}
+                </h4>
+              )}
+              {s.blocks.map((b, i) => (
+                <BlockView key={b.type === 'widget' ? `${i}-${JSON.stringify(b.widget)}` : i} block={b} />
+              ))}
+            </section>
           ))}
         </div>
-        {terms.length > 0 && (
-          <section className={styles.subsection} aria-label="Términos clave">
-            <h3 className={styles.blockTitle}>Términos clave</h3>
-            <TermsList terms={terms} />
-          </section>
-        )}
         <aside className={styles.takeaway}>
           <p className={styles.takeawayLabel}>Idea clave</p>
           <p className={styles.takeawayText}>
             <RichOr text={form.takeaway} ph="La idea que debe quedar." />
+            {form.takeaway.trim() && <span className="red-dot" aria-hidden="true" />}
           </p>
         </aside>
-        {sources.length > 0 && (
-          <section className={styles.subsection} aria-label="Fuentes">
-            <h3 className={styles.blockTitle}>Fuentes</h3>
-            <ol className={styles.sources}>
+        <section className={styles.subsection} aria-label="Fuentes y documentos">
+          <h4 className={styles.blockTitle}>Fuentes y documentos</h4>
+          {sources.length ? (
+            <ol role="list" className={styles.sourceList}>
               {sources.map((s) => (
                 <li key={s.id}>
-                  {s.url.trim().startsWith('https://') ? (
-                    <a href={s.url.trim()} target="_blank" rel="noreferrer">
-                      {s.label}
-                      <span className="sr-only"> (se abre en una pestaña nueva)</span>
-                    </a>
-                  ) : (
-                    s.label
-                  )}
-                  {s.date && <span className={styles.small}> · {formatShortDate(s.date)}</span>}
+                  <span className={styles.sourceKind}>{SOURCE_KIND[s.kind || 'web']}</span>
+                  {s.url.trim().startsWith('https://') ? <ExternalAnchor href={s.url.trim()}>{s.label}</ExternalAnchor> : s.label}
+                  {s.date && <span className={styles.small}> · Consultada el {formatShortDate(s.date)}</span>}
                 </li>
               ))}
             </ol>
-          </section>
-        )}
-        {form.quiz && <p className={styles.small}>Incluye un test final de {form.quiz.questions.length} preguntas (se edita con la plantilla Test).</p>}
-        <Byline meta={meta} />
+          ) : (
+            <p className={styles.small}>
+              <Ph>Normas, resoluciones o criterios con su enlace oficial.</Ph>
+            </p>
+          )}
+          {form.verifiedAt && <p className={styles.small}>Normativa comprobada a {formatLongDate(form.verifiedAt)}.</p>}
+          {docs.length > 0 && (
+            <ul role="list" className={styles.links}>
+              {docs.map((d) => (
+                <li key={d.id} className={styles.fakeLink}>
+                  <FileText size={16} aria-hidden="true" /> {d.title} <span className={styles.small}>· {d.issuer}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+        <Byline meta={meta} type="formacion" area={form.area} />
+        <section className={styles.subsection} aria-label="Test final">
+          <h4 className={styles.blockTitle}>
+            Test final · {form.quiz.questions.length} preguntas · se supera con {QUIZ_RULES.formacion.passMark}
+          </h4>
+          <p className={styles.small}>Así lo verá quien corrija: cada opción incorrecta con su «por qué no» al margen. Área {area.name}.</p>
+          <QuizProof quiz={form.quiz} total={form.quiz.questions.length} />
+        </section>
       </article>
     </TermsProvider>
   );
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
- * Test: «pruebas de imprenta»
+ * Evaluación del área
  * ──────────────────────────────────────────────────────────────────────────── */
 
-function TestPreview({ form }: { form: TestForm }) {
-  const formations = useFormations(true);
-  const drafts = useDemo((s) => s.drafts);
-  const linked = formations.find((f) => f.id === form.formationId)?.title ?? (drafts[form.formationId] ? drafts[form.formationId]!.title || 'Formación en borrador' : undefined);
-  const id = useId();
+function AssessmentPreview({ form }: { form: AssessmentForm }) {
+  return (
+    <article className={styles.doc} data-area={form.area}>
+      <header className={styles.testHead}>
+        <div className={styles.metaRow}>
+          <AreaTag area={form.area} size="sm" />
+        </div>
+        <h3 className={styles.docTitle}>{ASSESSMENT_TITLE}</h3>
+        <p className={styles.summaryText}>{form.intro.trim() || <Ph>Introducción de la evaluación.</Ph>}</p>
+        <p className={styles.small}>
+          {QUIZ_RULES.test.count} preguntas · se supera con {QUIZ_RULES.test.passMark} · voluntaria y repetible
+        </p>
+      </header>
+      <QuizProof quiz={form.quiz} total={QUIZ_RULES.test.count} />
+      <Byline type="test" area={form.area} meta={{ status: 'publicado' }} />
+    </article>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * «Ponte al día» (Inicio): nuevo cliente y bienvenida
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+function ClientPreview({ form, meta }: { form: ClientForm; meta?: PreviewMeta }) {
+  const code = countryCode(form.country);
   return (
     <article className={styles.doc}>
-      <header className={styles.testHead}>
-        <p className={styles.kicker}>Test final{linked ? ` · ${linked}` : ''}</p>
-        <h2 className={styles.docTitle}>{form.title.trim() || <Ph>Título del test</Ph>}</h2>
-        <p className={styles.small}>3 preguntas · se aprueba con 2 de 3 · pruebas de imprenta con la corrección al margen</p>
-      </header>
-      <ol role="list" className={styles.questions}>
-        {form.questions.map((q, i) => {
-          const correctIndex = q.options.findIndex((o) => o.id === q.correctOptionId);
-          return (
-            <li key={q.id} className={styles.question}>
-              <p className={styles.qn}>Pregunta {i + 1} de 3</p>
-              <p id={`${id}-q${i}`} className={styles.prompt}>
-                <RichOr text={q.prompt} ph="Enunciado de la pregunta" />
+      <p className={styles.kicker}>Inicio · Ponte al día · Nuevos clientes</p>
+      <div className={styles.board}>
+        <div className={styles.boardRow}>
+          <span className={styles.country} aria-hidden="true">
+            {code ?? '··'}
+          </span>
+          <div className={styles.boardText}>
+            <p className={styles.boardName}>{form.name.trim() || <Ph>Nombre de la empresa</Ph>}</p>
+            <p className={styles.small}>
+              {form.sector.trim() || <Ph>Sector</Ph>} · {form.country || <Ph>País de origen</Ph>}
+            </p>
+            {form.summary.trim() && <p className={styles.boardSummary}>{form.summary}</p>}
+            <div className={styles.metaRow}>
+              <AreaTag area={form.area} size="sm" />
+              {form.fictional && <Chip size="sm">Ejemplo ficticio</Chip>}
+              {form.date && <span className={styles.small}>Anunciado el {formatShortDate(form.date)}</span>}
+            </div>
+          </div>
+        </div>
+      </div>
+      <p className={styles.small}>Solo para uso interno: sin importes, honorarios ni datos confidenciales.</p>
+      <Byline meta={meta} type="cliente" area={form.area} />
+    </article>
+  );
+}
+
+function WelcomePreview({ form, meta }: { form: WelcomeForm; meta?: PreviewMeta }) {
+  const people = usePeople();
+  const person = people.find((p) => p.id === form.personId);
+  return (
+    <article className={styles.doc}>
+      <p className={styles.kicker}>Inicio · Ponte al día · Nuevas incorporaciones</p>
+      <div className={styles.board}>
+        <div className={styles.boardRow}>
+          {person ? <Avatar name={person.name} photo={person.photo ? base + person.photo : undefined} size={44} decorative /> : <span className={styles.country} aria-hidden="true">?</span>}
+          <div className={styles.boardText}>
+            <p className={styles.boardName}>{person ? `Damos la bienvenida a ${person.name}` : <Ph>Elige a la persona que se suma</Ph>}</p>
+            {person && (
+              <p className={styles.small}>
+                {person.position} · {person.department} · {person.office}
               </p>
-              <ul role="list" className={styles.options}>
-                {q.options.map((o, j) => {
-                  const correct = o.id === q.correctOptionId;
-                  return (
-                    <li key={o.id} data-correct={correct || undefined}>
-                      <span className={styles.letter}>{OPTION_LETTERS[j]}</span>
-                      <span className={styles.optBody}>
-                        <span className={styles.optText}>
-                          <RichOr text={o.text} ph="Texto de la opción" />
-                          {correct && (
-                            <span className={styles.correctTag}>
-                              <Check size={14} aria-hidden="true" /> Correcta
-                            </span>
-                          )}
-                        </span>
-                        {!correct && q.correctOptionId && (
-                          <span className={styles.why}>
-                            <PenLine size={13} aria-hidden="true" /> Por qué no… <RichOr text={o.feedback} ph="falta la explicación" />
-                          </span>
-                        )}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-              <p className={styles.explanation}>
-                {correctIndex >= 0 ? <strong>La respuesta correcta es la {OPTION_LETTERS[correctIndex]}. </strong> : <Ph>Marca la respuesta correcta. </Ph>}
-                {q.explanation.trim() && <Rich text={q.explanation} />}
-              </p>
-              {q.ref.trim() && <p className={styles.small}>Repasa: {q.ref}</p>}
-            </li>
-          );
-        })}
-      </ol>
+            )}
+            <p className={styles.boardSummary}>{form.message.trim() || <Ph>Mensaje de bienvenida, en una o dos frases.</Ph>}</p>
+          </div>
+        </div>
+      </div>
+      <p className={styles.small}>El anuncio solo lleva su fecha de publicación: la ficha de la persona no guarda la de incorporación.</p>
+      <Byline meta={meta} type="bienvenida" />
     </article>
   );
 }
@@ -715,6 +770,10 @@ export function ContentPreview({ form, meta }: { form: AnyForm; meta?: PreviewMe
     case 'formacion':
       return <FormationPreview form={form} meta={meta} />;
     case 'test':
-      return <TestPreview form={form} />;
+      return <AssessmentPreview form={form} />;
+    case 'cliente':
+      return <ClientPreview form={form} meta={meta} />;
+    case 'bienvenida':
+      return <WelcomePreview form={form} meta={meta} />;
   }
 }

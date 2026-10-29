@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 import type { Crumb } from '@/design/PageHeader';
 import styles from './QuizHeader.module.css';
 
-/** Cabecera compacta de las pantallas de test: migas, antetítulo, titular y datos del test. */
+/** Cabecera compacta de las pantallas de test: migas (con su señal, p. ej. el punto del área), antetítulo, titular y datos del test. */
 export function QuizHeader({ crumbs, eyebrow, title, meta, aside }: { crumbs: Crumb[]; eyebrow: ReactNode; title: ReactNode; meta?: ReactNode; aside?: ReactNode }) {
   return (
     <header className={styles.header}>
@@ -15,12 +15,16 @@ export function QuizHeader({ crumbs, eyebrow, title, meta, aside }: { crumbs: Cr
               <li key={i}>
                 {c.to ? (
                   <Link to={c.to} title={c.label}>
+                    {c.icon}
                     <span className={styles.crumbText}>{c.label}</span>
                   </Link>
                 ) : (
-                  <span aria-current="page" className={styles.current}>
-                    {c.label}
-                  </span>
+                  <>
+                    {c.icon}
+                    <span aria-current="page" className={styles.current}>
+                      {c.label}
+                    </span>
+                  </>
                 )}
                 {i < crumbs.length - 1 && <ChevronRight size={14} aria-hidden="true" />}
               </li>

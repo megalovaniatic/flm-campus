@@ -9,7 +9,7 @@ import { notFound } from '../lib/errors';
 import { jsonBody, queryParams } from '../lib/validation';
 import { currentUser, requirePermission } from '../middleware/authorize';
 import { enforce, RATE_RULES } from '../middleware/rate-limit';
-import { anonymizeUser, deactivateUser, reactivateUser, sendActivationLink } from '../services/accounts';
+import { deactivateUser, reactivateUser, removeUser, sendActivationLink } from '../services/accounts';
 import { audit } from '../services/audit';
 import { getFile, readMultipart, registerFile } from '../services/files';
 import {
@@ -183,12 +183,15 @@ export function peopleRoutes(ctx: AppContext) {
     return c.json({ person: adminPerson(await removePhoto(ctx, c, target, currentUser(c)), ctx.now()) });
   });
 
-  /** Eliminación controlada de datos personales: exige `confirm` con el correo de la persona. */
-  r.post('/:id/anonymize', requirePermission('datos-personales:eliminar'), async (c) => {
+  /**
+   * «Eliminar el perfil» de quien deja FLM: exige `confirm` con el correo de la persona. Borra la
+   * persona y sus sesiones; su contenido se conserva sin autoría; sus bienvenidas se borran.
+   */
+  r.post('/:id/remove', requirePermission('datos-personales:eliminar'), async (c) => {
     const { confirm } = await jsonBody(c, z.object({ confirm: z.string({ error: 'Escribe el correo de la persona en «confirm» para confirmar.' }).max(254) }));
-    const { user, photoStorageName } = anonymizeUser(db, currentUser(c), requireUserRow(db, c.req.param('id')), confirm, ctx.now(), ip(c));
+    const { removed, photoStorageName } = removeUser(db, currentUser(c), requireUserRow(db, c.req.param('id')), confirm, ctx.now(), ip(c));
     if (photoStorageName) await ctx.storage.remove(photoStorageName);
-    return c.json({ person: adminPerson(user, ctx.now()) });
+    return c.json({ removed });
   });
 
   r.get('/:id/sessions', requirePermission('sesiones:revocar'), (c) => {

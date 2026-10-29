@@ -14,8 +14,9 @@ import { QuizEngine, RetryButton, ReviewButton, type ResultApi } from './quiz/Qu
 import { QuizHeader } from './quiz/QuizHeader';
 import styles from './QuizPage.module.css';
 
-function Intro({ a, best, onStart }: { a: SectorAssessment; best: QuizAttempt | undefined; onStart: () => void }) {
+function Intro({ a, best, isSample, onStart }: { a: SectorAssessment; best: QuizAttempt | undefined; isSample: boolean; onStart: () => void }) {
   const total = a.quiz.questions.length;
+  const name = AREAS[a.area].name;
   return (
     <section className={styles.intro} aria-label="Antes de empezar">
       <div className={styles.introText}>
@@ -30,14 +31,26 @@ function Intro({ a, best, onStart }: { a: SectorAssessment; best: QuizAttempt | 
           <li>Corrección al momento, con la explicación de cada respuesta.</li>
           <li>Puedes repetirla: al volver a intentarlo cambia el orden de preguntas y opciones.</li>
         </ul>
-        <Button variant="primary" size="lg" iconRight={<ArrowRight />} onClick={onStart}>
-          {best ? 'Volver a intentarlo' : 'Empezar la evaluación'}
-        </Button>
       </div>
-      <div className={styles.introSide}>
+      {/* Protagonista: la meta, con el sello sobre placa clara y la acción dentro */}
+      <aside className={`${styles.introSide} spotlight`} aria-labelledby="meta-eval">
+        <p id="meta-eval" className={styles.sideKicker}>
+          Lo que consigues
+        </p>
+        <div className={`spotlight-plate ${styles.sealPlate}`}>
+          <AreaSeal area={a.area} height={40} />
+        </div>
+        <p className={styles.sideGoal}>
+          {isSample
+            ? `Supera ${a.quiz.passMark} de ${total}. Es una muestra de desarrollo: el reconocimiento «Evaluación ${name} superada» no se añade a tu perfil.`
+            : `Supera ${a.quiz.passMark} de ${total} y el reconocimiento «Evaluación ${name} superada» se añade a tu perfil.`}
+        </p>
         <TenDots total={total} filled={best?.correct ?? 0} />
         <p className={styles.introBest}>{best ? `Tu mejor resultado: ${best.correct}/${best.total}${best.passed ? ' · superada' : ''}` : 'Aún no la has intentado.'}</p>
-      </div>
+        <Button variant="inverse" block iconRight={<ArrowRight />} onClick={onStart}>
+          {best ? 'Volver a intentarlo' : 'Empezar la evaluación'}
+        </Button>
+      </aside>
     </section>
   );
 }
@@ -114,32 +127,35 @@ function AssessmentRun({ a, isSample }: { a: SectorAssessment; isSample: boolean
       </>
     );
 
+  // Atmósfera del área como envoltorio a todo el ancho; el contenedor va dentro
   return (
-    <div className="container page" data-area={a.area}>
-      <QuizHeader
-        crumbs={[{ label: 'Aprender', to: '/aprender' }, { label: `Área ${area.name}`, to: `/aprender/${a.area}` }, { label: 'Evaluación' }]}
-        eyebrow={
-          <>
-            <AreaDot area={a.area} size={9} />
-            <span>
-              Evaluación sectorial · {area.name}
-              {isSample ? ' · Muestra de desarrollo' : ''}
-            </span>
-          </>
-        }
-        title={a.title}
-        meta={`${total} preguntas · se supera con ${a.quiz.passMark} aciertos`}
-      />
-      <QuizEngine
-        quiz={a.quiz}
-        variant="points"
-        passedLabel="Superada"
-        signature={{ name: `Área ${area.name} de FLM`, role: 'Evaluación sectorial', area: a.area }}
-        intro={(start) => <Intro a={a} best={best} onStart={start} />}
-        onFinish={(g, answers) => add(a.id, { id: uid(), quizId: a.quiz.id, version: 1, at: now(), answers, correct: g.correct, total: g.total, passed: g.passed })}
-        renderResult={renderResult}
-        resultActions={resultActions}
-      />
+    <div className="area-atmos" data-area={a.area}>
+      <div className="container page">
+        <QuizHeader
+          crumbs={[{ label: 'Aprender', to: '/aprender' }, { label: `Área ${area.name}`, to: `/aprender/${a.area}`, icon: <AreaDot area={a.area} size={8} /> }, { label: 'Evaluación' }]}
+          eyebrow={
+            <>
+              <AreaDot area={a.area} size={9} />
+              <span>
+                Evaluación sectorial · {area.name}
+                {isSample ? ' · Muestra de desarrollo' : ''}
+              </span>
+            </>
+          }
+          title={a.title}
+          meta={`${total} preguntas · se supera con ${a.quiz.passMark} aciertos`}
+        />
+        <QuizEngine
+          quiz={a.quiz}
+          variant="points"
+          passedLabel="Superada"
+          signature={{ name: `Área ${area.name} de FLM`, role: 'Evaluación sectorial', area: a.area }}
+          intro={(start) => <Intro a={a} best={best} isSample={isSample} onStart={start} />}
+          onFinish={(g, answers) => add(a.id, { id: uid(), quizId: a.quiz.id, version: 1, at: now(), answers, correct: g.correct, total: g.total, passed: g.passed })}
+          renderResult={renderResult}
+          resultActions={resultActions}
+        />
+      </div>
     </div>
   );
 }
@@ -172,28 +188,30 @@ export default function AssessmentPage() {
   if (!assessment) {
     const name = AREAS[valid].name;
     return (
-      <div className="container page" data-area={valid}>
-        <QuizHeader
-          crumbs={[{ label: 'Aprender', to: '/aprender' }, { label: `Área ${name}`, to: `/aprender/${valid}` }, { label: 'Evaluación' }]}
-          eyebrow={
-            <>
-              <AreaDot area={valid} size={9} />
-              <span>Evaluación sectorial · {name}</span>
-            </>
-          }
-          title="Pon a prueba tus conocimientos"
-        />
-        <EmptyState
-          icon={<ClipboardCheck />}
-          title="Evaluación en preparación"
-          action={
-            <ButtonLink to={`/aprender/${valid}`} variant="primary" iconRight={<ArrowRight />}>
-              Ver las formaciones de {name}
-            </ButtonLink>
-          }
-        >
-          El área {name} está preparando su evaluación: diez preguntas que se superan con ocho aciertos. Mientras tanto, puedes completar las formaciones del área.
-        </EmptyState>
+      <div className="area-atmos" data-area={valid}>
+        <div className="container page">
+          <QuizHeader
+            crumbs={[{ label: 'Aprender', to: '/aprender' }, { label: `Área ${name}`, to: `/aprender/${valid}`, icon: <AreaDot area={valid} size={8} /> }, { label: 'Evaluación' }]}
+            eyebrow={
+              <>
+                <AreaDot area={valid} size={9} />
+                <span>Evaluación sectorial · {name}</span>
+              </>
+            }
+            title="Pon a prueba tus conocimientos"
+          />
+          <EmptyState
+            icon={<ClipboardCheck />}
+            title="Evaluación en preparación"
+            action={
+              <ButtonLink to={`/aprender/${valid}`} variant="primary" iconRight={<ArrowRight />}>
+                Ver las formaciones de {name}
+              </ButtonLink>
+            }
+          >
+            El área {name} está preparando su evaluación: diez preguntas que se superan con ocho aciertos. Mientras tanto, puedes completar las formaciones del área.
+          </EmptyState>
+        </div>
       </div>
     );
   }

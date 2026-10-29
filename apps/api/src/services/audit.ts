@@ -4,7 +4,7 @@ import { all, get, run, type Db, type SqlParam } from '../db/database';
 /**
  * Registro de auditoría de acciones de seguridad y editoriales: quién, qué, cuándo y sobre qué entidad.
  * Nunca se guardan contraseñas, tokens, correos ni nombres en `detail`: solo identificadores y datos
- * no personales, para que la anonimización de una persona no deje rastros identificativos.
+ * no personales, para que eliminar el perfil de una persona no deje rastros identificativos.
  */
 export interface AuditEntry {
   actorId: string | null;

@@ -1,9 +1,9 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { all, get } from '../src/db/database';
+import { all, get, run } from '../src/db/database';
 import { EMAILS, FORMATION_CORRECT, IDS } from './fixtures/seed';
-import { createTestEnv, fileForm, json, loginAs, PASSWORD, PNG_BYTES, TestClient, type TestEnv } from './helpers';
+import { createTestEnv, fileForm, json, loginAs, PASSWORD, PNG_BYTES, START, TestClient, type TestEnv } from './helpers';
 
 describe('personas y cuentas', () => {
   let env: TestEnv;
@@ -96,42 +96,83 @@ describe('personas y cuentas', () => {
     expect((await admin.get('/api/people')).status).toBe(401);
   });
 
-  it('elimina datos personales con confirmación explícita, conserva agregados y deja auditoría', async () => {
-    const employee = await loginAs(env, EMAILS.empleado);
-    await employee.upload('PUT', '/api/me/photo', fileForm(PNG_BYTES, 'retrato.png', 'image/png'));
-    await employee.post(`/api/formations/${IDS.formation}/attempts`, { answers: { ...FORMATION_CORRECT, q1: 'b' } });
+  it('elimina el perfil de quien deja FLM: su contenido se conserva sin autoría y sus bienvenidas se borran', async () => {
+    const author = await loginAs(env, EMAILS.autor);
+    await author.upload('PUT', '/api/me/photo', fileForm(PNG_BYTES, 'retrato.png', 'image/png'));
+    await author.post(`/api/formations/${IDS.formation}/attempts`, { answers: { ...FORMATION_CORRECT, q1: 'b' } });
+    const draft = (await json(await author.post('/api/contents', { type: 'cliente', payload: { name: 'Borrador del cliente', sector: 'Logística', country: 'Portugal', area: 'contable', date: '2026-10-28' } }))).content;
     const photoFiles = readdirSync(join(env.storageDir, 'files'));
     expect(photoFiles).toHaveLength(1);
 
     const admin = await loginAs(env, EMAILS.admin);
-    const wrong = await admin.post(`/api/people/${IDS.empleado}/anonymize`, { confirm: 'otra@flmexperts.com' });
+    const welcome = (await json(await admin.post('/api/contents', { type: 'bienvenida', payload: { personId: IDS.autor, date: '2026-10-28', message: 'Se suma al Área Fiscal.' } }))).content;
+
+    const wrong = await admin.post(`/api/people/${IDS.autor}/remove`, { confirm: 'otra@flmexperts.com' });
     expect(wrong.status).toBe(400);
     expect((await json(wrong)).error.code).toBe('CONFIRMACION_NO_VALIDA');
+    const self = await admin.post(`/api/people/${IDS.admin}/remove`, { confirm: EMAILS.admin });
+    expect(self.status).toBe(409);
+    expect((await json(self)).error.code).toBe('AUTOELIMINACION');
 
-    const res = await admin.post(`/api/people/${IDS.empleado}/anonymize`, { confirm: EMAILS.empleado.toUpperCase() });
+    const res = await admin.post(`/api/people/${IDS.autor}/remove`, { confirm: EMAILS.autor.toUpperCase() });
     expect(res.status).toBe(200);
-    const person = (await json(res)).person;
-    expect(person).toMatchObject({ name: 'Persona eliminada', accountState: 'anonimizada', status: 'inactiva' });
-    expect(person.email).not.toContain('pau');
-    expect(person.position).toBe('');
-    expect(person.photo).toBeUndefined();
+    expect((await json(res)).removed).toMatchObject({ id: IDS.autor, contentsWithoutAuthor: 2, welcomesDeleted: 1, attemptsAnonymized: 1 });
+
+    // La persona desaparece: sin ficha, sin sesiones, sin foto y sin poder entrar.
+    expect(get(env.db, 'SELECT 1 AS x FROM users WHERE id = ?', IDS.autor)).toBeUndefined();
+    expect((await admin.get(`/api/people/${IDS.autor}`)).status).toBe(404);
+    expect(all(env.db, 'SELECT id FROM sessions WHERE user_id = ?', IDS.autor)).toHaveLength(0);
     expect(existsSync(join(env.storageDir, 'files', photoFiles[0]!))).toBe(false);
-    expect(all(env.db, 'SELECT id FROM sessions WHERE user_id = ?', IDS.empleado)).toHaveLength(0);
+    expect((await author.get('/api/me')).status).toBe(401);
+    expect((await new TestClient(env.app).login(EMAILS.autor, PASSWORD)).status).toBe(401);
 
-    // Los intentos se conservan desvinculados (agregados no identificativos).
+    // Su contenido se conserva, publicado o en borrador, sin autoría.
+    const employee = await loginAs(env, EMAILS.empleado);
+    const formation = (await json(await employee.get(`/api/formations/${IDS.formation}`))).formation;
+    expect(formation.editorial.status).toBe('publicado');
+    expect(formation.editorial).not.toHaveProperty('authorId');
+    const listed = (await json(await admin.get('/api/contents'))).items.find((c: { id: string }) => c.id === draft.id);
+    expect(listed).toMatchObject({ status: 'borrador', authorId: null, authorName: null });
+    expect((await admin.get(`/api/contents/${welcome.id}`)).status).toBe(404);
+
+    // Los intentos quedan como agregados anónimos.
     expect(get<{ n: number }>(env.db, 'SELECT COUNT(*) AS n FROM quiz_attempts WHERE user_id IS NULL')!.n).toBe(1);
-    const errors = await json(await admin.get(`/api/reports/errors/${IDS.formation}`));
-    expect(errors.attempts).toBe(1);
+    expect((await json(await admin.get(`/api/reports/errors/${IDS.formation}`))).attempts).toBe(1);
 
+    // Auditoría sin datos personales y sin la IP de la persona eliminada.
     const auditRows = all<{ detail: string | null }>(env.db, 'SELECT detail FROM audit_log');
-    expect(JSON.stringify(auditRows)).not.toMatch(/pau\.empleado|Pau Empleado/i);
-    expect(get(env.db, "SELECT detail FROM audit_log WHERE action = 'persona.eliminar-datos' AND entity_id = ?", IDS.empleado)).toMatchObject({
-      detail: 'Anonimizados nombre, correo, foto y puesto. Intentos de test desvinculados: 1.',
+    expect(JSON.stringify(auditRows)).not.toMatch(/jordi\.autor|Jordi Autor/i);
+    expect(get(env.db, "SELECT detail FROM audit_log WHERE action = 'persona.eliminar-perfil' AND entity_id = ?", IDS.autor)).toMatchObject({
+      detail: 'Contenidos sin autoría: 2. Revisiones sin autoría: 0. «Revisado por» retirado: 0. Bienvenidas eliminadas: 1. Sesiones cerradas: 1. Intentos de test anonimizados: 1.',
     });
+    expect(all(env.db, 'SELECT id FROM audit_log WHERE actor_id = ? AND ip IS NOT NULL', IDS.autor)).toHaveLength(0);
 
-    expect((await employee.get('/api/me')).status).toBe(401);
-    expect((await new TestClient(env.app).login(EMAILS.empleado, PASSWORD)).status).toBe(401);
-    expect((await admin.post(`/api/people/${IDS.empleado}/reactivate`)).status).toBe(409);
+    // El correo queda libre: si la persona vuelve, se le crea una cuenta nueva.
+    const back = await admin.post('/api/people', { email: EMAILS.autor, name: 'Jordi Autor Vidal', position: 'Asesor fiscal', department: 'Fiscal', office: 'Barcelona', role: 'autor' });
+    expect(back.status).toBe(201);
+  });
+
+  it('al eliminar el perfil se retira su nombre de «Revisado por»; el contenido sigue revisado, con su fecha', async () => {
+    const author = await loginAs(env, EMAILS.autor);
+    const admin = await loginAs(env, EMAILS.admin);
+    // Jordi publica un cliente marcando que el área lo ha revisado.
+    const draft = (await json(await author.post('/api/contents', { type: 'cliente', payload: { name: 'Fjordlys Analytics AS', sector: 'Software', country: 'Noruega', area: 'fiscal', date: '2026-10-28' } }))).content;
+    const published = (await json(await author.post(`/api/contents/${draft.id}/transitions`, { action: 'publicar', revision: draft.revision, reviewed: true }))).content;
+    expect(published.item.editorial.review).toEqual({ state: 'revisado', reviewerName: 'Jordi Autor Vidal', reviewerId: IDS.autor, reviewedAt: START.toISOString() });
+    // Una anotación anterior a guardar el identificador: solo con su nombre.
+    run(env.db, 'UPDATE contents SET review = ? WHERE id = ?', JSON.stringify({ state: 'revisado', reviewerName: 'Jordi Autor Vidal', reviewedAt: '2026-09-01' }), IDS.news);
+
+    const res = await admin.post(`/api/people/${IDS.autor}/remove`, { confirm: EMAILS.autor });
+    expect(res.status).toBe(200);
+    expect((await json(res)).removed).toMatchObject({ reviewerNamesRemoved: 2 });
+
+    const employee = await loginAs(env, EMAILS.empleado);
+    const client = (await json(await employee.get('/api/clients'))).items.find((c: { id: string }) => c.id === draft.id);
+    expect(client.editorial.review).toEqual({ state: 'revisado', reviewedAt: START.toISOString() });
+    expect((await json(await employee.get(`/api/news/${IDS.news}`))).news.editorial.review).toEqual({ state: 'revisado', reviewedAt: '2026-09-01' });
+    // Lo que revisó otra persona no cambia.
+    expect((await json(await employee.get(`/api/formations/${IDS.formation}`))).formation.editorial.review).toMatchObject({ state: 'revisado', reviewerName: 'Revisión jurídica' });
+    expect(JSON.stringify(all(env.db, 'SELECT review FROM contents'))).not.toMatch(/Jordi Autor|p-autor/);
   });
 
   it('cada persona gestiona su foto de perfil', async () => {

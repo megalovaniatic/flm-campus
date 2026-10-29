@@ -74,20 +74,17 @@
   border-radius: 4px;
 }
 
+/* Cada expresión lleva el tramo de su sección (en oscuro, las paradas aclaradas de los tokens) */
 .phrase[data-index='0'] {
-  background-image: linear-gradient(90deg, #e53327, #b8302d);
+  background-image: var(--tramo-consultar);
 }
 
 .phrase[data-index='1'] {
-  background-image: linear-gradient(90deg, #b8302d, #792c35 70%, #5b2b3a);
+  background-image: var(--tramo-participar);
 }
 
 .phrase[data-index='2'] {
-  background-image: linear-gradient(90deg, #3f293c, #172641);
-}
-
-:root[data-theme='dark'] .phrase[data-index='2'] {
-  background-image: linear-gradient(90deg, #8f4b63, #8fa3c7);
+  background-image: var(--tramo-aprender);
 }
 
 .phrase:hover,

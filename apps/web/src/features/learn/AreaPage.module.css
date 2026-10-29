@@ -38,7 +38,7 @@
   color: var(--ink-2);
 }
 
-/* Persona de referencia: círculo = persona real */
+/* Persona de referencia: círculo = persona real, con el anillo del área */
 .person {
   display: flex;
   align-items: center;
@@ -46,6 +46,13 @@
   padding-top: var(--space-5);
   border-top: 1px solid var(--line);
   width: 100%;
+}
+
+.person > :first-child {
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 2px var(--paper),
+    0 0 0 4px var(--area);
 }
 
 .person figcaption {
@@ -97,7 +104,7 @@
   flex: 1;
 }
 
-/* Evaluación sectorial */
+/* Evaluación sectorial: sobre el lavado del área; protagonista cuando ya es lo siguiente */
 .assess {
   position: relative;
   display: grid;
@@ -107,19 +114,17 @@
   margin-top: clamp(3rem, 2rem + 4vw, 5.5rem);
   padding: clamp(1.5rem, 1rem + 2vw, 2.75rem);
   border-radius: var(--radius-xl);
-  background: var(--surface);
-  border: 1px solid var(--line);
+  background: var(--area-wash);
+  border: 1px solid transparent;
 }
 
-.assess::before {
-  content: '';
-  position: absolute;
-  left: 28px;
-  right: 28px;
-  top: -1px;
-  height: 3px;
-  border-radius: 0 0 3px 3px;
-  background: var(--area-fill);
+/* Con atributo para ganar a .assess (los módulos se cargan después de layout.css) */
+.assess[data-tone='spot'] {
+  background: var(--grad-spotlight);
+  border-color: transparent;
+  box-shadow:
+    var(--spotlight-shadow),
+    inset 0 0 0 1px var(--spotlight-edge);
 }
 
 .assess:not([data-ready]) {
@@ -174,5 +179,11 @@
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-5);
     border-radius: var(--radius-lg);
+  }
+}
+
+@media (forced-colors: active) {
+  .assess[data-tone='spot'] {
+    border-color: CanvasText;
   }
 }

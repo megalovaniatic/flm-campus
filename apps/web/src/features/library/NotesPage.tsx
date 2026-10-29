@@ -3,7 +3,7 @@ import { Download, ExternalLink, FileX, Lock, SearchX, TriangleAlert, X } from '
 import { useEffect, useMemo, useRef } from 'react';
 import { Link, useParams } from 'react-router';
 import { AREA_IDS, AREA_LIST, fileSize, formatLongDate, formatShortDate, type DocumentVersion, type LibraryDocument, type Person } from '@flm/shared';
-import { Button, Chip, Dialog, EmptyState, Notice, PageHeader } from '@/design';
+import { AreaTag, Button, Chip, Dialog, EmptyState, Notice, PageHeader } from '@/design';
 import { useDocuments, usePeople } from '@/data/selectors';
 import { MESSAGES } from '@/lib/messages';
 import { usePageTitle } from '@/lib/preferences';
@@ -60,6 +60,8 @@ export default function NotesPage() {
   const filtered = inQuery.filter((d) => (!area || d.area === area) && (!kind || d.kind === kind));
   const groups = groupByMonth(filtered, (d) => d.date);
   const active = !!(area || kind || q.trim());
+  // Sin filtros ni búsqueda, el documento más reciente es el foco claro del archivo
+  const featuredId = !active ? groups[0]?.items[0]?.id : undefined;
   const downloadable = docs.filter(isAvailable).length;
 
   const areaOptions: FilterOption<'todas' | DocArea>[] = [
@@ -175,8 +177,9 @@ export default function NotesPage() {
                         exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.16 } }}
                         transition={{ duration: 0.28, ease: EASE, layout: { duration: 0.32, ease: EASE } }}
                         className={styles.item}
+                        data-featured={d.id === featuredId || undefined}
                       >
-                        <DocCard doc={d} tokens={tokens} sheetLink={sheet.linkProps} />
+                        <DocCard doc={d} tokens={tokens} sheetLink={sheet.linkProps} featured={d.id === featuredId} />
                       </motion.li>
                     ))}
                   </AnimatePresence>
@@ -204,20 +207,24 @@ export default function NotesPage() {
 
 type SheetLink = ReturnType<typeof useSheetRoute>['linkProps'];
 
-/** Ficha del archivo: miniatura real, datos, avisos y acciones siempre visibles. */
-function DocCard({ doc, tokens, sheetLink }: { doc: LibraryDocument; tokens: string[]; sheetLink: SheetLink }) {
+/**
+ * Ficha del archivo: miniatura real, datos, avisos y acciones siempre visibles.
+ * Destacada (foco claro): a lo ancho, con el resumen y «Descargar» como acción principal.
+ */
+function DocCard({ doc, tokens, sheetLink, featured = false }: { doc: LibraryDocument; tokens: string[]; sheetLink: SheetLink; featured?: boolean }) {
   const v = currentVersion(doc);
   const available = isAvailable(doc) && !!v;
   const open = sheetLink(doc.id);
   return (
-    <article className={styles.doc} data-area={doc.area === 'general' ? undefined : doc.area}>
+    <article className={styles.doc} data-area={doc.area === 'general' ? undefined : doc.area} data-featured={featured || undefined}>
       <Link to={open.to} state={open.state} preventScrollReset className={styles.thumbLink} tabIndex={-1} aria-hidden="true">
         <DocThumb key={v?.file} src={available && v ? fileUrl(v) : undefined} landscape={isLandscape(doc)} />
       </Link>
       <div className={styles.docBody}>
         <div className={styles.docTop}>
           <DocKindLabel kind={doc.kind} size="sm" />
-          <DocAreaTag area={doc.area} />
+          {/* Sobre el lavado de su área, la etiqueta pasa a blanca con filete para no fundirse */}
+          {featured && doc.area !== 'general' ? <AreaTag area={doc.area} size="sm" on="wash" /> : <DocAreaTag area={doc.area} />}
         </div>
         <h3 className={styles.docTitle}>
           <Link {...open} className={styles.docTitleLink}>
@@ -231,6 +238,7 @@ function DocCard({ doc, tokens, sheetLink }: { doc: LibraryDocument; tokens: str
           {available && v ? ` · ${fileSize(v.sizeKb).replace(' ', ' ')}` : ''}
           {v ? ` · Versión ${v.version} (vigente)` : ''}
         </p>
+        {featured && <p className={styles.docSummary}>{doc.summary}</p>}
         {doc.notice && (
           <p className={styles.notice}>
             <TriangleAlert size={16} aria-hidden="true" />
@@ -241,7 +249,7 @@ function DocCard({ doc, tokens, sheetLink }: { doc: LibraryDocument; tokens: str
           </p>
         )}
       </div>
-      <div className={styles.actions}>{available && v ? <FileLinks doc={doc} version={v} /> : <InternalOnly />}</div>
+      <div className={styles.actions}>{available && v ? <FileLinks doc={doc} version={v} emphasis={featured} /> : <InternalOnly />}</div>
     </article>
   );
 }

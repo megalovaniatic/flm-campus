@@ -1,14 +1,14 @@
-import { motion } from 'motion/react';
 import { ArrowRight, Lightbulb, MessageSquareText, Video, Workflow } from 'lucide-react';
 import { useMemo, type ReactNode } from 'react';
 import { Link } from 'react-router';
-import { LinkedInGlyph, PageHeader, PhaseChip, Picture } from '@/design';
+import type { CampusEvent } from '@flm/shared';
+import { ButtonLink, LinkedInGlyph, PageHeader, PhaseChip, PhotoCapsule } from '@/design';
 import { useEvents } from '@/data/selectors';
-import { usePageTitle, useReducedMotionPref } from '@/lib/preferences';
+import { usePageTitle } from '@/lib/preferences';
 import { Rich } from '@/lib/rich';
 import { DateMark } from './DateMark';
-import { EventPhoto } from './EventParts';
-import { CATEGORY_LABEL, capitalize, eventKicker, eventTiming, partitionEvents } from './eventView';
+import { AddToCalendarButton, EventPhoto } from './EventParts';
+import { CATEGORY_LABEL, capitalize, eventKicker, eventTiming, nextFeaturedEvent, partitionEvents } from './eventView';
 import { useNow, useToday } from './hooks';
 import { EventIcon } from './icons';
 import { MiniMonth } from './MiniMonth';
@@ -22,8 +22,11 @@ interface Way {
   text: string;
 }
 
+/** La primera forma de participar; también es la invitación del protagonista cuando no hay evento próximo. */
+const TOPIC: Way = { id: 'tema', icon: <Lightbulb size={20} strokeWidth={1.75} />, title: 'Propón un tema de formación', text: 'Lo que te preguntan los clientes puede ser la próxima formación del campus.' };
+
 const WAYS: Way[] = [
-  { id: 'tema', icon: <Lightbulb size={20} strokeWidth={1.75} />, title: 'Propón un tema de formación', text: 'Lo que te preguntan los clientes puede ser la próxima formación del campus.' },
+  TOPIC,
   { id: 'mejora', icon: <Workflow size={20} strokeWidth={1.75} />, title: 'Propón una mejora de proceso', text: 'Ideas para trabajar mejor entre áreas y sedes.' },
   { id: 'videos', icon: <Video size={20} strokeWidth={1.75} />, title: 'Participa en los vídeos de FLM', text: '«¿Legal o ilegal?», «1 minuto legal» y otros formatos para explicar el derecho con claridad.' },
   { id: 'linkedin', icon: <LinkedInGlyph size={18} />, title: 'Apoya a FLM en LinkedIn', text: 'Interactúa y comparte de forma auténtica, con tu criterio profesional.' },
@@ -36,21 +39,53 @@ function lead(text: string): string {
   return parts.slice(0, 2).join(' ');
 }
 
-function ReceptionPhoto() {
-  const reduce = useReducedMotionPref();
+/**
+ * Protagonista de Participar: lo siguiente de la agenda sobre «Superponer» (los círculos de la
+ * paleta de redes, recreados). Una sola acción: añadirlo al calendario. Sin evento próximo,
+ * el mismo panel invita a proponer un tema de formación.
+ */
+function NextUp({ ev, now, today }: { ev?: CampusEvent; now: Date; today: string }) {
+  if (!ev) {
+    return (
+      <article className={`spotlight ${styles.featured}`} data-tone="redes" aria-labelledby="h-lo-siguiente">
+        <span className={styles.featuredDisc} aria-hidden="true">
+          {TOPIC.icon}
+        </span>
+        <div className={styles.featuredBody}>
+          <p className={styles.kicker}>Mientras llega el próximo evento</p>
+          <h3 id="h-lo-siguiente" className={styles.featuredTitle}>
+            {TOPIC.title}
+          </h3>
+          <p className={styles.featuredWhen}>{TOPIC.text}</p>
+        </div>
+        <div className={styles.featuredAction}>
+          <ButtonLink to={`/participar/contribuye#${TOPIC.id}`} variant="inverse" iconRight={<ArrowRight />}>
+            Proponer un tema
+          </ButtonLink>
+        </div>
+      </article>
+    );
+  }
+  const t = eventTiming(ev, now, today);
   return (
-    <figure className={styles.figure}>
-      {/* La foto nace como círculo y se abre en cápsula (lugar), como en la gramática de formas */}
-      <motion.div
-        className={styles.capsule}
-        initial={reduce ? false : { clipPath: 'inset(0% 29% 0% 29% round 999px)' }}
-        animate={{ clipPath: 'inset(0% 0% 0% 0% round 999px)' }}
-        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
-      >
-        <Picture name="recepcion" sizes="(min-width: 860px) 24rem, 92vw" priority position="50% 58%" />
-      </motion.div>
-      <figcaption className={styles.caption}>Recepción de la oficina de FLM</figcaption>
-    </figure>
+    <article className={`spotlight ${styles.featured}`} data-tone="redes" aria-labelledby="h-lo-siguiente">
+      {/* Dentro del panel, el círculo queda transparente con anillo y día en blanco y el mes en crema */}
+      <DateMark size="md" dateKey={t.anchor?.key} caption={t.anchor?.caption} />
+      <div className={styles.featuredBody}>
+        <p className={styles.kicker}>
+          <EventIcon icon={ev.icon} size={15} className={styles.kickerIcon} />
+          Lo siguiente · {CATEGORY_LABEL[ev.category]}
+        </p>
+        <h3 id="h-lo-siguiente" className={styles.featuredTitle}>
+          <Link to={`/participar/agenda/${ev.slug}`}>{ev.title}</Link>
+        </h3>
+        <p className={styles.featuredWhen}>{t.when}</p>
+        {t.nextLine && <p className={styles.featuredWhen}>{t.nextLine}</p>}
+      </div>
+      <div className={styles.featuredAction}>
+        <AddToCalendarButton ev={ev} sessions={t.sessions.length} variant="inverse" />
+      </div>
+    </article>
   );
 }
 
@@ -62,14 +97,25 @@ export default function ParticipateHub() {
   const events = useEvents();
   const refYear = Number(today.slice(0, 4));
   const { upcoming, history } = useMemo(() => partitionEvents(events, now), [events, now]);
-  const dated = upcoming.filter((e) => e.sessions.length > 0).slice(0, 4);
+  // Lo siguiente va en el protagonista; la lista sigue con los demás eventos con fecha
+  const featured = nextFeaturedEvent(upcoming, now);
+  const dated = upcoming.filter((e) => e.sessions.length > 0 && e !== featured).slice(0, 3);
   const pending = upcoming.filter((e) => e.sessions.length === 0);
   const last = history[0];
   const lastTiming = last ? eventTiming(last, now, today) : undefined;
 
   return (
     <div className="container page">
-      <PageHeader eyebrow="Vida de empresa" title="Participar" lede="«Lo que sabe uno, lo sabemos todos.»" aside={<ReceptionPhoto />} />
+      <PageHeader
+        eyebrow="Vida de empresa"
+        title={
+          <>
+            Participar<span className="red-dot" aria-hidden="true" />
+          </>
+        }
+        lede="«Lo que sabe uno, lo sabemos todos.»"
+        aside={<PhotoCapsule name="recepcion" aspect="12 / 5" position="50% 58%" priority caption="Recepción de la oficina de FLM" mobile="full" />}
+      />
 
       <div className={styles.top}>
         <section className={styles.agenda} aria-labelledby="h-proximamente">
@@ -81,8 +127,9 @@ export default function ParticipateHub() {
               Abrir la agenda <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </div>
+          <NextUp ev={featured} now={now} today={today} />
           {dated.length === 0 ? (
-            <p className={styles.empty}>No hay eventos con fecha en la agenda. Consulta los comunicados y el histórico en la agenda.</p>
+            !featured && <p className={styles.empty}>No hay eventos con fecha en la agenda. Consulta los comunicados y el histórico en la agenda.</p>
           ) : (
             <ol role="list" className={styles.next}>
               {dated.map((ev) => {

@@ -57,7 +57,8 @@ for (const [name, route, kind] of SHOTS) {
     `--user-data-dir=${profile}`,
     `--window-size=${size}`,
     `--force-device-scale-factor=${kind === 'desktop' ? 1 : 2}`,
-    '--virtual-time-budget=7000',
+    // Margen para que las fotos en cápsula terminen de cargar y pasen del desenfoque a la imagen
+    '--virtual-time-budget=12000',
     `--screenshot=${png}`,
     `${BASE}${route}`,
   ];

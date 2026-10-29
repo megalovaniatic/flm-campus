@@ -68,8 +68,12 @@ const PRINCIPLES = [
 ];
 
 const RETENTION = [
-  { data: 'Ficha (nombre, correo corporativo, puesto, departamento, sede y perfil)', purpose: 'Identificarte y firmar tus contenidos', time: 'Mientras trabajes en FLM. Tras la baja, la ficha se revisa para anonimizarla al cabo de un año.' },
-  { data: 'Progreso: lecturas confirmadas e intentos de test', purpose: 'Mostrarte tu progreso y elaborar informes agregados, sin nombres, de participación y errores frecuentes', time: 'Mientras estés en activo y hasta un año después de la baja. Después, los intentos quedan como datos agregados anónimos y las lecturas se borran.' },
+  {
+    data: 'Ficha (nombre, correo corporativo, puesto, departamento, sede y perfil)',
+    purpose: 'Identificarte y firmar tus contenidos',
+    time: 'Mientras trabajes en FLM. Cuando dejas la firma, administración elimina tu perfil, a más tardar al año de la baja: desapareces del campus y lo que publicaste se conserva sin tu nombre, firmado por tu área o por FLM.',
+  },
+  { data: 'Progreso: lecturas confirmadas e intentos de test', purpose: 'Mostrarte tu progreso y elaborar informes agregados, sin nombres, de participación y errores frecuentes', time: 'Mientras estés en activo y hasta un año después de la baja, o hasta que se elimine tu perfil. Después, los intentos quedan como datos agregados anónimos y las lecturas se borran.' },
   { data: 'Sesión (cookie técnica)', purpose: 'Mantenerte conectado de forma segura', time: 'Caduca tras 12 horas sin actividad y, como máximo, a los 14 días. Se borra al día siguiente.' },
   { data: 'Enlaces de activación y de recuperación', purpose: 'Crear o restablecer tu contraseña', time: 'Activación: 7 días. Recuperación: 30 minutos. Un solo uso.' },
   { data: 'Registro de auditoría', purpose: 'Saber quién hizo qué y cuándo en la gestión', time: '2 años.' },
@@ -174,8 +178,8 @@ export function DemoVsPrivate() {
           </h3>
           <ul className={styles.list}>
             <li>Acceso sin contraseña y «Ver como» autor o administrador.</li>
-            <li>Borradores, envío a revisión, publicación, archivo y «Deshacer».</li>
-            <li>Subida de documentos, altas y bajas de personas, informes y auditoría.</li>
+            <li>Borradores, publicación, archivo y «Deshacer».</li>
+            <li>Subida de documentos, roles y cuentas de personas, eliminación de perfiles, informes y auditoría.</li>
             <li>Preferencias de avisos y resumen por correo.</li>
           </ul>
           <p className={styles.note}>{MESSAGES.demoSimulated}</p>

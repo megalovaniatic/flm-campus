@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { areaName, type EditorialStatus, type EventPhase, type FormationStatus, type Scope } from '@flm/shared';
-import { Archive, BookOpenCheck, CircleCheck, CircleDashed, CircleDot, Clock3, Eye, FilePen, Send } from 'lucide-react';
+import { Archive, BookOpenCheck, CircleCheck, CircleDashed, CircleDot, Clock3, Eye, FilePen } from 'lucide-react';
 import styles from './Chip.module.css';
 
 export type ChipTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger' | 'brand' | 'inverse';
@@ -14,10 +14,13 @@ export function Chip({ tone = 'neutral', icon, children, size = 'md' }: { tone?:
   );
 }
 
-/** Etiqueta de área: punto de color + nombre (el color nunca va solo). «general» = toda la firma. */
-export function AreaTag({ area, size = 'md', solid = false }: { area: Scope; size?: 'sm' | 'md'; solid?: boolean }) {
+/**
+ * Etiqueta de área: punto de color + nombre (el color nunca va solo). «general» = toda la firma.
+ * `on='wash'`: sobre el lavado de su propia área, cápsula blanca con filete para que no se funda.
+ */
+export function AreaTag({ area, size = 'md', solid = false, on }: { area: Scope; size?: 'sm' | 'md'; solid?: boolean; on?: 'wash' }) {
   return (
-    <span className={[styles.area, styles[size], solid ? styles.areaSolid : ''].join(' ')} data-area={area}>
+    <span className={[styles.area, styles[size], solid ? styles.areaSolid : ''].join(' ')} data-area={area} data-on={on}>
       <span className={styles.dot} aria-hidden="true" />
       {areaName(area)}
     </span>
@@ -26,7 +29,6 @@ export function AreaTag({ area, size = 'md', solid = false }: { area: Scope; siz
 
 const EDITORIAL: Record<EditorialStatus, { tone: ChipTone; icon: ReactNode; label: string }> = {
   borrador: { tone: 'neutral', icon: <FilePen size={14} />, label: 'Borrador' },
-  'en-revision': { tone: 'warning', icon: <Send size={14} />, label: 'En revisión' },
   publicado: { tone: 'success', icon: <Eye size={14} />, label: 'Publicado' },
   archivado: { tone: 'inverse', icon: <Archive size={14} />, label: 'Archivado' },
 };

@@ -441,8 +441,8 @@ export function Breakdown({ rows, caption }: { rows: { term: ReactNode; detail?:
 export function Legend({ items }: { items: { label: string; swatch: 'solid' | 'hatch' | 'line' | 'dash' | 'dot'; color: string }[] }) {
   return (
     <ul className={styles.legend} role="list">
-      {items.map((it) => (
-        <li key={it.label}>
+      {items.map((it, i) => (
+        <li key={i}>
           <span className={styles.swatch} data-kind={it.swatch} style={{ '--c': it.color } as CSSProperties} aria-hidden="true" />
           {it.label}
         </li>

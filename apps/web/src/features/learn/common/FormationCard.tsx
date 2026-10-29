@@ -15,10 +15,10 @@ export function coverTermOf(f: Formation): string {
  * Portada tipográfica de una formación: banda con el relleno del área y el término de portada
  * en Newsreader grande, del color del área. Nunca fotografía de stock.
  */
-export function FormationCover({ formation, index }: { formation: Formation; index?: number }) {
+export function FormationCover({ formation, index, className }: { formation: Formation; index?: number; className?: string }) {
   const term = coverTermOf(formation);
   return (
-    <div className={styles.cover} data-area={formation.area} aria-hidden="true">
+    <div className={[styles.cover, className ?? ''].join(' ').trim()} data-area={formation.area} aria-hidden="true">
       <span className={styles.band} />
       {index !== undefined && <span className={styles.index}>Formación {String(index).padStart(2, '0')}</span>}
       <span className={styles.term} style={cssVars({ '--fit': Math.max(4, term.length) })}>
@@ -28,11 +28,21 @@ export function FormationCover({ formation, index }: { formation: Formation; ind
   );
 }
 
-/** Tarjeta de formación con portada tipográfica (página del área). */
-export function FormationCard({ formation, index, status }: { formation: Formation; index: number; status: FormationStatus }) {
+const NEXT_LABEL = {
+  empieza: { chip: 'Empieza por aquí', cta: 'Empezar' },
+  continua: { chip: 'Continúa por aquí', cta: 'Continuar' },
+} as const;
+
+/**
+ * Tarjeta de formación con portada tipográfica (página del área). Con `next`, es la siguiente
+ * que conviene hacer: borde del área, chip escrito y cápsula de acción (decorativa: el enlace es el título).
+ */
+export function FormationCard({ formation, index, status, next }: { formation: Formation; index: number; status: FormationStatus; next?: 'empieza' | 'continua' }) {
+  const label = next ? NEXT_LABEL[next] : undefined;
   return (
-    <article className={styles.card} data-area={formation.area}>
+    <article className={styles.card} data-area={formation.area} data-next={next} data-cta-host={next ? true : undefined}>
       <FormationCover formation={formation} index={index} />
+      {label && <span className={styles.nextChip}>{label.chip}</span>}
       <div className={styles.body}>
         <h3 className={styles.title}>
           <Link to={formationPath(formation)} className={styles.stretch}>
@@ -46,6 +56,11 @@ export function FormationCard({ formation, index, status }: { formation: Formati
             <Clock3 size={15} aria-hidden="true" />
             {formation.readingMinutes} min
           </span>
+          {label && (
+            <span className={`cta-pill ${styles.footCta}`} aria-hidden="true">
+              {label.cta} <ArrowRight size={16} />
+            </span>
+          )}
         </div>
       </div>
     </article>

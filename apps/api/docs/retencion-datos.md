@@ -22,7 +22,9 @@ y después una vez al día (`src/services/retention.ts`).
   solo uso, únicamente como hash SHA-256. Los archivos subidos se guardan con nombres aleatorios
   fuera de cualquier ruta pública.
 - **Trazabilidad sin datos personales.** El registro de auditoría guarda identificadores, no
-  nombres ni correos, para que la anonimización de una persona no deje rastros legibles.
+  nombres ni correos, para que eliminar el perfil de una persona no deje rastros legibles.
+- **El conocimiento se queda.** Lo que una persona publica es patrimonio documental de la firma:
+  cuando deja FLM y se elimina su perfil, sus contenidos se conservan sin autoría.
 
 ## 2. Plazos de conservación
 
@@ -33,35 +35,47 @@ y después una vez al día (`src/services/retention.ts`).
 | Enlaces de activación | 7 días, un solo uso | Se borran en la purga diaria una vez usados o caducados. |
 | Enlaces de recuperación de contraseña | 30 minutos, un solo uso | Ídem. Restablecer la contraseña cierra todas las sesiones. |
 | Registro de auditoría | **2 años** | Se borran las entradas con más de 730 días. |
-| Intentos de test y confirmaciones de lectura | Mientras la persona esté activa y **1 año tras su baja** | Pasado el año, los intentos se **desvinculan** de la persona (se conservan como agregados anónimos para los informes de errores frecuentes) y las confirmaciones de lectura se borran. El informe de participación solo cuenta a las personas activas. |
-| Ficha de la persona (nombre, correo, foto, puesto…) | Mientras haya relación con FLM | Tras la baja, administración debe ejecutar la **eliminación controlada de datos** (ver § 3). El listado de personas marca con `retentionReviewDue` las cuentas desactivadas hace más de un año que aún no se han anonimizado. |
-| Fotografías de perfil | Mientras la persona no la sustituya o elimine | Al sustituirla, la anterior se borra (no se versiona). Se borra al anonimizar. |
-| Contenidos editoriales y documentos de la biblioteca | Indefinido (patrimonio documental de la firma) | Se archivan, no se borran. La autoría de una persona anonimizada aparece como «Persona eliminada». |
-| Copias de seguridad | Según la rotación configurada (`npm run backup -- --conservar N`) | Recomendado: 14 copias diarias. Una anonimización no se propaga a copias anteriores: al restaurar una copia hay que repetir las anonimizaciones posteriores a su fecha (constan en la auditoría). |
+| Intentos de test y confirmaciones de lectura | Mientras la persona esté activa y **1 año tras su baja** | Pasado el año, los intentos se **desvinculan** de la persona (se conservan como agregados anónimos para los informes de errores frecuentes) y las confirmaciones de lectura se borran. Si antes se elimina su perfil (§ 3), ocurre en ese momento. El informe de participación solo cuenta a las personas activas. |
+| Ficha de la persona (nombre, correo, foto, puesto…) | Mientras haya relación con FLM | Tras la baja, administración debe **eliminar el perfil** (ver § 3). El listado de personas marca con `retentionReviewDue` las cuentas desactivadas hace más de un año cuyo perfil aún no se ha eliminado. |
+| Fotografías de perfil | Mientras la persona no la sustituya o elimine | Al sustituirla, la anterior se borra (no se versiona). Se borra al eliminar el perfil. |
+| Bienvenidas («Ponte al día» de Inicio) | Mientras la persona siga activa | Solo se muestran mientras la persona está activa y no guardan la fecha de incorporación. Al eliminar su perfil se borran (publicadas o en borrador), porque hablan de ella. |
+| Contenidos editoriales y documentos de la biblioteca | Indefinido (patrimonio documental de la firma) | Se archivan, no se borran. Al eliminar el perfil de su autor o autora se conservan **sin autoría** y llevan la firma neutra («Área Fiscal de FLM», con su área, en formaciones y evaluaciones; «FLM» en el resto); también se retira su nombre de «Revisado por» en lo que revisó. |
+| Copias de seguridad | Según la rotación configurada (`npm run backup -- --conservar N`) | Recomendado: 14 copias diarias. Eliminar un perfil no afecta a las copias anteriores: al restaurar una copia hay que repetir las eliminaciones posteriores a su fecha (constan en la auditoría como `persona.eliminar-perfil`). |
 | Límites de frecuencia (IP y correo) | En memoria, máximo 1 hora | Se pierden al reiniciar el servidor. |
 
-## 3. Eliminación controlada de datos personales
+## 3. Eliminar el perfil de quien deja FLM
 
-`POST /api/people/:id/anonymize` (permiso `datos-personales:eliminar`, solo administración):
+`POST /api/people/:id/remove` (permiso `datos-personales:eliminar`, solo administración):
 
 1. Exige confirmación explícita: el campo `confirm` debe contener el correo de la persona.
 2. No se puede aplicar a la propia cuenta ni al último administrador activo.
 3. En una única transacción:
-   - sustituye el nombre por «Persona eliminada» y el correo por una dirección no identificativa
-     (`eliminada-<id>@anonimizada.invalid`);
-   - borra el puesto y la contraseña;
-   - borra la fotografía (registro y archivo físico);
-   - borra sesiones, enlaces pendientes y confirmaciones de lectura;
-   - desvincula los intentos de test (quedan como agregados anónimos);
-   - deja la cuenta desactivada y anota `persona.eliminar-datos` en la auditoría (sin datos personales).
+   - borra la ficha de la persona (nombre, correo, puesto, rol, contraseña) y su fotografía
+     (registro y archivo físico);
+   - borra sus sesiones, enlaces pendientes y confirmaciones de lectura;
+   - **no borra su contenido**: formaciones, evaluaciones, noticias, documentos, eventos,
+     comunicados y clientes (publicados, archivados o en borrador, y sus revisiones pendientes) se
+     conservan sin autoría (`author_id` a `NULL`) y llevan la firma neutra;
+   - retira su nombre (y su identificador) de «Revisado por» en lo que revisó: el contenido sigue
+     constando como revisado y con su fecha. Las anotaciones anteriores que solo guardaban el nombre
+     se reconocen por él;
+   - borra las bienvenidas que la anuncian (publicadas o en borrador), porque hablan de ella;
+   - desvincula sus intentos de test (quedan como agregados anónimos para los informes);
+   - quita su IP de las entradas de auditoría en las que actuó y anota `persona.eliminar-perfil` con
+     los recuentos (contenidos y revisiones sin autoría, «Revisado por» retirados, bienvenidas
+     eliminadas, sesiones cerradas e intentos desvinculados), sin datos personales.
 4. La operación es irreversible. Si la persona vuelve a FLM, se le crea una cuenta nueva.
+
+La anonimización de versiones anteriores (`POST /api/people/:id/anonymize`) se ha retirado: al
+aplicar la migración `0004`, las cuentas que se anonimizaron con ella pasan a ser perfiles
+eliminados, con sus contenidos sin autoría.
 
 ## 4. Derechos de las personas
 
 - **Acceso:** `GET /api/me` (perfil), `GET /api/me/progress` y `GET /api/me/attempts` (historial
   propio de intentos con fecha, versión, respuestas y aciertos).
 - **Rectificación:** administración edita la ficha; cada persona gestiona su foto.
-- **Supresión:** eliminación controlada del § 3, a petición de la persona o al vencer el plazo.
+- **Supresión:** eliminación del perfil (§ 3), a petición de la persona o al vencer el plazo.
 
 ## 5. Copias de seguridad y restauración
 

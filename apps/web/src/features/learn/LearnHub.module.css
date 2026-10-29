@@ -39,25 +39,14 @@
   box-shadow: var(--focus-ring);
 }
 
-/* ── Progreso global (cabecera) ──────────────────────────────────────── */
+/* ── Tu siguiente paso (protagonista, con el anillo global dentro) ───── */
 
-.overall {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-}
-
-.overallText {
-  display: grid;
-  gap: 2px;
-  font-size: var(--text-sm);
-  color: var(--ink-2);
-  max-width: 13rem;
-}
-
-.overallText strong {
-  color: var(--ink);
-  font-weight: 650;
+/* 44,5 rem: con un título de dos líneas el panel mide unos 712 × 293 px, por debajo de 1/6 de la
+   primera vista a 1440 × 900 y de 1/5 a 1366 × 768, y el antetítulo más largo cabe en una línea
+   (a 52 rem medía 832 × 293 px y se pasaba del tope) */
+.next {
+  max-width: 44.5rem;
+  margin-bottom: clamp(3rem, 2rem + 4vw, 5.5rem);
 }
 
 .ringNum {
@@ -158,6 +147,7 @@
   align-items: start;
 }
 
+/* Resumen del área sobre su lavado (Contable, en rampa); el anillo, en el color del área */
 .summary {
   position: relative;
   display: grid;
@@ -165,19 +155,8 @@
   justify-items: start;
   padding: var(--space-6);
   border-radius: var(--radius-xl);
-  background: var(--surface);
-  border: 1px solid var(--line);
-}
-
-.summary::before {
-  content: '';
-  position: absolute;
-  left: 24px;
-  right: 24px;
-  top: -1px;
-  height: 3px;
-  border-radius: 0 0 3px 3px;
-  background: var(--area-fill);
+  background: var(--area-wash);
+  border: 1px solid transparent;
 }
 
 .summaryTop {
@@ -291,11 +270,13 @@
 @media (hover: hover) {
   .assess[data-ready]:hover {
     box-shadow: var(--shadow-2);
-    transform: translateY(-2px);
   }
+}
 
-  .assess[data-ready]:hover .assessGo svg {
-    transform: translateX(3px);
+/* El desplazamiento al pasar, solo con movimiento permitido */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  :root:not([data-motion='reduce']) .assess[data-ready]:hover {
+    transform: translateY(-2px);
   }
 }
 
@@ -324,18 +305,9 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Cápsula de acción (global .cta-pill): neutra, pasa a marino al pasar o enfocar la tarjeta */
 .assessGo {
   margin-top: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding-top: var(--space-2);
-  font-weight: 650;
-  font-size: var(--text-sm);
-}
-
-.assessGo svg {
-  transition: transform var(--dur-quick) var(--ease-standard);
 }
 
 /* ── Estados ────────────────────────────────────────────────────────── */

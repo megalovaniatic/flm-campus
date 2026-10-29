@@ -63,7 +63,7 @@
   position: absolute;
   inset: 0 0 auto;
   height: 4px;
-  background: var(--flm-gradient);
+  background: var(--flm-gradient-stroke);
 }
 
 .explainTitle {
@@ -96,6 +96,14 @@
   margin-top: 0.8em;
 }
 
+/* Referencias del recuadro, en la letra de interfaz como en los demás recuadros */
+.explain .refs {
+  margin-top: var(--space-5);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  hyphens: manual;
+}
+
 /* ── Avisos: atención, consejo y norma ──────────────────────────────── */
 
 .callout {
@@ -108,8 +116,11 @@
   hyphens: manual;
 }
 
+/* «Atención» de marca: crema con filete rojo oscuro (7,77:1; en oscuro, 7,97:1), sin ámbar */
 .callout[data-tone='atencion'] {
-  background: var(--warning-soft);
+  background: var(--surface-sunken);
+  border-left: 3px solid var(--accent-text);
+  border-radius: 6px var(--radius-lg) var(--radius-lg) 6px;
 }
 
 .callout[data-tone='consejo'] {
@@ -139,7 +150,7 @@
 }
 
 .callout[data-tone='atencion'] .calloutKicker {
-  color: var(--warning);
+  color: var(--accent-text);
 }
 
 .callout[data-tone='consejo'] .calloutKicker {
@@ -190,6 +201,20 @@
   display: inline-block;
   margin-left: 4px;
   vertical-align: -1px;
+}
+
+/* ── Subapartado ────────────────────────────────────────────────────── */
+
+/* Más pequeño que el título del apartado y con aire encima, para que ordene un tema largo sin competir con él */
+h3.subheading {
+  margin-top: 2em;
+  font-family: var(--font-serif);
+  font-weight: 480;
+  font-variation-settings: 'opsz' 32;
+  font-size: clamp(1.2rem, 1.1rem + 0.4vw, 1.4rem);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  scroll-margin-top: 1.5rem;
 }
 
 /* ── Cita ───────────────────────────────────────────────────────────── */
@@ -343,6 +368,11 @@
   height: auto;
   border-radius: 8px;
   background: var(--surface-sunken);
+}
+
+/* Foto aprobada (Picture): el marco con el marcador difuminado lleva el mismo redondeo */
+.photo {
+  border-radius: 8px;
 }
 
 .figure figcaption,

@@ -213,19 +213,24 @@ describe('autorización en todas las rutas', () => {
       ['GET', '/api/people'],
       ['POST', '/api/people'],
       ['PATCH', `/api/people/${IDS.autora2}`],
-      ['POST', `/api/people/${IDS.autora2}/anonymize`],
+      ['POST', `/api/people/${IDS.autora2}/remove`],
       ['GET', `/api/people/${IDS.autora2}/sessions`],
       ['GET', '/api/reports/participation'],
       ['GET', '/api/reports/participation?format=csv'],
       ['GET', `/api/reports/errors/${IDS.formation}`],
       ['GET', '/api/audit'],
+      // Con «contenido:publicar» la autoría publica lo suyo, pero los festivos siguen siendo de administración.
       ['POST', '/api/holidays'],
+      ['DELETE', '/api/holidays/x'],
       ['PATCH', `/api/events/${IDS.encuentro}/phase`],
+      // Sustituir el PDF de un documento publicado (el de un borrador propio nunca publicado, también la autoría).
       ['POST', `/api/documents/${IDS.document}/versions`],
     ];
     const authorLevel: [string, string][] = [
       ['GET', '/api/contents'],
       ['POST', '/api/contents'],
+      // La autoría publica lo suyo: la ruta de transiciones no es solo de administración.
+      ['POST', `/api/contents/${IDS.formation}/transitions`],
       ['POST', '/api/files'],
       ['POST', '/api/documents'],
     ];

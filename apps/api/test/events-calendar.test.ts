@@ -72,6 +72,30 @@ describe('eventos', () => {
     expect(item.sessions).toHaveLength(2);
   });
 
+  it('eventos y comunicados comparten la dirección de la agenda: un solo espacio de slugs', async () => {
+    const author = await loginAs(env, EMAILS.autor);
+    const admin = await loginAs(env, EMAILS.admin);
+    const employee = await loginAs(env, EMAILS.empleado);
+    const notice = { category: 'comunicacion', title: 'Aviso de la oficina', summary: 'Cambios en la recepción.', icon: 'megafono', sessions: [] };
+
+    // «encuentro-otono» es un evento publicado: un comunicado no puede usar la misma dirección.
+    const taken = await author.post('/api/contents', { type: 'comunicado', payload: { ...notice, slug: 'encuentro-otono' } });
+    expect(taken.status).toBe(409);
+    expect((await json(taken)).error).toMatchObject({ code: 'SLUG_DUPLICADO', message: expect.stringContaining('agenda') });
+
+    // Tampoco al guardar un borrador ni al guardar cambios de un evento publicado.
+    const draft = (await json(await author.post('/api/contents', { type: 'comunicado', payload: { ...notice, slug: 'aviso-oficina' } }))).content;
+    expect((await author.put(`/api/contents/${draft.id}`, { revision: draft.revision, payload: { ...notice, slug: 'encuentro-otono' } })).status).toBe(409);
+    const encuentro = (await json(await admin.get(`/api/contents/${IDS.encuentro}`))).content;
+    const moved = await admin.put(`/api/contents/${IDS.encuentro}`, { revision: encuentro.revision, payload: { ...encuentro.item, slug: 'nueva-web' } });
+    expect(moved.status).toBe(409);
+    expect((await json(moved)).error.code).toBe('SLUG_DUPLICADO');
+
+    // Cada dirección sigue llevando a lo suyo.
+    expect((await json(await employee.get('/api/events/encuentro-otono'))).event.id).toBe(IDS.encuentro);
+    expect((await json(await employee.get('/api/events/nueva-web'))).event.id).toBe(IDS.comunicado);
+  });
+
   it('exporta el evento a .ics con la zona Europe/Madrid', async () => {
     const employee = await loginAs(env, EMAILS.empleado);
     const res = await employee.get(`/api/events/${IDS.encuentro}/ics`);

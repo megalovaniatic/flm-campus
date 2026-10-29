@@ -53,6 +53,7 @@ const router = createHashRouter([
           { path: 'perfil', element: page(() => import('./features/profile/ProfilePage')) },
           { path: 'perfil/ajustes', element: page(() => import('./features/profile/SettingsPage')) },
           { path: 'gestion', element: guard('autor', page(() => import('./features/manage/ManagePage'))) },
+          { path: 'gestion/nuevo', element: guard('autor', page(() => import('./features/manage/CreatePage'))) },
           { path: 'gestion/nuevo/:type', element: guard('autor', page(() => import('./features/manage/EditorPage'))) },
           { path: 'gestion/editar/:id', element: guard('autor', page(() => import('./features/manage/EditorPage'))) },
           { path: 'admin', element: guard('admin', page(() => import('./features/admin/AdminPage'))) },

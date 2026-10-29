@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { ArrowDown, ArrowUp, CircleAlert, Plus, Trash } from 'lucide-react';
+import { ArrowDown, ArrowUp, CircleAlert, Copy, Plus, Trash } from 'lucide-react';
 import { useId, type ReactNode } from 'react';
 import type { Person, Role } from '@flm/shared';
 import { Button, IconButton } from '@/design';
@@ -9,12 +9,15 @@ import styles from './Editor.module.css';
 export interface EditorContext {
   me: Person;
   role: Role;
+  /** Puede editar, archivar y restaurar cualquier contenido (administración). */
   isAdmin: boolean;
   today: string;
-  /** El contenido ya está publicado (los cambios se guardan como revisión). */
+  /** El contenido ya está publicado: los cambios se guardan aparte hasta publicarlos. */
   isRevision: boolean;
   /** Id del contenido publicado (eventos: reclasificación inmediata). */
   publishedId?: string;
+  /** Id del contenido (o del borrador) que se edita: para no contarse a sí mismo (bienvenidas). */
+  contentId: string;
 }
 
 export interface EditorProps<T extends AnyForm> {
@@ -33,29 +36,50 @@ export function Slot({ path, children, className }: { path: string; children: Re
   );
 }
 
-export function Section({ title, description, children, kicker, id, tone }: { title: ReactNode; description?: ReactNode; children: ReactNode; kicker?: ReactNode; id?: string; tone?: 'key' }) {
+export function Section({
+  title,
+  description,
+  children,
+  kicker,
+  id,
+  tone,
+  aside,
+  level = 2,
+}: {
+  title: ReactNode;
+  description?: ReactNode;
+  children: ReactNode;
+  kicker?: ReactNode;
+  id?: string;
+  tone?: 'key';
+  aside?: ReactNode;
+  /** Nivel del título: 3 para las secciones anidadas (cada pregunta dentro del test). */
+  level?: 2 | 3;
+}) {
   const hid = useId();
+  const Heading = level === 3 ? 'h3' : 'h2';
   return (
-    <section className={styles.section} aria-labelledby={hid} id={id} data-tone={tone}>
+    <section className={styles.section} aria-labelledby={hid} id={id} data-tone={tone} data-level={level}>
       <header className={styles.sectionHead}>
         {kicker && (
           <span className={styles.kicker} aria-hidden="true">
             {kicker}
           </span>
         )}
-        <div>
-          <h2 id={hid} className={styles.sectionTitle}>
+        <div className={styles.sectionHeadText}>
+          <Heading id={hid} className={styles.sectionTitle} tabIndex={-1}>
             {title}
-          </h2>
+          </Heading>
           {description && <p className={styles.sectionDesc}>{description}</p>}
         </div>
+        {aside && <div className={styles.sectionAside}>{aside}</div>}
       </header>
       <div className={styles.sectionBody}>{children}</div>
     </section>
   );
 }
 
-export const RICH_HINT = 'Admite **negrita**, *cursiva*, [[término clave]] y [texto del enlace](https://…).';
+export const RICH_HINT = 'Admite **negrita**, *cursiva*, [[término clave]] y [texto del enlace](https://…). Usa la barra o escríbelo a mano.';
 
 export function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -139,20 +163,37 @@ export function ChoiceGroup<T extends string>({
   );
 }
 
-/** Mover arriba, abajo y eliminar un elemento de una lista del formulario (teclado completo). */
-export function ItemTools({ label, index, count, onMove, onRemove, min = 0 }: { label: string; index: number; count: number; onMove: (to: number) => void; onRemove: () => void; min?: number }) {
+/** Subir, bajar, duplicar y eliminar un elemento de una lista del formulario (teclado completo). */
+export function ItemTools({
+  label,
+  index,
+  count,
+  onMove,
+  onRemove,
+  onDuplicate,
+  min = 0,
+}: {
+  label: string;
+  index: number;
+  count: number;
+  onMove: (to: number) => void;
+  onRemove: () => void;
+  onDuplicate?: () => void;
+  min?: number;
+}) {
   return (
     <div className={styles.itemTools}>
       <IconButton label={`Subir ${label}`} icon={<ArrowUp />} size="sm" disabled={index === 0} onClick={() => onMove(index - 1)} />
       <IconButton label={`Bajar ${label}`} icon={<ArrowDown />} size="sm" disabled={index === count - 1} onClick={() => onMove(index + 1)} />
+      {onDuplicate && <IconButton label={`Duplicar ${label}`} icon={<Copy />} size="sm" onClick={onDuplicate} />}
       <IconButton label={`Eliminar ${label}`} icon={<Trash />} size="sm" disabled={count <= min} onClick={onRemove} />
     </div>
   );
 }
 
-export function AddButton({ children, onClick, disabled }: { children: ReactNode; onClick: () => void; disabled?: boolean }) {
+export function AddButton({ children, onClick, disabled, icon }: { children: ReactNode; onClick: () => void; disabled?: boolean; icon?: ReactNode }) {
   return (
-    <Button variant="soft" size="sm" icon={<Plus />} onClick={onClick} disabled={disabled} className={styles.add}>
+    <Button variant="soft" size="sm" icon={icon ?? <Plus />} onClick={onClick} disabled={disabled} className={styles.add}>
       {children}
     </Button>
   );
@@ -163,6 +204,12 @@ export function move<T>(list: T[], from: number, to: number): T[] {
   const next = [...list];
   const [item] = next.splice(from, 1);
   next.splice(to, 0, item as T);
+  return next;
+}
+
+export function insertAt<T>(list: T[], index: number, item: T): T[] {
+  const next = [...list];
+  next.splice(Math.max(0, Math.min(index, list.length)), 0, item);
   return next;
 }
 

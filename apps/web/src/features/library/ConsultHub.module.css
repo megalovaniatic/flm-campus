@@ -1,8 +1,8 @@
 /* FLM Campus · Consultar (portada de la biblioteca) */
 
-/* ── Buscador ──────────────────────────────────────────────────────── */
+/* ── Buscador (protagonista: fondo, radio y relleno los pone .spotlight) ── */
 .searchBlock {
-  max-width: 54rem;
+  max-width: 46rem;
   margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.5rem);
 }
 
@@ -14,6 +14,7 @@
   margin-top: var(--space-1);
 }
 
+/* Dentro del panel, --ink-2 es la crema (5,05:1); sin punto rojo */
 .suggestLabel {
   font-size: var(--text-xs);
   font-weight: 650;
@@ -32,15 +33,19 @@
   min-height: 36px;
   padding: 0 0.95rem;
   border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--ink) 6%, transparent);
-  color: var(--ink);
   font-size: var(--text-sm);
   font-weight: 560;
   transition: background-color var(--dur-quick) var(--ease-standard);
 }
 
-.suggestion:hover {
-  background: color-mix(in srgb, var(--ink) 12%, transparent);
+/* Sugerencias macizas sobre el protagonista: parecen botones (marino 13,35:1) */
+.searchBlock .suggestion {
+  background: rgb(255 255 255 / 0.92);
+  color: var(--flm-marino);
+}
+
+.searchBlock .suggestion:is(:hover, :focus-visible) {
+  background: #fff;
 }
 
 @media (pointer: coarse) {
@@ -194,22 +199,9 @@
   color: var(--ink-2);
 }
 
+/* Cápsula de acción (.cta-pill): neutra en reposo, marino al pasar o enfocar la puerta */
 .doorGo {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
   margin-left: auto;
-  font-size: var(--text-sm);
-  font-weight: 650;
-}
-
-.doorGo svg {
-  transition: transform var(--dur-quick) var(--ease-standard);
-}
-
-.door:hover .doorGo svg,
-.door:focus-within .doorGo svg {
-  transform: translateX(3px);
 }
 
 /* Arte 1 · el formato de cinco bloques */
@@ -401,18 +393,15 @@
   box-shadow: inset 0 1.5px 0 var(--line-strong);
 }
 
+/* Lomo vertical: Contable lleva la rampa en vertical (aclarada en oscuro) */
 .spine {
   position: relative;
   width: var(--w);
   height: var(--h);
   border-radius: 3px 3px 1px 1px;
-  background: var(--area-fill);
+  background: var(--area-fill-v);
   transform-origin: 100% 100%;
   transition: transform var(--dur-slow) var(--ease-spring);
-}
-
-.spine[data-area='contable'] {
-  background: var(--flm-gradient-diagonal);
 }
 
 .spine::before,
@@ -700,7 +689,7 @@
   gap: var(--space-3);
 }
 
-/* Documento: rectángulo de radio pequeño con el canto del área */
+/* Documento: rectángulo de radio pequeño con el canto del área (Contable, en rampa vertical) */
 .tile {
   position: relative;
   display: flex;
@@ -710,11 +699,21 @@
   padding: var(--space-5);
   border-radius: 8px;
   border: 1px solid var(--line);
-  border-left: 3px solid var(--area, var(--ink));
   background: var(--surface);
   transition:
     box-shadow var(--dur-base) var(--ease-standard),
     transform var(--dur-base) var(--ease-standard);
+}
+
+/* Canto de 3 px recortado de una capa con el mismo radio: sigue la esquina redondeada del documento */
+.tile::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: var(--area-fill-v, var(--ink));
+  clip-path: inset(0 calc(100% - 3px) 0 0);
+  pointer-events: none;
 }
 
 @media (hover: hover) {

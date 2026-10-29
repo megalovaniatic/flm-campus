@@ -6,6 +6,8 @@ import styles from './PageHeader.module.css';
 export interface Crumb {
   label: string;
   to?: string;
+  /** Señal delante de la etiqueta (p. ej., el punto del área). */
+  icon?: ReactNode;
 }
 
 /**
@@ -21,7 +23,17 @@ export function PageHeader({ crumbs, eyebrow, title, lede, actions, aside, id }:
             <ol role="list">
               {crumbs.map((c, i) => (
                 <li key={i}>
-                  {c.to ? <Link to={c.to}>{c.label}</Link> : <span aria-current="page">{c.label}</span>}
+                  {c.to ? (
+                    <Link to={c.to}>
+                      {c.icon}
+                      {c.label}
+                    </Link>
+                  ) : (
+                    <span aria-current="page">
+                      {c.icon}
+                      {c.label}
+                    </span>
+                  )}
                   {i < crumbs.length - 1 && <ChevronRight size={14} aria-hidden="true" />}
                 </li>
               ))}

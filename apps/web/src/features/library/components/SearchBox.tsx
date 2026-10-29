@@ -10,6 +10,8 @@ interface SearchBoxProps {
   hint?: ReactNode;
   /** «lg»: el gran buscador de Consultar · «md»: buscador de cada lista. */
   size?: 'lg' | 'md';
+  /** «brand»: dentro de un protagonista; el campo sigue blanco y macizo en los dos temas. */
+  tone?: 'default' | 'brand';
   /** Intro: por ejemplo, llevar el foco a los resultados. */
   onSubmit?: () => void;
   hideLabel?: boolean;
@@ -17,7 +19,7 @@ interface SearchBoxProps {
 }
 
 /** Buscador accesible: etiqueta visible, Esc para borrar y botón de borrar de 44 px. */
-export function SearchBox({ label, value, onChange, placeholder, hint, size = 'md', onSubmit, hideLabel = false, children }: SearchBoxProps) {
+export function SearchBox({ label, value, onChange, placeholder, hint, size = 'md', tone = 'default', onSubmit, hideLabel = false, children }: SearchBoxProps) {
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
   return (
@@ -25,6 +27,7 @@ export function SearchBox({ label, value, onChange, placeholder, hint, size = 'm
       role="search"
       className={styles.form}
       data-size={size}
+      data-tone={tone}
       aria-labelledby={`${id}-label`}
       onSubmit={(e) => {
         e.preventDefault();

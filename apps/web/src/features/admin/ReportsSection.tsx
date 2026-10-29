@@ -119,7 +119,7 @@ export function ReportsSection() {
             Exportar CSV
           </Button>
         </div>
-        <div className={styles.tableWrap}>
+        <div className={styles.tableWrap} role="region" aria-label="Participación por formación (desplazable)" tabIndex={0}>
           <table className={styles.table}>
             <caption className="sr-only">Participación por formación</caption>
             <thead>

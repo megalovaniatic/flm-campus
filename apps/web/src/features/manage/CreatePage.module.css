@@ -1,0 +1,244 @@
+/* Crear contenido: tipos en tarjetas, agrupados por dónde aparecen (sin protagonista: Gestión es una herramienta) */
+
+.group {
+  margin-top: clamp(2rem, 1.5rem + 2vw, 3.25rem);
+}
+
+.groupHead {
+  display: grid;
+  gap: var(--space-1);
+  margin-bottom: var(--space-5);
+}
+
+.groupLede {
+  color: var(--ink-2);
+  max-width: 44rem;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: var(--space-4);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.card {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  min-width: 0;
+  transition:
+    border-color var(--dur-quick) var(--ease-standard),
+    box-shadow var(--dur-quick) var(--ease-standard);
+}
+
+.card:hover {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-2);
+}
+
+.card:has(.stretch:focus-visible) {
+  box-shadow: var(--focus-ring);
+}
+
+.card:hover :global(.cta-pill),
+.card:focus-within :global(.cta-pill) {
+  background: var(--surface-inverse);
+  color: var(--ink-inverse);
+}
+
+.tileWrap {
+  display: inline-flex;
+}
+
+.card:hover .tileWrap > span {
+  background: var(--surface-inverse);
+  color: var(--ink-inverse);
+  border-color: transparent;
+}
+
+.testTile {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: var(--surface-sunken);
+  border: 1px dashed var(--line-strong);
+  color: var(--ink);
+}
+
+.cardBody {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.cardTitle {
+  font-family: var(--font-serif);
+  font-weight: 460;
+  font-variation-settings: 'opsz' 36;
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+/* Enlace (o botón) que cubre toda la tarjeta; «Partir de un ejemplo» queda por encima */
+.stretch {
+  color: inherit;
+  text-decoration: none;
+  font: inherit;
+  text-align: left;
+}
+
+.stretch::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.stretch:focus-visible {
+  box-shadow: none;
+}
+
+.cardText {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.where {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.whereLabel {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.cardFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.example {
+  position: relative;
+  z-index: 2;
+}
+
+.footNote {
+  margin-top: var(--space-10);
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+
+/* Diálogo de elección (ejemplos, formación, área) */
+.pick {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink-2);
+}
+
+.search:focus-within {
+  box-shadow: var(--focus-ring);
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  min-height: 42px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+}
+
+.search input:focus-visible {
+  box-shadow: none;
+}
+
+.pickList {
+  display: grid;
+  gap: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pickItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 56px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.pickItem:hover {
+  background: var(--surface-2);
+  border-color: var(--line-strong);
+}
+
+.pickItem svg {
+  flex: none;
+  color: var(--ink-2);
+}
+
+.pickText {
+  display: grid;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.pickTitle {
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.pickSub {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.pickEmpty {
+  padding: var(--space-3);
+  color: var(--ink-2);
+}
+
+@media (forced-colors: active) {
+  .card {
+    border: 1px solid CanvasText;
+  }
+}

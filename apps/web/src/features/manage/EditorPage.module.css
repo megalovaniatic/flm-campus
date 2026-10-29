@@ -165,6 +165,11 @@
   scrollbar-gutter: stable;
 }
 
+/* Se desplaza con el teclado: es enfocable y muestra el anillo de foco */
+.previewPane:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
 .preview {
   display: grid;
   gap: var(--space-3);
@@ -236,6 +241,124 @@
 
 .panel {
   min-width: 0;
+}
+
+.endText {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+  max-width: 40rem;
+}
+
+/* «Más acciones» */
+.more {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--ink);
+  transition: background-color var(--dur-quick) var(--ease-standard);
+}
+
+.more:hover,
+.more[aria-expanded='true'] {
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+.menu {
+  display: grid;
+  gap: 2px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  text-align: left;
+}
+
+.menuItem:hover {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+
+.menuItem svg {
+  flex: none;
+  color: var(--ink-2);
+}
+
+.menuItem[data-danger],
+.menuItem[data-danger] svg {
+  color: var(--danger);
+}
+
+/* Atajos de teclado del editor */
+.keys {
+  margin: calc(var(--space-3) * -1) 0 var(--space-4);
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  text-align: right;
+}
+
+/* Tras publicar: dónde está y qué hacer ahora */
+.done {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--success-soft);
+  border: 1px solid color-mix(in srgb, var(--success) 35%, transparent);
+  outline: none;
+}
+
+.done:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.doneTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 650;
+  color: var(--success);
+}
+
+.doneText {
+  font-size: var(--text-sm);
+}
+
+.doneActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.publishBody {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.publishWhat {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  line-height: 1.35;
+}
+
+.small {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
 }
 
 .danger {

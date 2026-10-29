@@ -9,6 +9,7 @@ import { DemoBand } from './DemoBand';
 import { Footer } from './Footer';
 import { Header } from './Header';
 import { MobileTabBar } from './MobileTabBar';
+import { sectionOf } from './nav';
 import { OfflineBanner } from './OfflineBanner';
 import styles from './AppShell.module.css';
 
@@ -54,7 +55,7 @@ export function AppShell() {
       {__DEMO__ && <DemoBand />}
       <Header />
       <OfflineBanner />
-      <main id="contenido" ref={mainRef} tabIndex={-1} className={styles.main}>
+      <main id="contenido" ref={mainRef} tabIndex={-1} className={styles.main} data-section={sectionOf(location.pathname)}>
         <Outlet />
       </main>
       <Footer />

@@ -2,8 +2,7 @@ import { ArrowUpRight, CalendarPlus, Copy, Download, FileText, Link2 } from 'luc
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { eventToIcs, fileSize, type CampusEvent } from '@flm/shared';
-import manifest from '@/assets/images.json';
-import { ActionButton, Button, Chip, Picture, toast, type ActionStatus, type ButtonSize, type ButtonVariant, type PhotoName } from '@/design';
+import { ActionButton, Button, Chip, isApprovedPhoto, Picture, toast, type ActionStatus, type ButtonSize, type ButtonVariant } from '@/design';
 import { useDocuments } from '@/data/selectors';
 import { asset, downloadText } from '@/lib/download';
 import { MESSAGES } from '@/lib/messages';
@@ -13,14 +12,12 @@ type EventLink = NonNullable<CampusEvent['links']>[number];
 type EventMaterial = NonNullable<CampusEvent['materials']>[number];
 type EventImage = NonNullable<CampusEvent['image']>;
 
-const isPhotoName = (src: string): src is PhotoName => Object.prototype.hasOwnProperty.call(manifest, src);
-
-/** Fotografía real de un evento (manifiesto de fotos de FLM o archivo subido). */
+/** Fotografía real de un evento (manifiesto de fotos de FLM o archivo subido), con la descripción de quien la eligió. */
 export function EventPhoto({ image, className, frameClassName, sizes, position }: { image: EventImage; className?: string; frameClassName?: string; sizes: string; position?: string }) {
   return (
     <figure className={className}>
-      {isPhotoName(image.src) ? (
-        <Picture name={image.src} sizes={sizes} position={position} className={frameClassName} />
+      {isApprovedPhoto(image.src) ? (
+        <Picture name={image.src} alt={image.alt} sizes={sizes} position={position} className={frameClassName} />
       ) : (
         <img className={[styles.img, frameClassName ?? ''].join(' ')} src={/^https?:/.test(image.src) ? image.src : asset(image.src)} alt={image.alt} loading="lazy" decoding="async" />
       )}
@@ -35,8 +32,8 @@ export function EventLinks({ links }: { links: EventLink[] }) {
   return (
     <>
       <ul role="list" className={styles.links}>
-        {links.map((l) => (
-          <li key={l.url}>
+        {links.map((l, i) => (
+          <li key={`${i}-${l.url}`}>
             {l.example ? (
               <span className={styles.example}>
                 <Link2 size={16} aria-hidden="true" />
@@ -65,12 +62,12 @@ export function EventMaterials({ materials }: { materials: EventMaterial[] }) {
   const docs = useDocuments();
   return (
     <ul role="list" className={styles.materials}>
-      {materials.map((m) => {
+      {materials.map((m, i) => {
         const doc = docs.find((d) => d.id === m.documentId);
         const version = doc ? doc.versions[doc.versions.length - 1] : undefined;
         const available = !!doc && !!version && (!__DEMO__ || doc.publicDemo);
         return (
-          <li key={m.documentId} className={styles.material}>
+          <li key={`${i}-${m.documentId}`} className={styles.material}>
             <FileText className={styles.materialIcon} size={20} strokeWidth={1.75} aria-hidden="true" />
             <div className={styles.materialText}>
               <span className={styles.materialTitle}>{m.label}</span>

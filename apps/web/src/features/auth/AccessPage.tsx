@@ -60,14 +60,14 @@ function DemoEntry({ onEnter }: { onEnter: (role: Role | null) => void }) {
           <PenLine size={18} aria-hidden="true" />
           <span>
             <span className={styles.roleTitle}>Ver como autor</span>
-            <span className={styles.roleText}>Además, prepara contenidos y los envía a revisión</span>
+            <span className={styles.roleText}>Además, crea contenidos y publica los suyos</span>
           </span>
         </button>
         <button type="button" className={styles.role} onClick={() => onEnter('admin')}>
           <LayoutDashboard size={18} aria-hidden="true" />
           <span>
             <span className={styles.roleTitle}>Ver como administrador</span>
-            <span className={styles.roleText}>Además, publica y gestiona contenidos, personas e informes</span>
+            <span className={styles.roleText}>Además, publica y archiva cualquier contenido y gestiona personas e informes</span>
           </span>
         </button>
       </div>

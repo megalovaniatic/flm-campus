@@ -104,11 +104,51 @@
 /* ── Cabecera ───────────────────────────────────────────────────────── */
 
 .header {
+  position: relative;
   display: grid;
   gap: var(--space-4);
   padding-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.25rem);
   margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.5rem);
   border-bottom: 1px solid var(--line);
+}
+
+/* Filete corto con el relleno del área (Contable, en rampa), como en PageHeader */
+.header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: clamp(3rem, 2rem + 3vw, 5rem);
+  height: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--area-fill);
+}
+
+/* Portada de la tarjeta junto al título: solo con la columna de 15,5 rem */
+.header .headerCover {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .header {
+    grid-template-columns: minmax(0, 1fr) 15.5rem;
+    column-gap: clamp(2rem, 0.5rem + 2.6vw, 4.5rem);
+  }
+
+  .header > :not(.headerCover) {
+    grid-column: 1;
+  }
+
+  /* Ocupa las cinco filas de la cabecera (migas, etiquetas, título, entradilla y firma) */
+  .header .headerCover {
+    display: grid;
+    grid-column: 2;
+    grid-row: 1 / span 5;
+    align-self: start;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
 }
 
 .crumbs ol {
@@ -131,6 +171,7 @@
 .crumbs a {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
   min-height: 32px;
   color: var(--ink-2);
   text-decoration: none;
@@ -595,22 +636,30 @@
   box-shadow: var(--focus-ring);
 }
 
-/* ── Terminar ───────────────────────────────────────────────────────── */
+/* ── Terminar: el protagonista de la página (fondo, radio y relleno, de .spotlight) ── */
 
 .finish {
   display: grid;
   gap: var(--space-4);
   justify-items: start;
   margin-top: clamp(3rem, 2.5rem + 2vw, 4.5rem);
-  padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
-  border-radius: var(--radius-xl);
-  background: var(--surface);
-  border: 1px solid var(--line);
   font-family: var(--font-sans);
   font-size: var(--text-md);
   line-height: var(--leading-normal);
   hyphens: manual;
   scroll-margin-top: 1.5rem;
+}
+
+/* Aviso de versión nueva, justo antes del panel */
+.finishNotice {
+  margin-top: clamp(3rem, 2.5rem + 2vw, 4.5rem);
+  font-family: var(--font-sans);
+  line-height: var(--leading-normal);
+  hyphens: manual;
+}
+
+.finishNotice + .finish {
+  margin-top: var(--space-4);
 }
 
 .finishTitle {
@@ -635,7 +684,8 @@
   gap: var(--space-3);
 }
 
-/* Estado «Lectura confirmada»: cápsula de estado, no un botón desactivado */
+/* Estado «Lectura confirmada»: cápsula de estado, no un botón desactivado.
+   Cristal blanco dentro del protagonista (4,72:1), sin verde */
 .readDone {
   display: inline-flex;
   align-items: center;
@@ -643,8 +693,8 @@
   min-height: 44px;
   padding: 0 1.1rem;
   border-radius: var(--radius-pill);
-  background: var(--success-soft);
-  color: var(--success);
+  background: var(--spotlight-glass);
+  color: #fff;
   font-weight: 650;
   font-size: var(--text-sm);
 }
@@ -675,10 +725,6 @@
 
   .byline {
     gap: var(--space-3);
-  }
-
-  .finish {
-    border-radius: var(--radius-lg);
   }
 
   .finishRow > * {

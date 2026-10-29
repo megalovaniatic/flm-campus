@@ -1,8 +1,11 @@
 import { motion } from 'motion/react';
-import { Search } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router';
-import { Kbd } from '@/design';
+import { can } from '@flm/shared';
+import { ButtonLink, Kbd } from '@/design';
+import { useMe } from '@/data/selectors';
+import { useMediaQuery } from '@/features/manage/useMediaQuery';
 import { useSearch } from '@/features/search/useSearch';
 import { Logo } from './Logo';
 import { NAV } from './nav';
@@ -13,6 +16,10 @@ import styles from './Header.module.css';
 export function Header() {
   const { pathname } = useLocation();
   const open = useSearch((s) => s.open);
+  const me = useMe();
+  // «Crear» para la autoría y administración, desde 1024 px (en móvil está en el menú del avatar y en Ctrl K).
+  const wide = useMediaQuery('(min-width: 1024px)');
+  const canCreate = !!me && can(me.effectiveRole, 'contenido:crear');
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -50,6 +57,11 @@ export function Header() {
         </nav>
 
         <div className={styles.tools}>
+          {wide && canCreate && (
+            <ButtonLink to="/gestion/nuevo" size="sm" variant="secondary" icon={<Plus />} aria-label="Crear contenido" aria-current={pathname === '/gestion/nuevo' ? 'page' : undefined}>
+              Crear
+            </ButtonLink>
+          )}
           <button type="button" className={styles.search} onClick={open} aria-label="Buscar en el campus (Control más K)">
             <Search size={17} aria-hidden="true" />
             <span className={styles.searchLabel}>Buscar</span>

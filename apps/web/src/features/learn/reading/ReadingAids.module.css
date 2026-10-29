@@ -9,11 +9,12 @@
   background: color-mix(in srgb, var(--ink) 7%, transparent);
 }
 
+/* La regla indica el área (Contable, su rampa) y no se apaga en oscuro: trazo aclarado */
 .ruleFill {
   position: absolute;
   inset: 0;
   transform-origin: 0 50%;
-  background: var(--flm-gradient);
+  background: var(--area-fill, var(--flm-gradient-stroke));
 }
 
 .left {

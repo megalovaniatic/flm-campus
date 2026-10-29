@@ -374,6 +374,8 @@ describe('árbol de decisión', () => {
     expect(profundidadArbol('a', nodes)).toBe(2);
     expect(revisarArbol('x', nodes)).toHaveLength(1);
     expect(revisarArbol('a', [...nodes, { id: 'c', question: '¿?', options: [{ label: 'Sí', next: 'nada' }] }])).toHaveLength(1);
+    // Un paso duplicado sin cambiar su identificador: los saltos serían ambiguos.
+    expect(revisarArbol('a', [...nodes, nodes[1]!])).toEqual(['Hay dos pasos con el identificador «b».']);
   });
 });
 

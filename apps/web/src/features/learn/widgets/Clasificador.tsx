@@ -110,8 +110,8 @@ export function Clasificador({ spec, headingLevel = 3 }: { spec: Spec; headingLe
                     {item.label}
                   </p>
                   <div className={styles.targets} role="group" aria-labelledby={`${uid}-l-${i}`} aria-describedby={`${uid}-hint`}>
-                    {spec.categories.map((c) => (
-                      <button key={c} type="button" className={styles.target} onClick={() => place(i, c)}>
+                    {spec.categories.map((c, ci) => (
+                      <button key={ci} type="button" className={styles.target} onClick={() => place(i, c)}>
                         {c}
                       </button>
                     ))}
@@ -129,7 +129,7 @@ export function Clasificador({ spec, headingLevel = 3 }: { spec: Spec; headingLe
           {spec.categories.map((c, ci) => {
             const inBin = spec.items.map((item, i) => ({ item, i })).filter((x) => placed[x.i] === c);
             return (
-              <section key={c} className={styles.bin} aria-labelledby={`${uid}-bin-${ci}`}>
+              <section key={ci} className={styles.bin} aria-labelledby={`${uid}-bin-${ci}`}>
                 <Sub id={`${uid}-bin-${ci}`} className={styles.binTitle}>
                   {c}
                   <span className={styles.binCount}>{inBin.length}</span>
