@@ -113,7 +113,7 @@ export default function ParticipateHub() {
             Participar<span className="red-dot" aria-hidden="true" />
           </>
         }
-        lede="«Lo que sabe uno, lo sabemos todos.»"
+        lede="«Aprender juntos para asesorar mejor.»"
         aside={<PhotoCapsule name="recepcion" aspect="12 / 5" position="50% 58%" priority caption="Recepción de la oficina de FLM" mobile="full" />}
       />
 

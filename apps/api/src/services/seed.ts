@@ -143,19 +143,38 @@ export async function importSeed(db: Db, seed: SeedData, opts: SeedOptions): Pro
       // 2. Personas (sin contraseña: deben activar la cuenta con un enlace). Si la persona ya tiene cuenta,
       //    por su identificador o por su correo (p. ej. la primera administradora, creada con create-admin
       //    y un identificador aleatorio), no se duplica: lo suyo de la semilla se atribuye a esa cuenta.
+      //    El cumpleaños y la fecha de incorporación se importan tal como vienen en la semilla (solo las
+      //    personas que los tienen); nunca se rellenan por defecto. A una cuenta que ya existía solo se le
+      //    completan los que le falten: lo indicado en la plataforma no se pisa.
       const accountOf = new Map<string, string>();
       for (const p of people) {
-        const existing = get<{ id: string }>(db, 'SELECT id FROM users WHERE id = ?', p.id) ?? get<{ id: string }>(db, 'SELECT id FROM users WHERE email = ?', p.email);
+        const existing =
+          get<{ id: string; birthday: string | null; start_date: string | null }>(db, 'SELECT id, birthday, start_date FROM users WHERE id = ?', p.id) ??
+          get<{ id: string; birthday: string | null; start_date: string | null }>(db, 'SELECT id, birthday, start_date FROM users WHERE email = ?', p.email);
         if (existing) {
           accountOf.set(p.id, existing.id);
           count('skipped', 'personas');
+          const birthday = !existing.birthday && p.birthday ? p.birthday : null;
+          const startDate = !existing.start_date && p.startDate ? p.startDate : null;
+          if (birthday || startDate) {
+            run(
+              db,
+              'UPDATE users SET birthday = COALESCE(birthday, ?), start_date = COALESCE(start_date, ?), updated_at = ? WHERE id = ?',
+              birthday,
+              startDate,
+              nowIso,
+              existing.id,
+            );
+            count('created', 'fechas del calendario completadas');
+            report.warnings.push(`Persona ${p.id}: su cuenta ya existía; se completan con la semilla los datos del calendario que le faltaban.`);
+          }
           continue;
         }
         if (p.photo) report.warnings.push(`Persona ${p.id}: la foto «${p.photo}» no se importa; puede subirse desde la administración.`);
         run(
           db,
-          `INSERT INTO users (id, email, name, position, department, office, role, status, deactivated_at, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO users (id, email, name, position, department, office, role, birthday, start_date, status, deactivated_at, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           p.id,
           p.email,
           p.name,
@@ -163,6 +182,8 @@ export async function importSeed(db: Db, seed: SeedData, opts: SeedOptions): Pro
           p.department,
           p.office,
           p.role,
+          p.birthday ?? null,
+          p.startDate ?? null,
           p.status,
           p.status === 'inactiva' ? nowIso : null,
           nowIso,

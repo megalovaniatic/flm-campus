@@ -6,7 +6,8 @@
 /* ── Identidad ─────────────────────────────────────────────────────────── */
 .identity {
   display: grid;
-  grid-template-columns: repeat(4, max-content);
+  /* Seis datos en dos filas: correo, departamento y sede; cumpleaños, incorporación y perfil */
+  grid-template-columns: repeat(3, max-content);
   gap: var(--space-4) clamp(1.5rem, 0.5rem + 2.6vw, 3.25rem);
   margin: 0 0 var(--space-6);
 }
@@ -47,6 +48,46 @@
   font-size: 0.8125rem;
   font-weight: 400;
   color: var(--ink-2);
+}
+
+/* Cumpleaños o incorporación sin indicar: se dice con palabras, no solo con un tono más claro */
+.unset {
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+/* «Completar» o «Cambiar» junto al dato: enlace discreto, con 44 px de zona táctil */
+.ddAction {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  margin-left: 0.6rem;
+  padding: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--ink) 40%, transparent);
+  text-underline-offset: 0.2em;
+}
+
+.ddAction:hover {
+  text-decoration-color: var(--flm-rojo);
+}
+
+@media (pointer: coarse) {
+  .ddAction {
+    min-height: 44px;
+  }
+}
+
+.datesNotice {
+  max-width: 52rem;
+  margin: 0 0 var(--space-6);
+}
+
+.datesNoticeAction {
+  margin-top: var(--space-3);
 }
 
 .freshLink {

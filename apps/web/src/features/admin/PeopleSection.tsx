@@ -1,13 +1,38 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { BadgeCheck, CircleCheck, CircleSlash, Ellipsis, FlaskConical, Lock, LogOut, PenLine, Search, ShieldCheck, UserCheck, UserCog, UserRound, UserRoundMinus, Users, UserX, X } from 'lucide-react';
+import {
+  BadgeCheck,
+  CalendarCheck2,
+  CalendarClock,
+  CalendarX2,
+  CircleCheck,
+  CircleSlash,
+  Ellipsis,
+  FlaskConical,
+  Lock,
+  LogOut,
+  PenLine,
+  Search,
+  ShieldCheck,
+  UserCheck,
+  UserCog,
+  UserPen,
+  UserPlus,
+  UserRound,
+  UserRoundMinus,
+  Users,
+  UserX,
+  X,
+} from 'lucide-react';
 import { useMemo, useRef, useState, type ReactNode } from 'react';
-import { can, madridParts, normalize, relativeDay, madridDateKey, ROLE_DESCRIPTION, ROLE_LABEL, type Office, type Person, type Role } from '@flm/shared';
+import { can, formatShortDate, madridParts, missingPersonalDates, normalize, relativeDay, madridDateKey, ROLE_DESCRIPTION, ROLE_LABEL, type Office, type Person, type Role } from '@flm/shared';
 import { Avatar, Button, Chip, Dialog, EmptyState, Popover, SelectField, toast } from '@/design';
-import { DEMO_USER_ID, useMe, usePeople } from '@/data/selectors';
+import { campusPeople, DEMO_USER_ID, useMe, usePeople } from '@/data/selectors';
 import { useDemo } from '@/data/store';
 import { MESSAGES } from '@/lib/messages';
 import { ChoiceGroup } from '@/features/manage/editor/fields';
 import { useMediaQuery } from '@/features/manage/useMediaQuery';
+import { birthdayText, matchesCalendarFilter, type CalendarDataFilter } from './personForm';
+import { PersonDialog, type PersonDialogTarget } from './PersonDialog';
 import { confirmsRemoval, removalAuditDetail, type RemovalImpact } from './removal';
 import { RemoveProfileDialog } from './RemoveProfileDialog';
 import styles from './Admin.module.css';
@@ -19,7 +44,7 @@ function activeAdmins(people: Person[], excludeId?: string) {
   return people.filter((p) => p.role === 'admin' && p.status === 'activa' && p.id !== excludeId).length;
 }
 
-type Act = 'rol' | 'desactivar' | 'reactivar' | 'revocar' | 'eliminar-perfil';
+type Act = 'editar' | 'rol' | 'desactivar' | 'reactivar' | 'revocar' | 'eliminar-perfil';
 
 /** Quién actúa: su id y el rol con el que ve el campus. */
 interface Actor {
@@ -81,6 +106,39 @@ function OriginChip({ p }: { p: Person }) {
   );
 }
 
+/** Qué falta, en corto, para la columna «Calendario». */
+const MISSING_SHORT: Record<string, string> = {
+  birthday: 'Falta el cumpleaños',
+  startDate: 'Falta la incorporación',
+  'birthday,startDate': 'Faltan los dos datos',
+};
+
+/**
+ * Datos del calendario de empresa: completos o qué falta (icono y texto, nunca solo el color), con los
+ * que constan. Faltar un dato no bloquea nada: la persona entra y usa el campus igual.
+ */
+function CalendarDates({ p }: { p: Person }) {
+  const missing = missingPersonalDates(p);
+  const birthday = birthdayText(p);
+  const start = !missing.includes('startDate') && p.startDate ? `En FLM desde el ${formatShortDate(p.startDate)}` : null;
+  const known = [birthday && `Cumple el ${birthday}`, start].filter(Boolean).join(' · ');
+  return (
+    <span className={styles.statusCell}>
+      <span className="sr-only">Datos del calendario: </span>
+      {missing.length ? (
+        <Chip size="sm" tone="warning" icon={<CalendarX2 size={14} />}>
+          {MISSING_SHORT[missing.join(',')]}
+        </Chip>
+      ) : (
+        <Chip size="sm" tone="success" icon={<CalendarCheck2 size={14} />}>
+          Completos
+        </Chip>
+      )}
+      {known && <span className={styles.note}>{known}</span>}
+    </span>
+  );
+}
+
 function revokedLabel(iso: string | undefined) {
   if (!iso) return null;
   const d = new Date(iso);
@@ -89,7 +147,9 @@ function revokedLabel(iso: string | undefined) {
 }
 
 function PersonActions({ p, people, actor, onPick }: { p: Person; people: Person[]; actor: Actor; onPick: (p: Person, act: Act) => void }) {
-  const items: { act: Act; label: string; icon: ReactNode; danger?: boolean; reason: string | null }[] = [
+  const missing = missingPersonalDates(p).length > 0;
+  const items: { act: Act; label: string; icon: ReactNode; danger?: boolean; reason: string | null; hint?: string }[] = [
+    { act: 'editar', label: 'Editar la ficha…', icon: <UserPen size={18} />, reason: null, hint: missing ? 'Faltan datos del calendario: puedes completarlos aquí.' : undefined },
     { act: 'rol', label: 'Cambiar rol…', icon: <UserCog size={18} />, reason: guard(p, 'rol', actor, people) },
     p.status === 'activa'
       ? { act: 'desactivar', label: 'Desactivar la cuenta…', icon: <UserX size={18} />, reason: guard(p, 'desactivar', actor, people) }
@@ -120,7 +180,7 @@ function PersonActions({ p, people, actor, onPick }: { p: Person; people: Person
                 {it.reason ? <Lock size={18} /> : it.icon}
                 <span className={styles.menuText}>
                   {it.label}
-                  {it.reason && <span className={styles.menuReason}>{it.reason}</span>}
+                  {(it.reason ?? it.hint) && <span className={styles.menuReason}>{it.reason ?? it.hint}</span>}
                 </span>
               </button>
             </li>
@@ -152,15 +212,21 @@ const rowMotion = {
 };
 
 /**
- * Personas: roles, activación, sesiones y eliminación del perfil de quien deja FLM.
- * «Eliminar el perfil» sustituye a la antigua «Eliminar datos personales» (anonimizar la ficha):
- * hace todo lo que hacía y además retira a la persona del campus y deja su contenido sin autoría.
+ * Personas: alta, ficha (con los datos del calendario de empresa), roles, activación, sesiones y
+ * eliminación del perfil de quien deja FLM. «Eliminar el perfil» sustituye a la antigua «Eliminar
+ * datos personales» (anonimizar la ficha): hace todo lo que hacía y además retira a la persona del
+ * campus y deja su contenido sin autoría.
+ *
+ * Los perfiles a los que les falta el cumpleaños o la fecha de incorporación se señalan y se pueden
+ * filtrar, pero nada se bloquea: cada persona los completa desde su perfil o administración, aquí.
  */
 export function PeopleSection() {
   const me = useMe();
   const people = usePeople();
   const revoked = useDemo((s) => s.revokedSessions);
-  const removedCount = useDemo((s) => Object.keys(s.removedPeople).length);
+  const removed = useDemo((s) => s.removedPeople);
+  const extra = useDemo((s) => s.extraPeople);
+  const removedCount = Object.keys(removed).length;
   const compact = useMediaQuery('(max-width: 979px)');
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [q, setQ] = useState('');
@@ -168,9 +234,14 @@ export function PeopleSection() {
   const [estado, setEstado] = useState('');
   const [sede, setSede] = useState('');
   const [origen, setOrigen] = useState('');
+  const [calendario, setCalendario] = useState<CalendarDataFilter>('');
   const [limit, setLimit] = useState(24);
-  const [dialog, setDialog] = useState<{ p: Person; act: Exclude<Act, 'reactivar'> } | null>(null);
+  const [dialog, setDialog] = useState<{ p: Person; act: Exclude<Act, 'reactivar' | 'editar'> } | null>(null);
+  const [editor, setEditor] = useState<PersonDialogTarget | null>(null);
   const [nextRole, setNextRole] = useState<Role>('empleado');
+  // Ids que ya no puede llevar un alta: semilla, altas de esta demo y perfiles eliminados (seguirían ocultos).
+  const takenIds = useMemo(() => [...campusPeople(extra).map((p) => p.id), ...Object.keys(removed)], [extra, removed]);
+  const incomplete = useMemo(() => people.filter((p) => missingPersonalDates(p).length > 0).length, [people]);
 
   const filtered = useMemo(() => {
     const nq = normalize(q);
@@ -181,11 +252,12 @@ export function PeopleSection() {
         if (sede && p.office !== sede) return false;
         if (origen === 'real' && p.fictional) return false;
         if (origen === 'ficticia' && !p.fictional) return false;
+        if (!matchesCalendarFilter(p, calendario)) return false;
         if (nq && !nq.split(' ').every((t) => normalize(`${p.name} ${p.email} ${p.position} ${p.department} ${p.office}`).includes(t))) return false;
         return true;
       })
       .sort((a, b) => a.name.localeCompare(b.name, 'es'));
-  }, [people, q, role, estado, sede, origen]);
+  }, [people, q, role, estado, sede, origen, calendario]);
 
   if (!me) return null;
   const actor: Actor = { id: me.id, effectiveRole: me.effectiveRole };
@@ -196,6 +268,10 @@ export function PeopleSection() {
   const log = (action: string, p: Person, detail?: string) => useDemo.getState().log({ actorId: actor.id, action, entity: 'persona', entityId: p.id, ...(detail ? { detail } : {}) });
 
   const onPick = (p: Person, act: Act) => {
+    if (act === 'editar') {
+      setEditor({ mode: 'editar', person: p });
+      return;
+    }
     if (act === 'reactivar') {
       useDemo.getState().patchPerson(p.id, { status: 'activa' });
       log('persona.reactivar', p);
@@ -266,19 +342,24 @@ export function PeopleSection() {
     window.setTimeout(() => headingRef.current?.focus(), 0);
   };
 
-  const filtersOn = !!(q || role || estado || sede || origen);
+  const filtersOn = !!(q || role || estado || sede || origen || calendario);
   const shown = filtered.slice(0, limit);
 
   return (
     <section className={styles.section} aria-labelledby="h-personas">
       <div className={styles.sectionHead}>
-        <h2 id="h-personas" ref={headingRef} tabIndex={-1} className="section-title">
-          Personas
-        </h2>
-        <p className={styles.summary}>
-          <Users size={16} aria-hidden="true" /> {people.length} personas · {activeCount} activas · {adminCount} {adminCount === 1 ? 'administrador activo' : 'administradores activos'} · {realCount} reales y {people.length - realCount} ficticias
-          {removedCount > 0 ? ` · ${removedCount} ${removedCount === 1 ? 'perfil eliminado' : 'perfiles eliminados'}` : ''}
-        </p>
+        <div className={styles.headText}>
+          <h2 id="h-personas" ref={headingRef} tabIndex={-1} className="section-title">
+            Personas
+          </h2>
+          <p className={styles.summary}>
+            <Users size={16} aria-hidden="true" /> {people.length} personas · {activeCount} activas · {adminCount} {adminCount === 1 ? 'administrador activo' : 'administradores activos'} · {realCount} reales y {people.length - realCount} ficticias
+            {removedCount > 0 ? ` · ${removedCount} ${removedCount === 1 ? 'perfil eliminado' : 'perfiles eliminados'}` : ''}
+          </p>
+        </div>
+        <Button icon={<UserPlus />} onClick={() => setEditor({ mode: 'alta' })}>
+          Dar de alta a una persona
+        </Button>
       </div>
 
       <div className={styles.toolbar} role="search" aria-label="Buscar y filtrar personas">
@@ -294,7 +375,7 @@ export function PeopleSection() {
             </button>
           )}
         </div>
-        <div className={styles.filters4}>
+        <div className={styles.filters5}>
           <SelectField label="Rol" value={role} onChange={(e) => setRole(e.target.value)} options={[{ value: '', label: 'Todos' }, ...(['admin', 'autor', 'empleado'] as Role[]).map((r) => ({ value: r, label: ROLE_LABEL[r] }))]} />
           <SelectField
             label="Estado"
@@ -317,8 +398,34 @@ export function PeopleSection() {
               { value: 'ficticia', label: 'Personas ficticias' },
             ]}
           />
+          <SelectField
+            label="Calendario"
+            value={calendario}
+            onChange={(e) => setCalendario(e.target.value as CalendarDataFilter)}
+            options={[
+              { value: '', label: 'Todos' },
+              { value: 'completos', label: 'Datos completos' },
+              { value: 'incompletos', label: 'Faltan datos' },
+            ]}
+          />
         </div>
       </div>
+      {incomplete > 0 && (
+        <div className={styles.datesNote} role="note">
+          <span className={styles.datesNoteIcon} aria-hidden="true">
+            <CalendarClock size={18} />
+          </span>
+          <p className={styles.datesNoteText}>
+            <strong>
+              {incomplete === 1 ? 'A 1 perfil le faltan' : `A ${incomplete} perfiles les faltan`} datos del calendario de empresa
+            </strong>{' '}
+            (cumpleaños o fecha de incorporación). No se bloquea su acceso: cada persona puede completarlos desde su perfil y tú, con «Editar la ficha». Nunca se rellenan por defecto.
+          </p>
+          <Button size="sm" variant="secondary" onClick={() => setCalendario((c) => (c === 'incompletos' ? '' : 'incompletos'))}>
+            {calendario === 'incompletos' ? 'Mostrar también los completos' : 'Ver solo esos perfiles'}
+          </Button>
+        </div>
+      )}
       <p className={styles.count} aria-live="polite">
         {filtered.length === 1 ? '1 persona' : `${filtered.length} personas`}
         {filtersOn ? ' con estos filtros' : ''}
@@ -343,6 +450,7 @@ export function PeopleSection() {
                   <StatusChip p={p} />
                   <OriginChip p={p} />
                 </div>
+                <CalendarDates p={p} />
                 {revoked[p.id] && <p className={styles.note}>{revokedLabel(revoked[p.id])}</p>}
               </motion.li>
             ))}
@@ -355,10 +463,10 @@ export function PeopleSection() {
             <thead>
               <tr>
                 <th scope="col">Persona</th>
-                <th scope="col">Puesto</th>
-                <th scope="col">Sede</th>
+                <th scope="col">Puesto y sede</th>
                 <th scope="col">Rol</th>
                 <th scope="col">Estado</th>
+                <th scope="col">Calendario</th>
                 <th scope="col">Origen</th>
                 <th scope="col">
                   <span className="sr-only">Acciones</span>
@@ -374,9 +482,10 @@ export function PeopleSection() {
                     </td>
                     <td>
                       <span className={styles.cellMain}>{p.position || '—'}</span>
-                      <span className={styles.cellSub}>{p.department}</span>
+                      <span className={styles.cellSub}>
+                        {p.department} · {p.office}
+                      </span>
                     </td>
-                    <td>{p.office}</td>
                     <td>
                       <RoleChip role={p.role} />
                     </td>
@@ -385,6 +494,9 @@ export function PeopleSection() {
                         <StatusChip p={p} />
                         {revoked[p.id] && <span className={styles.note}>{revokedLabel(revoked[p.id])}</span>}
                       </span>
+                    </td>
+                    <td>
+                      <CalendarDates p={p} />
                     </td>
                     <td>
                       <OriginChip p={p} />
@@ -406,6 +518,8 @@ export function PeopleSection() {
           </Button>
         </div>
       )}
+
+      <PersonDialog target={editor} people={people} takenIds={takenIds} actorId={actor.id} onClose={() => setEditor(null)} />
 
       {/* Antes que los demás diálogos: al pasar de «Eliminar el perfil» a «Desactivar», este se cierra primero y el foco vuelve bien. */}
       <RemoveProfileDialog

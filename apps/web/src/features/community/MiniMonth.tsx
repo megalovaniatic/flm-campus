@@ -2,7 +2,7 @@ import { ArrowRight } from 'lucide-react';
 import { useMemo } from 'react';
 import { Link } from 'react-router';
 import { diffDays, formatWeekdayDate, monthGrid, monthName, monthShort, relativeDay, weekdayName, type CalendarEntry, type CalendarSources } from '@flm/shared';
-import { holidays, useEvents } from '@/data/selectors';
+import { holidays, useEvents, usePeople } from '@/data/selectors';
 import { entrySentence, festivoLabel, indexMonths, KIND_ORDER, kindLabel, shiftMonth } from './calendarView';
 import { capitalize } from './eventView';
 import { KindIcon } from './icons';
@@ -13,10 +13,12 @@ const INITIALS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 /** Mes en curso en miniatura: puntos por tipo, días enlazados con el calendario y próximas fechas. */
 export function MiniMonth({ today, headingId }: { today: string; headingId: string }) {
   const events = useEvents();
+  // Cumpleaños y aniversarios salen de la ficha de cada persona activa, como en el calendario completo.
+  const people = usePeople();
   const y = Number(today.slice(0, 4));
   const m = Number(today.slice(5, 7));
   const meetings = useMemo(() => events.filter((e) => e.kind !== 'comunicado'), [events]);
-  const sources = useMemo<CalendarSources>(() => ({ holidays, events: meetings }), [meetings]);
+  const sources = useMemo<CalendarSources>(() => ({ holidays, events: meetings, people }), [meetings, people]);
   const index = useMemo(() => indexMonths([{ y, m }, shiftMonth(y, m, 1)], sources), [y, m, sources]);
   const weeks = monthGrid(y, m);
   const soon = useMemo(
@@ -78,7 +80,7 @@ export function MiniMonth({ today, headingId }: { today: string; headingId: stri
 
       <h3 className={styles.soonHeading}>Próximas fechas</h3>
       {soon.length === 0 ? (
-        <p className={styles.soonNone}>No hay encuentros ni festivos en las próximas dos semanas.</p>
+        <p className={styles.soonNone}>No hay fechas en el calendario en las próximas dos semanas.</p>
       ) : (
         <ul role="list" className={styles.soon}>
           {soon.map((e) => (

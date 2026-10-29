@@ -16,8 +16,11 @@ import {
   accountState,
   activeUsers,
   adminPerson,
+  completePersonalDates,
   createUser,
   directoryEntry,
+  missingDatesOf,
+  personalDatesPatchSchema,
   personCreateSchema,
   personUpdateSchema,
   requireUserRow,
@@ -63,14 +66,39 @@ async function removePhoto(ctx: AppContext, c: Context<AppEnv>, target: UserRow,
   return requireUserRow(ctx.db, target.id);
 }
 
-/** Perfil propio: consulta y foto. */
+/** Perfil propio: consulta, foto y datos del calendario (cumpleaños e incorporación). */
 export function meRoutes(ctx: AppContext) {
   const r = new Hono<AppEnv>();
   const { db } = ctx;
 
+  /** `missingPersonalDates`: datos del calendario que faltan en la ficha (se piden sin bloquear el acceso). */
   r.get('/', requirePermission('campus:leer'), (c) => {
     const user = requireUserRow(db, currentUser(c).id);
-    return c.json({ person: toPerson(user), accountState: accountState(user), permissions: [...ROLE_PERMISSIONS[user.role]] });
+    return c.json({
+      person: toPerson(user),
+      missingPersonalDates: missingDatesOf(user),
+      accountState: accountState(user),
+      permissions: [...ROLE_PERMISSIONS[user.role]],
+    });
+  });
+
+  /**
+   * Completar los datos del calendario que faltan: el cumpleaños (día y mes; también se puede corregir)
+   * y la fecha de incorporación (solo si aún no consta: 409 `INCORPORACION_YA_INDICADA`). La auditoría
+   * anota qué campos cambian, nunca las fechas.
+   */
+  r.patch('/personal-dates', requirePermission('progreso:propio'), async (c) => {
+    const input = await jsonBody(c, personalDatesPatchSchema);
+    const me = currentUser(c);
+    const now = ctx.now();
+    const { user, changed } = transaction(db, () => {
+      const result = completePersonalDates(db, requireUserRow(db, me.id), input, now.toISOString());
+      if (result.changed.length) {
+        audit(db, { actorId: me.id, action: 'perfil.fechas', entity: 'persona', entityId: me.id, detail: `Campos: ${result.changed.join(', ')}`, ip: c.get('clientIp') }, now);
+      }
+      return result;
+    });
+    return c.json({ person: toPerson(user), missingPersonalDates: missingDatesOf(user), changed });
   });
 
   r.put('/photo', requirePermission('progreso:propio'), async (c) => {
@@ -92,7 +120,7 @@ export function peopleRoutes(ctx: AppContext) {
   const { db } = ctx;
   const ip = (c: Context<AppEnv>) => c.get('clientIp');
 
-  /** Directorio interno: ficha mínima de las personas activas (sin correo electrónico). */
+  /** Directorio interno: ficha mínima de las personas activas (sin correo electrónico), con el cumpleaños y la incorporación del calendario. */
   r.get('/directory', requirePermission('campus:leer'), (c) => c.json({ items: activeUsers(db).map(directoryEntry) }));
 
   r.get('/', requirePermission('personas:gestionar'), (c) => {
@@ -123,7 +151,11 @@ export function peopleRoutes(ctx: AppContext) {
     return c.json({ items: rows.map((u) => adminPerson(u, now)) });
   });
 
-  /** Alta: solo correos @flmexperts.com; la persona recibe un enlace para fijar su contraseña. */
+  /**
+   * Alta: solo correos @flmexperts.com, con el cumpleaños (día y mes) y la fecha de incorporación
+   * obligatorios: el calendario de empresa muestra sus cumpleaños y aniversarios desde ese momento.
+   * La persona recibe un enlace para fijar su contraseña.
+   */
   r.post('/', requirePermission('personas:gestionar'), async (c) => {
     const input = await jsonBody(c, personCreateSchema);
     const actor = currentUser(c);
@@ -136,7 +168,11 @@ export function peopleRoutes(ctx: AppContext) {
 
   r.get('/:id', requirePermission('personas:gestionar'), (c) => c.json({ person: adminPerson(requireUserRow(db, c.req.param('id')), ctx.now()) }));
 
-  /** Edición de puesto, departamento, oficina, rol… Cambiar el rol cierra las sesiones de la persona. */
+  /**
+   * Edición de puesto, departamento, oficina, rol, cumpleaños, incorporación… Cambiar el rol cierra las
+   * sesiones de la persona. El calendario cambia con la ficha (sus entradas se calculan a partir de ella).
+   * La auditoría anota los campos editados, nunca sus valores.
+   */
   r.patch('/:id', requirePermission('personas:gestionar'), async (c) => {
     const input = await jsonBody(c, personUpdateSchema);
     const actor = currentUser(c);

@@ -1,9 +1,10 @@
 import { createContext, Fragment, useContext, useId, type ReactNode } from 'react';
+import { Link, useInRouterContext } from 'react-router';
 import { normalize, type KeyTerm } from '@flm/shared';
 
 /**
  * Texto enriquecido ligero del campus:
- *   **negrita** · *cursiva* · [[término clave]] · [texto](https://enlace)
+ *   **negrita** · *cursiva* · [[término clave]] · [texto](https://enlace) · [texto](#/ruta/del/campus)
  * Los términos clave se enlazan con su definición mediante el contexto de la formación.
  */
 
@@ -64,6 +65,15 @@ function Term({ text }: { text: string }) {
   );
 }
 
+/**
+ * Enlace a otra página del campus («#/ruta»). Con el router es una navegación nueva y la página empieza arriba;
+ * un <a> con el hash se trataría como «volver» y restauraría la posición de otra página.
+ */
+function InternalLink({ href, children }: { href: string; children: ReactNode }) {
+  const inRouter = useInRouterContext();
+  return inRouter ? <Link to={href.slice(1)}>{children}</Link> : <a href={href}>{children}</a>;
+}
+
 /** Renderiza texto enriquecido en línea (sin párrafos). */
 export function Rich({ text }: { text: string }) {
   return (
@@ -77,6 +87,13 @@ export function Rich({ text }: { text: string }) {
           case 'term':
             return <Term key={i} text={t.text} />;
           case 'link': {
+            if (t.href?.startsWith('#/')) {
+              return (
+                <InternalLink key={i} href={t.href}>
+                  {t.text}
+                </InternalLink>
+              );
+            }
             const external = /^https?:/.test(t.href ?? '');
             return (
               <a key={i} href={t.href} {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}>

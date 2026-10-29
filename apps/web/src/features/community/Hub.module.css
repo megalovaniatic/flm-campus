@@ -8,6 +8,15 @@
   --kind: var(--cal-festivo);
 }
 
+/* Cumpleaños y aniversarios: los mismos colores que en el calendario completo */
+:where(.legend li, .miniDot, .soonItem)[data-kind='cumpleanos'] {
+  --kind: var(--cal-cumpleanos, var(--accent-text));
+}
+
+:where(.legend li, .miniDot, .soonItem)[data-kind='aniversario'] {
+  --kind: var(--cal-aniversario, var(--warning));
+}
+
 /* Agenda + mes */
 .top {
   display: grid;

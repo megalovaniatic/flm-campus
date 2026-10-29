@@ -59,8 +59,10 @@ apps/api/
 └─ .env.example
 ```
 
-**Modelo de datos.** `users` (solo datos profesionales: sin cumpleaños ni fecha de
-incorporación), `sessions`, `auth_tokens` (activación y recuperación), `contents` (tabla genérica:
+**Modelo de datos.** `users` (ficha profesional y, para el calendario de empresa, el cumpleaños
+—solo día y mes, `MM-DD`— y la fecha de incorporación, `AAAA-MM-DD`; opcionales en la base de datos
+para los perfiles anteriores, obligatorios en el alta), `sessions`, `auth_tokens` (activación y
+recuperación), `contents` (tabla genérica:
 tipo —formación, evaluación del área, noticia, documento, evento, comunicado, cliente nuevo o
 bienvenida—, estado editorial —borrador, publicado o archivado—, autoría opcional, `payload` JSON
 validado con el esquema del tipo, número de revisión para concurrencia), `content_revisions`
@@ -81,6 +83,7 @@ arrancar, una sola vez y en orden; una migración publicada no se edita, se aña
 | 3 | `0003_formaciones_voluntarias.sql` | Elimina la tabla de asignaciones de formaciones y sus fechas límite: todas las formaciones son voluntarias |
 | 4 | `0004_creador_y_autoria_opcional.sql` | Flujo sin revisión previa (lo que estaba «en revisión» vuelve a borrador y desaparece el comentario de devolución), tipos `cliente` y `bienvenida` del tablero «Ponte al día», autoría opcional (`author_id` y `decided_by` con `ON DELETE SET NULL`) y las cuentas anonimizadas por versiones anteriores pasan a ser perfiles eliminados. Reconstruye `contents` y `content_revisions` |
 | 5 | `0005_pdf_pendiente_en_revision.sql` | `document_versions.revision_id`: el PDF nuevo de un documento publicado espera en su revisión pendiente (no se ve en el campus) y pasa a ser la versión vigente al publicarla; si la revisión se descarta, se borra con su archivo |
+| 6 | `0006_cumpleanos_e_incorporacion.sql` | Vuelven a `users` el cumpleaños (`birthday`, `MM-DD`, sin año) y la fecha de incorporación (`start_date`, `AAAA-MM-DD`) para el calendario de empresa: opcionales, vacías (lo que borró la 0002 no se recupera y nada se rellena por defecto) y con un `CHECK` que exige una fecha que exista con ese formato. Sin el consentimiento (`show_birthday`) de la versión 1 |
 
 Una migración que reconstruye tablas con claves foráneas (crear la nueva, copiar, borrar la antigua
 y renombrar) empieza por la línea `-- flm:sin-claves-foraneas`. El migrador desactiva entonces las
@@ -94,7 +97,7 @@ un error: uno de los dos se saltaría para siempre.
 ```powershell
 npm install                                   # en la raíz del monorepo
 Copy-Item apps/api/.env.example apps/api/.env # y ajusta APP_ORIGIN si hace falta
-npm run create-admin -w @flm/api -- --email nombre@flmexperts.com --nombre "Nombre Apellido"
+npm run create-admin -w @flm/api -- --email nombre@flmexperts.com --nombre "Nombre Apellido" --cumpleanos 26/11 --incorporacion 01/09/2026
 npm run seed -w @flm/api                      # opcional: contenido de @flm/content
 npm run dev -w @flm/api                       # http://127.0.0.1:3000
 ```
@@ -107,7 +110,7 @@ npm run dev -w @flm/api                       # http://127.0.0.1:3000
 | `typecheck` | `tsc --noEmit` |
 | `test` | Pruebas Vitest |
 | `seed` | Carga `seed` de `@flm/content` (avisa si no existe) |
-| `create-admin` | Primera cuenta de administración (enlace de activación; sin contraseñas por defecto) |
+| `create-admin` | Primera cuenta de administración (enlace de activación; sin contraseñas por defecto). Como el alta, exige `--cumpleanos <día/mes>` (sin año) y `--incorporacion <día/mes/año>` (o `AAAA-MM-DD`); a una cuenta pendiente que no los tenía se los completa, sin pisar los que ya constan |
 | `backup` | Copia fechada con `VACUUM INTO` (`-- --archivos`, `-- --conservar 14`, `-- --destino <dir>`) |
 
 En desarrollo la web (Vite, puerto 5173) debe llamar a la API **desde su mismo origen**: basta con
@@ -138,7 +141,10 @@ La API carga `apps/api/.env` si existe; en producción se recomiendan variables 
   en los errores de validación (400).
 - **Arranque:** `GET /api/session` devuelve `authenticated`, la persona, sus permisos y el
   `csrfToken`. Sin sesión devuelve un token CSRF previo (y una cookie `__Host-flm_csrf`) y, si la
-  sesión anterior caducó o se cerró, `reason: { code, message }`.
+  sesión anterior caducó o se cerró, `reason: { code, message }`. La persona lleva su cumpleaños
+  (`birthday`) y su fecha de incorporación (`startDate`) si constan, y `missingPersonalDates` con los que
+  faltan (`["birthday", "startDate"]` en los perfiles anteriores a pedirlos): la web los pide con
+  `PATCH /api/me/personal-dates`, **sin bloquear el acceso**.
 - **CSRF:** toda petición `POST`, `PUT`, `PATCH` o `DELETE` debe llevar `X-CSRF-Token` con el
   último `csrfToken` recibido (el inicio de sesión, la activación y el cambio de contraseña
   devuelven uno nuevo) y salir del mismo origen (`fetch` con `credentials: 'same-origin'`).
@@ -180,9 +186,17 @@ públicas exigen sesión; las pruebas recorren `app.routes` para comprobar que n
 | POST | `/api/auth/logout` | `campus:leer` |
 | POST | `/api/auth/password/change` | `campus:leer` (exige la contraseña actual) |
 | GET | `/api/sessions` · POST `/api/sessions/revoke-others` · DELETE `/api/sessions/:id` | `campus:leer` (solo las propias) |
-| GET | `/api/me` | `campus:leer` |
+| GET | `/api/me` (ficha propia y `missingPersonalDates`) | `campus:leer` |
 | PUT · DELETE | `/api/me/photo` | `progreso:propio` |
+| PATCH | `/api/me/personal-dates` `{ birthday?, startDate? }` (completar los datos del calendario: el cumpleaños se puede corregir; la incorporación, solo indicar si falta) | `progreso:propio` |
 | GET | `/api/me/progress` · `/api/me/attempts` | `progreso:propio` |
+
+**Datos del calendario de la ficha propia.** `PATCH /api/me/personal-dates` deja completar lo que falte
+sin pasar por administración y sin bloquear nada: el cumpleaños (`MM-DD`, nunca el año) se puede indicar
+o corregir; la fecha de incorporación (`AAAA-MM-DD`) solo se indica si aún no consta (otra distinta: 409
+`INCORPORACION_YA_INDICADA`; la corrige administración). Exige al menos uno de los dos (400 `VALIDACION`)
+y, como toda escritura, sesión, token CSRF y origen. Responde `{ person, missingPersonalDates, changed }`
+y anota `perfil.fechas` en la auditoría con los campos cambiados (`Campos: birthday`), nunca las fechas.
 
 **Aprendizaje**
 
@@ -254,19 +268,29 @@ al guardar lo ya rellenado y otra vez al publicar):
 | --- | --- | --- |
 | GET | `/api/events?phase&kind&category` · `/api/events/:ref` · `/api/events/:ref/ics` | `campus:leer` |
 | PATCH | `/api/events/:id/phase` `{ manualPhase, revision }` | `contenido:editar-cualquiera` |
-| GET | `/api/calendar?year&month` (festivos y encuentros de equipo; sin fechas personales) | `campus:leer` |
+| GET | `/api/calendar?year&month` (festivos, encuentros de equipo y cumpleaños y aniversarios de incorporación de las personas activas) | `campus:leer` |
 | GET | `/api/holidays?year` | `campus:leer` |
 | POST · DELETE | `/api/holidays` · `/api/holidays/:id` | `contenido:editar-cualquiera` (administración: con la publicación directa, `contenido:publicar` ya lo tiene la autoría) |
 | GET | `/api/clients?limit` (nuevos clientes publicados de «Ponte al día», sin datos económicos) | `campus:leer` |
-| GET | `/api/welcomes?limit` (bienvenidas publicadas a personas activas, con su ficha del directorio, sin correo ni fecha de incorporación) | `campus:leer` |
+| GET | `/api/welcomes?limit` (bienvenidas publicadas a personas activas, con su ficha mínima, sin correo ni fechas) | `campus:leer` |
+
+**Cumpleaños y aniversarios.** No se guardan como eventos: `GET /api/calendar` los calcula en cada
+petición con `entriesForMonth(year, month, { holidays, events, people })` a partir de la ficha de las
+personas activas (`personalEntries()` de `@flm/shared`). El cumpleaños figura cada año en su día (el 29
+de febrero, el 28 en los años no bisiestos) con el título «Cumpleaños de …» y el puesto; el aniversario,
+cada año desde el siguiente a la incorporación («Aniversario de … en FLM», con `years` y el detalle
+«1 año en FLM · desde el 1 de septiembre de 2026»). Cada entrada lleva `personId` y un identificador
+estable (`cumple-<persona>-<año>`, `aniv-<persona>-<año>`): editar la ficha la mueve, sin duplicarla;
+desactivar o eliminar el perfil la retira. Nunca llevan el correo ni un año de nacimiento. La
+exportación `.ics` es la de cada evento (`/api/events/:ref/ics`): no incluye cumpleaños ni aniversarios.
 
 **Personas, informes y auditoría**
 
 | Método | Ruta | Permiso |
 | --- | --- | --- |
-| GET | `/api/people/directory` | `campus:leer` (sin correos) |
-| GET · POST | `/api/people` | `personas:gestionar` (alta solo @flmexperts.com) |
-| GET · PATCH | `/api/people/:id` | `personas:gestionar` (cambiar el rol cierra sus sesiones) |
+| GET | `/api/people/directory` | `campus:leer` (sin correos; con `birthday` y `startDate` si constan, para el calendario) |
+| GET · POST | `/api/people` | `personas:gestionar` (alta solo @flmexperts.com, con `birthday` y `startDate` obligatorios) |
+| GET · PATCH | `/api/people/:id` | `personas:gestionar` (cambiar el rol cierra sus sesiones; `birthday` y `startDate`, opcionales) |
 | POST | `/api/people/:id/deactivate` · `/reactivate` · `/activation-link` | `personas:gestionar` |
 | PUT · DELETE | `/api/people/:id/photo` | `personas:gestionar` |
 | POST | `/api/people/:id/remove` `{ confirm: "<correo>" }` (eliminar el perfil de quien deja FLM; nunca el propio ni el del último administrador) | `datos-personales:eliminar` |
@@ -275,8 +299,22 @@ al guardar lo ya rellenado y otra vez al publicar):
 | GET | `/api/reports/errors/:contentId?format=json\|csv` | `informes:ver` (agregado, sin nombres) |
 | GET | `/api/audit?action&entity&entityId&actorId&from&to&limit&offset` | `auditoria:ver` |
 
+**Alta y edición de fichas.** El alta (`POST /api/people`, y también `create-admin`) exige, además de la
+ficha profesional, el cumpleaños (`birthday`, `MM-DD`: día y mes, nunca el año) y la fecha completa de
+incorporación (`startDate`, `AAAA-MM-DD`), validados con `personalDatesSchema` de `@flm/shared`: sin
+ellos, 400 `VALIDACION` con esos campos en `details`; el 29 de febrero se admite. La incorporación puede
+ser una alta prevista, pero no posterior a un año desde hoy (`startDateLimitIssue`, el mismo tope que la
+web; también en la edición, en `PATCH /api/me/personal-dates` y en `create-admin`). Desde el alta, el
+calendario muestra su cumpleaños y, a partir del año siguiente, su aniversario. En la edición
+(`PATCH /api/people/:id`) son opcionales y se validan igual (un texto vacío no borra el dato: se
+rechaza). Las fichas de administración (`GET /api/people`, `/api/people/:id`, alta y edición) llevan
+`birthday`, `startDate` y `missingPersonalDates`; los perfiles anteriores quedan «sin indicar» hasta que
+se completen, sin que se invente ningún dato. La auditoría (`persona.alta`, `persona.editar`) anota los
+campos, nunca las fechas.
+
 **Eliminar el perfil.** `POST /api/people/:id/remove` borra a la persona en una sola transacción:
-sus sesiones, enlaces y confirmaciones de lectura se van con ella y su foto se borra; su contenido
+su ficha (también su cumpleaños y su fecha de incorporación, de modo que sus cumpleaños y aniversarios
+salen del calendario), sus sesiones, enlaces y confirmaciones de lectura se van con ella y su foto se borra; su contenido
 (publicado, archivado o en borrador) **no se borra**: queda sin autoría y se firma con la firma neutra
 de `neutralSignature()` («Área Fiscal de FLM», con su área, en formaciones y evaluaciones; «FLM» en
 el resto); su nombre se retira de «Revisado por» en lo que revisó (`review.reviewerName` y
@@ -285,7 +323,8 @@ constando como revisado y con su fecha; las bienvenidas que la
 anuncian (publicadas o en borrador) se borran; sus intentos de test se conservan como agregados
 anónimos; y su IP desaparece de la auditoría. Responde con los recuentos (`contentsWithoutAuthor`,
 `revisionsWithoutAuthor`, `reviewerNamesRemoved`, `welcomesDeleted`, `sessionsClosed`,
-`attemptsAnonymized`), que también constan en la auditoría (`persona.eliminar-perfil`). Detalle en
+`attemptsAnonymized` y `calendarDatesDeleted`, de 0 a 2), que también constan en la auditoría
+(`persona.eliminar-perfil`, con «Fechas del calendario borradas: N», sin las fechas). Detalle en
 [docs/retencion-datos.md](docs/retencion-datos.md).
 
 **Informes.** Solo dan recuentos agregados: ningún nombre, correo ni dato por persona.
@@ -341,9 +380,9 @@ neutralizadas, `Content-Disposition: attachment`) y la exportación queda en la 
   `Cross-Origin-Resource-Policy`; `Cache-Control: no-store` en la API.
 - **Entradas:** todo se valida con zod (400 con campos y mensajes en castellano); 2 MB máximo
   para JSON.
-- **Auditoría:** seguridad (inicios, fallos, sesiones, contraseñas, cuentas, perfiles eliminados) y
-  edición (crear, guardar, publicar, archivar, restaurar, descartar revisión…), consultable por
-  administración.
+- **Auditoría:** seguridad (inicios, fallos, sesiones, contraseñas, cuentas, fichas y sus datos del
+  calendario —solo qué campos cambian, nunca las fechas—, perfiles eliminados) y edición (crear,
+  guardar, publicar, archivar, restaurar, descartar revisión…), consultable por administración.
   Retención en [docs/retencion-datos.md](docs/retencion-datos.md).
 
 ## 7. Despliegue
@@ -366,7 +405,7 @@ SMTP_USER=campus@flmexperts.com
 SMTP_PASS=…
 EOF
 docker compose up -d --build
-docker compose exec -u campus api node dist/create-admin.mjs --email nombre@flmexperts.com --nombre "Nombre"
+docker compose exec -u campus api node dist/create-admin.mjs --email nombre@flmexperts.com --nombre "Nombre" --cumpleanos 26/11 --incorporacion 01/09/2026
 ```
 
 La imagen (`node:24-alpine`) solo contiene `dist/` (y la web compilada si `BUILD_WEB=true`).
@@ -383,7 +422,7 @@ El arranque ajusta la propiedad de los volúmenes y ejecuta Node como el usuario
 3. Variables: `APP_ORIGIN=https://<dominio>`, `SERVE_WEB_DIST=/app/web`, `TRUST_PROXY=true`, `SMTP_*`.
 4. *Health Check Path*: `/api/health`. Dominio propio en *Settings → Custom Domains* (HTTPS incluido).
 5. Primera cuenta desde *Shell* (como usuario sin privilegios):
-   `su-exec campus node dist/create-admin.mjs --email … --nombre "…"`.
+   `su-exec campus node dist/create-admin.mjs --email … --nombre "…" --cumpleanos <día/mes> --incorporacion <día/mes/año>`.
 
 ### Fly.io
 
@@ -418,7 +457,7 @@ En `fly.toml`:
 
 Secretos con `fly secrets set SMTP_HOST=… SMTP_USER=… SMTP_PASS=…`; certificado con
 `fly certs add campus.flmexperts.com`. Mantén **una sola máquina** (`fly scale count 1`).
-Primera cuenta: `fly ssh console -C "su-exec campus node /app/dist/create-admin.mjs --email … --nombre …"`.
+Primera cuenta: `fly ssh console -C "su-exec campus node /app/dist/create-admin.mjs --email … --nombre … --cumpleanos <día/mes> --incorporacion <día/mes/año>"`.
 
 ## 8. Copias de seguridad y restauración
 
@@ -462,8 +501,11 @@ firma neutra (nunca su identificador como nombre). También aquí rige una evalu
 un solo espacio de slugs para la agenda: la semilla no puede repetirlos y lo que choque con lo ya
 creado en la plataforma no se importa (se avisa). Volver a sembrar repone la clase (`kind`) de las
 noticias y los documentos que una versión anterior de la carga guardó sin ella (solo si falta; se avisa).
-De cada persona importa solo la ficha profesional (nombre, correo, puesto, departamento, oficina,
-rol y estado): ni la foto (se avisa para subirla desde la administración) ni fechas personales.
+De cada persona importa la ficha profesional (nombre, correo, puesto, departamento, oficina, rol y
+estado) y, solo si la semilla los trae, su cumpleaños y su fecha de incorporación (hoy, solo Judith
+Calet): a nadie se le rellenan por defecto. A una cuenta que ya existía solo se le completan los que le
+falten (se avisa); lo que ya consta en la plataforma no se pisa. La foto no se importa (se avisa para
+subirla desde la administración).
 Los PDF de la biblioteca se buscan en `--archivos <carpeta>` (por defecto `packages/content` y
 `apps/web/public`); si no aparecen, la versión queda registrada como «no disponible».
 `dist/seed.mjs` incluye `@flm/content` si existía al compilar.

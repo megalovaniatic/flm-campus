@@ -36,6 +36,9 @@ const PHOTOS = {
   'libreta-mesa': { file: 'LIBRETA FLM 2.jpg', alt: 'Libreta de FLM sobre la mesa de una sala de reuniones', focus: 'center' },
   'desayuno-mercantil': { file: 'Desayuno Mercantil FLM.png', alt: 'Desayuno Mercantil en la Sala Biblioteca de FLM: el equipo sigue la presentación «La información es poder»', focus: 'center' },
   'web-nueva': { file: '../../dist/assets/company/new-flm-website.png', alt: 'Portada de la nueva web corporativa flmexperts.com', focus: 'top' },
+  // Única foto que no es de FLM: la de Aprender, a petición de FLM (29/10/2026). Vitaly Gariev en Unsplash, Licencia Unsplash
+  // (https://unsplash.com/photos/_4tpElFQemQ); descargada a 2400 px de ancho.
+  'equipo-reunion': { file: 'unsplash-_4tpElFQemQ.jpg', alt: 'Cuatro profesionales conversan alrededor de una mesa de trabajo en una oficina luminosa', focus: 'center' },
 };
 
 const WIDTHS = [480, 960, 1600, 2400];

@@ -1,4 +1,6 @@
 import {
+  Award,
+  Cake,
   CalendarDays,
   Coffee,
   Globe,
@@ -41,6 +43,8 @@ export function EventIcon({ icon, size = 18, className }: { icon: EventIconName;
 export const KIND_ICON: Record<CalendarKind, LucideIcon> = {
   encuentro: Users,
   festivo: Sun,
+  cumpleanos: Cake,
+  aniversario: Award,
 };
 
 /** Icono de un tipo de fecha del calendario. */

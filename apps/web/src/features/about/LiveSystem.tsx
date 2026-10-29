@@ -186,7 +186,7 @@ function LiveColors() {
 /* ── Escala tipográfica (tamaño calculado en vivo) ─────────────────────── */
 
 const TYPE = [
-  { token: '--text-5xl', role: 'Titular de página', family: 'Newsreader 380, corte óptico 72', cls: 'tDisplay', sample: 'Lo que sabe uno' },
+  { token: '--text-5xl', role: 'Titular de página', family: 'Newsreader 380, corte óptico 72', cls: 'tDisplay', sample: 'Aprender juntos' },
   { token: '--text-3xl', role: 'Título de sección', family: 'Newsreader 420', cls: 'tSection', sample: 'Actualidad en tu sector' },
   { token: '--text-reading', role: 'Lectura larga', family: 'Newsreader, corte óptico 18', cls: 'tReading', sample: 'Cada formación la firma una persona de la casa, con fuentes y fecha de revisión.' },
   { token: '--text-lg', role: 'Entradilla', family: 'Newsreader itálica', cls: 'tLede', sample: 'Apostamos por tu formación y tu crecimiento.' },

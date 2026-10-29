@@ -126,5 +126,17 @@
       1600
     ],
     "placeholder": "data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAABwAwCdASoYAAwAPu1iqU2ppaOiMAgBMB2JTI8p2ZJtPRJtG2AA/u5L50OncR23lL2tOaNtk/GMx57Ep3AXNwPY5whZAAAA"
+  },
+  "equipo-reunion": {
+    "alt": "Cuatro profesionales conversan alrededor de una mesa de trabajo en una oficina luminosa",
+    "width": 2400,
+    "height": 1350,
+    "sizes": [
+      480,
+      960,
+      1600,
+      2400
+    ],
+    "placeholder": "data:image/webp;base64,UklGRmwAAABXRUJQVlA4IGAAAAAwBACdASoYAA0APu1iqU2ppaOiMAgBMB2JZwDKAB6XAng1LUtdMVj4GoAA/sT3/ZiJl/kX0UjvJZbNQJbrozvRgMaXz+y8klXDxlJTNf8AwKys8SQHlx4KQnznp80AAAA="
   }
 }

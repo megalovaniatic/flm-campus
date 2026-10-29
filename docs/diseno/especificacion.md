@@ -1,6 +1,6 @@
 # FLM Campus · Especificación de diseño para construcción
 
-> Concepto: **«Círculo de confianza»** · Lema: *«Lo que sabe uno, lo sabemos todos.»*
+> Concepto: **«Círculo de confianza»** · Lema: *«Aprender juntos para asesorar mejor.»*
 > Base elegida por el jurado (2 de 3 votos) con injertos de «Punto y seguido» (sistema editorial), «Vasos comunicantes» (geometría de la marca: «El escalón») y «Círculo abierto» (capa de herramienta).
 > Esta especificación es la referencia obligatoria para cualquier pantalla. Si algo no está aquí, se resuelve con los mismos principios.
 
@@ -16,7 +16,7 @@
 4. **El rojo se mira, no se lee.** `#E53327` solo en gráficos, puntos, trazos y texto ≥ 24 px. El texto rojo pequeño va en `--flm-rojo-oscuro #90101A`. Botón principal: marino con texto blanco.
 5. **El color nunca va solo.** Áreas, estados y tipos se nombran siempre por escrito (y con icono o forma).
 6. **Movimiento con significado.** Dos momentos firma como máximo (La llegada y El escalón), una vez al día o por logro, ≤ 1,5 s, interrumpibles, sin bucles infinitos. Con movimiento reducido, la composición final dice lo mismo.
-7. **Nada inventado.** Sin fotos de stock de personas, sin cifras inventadas, sin datos personales inventados de personas reales. En la demo todo lo simulado se rotula.
+7. **Nada inventado.** Sin fotos de stock de personas (única excepción, pedida por FLM: la cápsula de Aprender, de Unsplash y acreditada), sin cifras inventadas, sin datos personales inventados de personas reales. En la demo todo lo simulado se rotula.
 
 ## 2. Tokens (ver `apps/web/src/styles/tokens.css`)
 
@@ -50,7 +50,7 @@
 
 - **Escritorio (≥ 1024 px)**: cabecera fija de 72 px (papel 85 % + desenfoque, filete inferior al desplazar). Izquierda: `flm-horizontal.png` (32 px de alto) + filete vertical 1×24 px + «Campus» (Inter 600, 17 px). Navegación: **Inicio · Aprender · Consultar · Participar**; indicador activo = cápsula tintada (rojo al 8 %) más la gota: un punto rojo de 6 px bajo la etiqueta que viaja con `layoutId` (se estira como una gota). Derecha: cápsula «Buscar · Ctrl K», campana de avisos, avatar con menú (Perfil, Ajustes, Gestión, Administración, Ver como, Cerrar sesión).
 - **Móvil (< 1024 px)**: barra superior de 56 px (logotipo + «Campus», buscar, avatar) y barra inferior de 64 px + zona segura: Inicio, Aprender, Consultar, Participar, Perfil. Pestaña activa = icono dentro de un círculo marino de 40 px + etiqueta en negrita.
-- **Pie**: `flm-crowe-horizontal.png` (oficial, con «A business associate of Crowe Global»), sedes (Barcelona · C/ Bailèn, 71 bis, 2º · 08009; Vic · C/ de Figueres, 12, Pol. Sot del Pradals · 08500; Granollers · C/ Girona, 15-17 · 08402), enlaces (Sobre el campus, Accesibilidad, Privacidad), lema y aviso de demostración.
+- **Pie**: `flm-crowe-horizontal.png` (oficial, con «A business associate of Crowe Global») y el lema; «Síguenos» con enlace directo a LinkedIn e Instagram de FLM, cada uno con su glifo (Simple Icons); aviso de propiedad intelectual (lo que FLM elabora para el campus es suyo y de uso interno: no se copia, extrae ni difunde sin autorización; lo de terceros conserva sus derechos); enlaces (Sobre el campus, Accesibilidad, Privacidad, flmexperts.com) y aviso de demostración. Sin sedes desde el 29/10/2026.
 - **Rutas** (hash): `/`, `/aprender`, `/aprender/:area`, `/aprender/:area/:slug`, `/aprender/:area/:slug/test`, `/aprender/:area/evaluacion`, `/consultar`, `/consultar/actualidad(/:slug)`, `/consultar/notas(/:id)`, `/consultar/lecturas(/:id)`, `/participar`, `/participar/agenda(/:slug)`, `/participar/calendario`, `/participar/contribuye`, `/perfil`, `/perfil/ajustes`, `/gestion(...)`, `/admin(...)`, `/sobre`, `/acceso`, `*`.
 - Rejilla: contenedor `--content-max` (82 rem) con `--gutter`; lectura `--reading-max` (42 rem).
 - Tarjetas: superficie blanca, borde 1 px `--line`, radio 24 px (20 px en móvil), sin sombra en reposo, salvo la tarjeta protagonista y el foco claro; sombra `--shadow-2` solo en elevación (hover en escritorio, capas flotantes).
@@ -86,7 +86,7 @@ Círculo de dos mitades (SVG 20–24 px): mitad izquierda = lectura (llena si es
 - **Notas informativas**: archivo con miniatura real de la primera página (pdf.js, perezoso), versión, páginas, tamaño, «Abrir» y «Descargar (PDF · 239 KB)» visibles; avisos editoriales; documentos no publicables → «Disponible en la versión interna».
 - **Lecturas**: «La estantería» con portadas tipográficas por área; ficha con edición, resumen, valor práctico, público y enlace.
 - **Agenda**: «Actuales y próximos» como agenda editorial con fecha grande; varias sesiones = círculos de fecha unidos por puente; «Fecha por confirmar» = anillo discontinuo; detalle desplegable (layout); «Añadir a mi calendario (.ics)». «Histórico» compacto por meses, con foto real y material.
-- **Calendario**: mes con lunes como primer día; solo encuentros de equipo y festivos, sin fechas personales; tipos con icono + color + texto (Encuentro de equipo: grupo/marino; Festivo: sol/gris, siempre rotulado «Festivo»); panel del día; navegación de mes y año; en móvil, tira semanal + lista.
+- **Calendario**: mes con lunes como primer día; encuentros de equipo, festivos y, desde la ficha de cada persona, cumpleaños (día y mes) y aniversarios en FLM (desde el año siguiente a la incorporación); tipos con icono + color + texto (Encuentro de equipo: grupo/marino; Festivo: sol/gris, siempre rotulado «Festivo»; Cumpleaños: tarta/rojo; Aniversario en FLM: insignia/ámbar); panel del día; navegación de mes y año; en móvil, tira semanal + lista.
 - **Perfil**: progreso por área, tus formaciones, historial de intentos, evaluaciones sectoriales, reconocimientos de aprendizaje y contribución (cápsulas) y ajustes.
 - **Gestión**: pestañas Todo · Borradores · Publicado · Archivado, creador por destino (`/gestion/nuevo`) con «Guardar borrador» y «Publicar», plantillas por tipo, editor con vista previa, autoguardado local, aviso de cambios sin guardar, «Deshacer» tras publicar.
 

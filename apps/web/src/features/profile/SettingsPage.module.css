@@ -432,6 +432,11 @@
   font-weight: 600;
 }
 
+/* Calendario de empresa */
+.calendarLink {
+  margin-top: var(--space-5);
+}
+
 /* Sesión */
 .sessionGrid {
   display: grid;

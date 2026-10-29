@@ -1,8 +1,8 @@
-import { ArrowRight, ChevronDown, CircleCheck, CircleDot, Download, GraduationCap, Settings, ShieldCheck, Sparkles, UserRound } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowRight, CalendarHeart, Check, ChevronDown, CircleCheck, CircleDot, Download, GraduationCap, Settings, ShieldCheck, Sparkles, UserRound } from 'lucide-react';
+import { useId, useState } from 'react';
 import { Link } from 'react-router';
-import { AREAS, formatShortDate, madridDateKey, madridParts, ROLE_LABEL, type AreaId } from '@flm/shared';
-import { AreaTag, Button, ButtonLink, EmptyState, PageHeader, ProgressRing, StatusGlyph } from '@/design';
+import { AREAS, formatShortDate, madridDateKey, madridParts, missingPersonalDates, ROLE_LABEL, type AreaId } from '@flm/shared';
+import { AreaTag, Button, ButtonLink, Dialog, EmptyState, Notice, PageHeader, ProgressRing, StatusGlyph } from '@/design';
 import { DEMO_USER_ID, useFormations, useMe } from '@/data/selectors';
 import { useDemo } from '@/data/store';
 import { Logo } from '@/layout/Logo';
@@ -10,6 +10,8 @@ import { downloadText, toCsv } from '@/lib/download';
 import { usePageTitle } from '@/lib/preferences';
 import { scrollToSection, useHashScroll } from '@/features/about/useSectionNav';
 import { formationPath, useNextStep, type NextStep } from '@/features/learn/common/data';
+import { OwnDatesForm } from '@/features/admin/PersonalDates';
+import { birthdayText, canEditOwnStartDate, OWN_DATES_PURPOSE, startDateText } from '@/features/admin/personForm';
 import { Portrait } from './Portrait';
 import { Recognitions } from './Recognitions';
 import {
@@ -396,6 +398,14 @@ export default function ProfilePage() {
     const done = new Set(useDemo.getState().celebrated);
     return new Set(badges.filter((b) => !done.has(b.id)).map((b) => b.id));
   });
+  // Datos del calendario: cada apertura del diálogo empieza con lo que consta en la ficha.
+  const datesFormId = useId();
+  const [datesOpen, setDatesOpen] = useState(false);
+  const [datesKey, setDatesKey] = useState(0);
+  const openDates = () => {
+    setDatesKey((k) => k + 1);
+    setDatesOpen(true);
+  };
 
   if (!me) {
     return (
@@ -412,6 +422,10 @@ export default function ProfilePage() {
   const freshCount = badges.filter((b) => fresh.has(b.id)).length;
   // Sin intentos todavía: se invita a seguir con la siguiente formación
   const nextFormation = next?.kind === 'formation' ? { title: next.formation.title, to: formationPath(next.formation), started: next.status !== 'sin-empezar' } : undefined;
+  // Cumpleaños (día y mes) e incorporación: si faltan, «Sin indicar» y se completan aquí, sin bloquear nada.
+  const birthday = birthdayText(me);
+  const startDate = startDateText(me);
+  const missingDates = missingPersonalDates(me);
 
   return (
     <div className={`container page ${styles.page}`}>
@@ -458,6 +472,29 @@ export default function ProfilePage() {
           </dd>
         </div>
         <div>
+          <dt>Cumpleaños</dt>
+          <dd>
+            {birthday ?? <span className={styles.unset}>Sin indicar</span>}
+            <button type="button" className={styles.ddAction} onClick={openDates}>
+              {birthday ? 'Cambiar' : 'Completar'}
+              <span className="sr-only"> tu cumpleaños</span>
+            </button>
+          </dd>
+        </div>
+        <div>
+          <dt>Incorporación a FLM</dt>
+          <dd>
+            {startDate ?? <span className={styles.unset}>Sin indicar</span>}
+            {canEditOwnStartDate(me) ? (
+              <button type="button" className={styles.ddAction} onClick={openDates}>
+                Completar<span className="sr-only"> tu fecha de incorporación</span>
+              </button>
+            ) : (
+              <span className={styles.ddSub}>La corrige administración</span>
+            )}
+          </dd>
+        </div>
+        <div>
           <dt>En el campus</dt>
           <dd>
             {ROLE_LABEL[me.role]}
@@ -469,6 +506,17 @@ export default function ProfilePage() {
           </dd>
         </div>
       </dl>
+
+      {missingDates.length > 0 && (
+        <div className={styles.datesNotice}>
+          <Notice tone="info" icon={<CalendarHeart size={18} />} title={missingDates.length === 2 ? 'Completa tu cumpleaños y tu fecha de incorporación' : missingDates[0] === 'birthday' ? 'Completa tu cumpleaños' : 'Completa tu fecha de incorporación'}>
+            <p>{OWN_DATES_PURPOSE} No es obligatorio para usar el campus: puedes hacerlo cuando quieras, también desde Ajustes.</p>
+            <Button variant="secondary" size="sm" icon={<CalendarHeart />} onClick={openDates} className={styles.datesNoticeAction}>
+              Completar mis datos
+            </Button>
+          </Notice>
+        </div>
+      )}
 
       <nav aria-label="Secciones del perfil" className={styles.toc}>
         <ul role="list">
@@ -503,6 +551,25 @@ export default function ProfilePage() {
         </div>
         <Recognitions badges={badges} upcoming={upcoming} fresh={fresh} />
       </section>
+
+      <Dialog
+        open={datesOpen}
+        onClose={() => setDatesOpen(false)}
+        title="Tus datos del calendario"
+        description={OWN_DATES_PURPOSE}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setDatesOpen(false)}>
+              Cancelar
+            </Button>
+            <Button type="submit" form={datesFormId} icon={<Check />}>
+              Guardar
+            </Button>
+          </>
+        }
+      >
+        <OwnDatesForm key={datesKey} person={me} formId={datesFormId} showPurpose={false} onDone={() => setDatesOpen(false)} />
+      </Dialog>
     </div>
   );
 }

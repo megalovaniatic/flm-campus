@@ -9,6 +9,7 @@ Capturas de la demostración compilada (modo demo), generadas con `node scripts/
 | Inicio — «La llegada»: el titular es el menú y la foto real va en cápsula; al bajar, «Ponte al día» con noticias, nuevos clientes, incorporaciones y próximos eventos | ![Inicio](capturas/escritorio-inicio.webp) |
 | Aprender — itinerarios por área en cápsulas, progreso y evaluaciones | ![Aprender](capturas/escritorio-aprender.webp) |
 | Área Fiscal — cápsula oficial del departamento, referente y portadas tipográficas | ![Área Fiscal](capturas/escritorio-area-fiscal.webp) |
+| Área Contabilidad — siete formaciones, con las de importaciones, amortizaciones, bienes de inversión y anticipos | ![Área Contabilidad](capturas/escritorio-area-contable.webp) |
 | Formación — lectura editorial con índice, glosario al margen y revisión pendiente | ![Formación](capturas/escritorio-formacion.webp) |
 | Test — «pruebas de imprenta», una pregunta por pantalla | ![Test](capturas/escritorio-test.webp) |
 | Consultar — búsqueda y tres puertas | ![Consultar](capturas/escritorio-consultar.webp) |
@@ -16,7 +17,7 @@ Capturas de la demostración compilada (modo demo), generadas con `node scripts/
 | Notas informativas — miniaturas reales de los PDF | ![Notas](capturas/escritorio-notas.webp) |
 | Lecturas recomendadas — «la estantería» | ![Lecturas](capturas/escritorio-lecturas.webp) |
 | Agenda — sesiones unidas por puentes líquidos y fechas por confirmar | ![Agenda](capturas/escritorio-agenda.webp) |
-| Calendario — tipos con icono, color y texto | ![Calendario](capturas/escritorio-calendario.webp) |
+| Calendario — encuentros, festivos, cumpleaños y aniversarios, con icono, color y texto (noviembre de 2026) | ![Calendario](capturas/escritorio-calendario.webp) |
 | Perfil — progreso por área, formaciones, intentos y reconocimientos | ![Perfil](capturas/escritorio-perfil.webp) |
 | Sobre el campus — concepto, marca y sistema de diseño vivo | ![Sobre el campus](capturas/escritorio-sobre.webp) |
 

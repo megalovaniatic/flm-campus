@@ -273,7 +273,7 @@ export interface ClientForm {
 export interface WelcomeForm {
   type: 'bienvenida';
   personId: string;
-  /** Fecha del anuncio: la ficha de la persona no guarda la de incorporación. */
+  /** Fecha del anuncio. La de incorporación es de la ficha de la persona (calendario de empresa), no de la bienvenida. */
   date: string;
   message: string;
   /** «La persona sabe que se anuncia su llegada». Obligatoria para publicar; no se publica. */

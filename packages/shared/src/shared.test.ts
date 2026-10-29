@@ -4,11 +4,12 @@ import { entriesForMonth, monthGrid } from './calendar';
 import { addMonthsClamped, fromMadrid, madridDateKey } from './dates';
 import { eventPhase, eventToIcs, nextSession } from './events';
 import { assessmentClashReason, can, canHandleType, checkTransition, CREATABLE_TYPES, isCorporateEmail, ROLE_PERMISSIONS, STATUS_LABEL_EDITORIAL } from './permissions';
+import { birthdayKey, birthdayLabel, isValidBirthday, isValidDateKey, latestStartDate, missingPersonalDates, startDateLimitIssue } from './personalDates';
 import { formationStatus, gradeQuiz } from './progress';
-import { blockSchema, editorialSchema, newClientSchema, welcomeSchema } from './schemas';
+import { blockSchema, editorialSchema, newClientSchema, personalDatesSchema, welcomeSchema } from './schemas';
 import { countryCode } from './countries';
 import { normalize, slugify } from './text';
-import type { CampusEvent, Quiz } from './types';
+import type { CampusEvent, Person, Quiz } from './types';
 
 const editorial = { status: 'publicado' as const, authorId: 'a', review: { state: 'revisado' as const } };
 const baseEvent = (patch: Partial<CampusEvent>): CampusEvent => ({
@@ -21,6 +22,17 @@ const baseEvent = (patch: Partial<CampusEvent>): CampusEvent => ({
   icon: 'calendario',
   sessions: [],
   editorial,
+  ...patch,
+});
+const person = (patch: Partial<Person>): Person => ({
+  id: 'p-ficticia',
+  email: 'ficticia@flmexperts.com',
+  name: 'Persona Ficticia',
+  position: 'Asesora',
+  department: 'Fiscal',
+  office: 'Vic',
+  role: 'empleado',
+  status: 'activa',
   ...patch,
 });
 
@@ -72,11 +84,58 @@ describe('ciclo de vida de eventos', () => {
 
 describe('calendario', () => {
   const navidad = { date: '2026-12-25', name: 'Navidad', scope: 'nacional' as const, offices: [], source: 'https://www.boe.es' };
-  it('solo genera encuentros de equipo y festivos, sin fechas personales', () => {
+  it('sin personas, solo encuentros de equipo y festivos', () => {
     const comida = baseEvent({ title: 'Comida de Navidad', sessions: [{ start: '2026-12-16T14:00' }] });
     const list = entriesForMonth(2026, 12, { holidays: [navidad], events: [comida] });
     expect(list.map((e) => e.kind)).toEqual(['encuentro', 'festivo']);
     expect(list[0]).toMatchObject({ date: '2026-12-16', title: 'Comida de Navidad', eventId: 'e1', time: '14:00' });
+  });
+  it('cumpleaños cada año y aniversario desde el año siguiente a la incorporación, calculados desde el perfil', () => {
+    const judith = person({ id: 'p-judith-calet', name: 'Judith Calet', position: 'Asesora Contable', birthday: '11-26', startDate: '2026-09-01' });
+    const nov = (year: number) => entriesForMonth(year, 11, { holidays: [], events: [], people: [judith] });
+    const sep = (year: number) => entriesForMonth(year, 9, { holidays: [], events: [], people: [judith] });
+    expect(nov(2026)).toEqual([{ id: 'cumple-p-judith-calet-2026', date: '2026-11-26', kind: 'cumpleanos', title: 'Cumpleaños de Judith Calet', detail: 'Asesora Contable', personId: 'p-judith-calet' }]);
+    expect(nov(2031)[0]).toMatchObject({ date: '2031-11-26', kind: 'cumpleanos' });
+    // El año de la incorporación no hay aniversario; el primero es el 1 de septiembre de 2027
+    expect(sep(2026)).toEqual([]);
+    expect(sep(2027)[0]).toMatchObject({ id: 'aniv-p-judith-calet-2027', date: '2027-09-01', kind: 'aniversario', years: 1, detail: '1 año en FLM · desde el 1 de septiembre de 2026' });
+    expect(sep(2030)[0]).toMatchObject({ date: '2030-09-01', years: 4, detail: '4 años en FLM · desde el 1 de septiembre de 2026' });
+  });
+  it('sin duplicados, sin perfiles inactivos y al día con los cambios del perfil', () => {
+    const p = person({ birthday: '03-14' });
+    expect(entriesForMonth(2027, 3, { holidays: [], events: [], people: [p, p] })).toHaveLength(1);
+    expect(entriesForMonth(2027, 3, { holidays: [], events: [], people: [{ ...p, status: 'inactiva' }] })).toEqual([]);
+    expect(entriesForMonth(2027, 3, { holidays: [], events: [], people: [person({})] })).toEqual([]);
+    // Cambiar el cumpleaños mueve la entrada: no queda la anterior
+    const moved = { ...p, birthday: '04-02' };
+    expect(entriesForMonth(2027, 3, { holidays: [], events: [], people: [moved] })).toEqual([]);
+    expect(entriesForMonth(2027, 4, { holidays: [], events: [], people: [moved] })[0]).toMatchObject({ date: '2027-04-02' });
+  });
+  it('el 29 de febrero se celebra el 28 en los años no bisiestos', () => {
+    const p = person({ birthday: '02-29', startDate: '2024-02-29' });
+    expect(entriesForMonth(2027, 2, { holidays: [], events: [], people: [p] }).map((e) => [e.kind, e.date])).toEqual([
+      ['cumpleanos', '2027-02-28'],
+      ['aniversario', '2027-02-28'],
+    ]);
+    expect(entriesForMonth(2028, 2, { holidays: [], events: [], people: [p] }).map((e) => e.date)).toEqual(['2028-02-29', '2028-02-29']);
+  });
+  it('valida el cumpleaños sin año y la fecha completa de incorporación', () => {
+    expect(['11-26', '02-29', '12-31'].every(isValidBirthday)).toBe(true);
+    expect(['02-30', '13-01', '1126', '26-11', '', undefined].some((v) => isValidBirthday(v))).toBe(false);
+    expect(isValidDateKey('2026-09-01')).toBe(true);
+    expect(['2026-02-29', '2026-13-01', '01-09-2026', '2026-9-1'].some((v) => isValidDateKey(v))).toBe(false);
+    expect(birthdayLabel('11-26')).toBe('26 de noviembre');
+    expect(birthdayKey(26, 11)).toBe('11-26');
+    expect(missingPersonalDates({ birthday: '11-26' })).toEqual(['startDate']);
+    expect(personalDatesSchema.safeParse({ birthday: '11-26', startDate: '2026-09-01' }).success).toBe(true);
+    expect(personalDatesSchema.safeParse({ birthday: '11-26' }).success).toBe(false);
+  });
+  it('la incorporación admite altas previstas hasta un año vista (el mismo tope en la web y en la API)', () => {
+    expect(latestStartDate('2026-10-29')).toBe('2027-10-29');
+    // Un 29 de febrero como «hoy» deja el tope en el 28 del año siguiente, que no es bisiesto
+    expect(latestStartDate('2028-02-29')).toBe('2029-02-28');
+    expect(startDateLimitIssue('2027-10-29', '2026-10-29')).toBeNull();
+    expect(startDateLimitIssue('2062-09-01', '2026-10-29')).toBe('La fecha de incorporación no puede ser posterior al 29 de octubre de 2027.');
   });
   it('muestra los festivos como «Festivo»', () => {
     const list = entriesForMonth(2026, 12, { holidays: [navidad], events: [] });

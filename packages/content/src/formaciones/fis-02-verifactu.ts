@@ -440,7 +440,7 @@ export const formation: Formation = {
   verifiedAt: '2026-10-28',
   editorial: {
     status: 'publicado',
-    authorId: 'p-angel-ceniceros',
+    authorId: 'p-judith-calet',
     publishedAt: '2026-10-13T09:00:00+02:00',
     review: { state: 'pendiente', note: 'Borrador redactado para la revisión del área.' },
   },

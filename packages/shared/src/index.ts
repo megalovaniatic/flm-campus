@@ -5,6 +5,7 @@ export * from './events';
 export * from './progress';
 export * from './permissions';
 export * from './calendar';
+export * from './personalDates';
 export * from './badges';
 export * from './text';
 export * from './authorship';

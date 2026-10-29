@@ -1,6 +1,8 @@
 # 02 · Concepto creativo: «Círculo de confianza»
 
-> *Lo que sabe uno, lo sabemos todos.*
+> *Aprender juntos para asesorar mejor.*
+>
+> (Lema nuevo desde el 29/10/2026, a petición de FLM; sustituye a «Lo que sabe uno, lo sabemos todos».)
 
 ## Cómo se eligió
 
@@ -15,6 +17,8 @@ Cuatro direcciones independientes (editorial, producto digital, marca en movimie
 | Del círculo a la palabra (propio) | 5,93 | Descartado: sus círculos con letras imitaban el logotipo |
 
 > **Actualización (29/10/2026).** A petición de la clienta, el campus no guarda ni muestra cumpleaños ni fechas de incorporación. Del concepto humano se mantienen las personas reales, «Hoy en FLM» (eventos del día y festivos próximos) y la pertenencia; los aniversarios y la trayectoria de cada persona en la firma se han retirado.
+>
+> **Actualización posterior (29/10/2026).** La clienta pide recuperarlos solo para el calendario de empresa: cada ficha guarda el cumpleaños (día y mes, sin año) y la fecha de incorporación, obligatorios en el alta y opcionales en los perfiles anteriores, que se completan sin inventar nada. El calendario muestra cada año los cumpleaños y, desde el primer año cumplido, los aniversarios de incorporación; se calculan de la ficha, sin eventos guardados aparte. La trayectoria de cada persona en la firma sigue retirada.
 
 ## La idea
 
@@ -30,7 +34,7 @@ En castellano, *círculo de confianza* es la gente a la que puedes preguntar sin
 
 - **Papel cálido y tinta marino**, la marca como acento (rojo para puntos y trazos; degradado completo solo en filetes, anillos y conectores; como superficie, solo en la tarjeta protagonista de cada pantalla).
 - **Tipografía con dos voces**: Newsreader para titulares y lectura (rigor de publicación profesional), Inter para la interfaz (la tipografía de la web) y Belleza solo en «Explicamos».
-- **Fotografía real** de la oficina de Barcelona, en cápsulas y círculos, con pie; cero stock de personas. Portadas tipográficas para las formaciones («Art. 27», «147», «¿A Mercantil?»).
+- **Fotografía real** de la oficina de Barcelona, en cápsulas y círculos, con pie; sin stock de personas, salvo la cápsula de Aprender (una foto de Unsplash pedida por FLM el 29/10/2026). Portadas tipográficas para las formaciones («Art. 27», «147», «¿A Mercantil?»).
 - **Áreas** con la meseta de color de su cápsula oficial; **Contable** como la rampa completa del degradado («la suma de las tres»).
 
 ## Momentos firma

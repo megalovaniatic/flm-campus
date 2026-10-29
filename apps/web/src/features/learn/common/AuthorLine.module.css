@@ -1,0 +1,19 @@
+/* Firma de la persona autora: «Judith Calet — Asesora Contable», en una línea que se parte tras la raya. */
+.line {
+  display: block;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+/* La raya y el puesto, en el tono secundario y sin la negrita del nombre. */
+.role {
+  font-weight: 400;
+  font-style: normal;
+  color: var(--ink-2);
+}
+
+/* El puesto pasa entero a la línea siguiente si no cabe (y, si ni así cabe, se parte dentro). */
+.position {
+  display: inline-block;
+  max-width: 100%;
+}

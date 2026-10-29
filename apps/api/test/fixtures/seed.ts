@@ -34,6 +34,12 @@ export const EMAILS = {
   ficticia: 'ficticia@flmexperts.com',
 } as const;
 
+/**
+ * Cumpleaños y fecha de incorporación de prueba para las altas de las pruebas (obligatorios en el alta).
+ * Las personas del fixture no los tienen: son los perfiles anteriores, que se completan sin inventar nada.
+ */
+export const NEW_PERSON_DATES = { birthday: '03-14', startDate: '2026-10-26' } as const;
+
 export const published = (authorId: string): EditorialMeta => ({
   status: 'publicado',
   authorId,

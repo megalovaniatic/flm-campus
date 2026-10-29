@@ -41,7 +41,7 @@ La web usa **Inter** (general) y **Belleza** (destacados). El campus mantiene In
 
 ## 5. Fotografía (verificado)
 
-Sesión corporativa aportada por FLM (edificio y fachada de la sede, biblioteca, recepción, libretas, retrato de Ángel María Ceniceros, Socio del Área Fiscal) y la foto real del Desayuno Mercantil. Criterios: color natural, sin duotonos; reencuadres para evitar rótulos de otras firmas o elementos ajenos; sin fotografía de stock de personas.
+Sesión corporativa aportada por FLM (edificio y fachada de la sede, biblioteca, recepción, libretas, retrato de Ángel María Ceniceros, Socio del Área Fiscal) y la foto real del Desayuno Mercantil. Criterios: color natural, sin duotonos; reencuadres para evitar rótulos de otras firmas o elementos ajenos; sin fotografía de stock de personas. Única excepción, a petición de FLM (29/10/2026): la cápsula de Aprender muestra a un equipo conversando en una oficina, foto de Vitaly Gariev en Unsplash con la Licencia Unsplash (https://unsplash.com/photos/_4tpElFQemQ).
 
 ## 6. Redes y voz pública (verificado)
 

@@ -6,9 +6,21 @@
  * - El resto son personas FICTICIAS creadas para mostrar la administración, los informes y la autoría
  *   de contenidos. No tienen fotografía (solo iniciales) para no fabricar retratos de plantilla.
  *   En la versión privada estos datos se sustituyen por las cuentas reales.
- * - Solo datos profesionales: el campus no guarda cumpleaños ni fechas de incorporación.
+ * - Datos profesionales y, para el calendario de empresa, el cumpleaños (solo día y mes, sin año de
+ *   nacimiento) y la fecha de incorporación. Solo constan los que han facilitado la propia persona o
+ *   FLM (hoy, los de Judith Calet y la incorporación del 1 de septiembre de 2026 de Lluís Gómez y
+ *   Christopher Raudales): nunca se inventan. El resto de perfiles los tiene «sin indicar» hasta que
+ *   se completen desde el perfil o desde Administración › Personas.
  */
 import type { Department, Office, Person, Role } from '@flm/shared';
+
+/**
+ * Cumpleaños («MM-DD», sin año) y fecha de incorporación facilitados por la propia persona.
+ * Judith Calet: 26 de noviembre; en FLM desde el 1 de septiembre de 2026.
+ */
+const PERSONAL_DATES: Record<string, Pick<Person, 'birthday' | 'startDate'>> = {
+  'p-judith-calet': { birthday: '11-26', startDate: '2026-09-01' },
+};
 
 type Row = [id: string, name: string, position: string, department: Department, office: Office, role: Role];
 
@@ -95,12 +107,25 @@ const REAL: Person[] = [
     id: 'p-lluis-gomez',
     email: 'lluis.gomez@flmexperts.com',
     name: 'Lluís Gómez Palanques',
-    position: 'Equipo del Área Fiscal',
+    position: 'Asesor fiscal',
     department: 'Fiscal',
     office: 'Barcelona',
     role: 'autor',
     status: 'activa',
-    publicSource: 'Autor de las notas informativas «IVA de vehículos» y «Consulta V5484-26» aportadas por FLM.',
+    publicSource: 'Autor de las notas informativas «IVA de vehículos» y «Consulta V5484-26» aportadas por FLM. Puesto y fecha de incorporación facilitados por FLM.',
+    startDate: '2026-09-01',
+  },
+  {
+    id: 'p-christopher-raudales',
+    email: 'christopher.raudales@flmexperts.com',
+    name: 'Christopher Raudales',
+    position: 'Asesor contable',
+    department: 'Contable',
+    office: 'Barcelona',
+    role: 'empleado',
+    status: 'activa',
+    publicSource: 'Puesto, sede y fecha de incorporación facilitados por FLM. Correo con el formato corporativo (nombre.apellido), pendiente de confirmar.',
+    startDate: '2026-09-01',
   },
   {
     id: 'p-cristina-sebastian',
@@ -163,6 +188,7 @@ export const people: Person[] = [
       status: 'activa',
       fictional: isJudith ? undefined : true,
       publicSource: isJudith ? 'Perfil de la demostración, con autorización expresa.' : undefined,
+      ...PERSONAL_DATES[id],
     };
   }),
 ];

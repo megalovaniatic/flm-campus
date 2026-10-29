@@ -24,7 +24,7 @@ const MAIN: (Node & { icon: LucideIcon })[] = [
       {
         label: 'Fiscal · Laboral · Mercantil · Contable',
         to: '/aprender/fiscal',
-        note: 'Tres formaciones por área',
+        note: 'Formaciones de cada área (siete en Contabilidad)',
         children: [
           { label: 'Formación', note: 'Lectura, ejemplo resuelto e idea clave' },
           { label: 'Test final', note: '3 preguntas · se supera con 2' },
@@ -51,7 +51,7 @@ const MAIN: (Node & { icon: LucideIcon })[] = [
     note: 'Vida de empresa',
     children: [
       { label: 'Agenda', to: '/participar/agenda', note: 'Actuales y próximos · histórico' },
-      { label: 'Calendario', to: '/participar/calendario', note: 'Encuentros de equipo y festivos' },
+      { label: 'Calendario', to: '/participar/calendario', note: 'Encuentros, festivos, cumpleaños y aniversarios' },
       { label: 'Contribuye', to: '/participar/contribuye', note: 'Temas, mejoras, vídeos y reseñas' },
     ],
   },

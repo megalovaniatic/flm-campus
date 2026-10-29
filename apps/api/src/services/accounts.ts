@@ -64,14 +64,20 @@ export interface RemovedProfile {
   sessionsClosed: number;
   /** Intentos de test que se conservan como agregados anónimos. */
   attemptsAnonymized: number;
+  /**
+   * Datos del calendario que se borran con la ficha (0, 1 o 2: cumpleaños y fecha de incorporación).
+   * Sus cumpleaños y aniversarios desaparecen del calendario: se calculaban a partir de la ficha.
+   */
+  calendarDatesDeleted: number;
 }
 
 /**
  * «Eliminar el perfil» de una persona que deja FLM (irreversible). Exige escribir su correo como
  * confirmación explícita; nunca se aplica a la propia cuenta ni al último administrador activo.
  * En una sola transacción:
- *  - borra la fila de la persona: sus sesiones, enlaces y confirmaciones de lectura se van con ella
- *    (ON DELETE CASCADE) y su fotografía se borra;
+ *  - borra la fila de la persona, con su cumpleaños y su fecha de incorporación (sus entradas del
+ *    calendario de empresa desaparecen: se calculaban a partir de la ficha): sus sesiones, enlaces y
+ *    confirmaciones de lectura se van con ella (ON DELETE CASCADE) y su fotografía se borra;
  *  - su contenido NO se borra: formaciones, noticias, documentos, eventos… publicados, archivados o en
  *    borrador quedan sin autoría (author_id a NULL) y se firman con la firma neutra («Área X de FLM» o «FLM»);
  *  - retira su nombre de «Revisado por» en lo que revisó (por su identificador o, en anotaciones
@@ -109,12 +115,23 @@ export function removeUser(db: Db, actor: AuthUser, user: UserRow, confirmation:
     const sessionsClosed = count('SELECT COUNT(*) AS n FROM sessions WHERE user_id = ? AND revoked_at IS NULL', user.id);
     // Se hace explícito (también lo haría ON DELETE SET NULL) para dejar el recuento en la auditoría.
     const attemptsAnonymized = run(db, 'UPDATE quiz_attempts SET user_id = NULL WHERE user_id = ?', user.id);
+    // El cumpleaños y la fecha de incorporación están en la propia fila: se borran con ella.
+    const calendarDatesDeleted = (user.birthday ? 1 : 0) + (user.start_date ? 1 : 0);
 
     run(db, 'DELETE FROM users WHERE id = ?', user.id);
     if (user.photo_file_id) run(db, 'DELETE FROM files WHERE id = ?', user.photo_file_id);
     run(db, 'UPDATE audit_log SET ip = NULL WHERE actor_id = ?', user.id);
 
-    const removed: RemovedProfile = { id: user.id, contentsWithoutAuthor, revisionsWithoutAuthor, reviewerNamesRemoved, welcomesDeleted, sessionsClosed, attemptsAnonymized };
+    const removed: RemovedProfile = {
+      id: user.id,
+      contentsWithoutAuthor,
+      revisionsWithoutAuthor,
+      reviewerNamesRemoved,
+      welcomesDeleted,
+      sessionsClosed,
+      attemptsAnonymized,
+      calendarDatesDeleted,
+    };
     audit(
       db,
       {
@@ -122,7 +139,7 @@ export function removeUser(db: Db, actor: AuthUser, user: UserRow, confirmation:
         action: 'persona.eliminar-perfil',
         entity: 'persona',
         entityId: user.id,
-        detail: `Contenidos sin autoría: ${contentsWithoutAuthor}. Revisiones sin autoría: ${revisionsWithoutAuthor}. «Revisado por» retirado: ${reviewerNamesRemoved}. Bienvenidas eliminadas: ${welcomesDeleted}. Sesiones cerradas: ${sessionsClosed}. Intentos de test anonimizados: ${attemptsAnonymized}.`,
+        detail: `Contenidos sin autoría: ${contentsWithoutAuthor}. Revisiones sin autoría: ${revisionsWithoutAuthor}. «Revisado por» retirado: ${reviewerNamesRemoved}. Bienvenidas eliminadas: ${welcomesDeleted}. Sesiones cerradas: ${sessionsClosed}. Intentos de test anonimizados: ${attemptsAnonymized}. Fechas del calendario borradas: ${calendarDatesDeleted}.`,
         ip,
       },
       now,

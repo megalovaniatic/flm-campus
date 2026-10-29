@@ -413,6 +413,21 @@
   color: var(--ink-2);
 }
 
+/* Firma de la persona autora en una línea: «Judith Calet — Asesora Contable». */
+.sigLine {
+  line-height: 1.25;
+}
+
+.sigLineName {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.0625rem;
+}
+
+.sigLineRole {
+  font-size: var(--text-xs);
+}
+
 /* ── Resultado ──────────────────────────────────────────────────────── */
 
 .result {

@@ -46,24 +46,24 @@ describe('qué cambia al eliminar un perfil', () => {
   });
 
   it('los cambios sin publicar cuentan para quien firma el contenido, no para quien los empezó', () => {
-    const f = seed.formations.find((x) => x.editorial.authorId === 'p-angel-ceniceros')!;
-    // Judith empieza, con la vista de administración, cambios en la formación de Ángel.
+    const f = seed.formations.find((x) => x.editorial.authorId === 'p-judith-calet')!;
+    // Ángel empieza, con la vista de administración, cambios en la formación de Judith.
     const record: DraftRecord = {
       id: `rev-${f.id}`,
       type: 'formacion',
       title: f.title,
       status: 'borrador',
-      authorId: 'p-judith-calet',
+      authorId: 'p-angel-ceniceros',
       updatedAt: '2026-10-29T10:00:00.000Z',
       revision: 1,
       data: { schema: 2, sourceId: f.id, form: formationToForm(f) },
     };
     const drafts = { [record.id]: record };
     const all = contentRows({ formations: seed.formations, assessments: seed.assessments, statuses: {}, news: seed.news, documents: seed.documents, events: seed.events, clients: seed.clients, welcomes: seed.welcomes, drafts, removed: {}, people: seed.people });
-    expect(all.find((r) => r.id === record.id)).toMatchObject({ authorId: 'p-judith-calet', ownerId: 'p-angel-ceniceros' });
-    const before = removalImpact('p-angel-ceniceros', all.filter((r) => r.id !== record.id), reference);
-    expect(removalImpact('p-angel-ceniceros', all, reference).drafts).toBe(before.drafts + 1);
-    expect(removalImpact('p-judith-calet', all, reference).drafts).toBe(removalImpact('p-judith-calet', all.filter((r) => r.id !== record.id), reference).drafts);
+    expect(all.find((r) => r.id === record.id)).toMatchObject({ authorId: 'p-angel-ceniceros', ownerId: 'p-judith-calet' });
+    const before = removalImpact('p-judith-calet', all.filter((r) => r.id !== record.id), reference);
+    expect(removalImpact('p-judith-calet', all, reference).drafts).toBe(before.drafts + 1);
+    expect(removalImpact('p-angel-ceniceros', all, reference).drafts).toBe(removalImpact('p-angel-ceniceros', all.filter((r) => r.id !== record.id), reference).drafts);
   });
 });
 

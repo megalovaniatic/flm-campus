@@ -17,7 +17,7 @@ import styles from './AdminPage.module.css';
 type SectionId = 'personas' | 'informes' | 'auditoria' | 'retencion';
 
 const SECTIONS: { id: SectionId; label: string; icon: LucideIcon; title: string; lede: string }[] = [
-  { id: 'personas', label: 'Personas', icon: Users, title: 'Personas y accesos', lede: 'Roles, activación, sesiones y eliminación del perfil de quien deja FLM: su contenido se conserva sin autoría.' },
+  { id: 'personas', label: 'Personas', icon: Users, title: 'Personas y accesos', lede: 'Alta y ficha (con las fechas del calendario de empresa), roles, activación, sesiones y eliminación del perfil de quien deja FLM: su contenido se conserva sin autoría.' },
   { id: 'informes', label: 'Informes', icon: ChartColumn, title: 'Informes restringidos', lede: 'Participación en las formaciones, sin nombres, y errores frecuentes por pregunta.' },
   { id: 'auditoria', label: 'Auditoría', icon: ScrollText, title: 'Auditoría', lede: 'Quién hizo qué, sobre qué y cuándo. Sin contraseñas, tokens ni datos personales en el detalle.' },
   { id: 'retencion', label: 'Retención', icon: Timer, title: 'Retención de datos', lede: 'Cuánto se conserva cada dato y cómo se elimina.' },

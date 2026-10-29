@@ -55,7 +55,7 @@ Contrastes clave (WCAG 2.2): marino sobre papel ≈ 13,8:1 · gris sobre papel �
 | Contable | `--area-contable` + `--area-contable-fill` | marino + degradado completo (de trazo, aclarado en oscuro) | «La suma de las tres»: no tiene letra ni cápsula propia |
 | Toda la firma | `--area-general-fill` | las tres mesetas seguidas | Fiscal, Laboral y Mercantil, para no confundirla con la rampa de Contable |
 
-Uso: `data-area="fiscal|laboral|mercantil|contable|general"` expone `--area` (color plano), `--area-fill` (relleno), `--area-fill-v` (cantos verticales), `--area-wash` (lavado), `--area-atmos` (atmósfera) y los anillos del área (ver §2.4). Calendario: `--cal-encuentro` (marino) y `--cal-festivo` (gris), siempre con icono y texto. El calendario solo tiene esos dos tipos: encuentros de equipo y festivos, sin fechas personales.
+Uso: `data-area="fiscal|laboral|mercantil|contable|general"` expone `--area` (color plano), `--area-fill` (relleno), `--area-fill-v` (cantos verticales), `--area-wash` (lavado), `--area-atmos` (atmósfera) y los anillos del área (ver §2.4). Calendario: `--cal-encuentro` (marino), `--cal-festivo` (gris), `--cal-cumpleanos` (el rojo de texto, `--accent-text`) y `--cal-aniversario` (ámbar, `--warning`), siempre con icono y texto. Cumpleaños y aniversarios se calculan desde la ficha de cada persona; nunca se guardan como eventos.
 
 ### 2.4 Protagonistas: el color dice qué pulsar y dónde estás
 
@@ -190,6 +190,7 @@ Logotipos originales: `horizontal`, `crowe` (con «A business associate of Crowe
 - **Navegación**: cabecera fija (Inicio · Aprender · Consultar · Participar) con punto rojo que viaja; barra inferior en móvil con círculo activo; búsqueda global Ctrl/⌘ K y «/» (desactivable); migas en páginas interiores.
 - **Lectura**: columna de 66 caracteres, índice fijo, términos clave al margen, «Explicamos», ejemplos paso a paso, idea clave con punto rojo, fuentes.
 - **Evaluación**: una pregunta por pantalla, corrección al margen firmada, resultado con cifra grande, «El escalón» al completar.
+- **Firma de las formaciones**: una sola forma, sacada de `editorial.authorId` y de la ficha de la persona (`authorLine`, componente `AuthorLine` de Aprender): nombre y puesto unidos por una raya, «Judith Calet — Asesora Contable», con el avatar (foto o iniciales) delante. Se usa en la cabecera de la formación, en las notas al margen del test y en la vista previa del editor; el nombre destaca y la raya con el puesto va en el tono secundario. El lector de pantalla la oye una vez, entera. Sin autoría, la firma neutra del área va tal cual, sin puesto: «Área Fiscal de FLM».
 - **Datos**: tarjetas con enlace que cubre la tarjeta (un solo enlace con nombre claro), tablas con columnas numéricas tabulares, filtros reflejados en la URL.
 - **Retroalimentación**: guardado con `ActionButton` + *toast*; errores con qué ha pasado y qué hacer; aviso de conexión; demo con banda identificativa.
 

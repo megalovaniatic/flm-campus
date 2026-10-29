@@ -70,3 +70,40 @@ export function bylineFor<P extends { id: string }>(authorId: string | undefined
 export function bylineName(byline: Byline<{ name: string }>): string {
   return byline.kind === 'persona' ? byline.person.name : byline.name;
 }
+
+/** Separador entre el nombre y el puesto en la firma de una persona. */
+export const AUTHOR_SEPARATOR = ' — ';
+
+/** Quien firma con su nombre: basta con el nombre y, si lo tiene, el puesto de su ficha. */
+export interface AuthorLike {
+  name: string;
+  position?: string | null;
+}
+
+/** Las dos partes de la firma de una persona, ya limpias: el puesto solo si lo tiene. */
+export function authorParts(person: AuthorLike): { name: string; position?: string } {
+  const name = person.name.trim();
+  const position = person.position?.trim();
+  return position ? { name, position } : { name };
+}
+
+/**
+ * Firma de la persona autora en una línea: nombre y puesto unidos por « — »
+ * («Judith Calet — Asesora Contable»); sin puesto, solo el nombre.
+ *
+ * Es la única forma de mostrar la autoría de una formación y de su test (cabecera, notas al margen
+ * y vista previa del editor). Sale siempre de la ficha de la persona que figura en
+ * `editorial.authorId`, nunca de un texto escrito en cada formación: si cambia el puesto, cambia en todas.
+ */
+export function authorLine(person: AuthorLike): string {
+  const { name, position } = authorParts(person);
+  return position ? `${name}${AUTHOR_SEPARATOR}${position}` : name;
+}
+
+/**
+ * Línea de firma de un contenido: la de la persona autora («Judith Calet — Asesora Contable») o,
+ * sin ella, la firma neutra tal cual, sin puesto («Área Fiscal de FLM», «FLM»).
+ */
+export function bylineLine(byline: Byline<AuthorLike>): string {
+  return byline.kind === 'persona' ? authorLine(byline.person) : byline.name;
+}

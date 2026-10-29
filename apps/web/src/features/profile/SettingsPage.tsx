@@ -2,6 +2,7 @@ import { animate, motion } from 'motion/react';
 import {
   ArrowRight,
   Bell,
+  CalendarHeart,
   Database,
   Download,
   FlaskConical,
@@ -22,7 +23,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { AREAS, madridDateKey, number as formatNumber, ROLE_LABEL } from '@flm/shared';
+import { AREAS, madridDateKey, missingPersonalDates, number as formatNumber, ROLE_LABEL } from '@flm/shared';
 import { Button, Dialog, Kbd, Notice, PageHeader, Switch, toast } from '@/design';
 import { useMe } from '@/data/selectors';
 import { useDemo, type MotionPref, type ThemePref } from '@/data/store';
@@ -30,6 +31,8 @@ import { resetDemo } from '@/layout/DemoBand';
 import { downloadText } from '@/lib/download';
 import { usePageTitle, useReducedMotionPref } from '@/lib/preferences';
 import { scrollToSection, useHashScroll, useScrollSpy } from '@/features/about/useSectionNav';
+import { OwnDatesForm } from '@/features/admin/PersonalDates';
+import { birthdayText } from '@/features/admin/personForm';
 import { useNoticePrefs } from './noticePrefs';
 import styles from './SettingsPage.module.css';
 
@@ -38,6 +41,7 @@ const SECTIONS = [
   { id: 'movimiento', label: 'Movimiento', icon: Sparkles },
   { id: 'teclado', label: 'Teclado', icon: Keyboard },
   { id: 'avisos', label: 'Avisos', icon: Bell },
+  { id: 'calendario', label: 'Calendario', icon: CalendarHeart },
   { id: 'privacidad', label: 'Privacidad', icon: ShieldCheck },
   { id: 'sesion', label: 'Sesión y demo', icon: LogOut },
 ] as const;
@@ -214,6 +218,7 @@ export default function SettingsPage() {
 
   if (!me) return null;
 
+  const missingDates = missingPersonalDates(me);
   const themeNow = theme === 'sistema' ? `${systemDark ? 'oscuro' : 'claro'}, según tu sistema` : theme;
   const motionNow = motionPref === 'sistema' ? `${systemReduce ? 'reducido' : 'completo'}, según tu sistema` : motionPref;
   const area = Object.values(AREAS).find((a) => a.name === me.department);
@@ -230,6 +235,9 @@ export default function SettingsPage() {
         departamento: me.department,
         sede: me.office,
         perfil: ROLE_LABEL[me.role],
+        // Calendario de empresa: el cumpleaños sin año de nacimiento; null si no consta
+        cumpleanos: birthdayText(me),
+        fechaDeIncorporacion: me.startDate ?? null,
       },
       preferencias: { tema: s.theme, movimiento: s.motion, atajosDeUnaTecla: s.singleKeyShortcuts, avisos: { agenda: prefs.agenda, novedades: prefs.novedades, correo: prefs.correo } },
       progreso: Object.values(s.progress).map((p) => ({ formacion: p.formationId, lecturaConfirmada: p.readAt ?? null, versionLeida: p.readVersion ?? null, intentos: p.attempts.map((a) => ({ fecha: a.at, aciertos: a.correct, preguntas: a.total, superado: a.passed, version: a.version })) })),
@@ -398,6 +406,27 @@ export default function SettingsPage() {
             )}
           </section>
 
+          <section id="calendario" aria-labelledby="h-calendario" className={styles.panel}>
+            <header className={styles.panelHead}>
+              <h2 id="h-calendario" className={styles.panelTitle}>
+                Calendario de empresa
+              </h2>
+              <p className={styles.panelLede}>
+                {missingDates.length === 0
+                  ? 'Tu cumpleaños y tu aniversario en FLM ya aparecen en el calendario de empresa.'
+                  : missingDates.length === 2
+                    ? 'Aún no constan tu cumpleaños ni tu fecha de incorporación. Puedes completarlos ahora o más adelante: el campus funciona igual.'
+                    : `Aún no consta tu ${missingDates[0] === 'birthday' ? 'cumpleaños' : 'fecha de incorporación'}. Puedes completarlo ahora o más adelante: el campus funciona igual.`}
+              </p>
+            </header>
+            <OwnDatesForm key={`${me.id}|${me.birthday ?? ''}|${me.startDate ?? ''}`} person={me} formId="ajustes-calendario" inline />
+            <p className={styles.calendarLink}>
+              <Link to="/participar/calendario" className="link-arrow">
+                Ver el calendario de empresa <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+            </p>
+          </section>
+
           <section id="privacidad" aria-labelledby="h-privacidad" className={styles.panel}>
             <header className={styles.panelHead}>
               <h2 id="h-privacidad" className={styles.panelTitle}>
@@ -412,6 +441,14 @@ export default function SettingsPage() {
                 </span>
                 <span>
                   <strong>{__DEMO__ ? 'En este navegador.' : 'En este dispositivo.'}</strong> Tu progreso de lectura y tests, los intentos, los borradores, los cambios de la demostración y tus preferencias. Ocupa ahora <span className={styles.num}>{sizeText(size)}</span>.
+                </span>
+              </li>
+              <li>
+                <span className={styles.factIcon} aria-hidden="true">
+                  <CalendarHeart size={18} />
+                </span>
+                <span>
+                  <strong>Calendario de empresa.</strong> Tu cumpleaños (solo el día y el mes, nunca el año) y tu fecha de incorporación se muestran a todo el equipo en el calendario, como tu cumpleaños y tu aniversario en FLM. No se usan para nada más y se borran al eliminar tu perfil.
                 </span>
               </li>
               <li>

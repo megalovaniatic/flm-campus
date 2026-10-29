@@ -40,11 +40,31 @@ export function visiblePeople(people: readonly Person[], overrides: Record<strin
   });
 }
 
-/** Personas del campus. Sin los perfiles eliminados: desaparecen de listas, informes, buscadores, bienvenidas y firmas. */
+const SEED_IDS = new Set(seed.people.map((p) => p.id));
+
+/**
+ * Fichas de partida de la demo: la semilla y las personas dadas de alta desde Administración en este
+ * navegador (un id de la semilla no se duplica). Sin altas, la semilla tal cual.
+ */
+export function campusPeople(extra: readonly Person[] | undefined): Person[] {
+  const added = (extra ?? []).filter((p) => !SEED_IDS.has(p.id));
+  return added.length ? [...seed.people, ...added] : seed.people;
+}
+
+/** Personas que siguen en el campus según el estado de la demo (fuera de React: acciones y pruebas). */
+export function demoPeople(s: { extraPeople?: readonly Person[]; peopleOverrides: Record<string, Partial<Person>>; removedPeople: Record<string, string> }): Person[] {
+  return visiblePeople(campusPeople(s.extraPeople), s.peopleOverrides, s.removedPeople);
+}
+
+/**
+ * Personas del campus (con las altas de esta demo). Sin los perfiles eliminados: desaparecen de listas,
+ * informes, buscadores, bienvenidas, firmas y del calendario de empresa.
+ */
 export function usePeople(): Person[] {
+  const extra = useDemo((s) => s.extraPeople);
   const overrides = useDemo((s) => s.peopleOverrides);
   const removed = useDemo((s) => s.removedPeople);
-  return useMemo(() => visiblePeople(seed.people, overrides, removed), [overrides, removed]);
+  return useMemo(() => visiblePeople(campusPeople(extra), overrides, removed), [extra, overrides, removed]);
 }
 
 /**

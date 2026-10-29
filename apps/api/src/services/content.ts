@@ -371,8 +371,8 @@ export function validatePayload(type: ContentType, raw: unknown, ctx: { id: stri
 }
 
 /**
- * Bienvenidas: una por persona y solo para personas activas del directorio. Ni el anuncio ni la ficha
- * guardan la fecha de incorporación (el esquema es estricto y rechaza cualquier campo de más).
+ * Bienvenidas: una por persona y solo para personas activas del directorio. El anuncio no guarda la
+ * fecha de incorporación, que es de la ficha (el esquema es estricto y rechaza cualquier campo de más).
  */
 function assertWelcomeFor(db: Db, payload: Payload, contentId: string): void {
   const personId = typeof payload.personId === 'string' ? payload.personId : '';

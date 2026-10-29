@@ -10,11 +10,17 @@ y después una vez al día (`src/services/retention.ts`).
 
 ## 1. Principios
 
-- **Minimización.** Solo se guarda lo necesario para el trabajo y la formación: nombre, correo
-  corporativo, puesto, departamento, oficina, rol y, si la persona la sube, su foto. El campus no
-  guarda cumpleaños ni fechas de incorporación, y el calendario solo muestra festivos y encuentros
-  de equipo. En una base anterior, la migración `0002` elimina esas columnas con sus datos (y las
-  preferencias de cumpleaños anotadas en la auditoría) al arrancar el servidor.
+- **Minimización.** Solo se guarda lo necesario para el trabajo, la formación y el calendario de
+  empresa: nombre, correo corporativo, puesto, departamento, oficina y rol; la foto, si la persona la
+  sube; y, para mostrar en el calendario de empresa los cumpleaños y los aniversarios de
+  incorporación, el **cumpleaños sin el año de nacimiento** (solo día y mes) y la **fecha de
+  incorporación** a FLM. Son datos reales: se piden en el alta (o los completa la propia persona o
+  administración) y nunca se rellenan por defecto; los perfiles anteriores quedan «sin indicar» hasta
+  que se completan. Cumpleaños y aniversarios no se guardan como eventos: se calculan a partir de la
+  ficha de las personas activas, así que cambian con ella y desaparecen al desactivarla o eliminarla.
+  La migración `0002` eliminó en su día estas columnas con sus datos (y las preferencias de cumpleaños
+  anotadas en la auditoría); la `0006` las devuelve vacías, sin recuperar nada de lo borrado y sin el
+  consentimiento de la versión 1.
 - **Finalidad formativa.** Las formaciones del campus son voluntarias: no hay asignaciones, fechas
   límite ni avisos de plazos. Cada persona ve su propio progreso; administración solo consulta
   informes agregados y sin nombres (participación por formación y errores frecuentes por pregunta).
@@ -22,7 +28,9 @@ y después una vez al día (`src/services/retention.ts`).
   solo uso, únicamente como hash SHA-256. Los archivos subidos se guardan con nombres aleatorios
   fuera de cualquier ruta pública.
 - **Trazabilidad sin datos personales.** El registro de auditoría guarda identificadores, no
-  nombres ni correos, para que eliminar el perfil de una persona no deje rastros legibles.
+  nombres ni correos, para que eliminar el perfil de una persona no deje rastros legibles. Al editar
+  el cumpleaños o la fecha de incorporación anota qué campos cambian (`Campos: birthday`), nunca las
+  fechas.
 - **El conocimiento se queda.** Lo que una persona publica es patrimonio documental de la firma:
   cuando deja FLM y se elimina su perfil, sus contenidos se conservan sin autoría.
 
@@ -37,8 +45,9 @@ y después una vez al día (`src/services/retention.ts`).
 | Registro de auditoría | **2 años** | Se borran las entradas con más de 730 días. |
 | Intentos de test y confirmaciones de lectura | Mientras la persona esté activa y **1 año tras su baja** | Pasado el año, los intentos se **desvinculan** de la persona (se conservan como agregados anónimos para los informes de errores frecuentes) y las confirmaciones de lectura se borran. Si antes se elimina su perfil (§ 3), ocurre en ese momento. El informe de participación solo cuenta a las personas activas. |
 | Ficha de la persona (nombre, correo, foto, puesto…) | Mientras haya relación con FLM | Tras la baja, administración debe **eliminar el perfil** (ver § 3). El listado de personas marca con `retentionReviewDue` las cuentas desactivadas hace más de un año cuyo perfil aún no se ha eliminado. |
+| Cumpleaños (día y mes, sin año) y fecha de incorporación | Los de la ficha: mientras haya relación con FLM | Están en la propia ficha (`users.birthday`, `users.start_date`). Al desactivar la cuenta dejan de mostrarse en el calendario; al **eliminar el perfil** se borran con la fila (§ 3). Ningún evento guardado los copia: el calendario los calcula en cada consulta. |
 | Fotografías de perfil | Mientras la persona no la sustituya o elimine | Al sustituirla, la anterior se borra (no se versiona). Se borra al eliminar el perfil. |
-| Bienvenidas («Ponte al día» de Inicio) | Mientras la persona siga activa | Solo se muestran mientras la persona está activa y no guardan la fecha de incorporación. Al eliminar su perfil se borran (publicadas o en borrador), porque hablan de ella. |
+| Bienvenidas («Ponte al día» de Inicio) | Mientras la persona siga activa | Solo se muestran mientras la persona está activa y no guardan la fecha de incorporación (es de la ficha; la bienvenida muestra solo la ficha mínima). Al eliminar su perfil se borran (publicadas o en borrador), porque hablan de ella. |
 | Contenidos editoriales y documentos de la biblioteca | Indefinido (patrimonio documental de la firma) | Se archivan, no se borran. Al eliminar el perfil de su autor o autora se conservan **sin autoría** y llevan la firma neutra («Área Fiscal de FLM», con su área, en formaciones y evaluaciones; «FLM» en el resto); también se retira su nombre de «Revisado por» en lo que revisó. |
 | Copias de seguridad | Según la rotación configurada (`npm run backup -- --conservar N`) | Recomendado: 14 copias diarias. Eliminar un perfil no afecta a las copias anteriores: al restaurar una copia hay que repetir las eliminaciones posteriores a su fecha (constan en la auditoría como `persona.eliminar-perfil`). |
 | Límites de frecuencia (IP y correo) | En memoria, máximo 1 hora | Se pierden al reiniciar el servidor. |
@@ -50,8 +59,9 @@ y después una vez al día (`src/services/retention.ts`).
 1. Exige confirmación explícita: el campo `confirm` debe contener el correo de la persona.
 2. No se puede aplicar a la propia cuenta ni al último administrador activo.
 3. En una única transacción:
-   - borra la ficha de la persona (nombre, correo, puesto, rol, contraseña) y su fotografía
-     (registro y archivo físico);
+   - borra la ficha de la persona (nombre, correo, puesto, rol, contraseña, cumpleaños y fecha de
+     incorporación) y su fotografía (registro y archivo físico): sus cumpleaños y aniversarios salen
+     del calendario de empresa, porque se calculaban a partir de la ficha;
    - borra sus sesiones, enlaces pendientes y confirmaciones de lectura;
    - **no borra su contenido**: formaciones, evaluaciones, noticias, documentos, eventos,
      comunicados y clientes (publicados, archivados o en borrador, y sus revisiones pendientes) se
@@ -63,7 +73,8 @@ y después una vez al día (`src/services/retention.ts`).
    - desvincula sus intentos de test (quedan como agregados anónimos para los informes);
    - quita su IP de las entradas de auditoría en las que actuó y anota `persona.eliminar-perfil` con
      los recuentos (contenidos y revisiones sin autoría, «Revisado por» retirados, bienvenidas
-     eliminadas, sesiones cerradas e intentos desvinculados), sin datos personales.
+     eliminadas, sesiones cerradas, intentos desvinculados y «Fechas del calendario borradas», de 0 a
+     2), sin datos personales.
 4. La operación es irreversible. Si la persona vuelve a FLM, se le crea una cuenta nueva.
 
 La anonimización de versiones anteriores (`POST /api/people/:id/anonymize`) se ha retirado: al
@@ -72,15 +83,19 @@ eliminados, con sus contenidos sin autoría.
 
 ## 4. Derechos de las personas
 
-- **Acceso:** `GET /api/me` (perfil), `GET /api/me/progress` y `GET /api/me/attempts` (historial
+- **Acceso:** `GET /api/me` (perfil, con su cumpleaños y su fecha de incorporación si constan), `GET /api/me/progress` y `GET /api/me/attempts` (historial
   propio de intentos con fecha, versión, respuestas y aciertos).
-- **Rectificación:** administración edita la ficha; cada persona gestiona su foto.
+- **Rectificación:** administración edita la ficha; cada persona gestiona su foto y completa sus datos
+  del calendario con `PATCH /api/me/personal-dates` (su cumpleaños lo puede corregir; la fecha de
+  incorporación, indicarla si falta: si ya consta, la corrige administración).
 - **Supresión:** eliminación del perfil (§ 3), a petición de la persona o al vencer el plazo.
 
 ## 5. Copias de seguridad y restauración
 
 Las copias (`VACUUM INTO`) contienen datos personales: deben guardarse cifradas, fuera del
 servidor y con acceso restringido. El procedimiento de restauración está en el README de la API.
-Las copias hechas antes de la migración `0002` aún guardan cumpleaños y fechas de incorporación
-hasta que salen de la rotación; si se restaura una, el servidor vuelve a aplicar las migraciones
-pendientes al arrancar y los elimina de nuevo.
+Las copias guardan también el cumpleaños y la fecha de incorporación de cada ficha; al restaurar una,
+hay que repetir las eliminaciones de perfil posteriores a su fecha (§ 2), que se llevan esos datos. Las
+copias hechas antes de la migración `0002` aún guardan los cumpleaños y fechas de incorporación de la
+versión 1 hasta que salen de la rotación; si se restaura una, el servidor aplica las migraciones
+pendientes al arrancar: la `0002` los elimina y la `0006` devuelve las columnas vacías, sin recuperarlos.

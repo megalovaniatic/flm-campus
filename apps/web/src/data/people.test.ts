@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { seed } from '@flm/content';
-import { bylineFor } from '@flm/shared';
+import { bylineFor, bylineLine } from '@flm/shared';
 import { DEMO_USER_ID, visiblePeople } from './selectors';
 import { useDemo } from './store';
 
@@ -24,14 +24,41 @@ describe('personas del campus sin los perfiles eliminados', () => {
   });
 
   it('el contenido de una persona eliminada pasa a la firma neutra: «Área … de FLM» en formaciones y «FLM» en noticias', () => {
-    const formation = seed.formations.find((f) => f.editorial.authorId === 'p-angel-ceniceros');
-    const news = seed.news.find((n) => n.editorial.authorId === 'p-angel-ceniceros') ?? seed.news[0]!;
-    expect(formation).toBeDefined();
+    // Todas las formaciones de la semilla son de Judith (el perfil de la demo, que no se elimina):
+    // la formación de Ángel es sintética; su noticia, la de la semilla.
+    const fiscal = seed.formations.find((f) => f.area === 'fiscal')!;
+    const formation = { ...fiscal, editorial: { ...fiscal.editorial, authorId: 'p-angel-ceniceros' } };
+    const news = seed.news.find((n) => n.editorial.authorId === 'p-angel-ceniceros');
+    expect(news).toBeDefined();
     const before = visiblePeople(seed.people, {}, {});
-    const after = visiblePeople(seed.people, {}, { 'p-angel-ceniceros': AT, [news.editorial.authorId ?? '']: AT });
-    expect(bylineFor(formation!.editorial.authorId, before, { type: 'formacion', area: formation!.area })).toMatchObject({ kind: 'persona', person: { id: 'p-angel-ceniceros' } });
-    expect(bylineFor(formation!.editorial.authorId, after, { type: 'formacion', area: formation!.area })).toEqual({ kind: 'neutra', name: 'Área Fiscal de FLM', area: 'fiscal' });
-    expect(bylineFor(news.editorial.authorId, after, { type: 'noticia', area: news.area })).toEqual({ kind: 'neutra', name: 'FLM' });
+    const after = visiblePeople(seed.people, {}, { 'p-angel-ceniceros': AT });
+    expect(bylineFor(formation.editorial.authorId, before, { type: 'formacion', area: formation.area })).toMatchObject({ kind: 'persona', person: { id: 'p-angel-ceniceros' } });
+    expect(bylineFor(formation.editorial.authorId, after, { type: 'formacion', area: formation.area })).toEqual({ kind: 'neutra', name: 'Área Fiscal de FLM', area: 'fiscal' });
+    expect(bylineLine(bylineFor(formation.editorial.authorId, after, { type: 'test', area: formation.area }))).toBe('Área Fiscal de FLM');
+    expect(bylineFor(news!.editorial.authorId, before, { type: 'noticia', area: news!.area })).toMatchObject({ kind: 'persona', person: { id: 'p-angel-ceniceros' } });
+    expect(bylineFor(news!.editorial.authorId, after, { type: 'noticia', area: news!.area })).toEqual({ kind: 'neutra', name: 'FLM' });
+  });
+});
+
+describe('autoría de las formaciones', () => {
+  const JUDITH = 'Judith Calet — Asesora Contable';
+  const people = visiblePeople(seed.people, {}, {});
+
+  it('todas las formaciones de la semilla, y su test final, firman «Judith Calet — Asesora Contable»', () => {
+    expect(seed.formations.length).toBeGreaterThan(0);
+    for (const f of seed.formations) {
+      expect(f.editorial.authorId, f.id).toBe(DEMO_USER_ID);
+      expect(bylineLine(bylineFor(f.editorial.authorId, people, { type: 'formacion', area: f.area })), f.id).toBe(JUDITH);
+      expect(bylineLine(bylineFor(f.editorial.authorId, people, { type: 'test', area: f.area })), f.id).toBe(JUDITH);
+    }
+  });
+
+  it('la firma sale del campo de autoría y de la ficha, nunca de un texto escrito en cada formación', () => {
+    for (const f of seed.formations) expect(JSON.stringify(f), f.id).not.toContain(JUDITH);
+    // Si cambia el puesto en la ficha, cambia en todas a la vez.
+    const promoted = visiblePeople(seed.people, { [DEMO_USER_ID]: { position: 'Responsable del Área Contable' } }, {});
+    const lines = new Set(seed.formations.map((f) => bylineLine(bylineFor(f.editorial.authorId, promoted, { type: 'formacion', area: f.area }))));
+    expect([...lines]).toEqual(['Judith Calet — Responsable del Área Contable']);
   });
 });
 

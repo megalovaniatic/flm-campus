@@ -18,10 +18,10 @@ import {
   type CampusEvent,
 } from '@flm/shared';
 import { Button, ButtonLink, Dialog, EmptyState, IconButton, Kbd, Notice, PageHeader } from '@/design';
-import { holidays, useEvents } from '@/data/selectors';
+import { holidays, useEvents, usePeople } from '@/data/selectors';
 import { MESSAGES } from '@/lib/messages';
 import { usePageTitle, useReducedMotionPref } from '@/lib/preferences';
-import { countLabel, indexMonths, KIND_ORDER, shiftMonth } from './calendarView';
+import { countByKind, countLabel, indexMonths, KIND_ORDER, shiftMonth } from './calendarView';
 import { DateMark } from './DateMark';
 import { DayEntries } from './DayEntries';
 import { capitalize, eventTiming, nextFeaturedEvent, partitionEvents } from './eventView';
@@ -36,8 +36,11 @@ const isDateKey = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(
 const MONTHS = Array.from({ length: 12 }, (_, i) => capitalize(monthName(i + 1)));
 
 /**
- * Calendario de FLM: encuentros de equipo y festivos de nuestras sedes (sin fechas personales).
- * Cuadrícula mensual en escritorio; tira semanal y lista en móvil.
+ * Calendario de FLM: encuentros de equipo, festivos de nuestras sedes y, desde la ficha de cada persona
+ * activa, su cumpleaños (día y mes, sin año) y su aniversario de incorporación. Esas fechas no se
+ * guardan como eventos: se calculan del perfil, así que cambian al editarlo y nunca se duplican; un
+ * perfil eliminado o desactivado deja de aparecer. Cuadrícula mensual en escritorio; tira semanal y
+ * lista en móvil.
  */
 export default function CalendarPage() {
   usePageTitle('Calendario');
@@ -45,6 +48,8 @@ export default function CalendarPage() {
   const today = useToday();
   const now = useNow(today);
   const events = useEvents();
+  // Sin los perfiles eliminados (usePeople); las cuentas desactivadas las descarta el cálculo.
+  const people = usePeople();
   const reduce = useReducedMotionPref();
   const isMobile = useMediaQuery('(max-width: 719px)');
   const wide = useMediaQuery('(min-width: 1100px)');
@@ -58,7 +63,7 @@ export default function CalendarPage() {
   // Los comunicados no son encuentros: solo los eventos entran en el calendario.
   const meetings = useMemo(() => events.filter((e) => e.kind !== 'comunicado'), [events]);
   const eventsById = useMemo(() => new Map(events.map((e) => [e.id, e])), [events]);
-  const sources = useMemo<CalendarSources>(() => ({ holidays, events: meetings }), [meetings]);
+  const sources = useMemo<CalendarSources>(() => ({ holidays, events: meetings, people }), [meetings, people]);
   const featured = useMemo(() => nextFeaturedEvent(partitionEvents(events, now).upcoming, now), [events, now]);
 
   const [initial] = useState(() => {
@@ -76,11 +81,7 @@ export default function CalendarPage() {
 
   const prefix = `${cursor.y}-${pad(cursor.m)}`;
   const monthDays = useMemo(() => [...index.keys()].filter((k) => k.startsWith(prefix)).sort(), [index, prefix]);
-  const counts = useMemo(() => {
-    const c: Record<CalendarKind, number> = { encuentro: 0, festivo: 0 };
-    for (const k of monthDays) for (const e of index.get(k) ?? []) c[e.kind] += 1;
-    return c;
-  }, [monthDays, index]);
+  const counts = useMemo(() => countByKind(monthDays.map((k) => index.get(k) ?? [])), [monthDays, index]);
   const visibleDays = monthDays.map((k) => [k, entriesFor(k)] as const).filter(([, list]) => list.length > 0);
   const visibleCount = visibleDays.reduce((n, [, list]) => n + list.length, 0);
   const noFilters = kinds.size === 0;
@@ -207,7 +208,7 @@ export default function CalendarPage() {
     <NextBlock ev={upNext} now={now} today={today} />
   ) : (
     <div className={styles.none}>
-      <p>{hidden > 0 ? `${hidden === 1 ? 'Hay una entrada oculta' : `Hay ${hidden} entradas ocultas`} por los filtros.` : 'No hay encuentros ni festivos este día.'}</p>
+      <p>{hidden > 0 ? `${hidden === 1 ? 'Hay una entrada oculta' : `Hay ${hidden} entradas ocultas`} por los filtros.` : 'Este día no hay encuentros, festivos, cumpleaños ni aniversarios.'}</p>
       {hidden > 0 && (
         <Button variant="soft" size="sm" onClick={showAll}>
           Mostrar todo
@@ -222,7 +223,7 @@ export default function CalendarPage() {
         crumbs={[{ label: 'Participar', to: '/participar' }, { label: 'Calendario' }]}
         eyebrow="Vida de empresa"
         title="Calendario"
-        lede="Encuentros de equipo y festivos de nuestras sedes, mes a mes."
+        lede="Encuentros de equipo, festivos de nuestras sedes, cumpleaños y aniversarios en FLM, mes a mes."
         actions={
           <ButtonLink to="/participar/agenda" variant="secondary" icon={<CalendarRange />}>
             Ver la agenda

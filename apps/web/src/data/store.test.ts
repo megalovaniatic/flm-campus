@@ -44,6 +44,12 @@ describe('estado guardado de la demo', () => {
     expect(migrateDemo(v3, 3)).toBe(v3);
   });
 
+  it('con la versión actual se conservan los cumpleaños, las fechas de incorporación y las altas (sin subir de versión)', () => {
+    const alta = { id: 'p-ana', email: 'ana@flmexperts.com', name: 'Ana', position: 'Asesora', department: 'Fiscal' as const, office: 'Vic' as const, role: 'empleado' as const, status: 'activa' as const, birthday: '03-14', startDate: '2026-11-02' };
+    const v3 = { peopleOverrides: { 'p-sara-lopez': { birthday: '04-02', startDate: '2020-05-04' } }, extraPeople: [alta] };
+    expect(migrateDemo(v3, 3)).toEqual(v3);
+  });
+
   it('al pasar a la versión 3 lo «en revisión» vuelve a borrador, sin comentarios de devolución y sin perder nada', () => {
     const at = '2026-10-28T10:00:00.000Z';
     const noticia = { type: 'noticia', headline: 'Aviso', area: 'fiscal' };

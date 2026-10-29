@@ -131,6 +131,14 @@ describe('publicar desde el creador (demo)', () => {
     expect(applyTransition(author, row, 'publicar')).toMatchObject({ ok: false, reason: 'Esta persona ya tiene una bienvenida. Edita la que existe en lugar de crear otra.' });
   });
 
+  it('en la demo, una bienvenida nueva a una persona real no se publica; las de las incorporaciones reales sí se pueden retocar', () => {
+    const nueva = draft('bor-bv-real', { type: 'bienvenida', personId: 'p-angel-ceniceros', date: '2026-10-29', message: 'Se suma al equipo.', confirmed: true }, admin.id);
+    expect(applyTransition(admin, nueva, 'publicar')).toMatchObject({ ok: false, reason: expect.stringContaining('las bienvenidas nuevas son para personas ficticias') });
+    const w = seed.welcomes.find((x) => x.personId === 'p-lluis-gomez')!;
+    const cambio = draft(revisionId(w.id), { type: 'bienvenida', personId: w.personId, date: w.date, message: 'Se incorpora al Área Fiscal de Barcelona.', confirmed: true }, admin.id, { sourceId: w.id });
+    expect(applyTransition(admin, cambio, 'publicar').ok).toBe(true);
+  });
+
   it('publicar cambios sin «Lo ha revisado el área» deja la revisión pendiente; al marcarla se guarda quién', () => {
     const documents = () => merged(useDemo.getState().extraDocuments, seed.documents);
     const doc = seed.documents.find((d) => d.editorial.review.state === 'revisado')!;
@@ -175,22 +183,22 @@ describe('propiedad y tipo en cada acción (demo)', () => {
   });
 
   it('los cambios guardados de algo publicado son de quien firma el contenido, no de quien los empezó', () => {
-    const f = seed.formations.find((x) => x.editorial.authorId === 'p-angel-ceniceros')!;
+    const f = seed.formations.find((x) => x.editorial.authorId === 'p-judith-calet')!;
     // Cambios empezados con la vista de administración sobre la formación de otra persona.
     const row = draft(revisionId(f.id), { ...formationToForm(f), title: 'Cambio ajeno' }, author.id, { sourceId: f.id });
     expect(applyTransition(author, row, 'publicar')).toMatchObject({ ok: false, reason: 'Solo puedes publicar tus propios contenidos.' });
     expect(removeWorkingDraft(author, row)).toMatchObject({ ok: false, reason: 'Solo puedes consultar y modificar tus propios contenidos.' });
 
     const listed = rowOf(row.id);
-    expect(listed).toMatchObject({ authorId: author.id, ownerId: 'p-angel-ceniceros', revisionOf: f.id });
+    expect(listed).toMatchObject({ authorId: author.id, ownerId: 'p-judith-calet', revisionOf: f.id });
     expect([isOwnRow(author, listed), canEditRow(author, listed), canSeeRow(author, listed)]).toEqual([false, false, false]);
     expect(formations().find((x) => x.id === f.id)?.title).toBe(f.title);
 
     // Quien firma el contenido sí los publica, y la autoría no cambia.
-    const owner = { ...author, id: 'p-angel-ceniceros' };
+    const owner = { ...author, id: 'p-judith-calet' };
     expect(isOwnRow(owner, listed) && canEditRow(owner, listed)).toBe(true);
     expect(applyTransition(owner, row, 'publicar').ok).toBe(true);
-    expect(formations().find((x) => x.id === f.id)).toMatchObject({ title: 'Cambio ajeno', editorial: { authorId: 'p-angel-ceniceros' } });
+    expect(formations().find((x) => x.id === f.id)).toMatchObject({ title: 'Cambio ajeno', editorial: { authorId: 'p-judith-calet' } });
   });
 
   it('la evaluación del área es de administración en cada acción, aunque figure como propia', () => {

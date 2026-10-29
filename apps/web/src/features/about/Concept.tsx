@@ -238,7 +238,7 @@ export function Concept() {
       <figure className={styles.motto}>
         <blockquote>
           <p>
-            Lo que sabe uno, lo sabemos todos<span className="red-dot" aria-hidden="true" />
+            Aprender juntos para asesorar mejor<span className="red-dot" aria-hidden="true" />
           </p>
         </blockquote>
         <figcaption>Lema del campus. El concepto se llama «Círculo de confianza»; el producto, FLM Campus.</figcaption>

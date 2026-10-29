@@ -58,7 +58,8 @@ export function ClientEditor({ value: f, update, err }: EditorProps<ClientForm>)
 
 /**
  * Bienvenida a una persona que se suma al equipo. Solo personas activas del directorio y sin otra
- * bienvenida; el anuncio solo tiene su propia fecha (la ficha no guarda la de incorporación).
+ * bienvenida; el anuncio solo tiene su propia fecha (la de incorporación es de la ficha y sale en el
+ * calendario de empresa como aniversario).
  */
 export function WelcomeEditor({ value: f, update, err, ctx }: EditorProps<WelcomeForm>) {
   const set = <K extends keyof WelcomeForm>(k: K, v: WelcomeForm[K]) => update((p) => ({ ...p, [k]: v }));
@@ -78,22 +79,24 @@ export function WelcomeEditor({ value: f, update, err, ctx }: EditorProps<Welcom
     }
     return ids;
   }, [welcomes, drafts, ctx.contentId]);
+  // Al editar una bienvenida ya publicada, su persona (aunque sea real) sigue disponible aunque se elija a otra.
+  const ownPersonId = useMemo(() => welcomes.find((w) => w.id === ctx.contentId)?.personId, [welcomes, ctx.contentId]);
   const candidates = useMemo(() => {
     const nq = normalize(q);
     return people
       // En la demo, solo personas ficticias: anunciar la llegada de una persona real sería inventar un hecho sobre ella.
-      .filter((p) => p.status === 'activa' && (!__DEMO__ || p.fictional) && (!taken.has(p.id) || p.id === f.personId))
+      .filter((p) => p.status === 'activa' && (!__DEMO__ || p.fictional || p.id === ownPersonId || p.id === f.personId) && (!taken.has(p.id) || p.id === f.personId))
       .filter((p) => !nq || normalize(`${p.name} ${p.position} ${p.department} ${p.office}`).includes(nq))
       .sort((a, b) => Number(b.id === f.personId) - Number(a.id === f.personId) || a.name.localeCompare(b.name, 'es'))
       .slice(0, 24);
-  }, [people, taken, q, f.personId]);
+  }, [people, taken, q, f.personId, ownPersonId]);
   const chosen = people.find((p) => p.id === f.personId);
 
   return (
     <>
       <Section
         title="Quién se suma"
-        description={`Solo personas activas del directorio que aún no tienen bienvenida. El nombre, el puesto y la sede se leen de su ficha.${__DEMO__ ? ' En la demostración solo aparecen personas ficticias.' : ''}`}
+        description={`Solo personas activas del directorio que aún no tienen bienvenida. El nombre, el puesto y la sede se leen de su ficha.${__DEMO__ ? ' En la demostración, las bienvenidas nuevas solo pueden ser para personas ficticias.' : ''}`}
       >
         {f.personId && !chosen && <Notice tone="warning" title="Esta persona ya no está en el directorio">Elige a otra persona o elimina el borrador.</Notice>}
         <Slot path="personId">
@@ -129,7 +132,7 @@ export function WelcomeEditor({ value: f, update, err, ctx }: EditorProps<Welcom
       </Section>
       <Section title="El mensaje">
         <Slot path="message">
-          <TextArea label="Mensaje de bienvenida" required rows={3} maxLength={240} value={f.message} onChange={(e) => set('message', e.target.value)} error={err('message')} hint="Una o dos frases: dónde se suma y en qué trabajará. Sin datos personales ni fechas de incorporación." placeholder="p. ej., Se suma al Área Laboral en Granollers: nóminas, contratos y trámites con la Seguridad Social." />
+          <TextArea label="Mensaje de bienvenida" required rows={3} maxLength={240} value={f.message} onChange={(e) => set('message', e.target.value)} error={err('message')} hint="Una o dos frases: dónde se suma y en qué trabajará. Sin datos personales: la fecha de incorporación ya consta en su ficha." placeholder="p. ej., Se suma al Área Laboral en Granollers: nóminas, contratos y trámites con la Seguridad Social." />
         </Slot>
         <Slot path="date">
           <TextField label="Fecha del anuncio" required type="date" value={f.date} onChange={(e) => set('date', e.target.value)} error={err('date')} hint="La del anuncio en el campus." />

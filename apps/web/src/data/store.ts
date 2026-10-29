@@ -96,6 +96,13 @@ interface DemoState {
    * id → versión vigente completa. Los selectores la aplican sobre el contenido original.
    */
   contentOverrides: Record<string, CampusItem>;
+  /**
+   * Personas dadas de alta desde Administración › Personas en esta demo (los selectores las suman a la
+   * semilla). Llevan su cumpleaños (día y mes) y su fecha de incorporación: de ahí salen sus entradas
+   * del calendario de empresa, que no se guardan aparte.
+   */
+  extraPeople: Person[];
+  /** Cambios de ficha (rol, estado, puesto…, cumpleaños y fecha de incorporación) sobre la semilla y las altas. */
   peopleOverrides: Record<string, Partial<Person>>;
   revokedSessions: Record<string, string>;
   /**
@@ -135,9 +142,15 @@ interface DemoState {
   removeExtra: (list: ExtraList, id: string) => void;
   /** Versión vigente de un contenido tras publicar una revisión (`null` la quita). */
   setOverride: (id: string, item: CampusItem | null) => void;
+  /** Alta de una persona (Administración › Personas). Un id repetido sustituye a la anterior. */
+  addPerson: (person: Person) => void;
   patchPerson: (personId: string, patch: Partial<Person>) => void;
   revokeSessions: (personId: string) => void;
-  /** Elimina el perfil de quien deja FLM. Nunca el de la sesión abierta (nadie se elimina a sí mismo). */
+  /**
+   * Elimina el perfil de quien deja FLM. Nunca el de la sesión abierta (nadie se elimina a sí mismo).
+   * Con el perfil se borran sus cambios de ficha (también su cumpleaños y su fecha de incorporación)
+   * y, si se dio de alta aquí, su ficha entera: sus fechas desaparecen del calendario.
+   */
   removePerson: (personId: string) => void;
   log: (record: Omit<AuditRecord, 'id' | 'at'>) => void;
   pushNotice: (n: Omit<Notice, 'id' | 'at' | 'read'>) => void;
@@ -167,6 +180,7 @@ const initial = {
   extraClients: [] as NewClient[],
   extraWelcomes: [] as Welcome[],
   contentOverrides: {} as Record<string, CampusItem>,
+  extraPeople: [] as Person[],
   peopleOverrides: {} as Record<string, Partial<Person>>,
   revokedSessions: {} as Record<string, string>,
   removedPeople: {} as Record<string, string>,
@@ -199,7 +213,12 @@ const safeStorage = createJSONStorage(() => {
 /** Lo que la demo guarda en este navegador: todo menos la presentación inicial. */
 type PersistedDemo = Omit<DemoState, 'seenIntro'>;
 
-/** Claves de la ficha que el campus ya no guarda: cumpleaños, su consentimiento y fecha de incorporación. */
+/**
+ * Claves de la ficha que la versión 2 borró de lo guardado con la 1: cumpleaños, su consentimiento y
+ * fecha de incorporación. Desde la versión 3 el cumpleaños (día y mes) y la fecha de incorporación
+ * vuelven, a petición expresa, solo con datos reales: los de la semilla y los que se introducen en la
+ * ficha. Lo guardado con la versión actual no pasa por `toV2` y se conserva.
+ */
 const RETIRED_PERSON_KEYS = new Set(['birthday', 'showBirthday', 'startDate']);
 
 /** Versión de lo guardado en este navegador (ver `migrateDemo`). */
@@ -284,8 +303,9 @@ function cleanList<T extends { id: string }>(list: readonly T[] | undefined, und
  * - «Deshacer» la primera publicación dejaba el contenido en su lista con un cambio de estado a
  *   «borrador» o «en revisión»: se retiran esos restos, que serían filas fantasma en Gestión.
  * - Las fichas anonimizadas con la antigua «Eliminar datos personales» pasan a perfiles eliminados.
- * - Las listas nuevas (formaciones, evaluaciones, clientes, bienvenidas publicadas desde Gestión y
- *   revisiones publicadas) no necesitan paso: el guardado las completa con sus valores iniciales.
+ * - Las listas nuevas (formaciones, evaluaciones, clientes, bienvenidas publicadas desde Gestión,
+ *   revisiones publicadas y personas dadas de alta desde Administración) no necesitan paso: el guardado
+ *   las completa con sus valores iniciales.
  */
 function toV3(state: PersistedDemo): PersistedDemo {
   const drafts: Record<string, DraftRecord> = {};
@@ -453,15 +473,18 @@ export const useDemo = create<DemoState>()(
           const { [id]: _previous, ...rest } = s.contentOverrides;
           return { contentOverrides: item ? { ...rest, [id]: item } : rest };
         }),
+      addPerson: (person) => set((s) => ({ extraPeople: [...(s.extraPeople ?? []).filter((p) => p.id !== person.id), person] })),
       patchPerson: (personId, patch) => set((s) => ({ peopleOverrides: { ...s.peopleOverrides, [personId]: { ...s.peopleOverrides[personId], ...patch } } })),
       revokeSessions: (personId) => set((s) => ({ revokedSessions: { ...s.revokedSessions, [personId]: now() } })),
       removePerson: (personId) =>
         set((s) => {
           if (personId === s.userId || s.removedPeople[personId]) return s;
-          // Sus cambios de ficha y sus sesiones dejan de existir con el perfil.
+          // Sus cambios de ficha (con sus fechas del calendario) y sus sesiones dejan de existir con el perfil;
+          // si se dio de alta en esta demo, también su ficha.
           const { [personId]: _ficha, ...peopleOverrides } = s.peopleOverrides;
           const { [personId]: _sesiones, ...revokedSessions } = s.revokedSessions;
-          return { removedPeople: { ...s.removedPeople, [personId]: now() }, peopleOverrides, revokedSessions };
+          const extraPeople = (s.extraPeople ?? []).filter((p) => p.id !== personId);
+          return { removedPeople: { ...s.removedPeople, [personId]: now() }, peopleOverrides, revokedSessions, extraPeople };
         }),
       log: (record) => set((s) => ({ audit: [{ ...record, id: uid(), at: now() }, ...s.audit].slice(0, 500) })),
       pushNotice: (n) => set((s) => ({ notices: [{ ...n, id: uid(), at: now(), read: false }, ...s.notices].slice(0, 50) })),

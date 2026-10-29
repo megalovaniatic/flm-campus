@@ -32,6 +32,9 @@ const ACTIONS: Record<string, { label: string; category: AuditCategory }> = {
   'evento.reclasificar': { label: 'Reclasifica un evento', category: 'contenido' },
   'persona.alta': { label: 'Da de alta a una persona', category: 'personas' },
   'persona.editar': { label: 'Edita una ficha', category: 'personas' },
+  // Autoservicio: la persona completa o corrige su cumpleaños y, si aún no consta, su fecha de incorporación
+  // (el mismo código que `PATCH /api/me/personal-dates`).
+  'perfil.fechas': { label: 'Completa sus datos del calendario', category: 'personas' },
   'persona.cambiar-rol': { label: 'Cambia el rol', category: 'personas' },
   'persona.desactivar': { label: 'Desactiva una cuenta', category: 'personas' },
   'persona.reactivar': { label: 'Reactiva una cuenta', category: 'personas' },
@@ -51,7 +54,7 @@ const ACTIONS: Record<string, { label: string; category: AuditCategory }> = {
 };
 
 export function actionInfo(code: string): { label: string; category: AuditCategory } {
-  return ACTIONS[code] ?? { label: code, category: code.startsWith('persona') || code.startsWith('cuenta') ? 'personas' : code.startsWith('sesion') ? 'sesiones' : 'sistema' };
+  return ACTIONS[code] ?? { label: code, category: code.startsWith('persona') || code.startsWith('cuenta') || code.startsWith('perfil') ? 'personas' : code.startsWith('sesion') ? 'sesiones' : 'sistema' };
 }
 
 export const ENTITY_LABEL: Record<string, string> = {

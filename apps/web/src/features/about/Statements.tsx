@@ -61,8 +61,12 @@ export function Accessibility() {
 /* ── 06 · Privacidad ───────────────────────────────────────────────────── */
 
 const PRINCIPLES = [
-  { icon: UserRound, title: 'Solo datos profesionales', text: 'Nombre, correo corporativo, puesto, departamento y sede. El campus no pide ni guarda cumpleaños ni fechas de incorporación.' },
-  { icon: Image, title: 'Fotografías reales', text: 'Solo las aportadas por FLM con autorización. Nunca fotos de stock de personas: quien no tiene foto aparece con sus iniciales.' },
+  {
+    icon: UserRound,
+    title: 'Datos profesionales y del calendario',
+    text: 'Nombre, correo corporativo, puesto, departamento y sede. Para el calendario de empresa, el día y el mes del cumpleaños (nunca el año de nacimiento) y la fecha de incorporación: solo los que da la persona o administración, nunca inventados.',
+  },
+  { icon: Image, title: 'Fotografías reales', text: 'Las aportadas por FLM con autorización, salvo la de Aprender (de Unsplash, acreditada en los créditos), que no muestra a personas de FLM. Quien no tiene foto aparece con sus iniciales.' },
   { icon: ShieldCheck, title: 'Personas de la demostración', text: 'Salvo las identificadas como reales (información profesional pública o autorización expresa), son ficticias y no tienen foto.' },
   { icon: Cookie, title: 'Sin seguimiento', text: 'Ni analítica ni cookies de terceros. Las tipografías se sirven desde el propio campus.' },
 ];
@@ -71,7 +75,12 @@ const RETENTION = [
   {
     data: 'Ficha (nombre, correo corporativo, puesto, departamento, sede y perfil)',
     purpose: 'Identificarte y firmar tus contenidos',
-    time: 'Mientras trabajes en FLM. Cuando dejas la firma, administración elimina tu perfil, a más tardar al año de la baja: desapareces del campus y lo que publicaste se conserva sin tu nombre, firmado por tu área o por FLM.',
+    time: 'Mientras trabajes en FLM. Cuando dejas la firma, administración elimina tu perfil, a más tardar al año de la baja: desapareces del campus (también del calendario) y lo que publicaste se conserva sin tu nombre, firmado por tu área o por FLM.',
+  },
+  {
+    data: 'Cumpleaños (solo día y mes) y fecha de incorporación',
+    purpose: 'Mostrar en el calendario de empresa, que ve todo el equipo, tu cumpleaños cada año y tu aniversario en FLM desde el primer año. Las fechas se calculan desde tu ficha: no se guardan aparte ni se usan para nada más',
+    time: 'Mientras tengas perfil en el campus. Se borran al eliminarlo; con la cuenta desactivada dejan de verse en el calendario. Si faltan, se piden en tu perfil, sin bloquear nada.',
   },
   { data: 'Progreso: lecturas confirmadas e intentos de test', purpose: 'Mostrarte tu progreso y elaborar informes agregados, sin nombres, de participación y errores frecuentes', time: 'Mientras estés en activo y hasta un año después de la baja, o hasta que se elimine tu perfil. Después, los intentos quedan como datos agregados anónimos y las lecturas se borran.' },
   { data: 'Sesión (cookie técnica)', purpose: 'Mantenerte conectado de forma segura', time: 'Caduca tras 12 horas sin actividad y, como máximo, a los 14 días. Se borra al día siguiente.' },
@@ -145,7 +154,7 @@ export function Privacy() {
         <div>
           <p className={styles.calloutTitle}>En esta demostración, todo se queda en tu navegador</p>
           <p className={styles.calloutText}>
-            No hay servidor ni cuentas reales: tu progreso, los intentos, los borradores y las preferencias se guardan en el almacenamiento local de este navegador. Puedes descargarlos o borrarlos cuando quieras desde <Link to="/perfil/ajustes#privacidad">Ajustes › Privacidad</Link> y{' '}
+            No hay servidor ni cuentas reales: tu progreso, los intentos, los borradores, los cambios de fichas (también los cumpleaños y las fechas de incorporación que se introduzcan) y las preferencias se guardan en el almacenamiento local de este navegador. Puedes descargarlos o borrarlos cuando quieras desde <Link to="/perfil/ajustes#privacidad">Ajustes › Privacidad</Link> y{' '}
             <Link to="/perfil/ajustes#sesion">«Restablecer la demostración»</Link>.
           </p>
         </div>
@@ -168,7 +177,7 @@ export function DemoVsPrivate() {
             <li>Navegación, búsqueda global (Ctrl K y «/») y avisos.</li>
             <li>Formaciones con lectura, test corregido al momento, estados de progreso y «El escalón».</li>
             <li>Actualidad, notas informativas en PDF y lecturas recomendadas.</li>
-            <li>Agenda con exportación a calendario (.ics) y calendario del mes.</li>
+            <li>Agenda con exportación a calendario (.ics) y calendario del mes, con cumpleaños y aniversarios en FLM calculados desde cada ficha.</li>
             <li>Perfil, reconocimientos y ajustes de tema, movimiento y atajos.</li>
           </ul>
         </div>
@@ -179,7 +188,7 @@ export function DemoVsPrivate() {
           <ul className={styles.list}>
             <li>Acceso sin contraseña y «Ver como» autor o administrador.</li>
             <li>Borradores, publicación, archivo y «Deshacer».</li>
-            <li>Subida de documentos, roles y cuentas de personas, eliminación de perfiles, informes y auditoría.</li>
+            <li>Subida de documentos, altas, fichas, roles y cuentas de personas, eliminación de perfiles, informes y auditoría.</li>
             <li>Preferencias de avisos y resumen por correo.</li>
           </ul>
           <p className={styles.note}>{MESSAGES.demoSimulated}</p>
@@ -216,7 +225,13 @@ export function Credits() {
       <dl className={styles.credits}>
         <div>
           <dt>Fotografía</dt>
-          <dd>Fotografías corporativas aportadas por FLM: sede de Barcelona (fachada, recepción y biblioteca), libretas, retrato de Ángel María Ceniceros y Desayuno Mercantil.</dd>
+          <dd>
+            Fotografías corporativas aportadas por FLM: sede de Barcelona (fachada, recepción y biblioteca), libretas, retrato de Ángel María Ceniceros y Desayuno Mercantil. La foto de Aprender es de{' '}
+            <a href="https://unsplash.com/photos/_4tpElFQemQ" target="_blank" rel="noreferrer">
+              Vitaly Gariev en Unsplash<span className="sr-only"> (se abre en una pestaña nueva)</span>
+            </a>
+            , con la Licencia Unsplash.
+          </dd>
         </div>
         <div>
           <dt>Logotipos</dt>

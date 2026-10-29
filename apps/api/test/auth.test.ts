@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { hashPassword, needsRehash, verifyPassword } from '../src/auth/passwords';
 import { sha256 } from '../src/auth/tokens';
 import { all, get } from '../src/db/database';
-import { EMAILS, IDS } from './fixtures/seed';
+import { EMAILS, IDS, NEW_PERSON_DATES } from './fixtures/seed';
 import { createTestEnv, DAY, HOUR, json, loginAs, MINUTE, PASSWORD, TestClient, type TestEnv } from './helpers';
 
 const tokenFrom = (text: string, page: 'activar' | 'restablecer-contrasena') => {
@@ -35,7 +35,7 @@ describe('alta y activación de cuentas', () => {
 
   it('solo admite correos @flmexperts.com', async () => {
     const admin = await loginAs(env, EMAILS.admin);
-    const res = await admin.post('/api/people', { email: 'alguien@gmail.com', name: 'Externa', position: 'Asesora', department: 'Fiscal', office: 'Barcelona', role: 'empleado' });
+    const res = await admin.post('/api/people', { email: 'alguien@gmail.com', name: 'Externa', position: 'Asesora', department: 'Fiscal', office: 'Barcelona', role: 'empleado', ...NEW_PERSON_DATES });
     expect(res.status).toBe(400);
     const body = await json(res);
     expect(body.error.code).toBe('VALIDACION');
@@ -51,6 +51,7 @@ describe('alta y activación de cuentas', () => {
       department: 'Laboral',
       office: 'Vic',
       role: 'empleado',
+      ...NEW_PERSON_DATES,
     });
     expect(res.status).toBe(201);
     const body = await json(res);
@@ -94,7 +95,7 @@ describe('alta y activación de cuentas', () => {
 
   it('rechaza enlaces caducados (7 días) y los sustituidos por uno nuevo', async () => {
     const admin = await loginAs(env, EMAILS.admin);
-    const created = await json(await admin.post('/api/people', { email: 'tarde@flmexperts.com', name: 'Tarde', position: 'Asesor', department: 'Fiscal', office: 'Barcelona', role: 'empleado' }));
+    const created = await json(await admin.post('/api/people', { email: 'tarde@flmexperts.com', name: 'Tarde', position: 'Asesor', department: 'Fiscal', office: 'Barcelona', role: 'empleado', ...NEW_PERSON_DATES }));
     const first = tokenFrom(env.mailer.last('tarde@flmexperts.com')!.text, 'activar');
 
     const resend = await admin.post(`/api/people/${created.person.id}/activation-link`);
@@ -169,7 +170,8 @@ describe('inicio de sesión y cookies', () => {
     expect(res.status).toBe(403);
     expect((await json(res)).error.message).toContain('desactivada');
 
-    await admin.post('/api/people', { email: 'pendiente@flmexperts.com', name: 'Pendiente', position: 'Asesor', department: 'Fiscal', office: 'Barcelona', role: 'empleado' });
+    const pending = await admin.post('/api/people', { email: 'pendiente@flmexperts.com', name: 'Pendiente', position: 'Asesor', department: 'Fiscal', office: 'Barcelona', role: 'empleado', ...NEW_PERSON_DATES });
+    expect(pending.status).toBe(201);
     expect((await client.post('/api/auth/login', { email: 'pendiente@flmexperts.com', password: PASSWORD })).status).toBe(401);
   });
 

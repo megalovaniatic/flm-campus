@@ -14,7 +14,8 @@ import { QuizHeader } from './quiz/QuizHeader';
 import styles from './QuizPage.module.css';
 
 function FormationQuiz({ f, isSample }: { f: Formation; isSample: boolean }) {
-  // Firma de las notas al margen: la persona autora o, sin ella (perfil eliminado), «Área … de FLM».
+  // Firma de las notas al margen: la persona autora con su puesto («Judith Calet — Asesora Contable»)
+  // o, sin ella (perfil eliminado), «Área … de FLM».
   const byline = useByline(f.editorial.authorId, { type: 'test', area: f.area });
   const progress = useDemo((s) => s.progress[f.id]);
   const allProgress = useDemo((s) => s.progress);

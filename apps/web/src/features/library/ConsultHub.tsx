@@ -3,14 +3,13 @@ import { ArrowRight, BookOpen, FileText, Lock, Newspaper, SearchX } from 'lucide
 import { useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { AREAS, areaName, diffDays, fileSize, formatShortDate, madridDateKey, plainText, relativeDay, type LibraryDocument, type NewsItem, type Reading } from '@flm/shared';
-import { Button, ButtonLink, EmptyState, PageHeader, PhotoCapsule } from '@/design';
+import { Button, EmptyState, PageHeader, PhotoCapsule } from '@/design';
 import { useDocuments, usePeople } from '@/data/selectors';
 import { MESSAGES } from '@/lib/messages';
 import { usePageTitle } from '@/lib/preferences';
 import { shortAuthors } from './components/BookCover';
 import { DocKindLabel, Highlight, KindLabel } from './components/Labels';
-import { NewsCard } from './components/NewsCard';
-import { DevSampleHint, SampleNotice } from './components/SampleNotice';
+import { SampleNotice } from './components/SampleNotice';
 import { SearchBox } from './components/SearchBox';
 import { useLibLink, useLibraryNews, useLibraryReadings, useSampleMode } from './lib/data';
 import { currentVersion, isAvailable } from './lib/docs';
@@ -167,7 +166,6 @@ export default function ConsultHub() {
         ) : (
           <motion.div key="portada" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0.12 } }} transition={{ duration: 0.24 }}>
             <Doors news={news} docs={docs} readings={readings} link={link} />
-            <LatestNews news={news} link={link} />
             <LatestDocuments docs={docs} />
           </motion.div>
         )}
@@ -472,47 +470,6 @@ function BooksArt() {
 }
 
 /* ── Lo último ──────────────────────────────────────────────────────── */
-
-function LatestNews({ news, link }: { news: NewsItem[]; link: (to: string) => string }) {
-  const latest = news.slice(0, 3);
-  return (
-    <section className={styles.section} aria-labelledby="h-ultimas-novedades">
-      <div className="section-head">
-        <h2 id="h-ultimas-novedades" className="section-title">
-          Últimas novedades
-        </h2>
-        {latest.length > 0 && (
-          <Link to={link('/consultar/actualidad')} className="link-arrow">
-            Ver toda la actualidad <ArrowRight size={16} aria-hidden="true" />
-          </Link>
-        )}
-      </div>
-      {latest.length > 0 ? (
-        <ul role="list" className={styles.newsGrid}>
-          {latest.map((n) => (
-            <li key={n.id}>
-              <NewsCard item={n} to={link(`/consultar/actualidad/${n.slug}`)} />
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <div className={styles.newsEmpty}>
-          <span className={styles.newsEmptyArt} aria-hidden="true">
-            <NewsArt />
-          </span>
-          <div>
-            <h3 className={styles.newsEmptyTitle}>Aún no hay novedades publicadas</h3>
-            <p className={styles.newsEmptyText}>Las novedades las publica la autoría de cada área. Cuando llegue la primera, la verás aquí y en tu inicio, explicada en cinco bloques.</p>
-            <DevSampleHint />
-          </div>
-          <ButtonLink to="/consultar/notas" variant="secondary" icon={<FileText />}>
-            Ver las notas informativas
-          </ButtonLink>
-        </div>
-      )}
-    </section>
-  );
-}
 
 function LatestDocuments({ docs }: { docs: LibraryDocument[] }) {
   const latest = docs.slice(0, 4);

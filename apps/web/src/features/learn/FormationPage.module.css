@@ -247,14 +247,18 @@
   min-width: 0;
 }
 
-.authorName {
+/* Firma: «Judith Calet — Asesora Contable» en una línea (el nombre destaca; la raya y el puesto, en secundario). */
+.authorLine {
   display: block;
-  font-weight: 650;
+  min-width: 0;
   line-height: 1.3;
 }
 
+.authorName {
+  font-weight: 650;
+}
+
 .authorRole {
-  display: block;
   font-size: var(--text-sm);
   color: var(--ink-2);
 }

@@ -23,9 +23,13 @@ import { enforce, RATE_RULES } from '../middleware/rate-limit';
 import { consumeAuthToken, findAuthToken, issueAuthToken } from '../services/account-tokens';
 import { audit } from '../services/audit';
 import { passwordChangedEmail, resetEmail, resetUrl } from '../services/emails';
-import { fileUrl, getUserByEmail, requireUserRow, type UserRow } from '../services/people';
+import { fileUrl, getUserByEmail, missingDatesOf, requireUserRow, type UserRow } from '../services/people';
 
-/** Datos de sesión que recibe la web (incluye el token CSRF que debe enviar en X-CSRF-Token). */
+/**
+ * Datos de sesión que recibe la web (incluye el token CSRF que debe enviar en X-CSRF-Token).
+ * `missingPersonalDates` lista los datos del calendario que faltan en la ficha: la web los pide
+ * (PATCH /api/me/personal-dates) sin bloquear el acceso.
+ */
 export function sessionPayload(user: UserRow, session: SessionRow) {
   return {
     authenticated: true as const,
@@ -39,6 +43,9 @@ export function sessionPayload(user: UserRow, session: SessionRow) {
       department: user.department,
       office: user.office,
       ...(user.photo_file_id ? { photo: fileUrl(user.photo_file_id) } : {}),
+      ...(user.birthday ? { birthday: user.birthday } : {}),
+      ...(user.start_date ? { startDate: user.start_date } : {}),
+      missingPersonalDates: missingDatesOf(user),
     },
     permissions: [...ROLE_PERMISSIONS[user.role]],
     csrfToken: session.csrf_token,

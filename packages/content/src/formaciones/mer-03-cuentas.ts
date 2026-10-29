@@ -404,7 +404,7 @@ export const formation: Formation = {
   version: 1,
   editorial: {
     status: 'publicado',
-    authorId: 'p-joan-navarro',
+    authorId: 'p-judith-calet',
     publishedAt: '2026-10-16T09:00:00+02:00',
     review: { state: 'pendiente', note: 'Borrador redactado para la revisión del área.' },
   },

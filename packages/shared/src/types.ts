@@ -18,7 +18,10 @@ export type Department =
 
 export type Office = 'Barcelona' | 'Vic' | 'Granollers';
 
-/** Ficha profesional mínima: el campus no guarda cumpleaños ni fecha de incorporación. */
+/**
+ * Ficha de una persona del campus. El cumpleaños (solo día y mes) y la fecha de incorporación
+ * alimentan el calendario de empresa; en los perfiles anteriores pueden faltar y se completan después.
+ */
 export interface Person {
   id: string;
   /** Correo corporativo; siempre @flmexperts.com. */
@@ -35,6 +38,10 @@ export interface Person {
   fictional?: boolean;
   /** De dónde procede la información pública de una persona real. */
   publicSource?: string;
+  /** Cumpleaños, solo día y mes («MM-DD»): nunca el año de nacimiento. */
+  birthday?: string;
+  /** Fecha de incorporación a FLM («AAAA-MM-DD»). */
+  startDate?: string;
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -425,7 +432,7 @@ export interface NewClient {
   editorial: EditorialMeta;
 }
 
-/** Bienvenida a una persona que se suma al equipo. Solo el anuncio tiene fecha: la ficha no guarda la de incorporación. */
+/** Bienvenida a una persona que se suma al equipo. Solo lleva la fecha del anuncio: la de incorporación es de la ficha (`Person.startDate`). */
 export interface Welcome {
   id: string;
   personId: string;
@@ -445,18 +452,23 @@ export interface Holiday {
   source: string;
 }
 
-export type CalendarKind = 'encuentro' | 'festivo';
+/** Cumpleaños y aniversarios se calculan a partir del perfil de cada persona (ver personalDates.ts). */
+export type CalendarKind = 'encuentro' | 'festivo' | 'cumpleanos' | 'aniversario';
 
 export interface CalendarEntry {
   id: string;
   date: string;
   kind: CalendarKind;
   title: string;
-  /** Festivo: su nombre. Encuentro: la sesión o el resumen del evento. */
+  /** Festivo: su nombre. Encuentro: la sesión o el resumen del evento. Cumpleaños: el puesto. Aniversario: los años en FLM. */
   detail?: string;
   eventId?: string;
   time?: string;
   offices?: Office[];
+  /** Cumpleaños y aniversario: la persona de cuyo perfil sale la entrada. */
+  personId?: string;
+  /** Aniversario: años cumplidos en FLM. */
+  years?: number;
 }
 
 /* ────────────────────────────────────────────────────────────────────────────

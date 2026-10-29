@@ -23,7 +23,7 @@ import { currentUser, requirePermission } from '../middleware/authorize';
 import { audit } from '../services/audit';
 import { composeItem, findPublished, listPublished, requireContent, setManualPhase, type ContentRow } from '../services/content';
 import { contentDisposition } from '../services/files';
-import { directoryEntry, getUser } from '../services/people';
+import { activeUsers, directoryCard, getUser, toPerson } from '../services/people';
 import { contentDetail } from './contents';
 
 interface HolidayRow {
@@ -90,7 +90,12 @@ export function companyRoutes(ctx: AppContext) {
     return c.json({ content: contentDetail(db, row, ctx.now()) });
   });
 
-  /** Calendario del mes: festivos y encuentros de equipo, sin fechas personales. */
+  /**
+   * Calendario del mes: festivos, encuentros de equipo y los cumpleaños y aniversarios de incorporación
+   * de las personas activas. Estos no se guardan como eventos: `entriesForMonth(…, { people })` los
+   * calcula a partir de cada ficha, así que cambian con ella, desaparecen al desactivarla o eliminarla y
+   * nunca se duplican (una entrada por persona, tipo y año). Sin correos ni años de nacimiento.
+   */
   r.get('/calendar', requirePermission('campus:leer'), (c) => {
     const { year, month } = queryParams(
       c,
@@ -104,7 +109,8 @@ export function companyRoutes(ctx: AppContext) {
     const events = listPublished(db, ['evento'])
       .map((row) => composeItem(db, row) as unknown as CampusEvent)
       .filter((e) => e.category === 'encuentro');
-    return c.json({ year, month, entries: entriesForMonth(year, month, { holidays, events }) });
+    const people = activeUsers(db).map(toPerson);
+    return c.json({ year, month, entries: entriesForMonth(year, month, { holidays, events, people }) });
   });
 
   r.get('/holidays', requirePermission('campus:leer'), (c) => {
@@ -145,8 +151,9 @@ export function companyRoutes(ctx: AppContext) {
   });
 
   /**
-   * Bienvenidas publicadas a personas que siguen activas en el equipo, con su ficha del directorio
-   * (sin correo). El anuncio solo tiene su fecha de publicación: la ficha no guarda la de incorporación.
+   * Bienvenidas publicadas a personas que siguen activas en el equipo, con su ficha mínima (sin correo
+   * ni fechas). El anuncio solo tiene su fecha de publicación: la de incorporación es de la ficha y se
+   * ve en el calendario de empresa (su aniversario), no en la bienvenida.
    */
   r.get('/welcomes', requirePermission('campus:leer'), (c) => {
     const { limit } = queryParams(c, z.object({ limit: z.coerce.number().int().min(1).max(50).optional() }));
@@ -159,7 +166,7 @@ export function companyRoutes(ctx: AppContext) {
     const items = rows
       .map((row) => {
         const person = getUser(db, row.person_id);
-        return { ...(composeItem(db, row) as unknown as Welcome), person: person ? directoryEntry(person) : null };
+        return { ...(composeItem(db, row) as unknown as Welcome), person: person ? directoryCard(person) : null };
       })
       .filter((w) => w.person !== null)
       .sort((a, b) => b.date.localeCompare(a.date));

@@ -6,6 +6,7 @@
 import { z } from 'zod';
 import { AREA_IDS } from './areas';
 import { COUNTRY_NAMES } from './countries';
+import { isValidBirthday, isValidDateKey } from './personalDates';
 import { normalize } from './text';
 
 const dateKey = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha con formato AAAA-MM-DD');
@@ -355,6 +356,15 @@ export const holidaySchema = z.object({
   source: httpsUrl,
 });
 
+/** Cumpleaños: día y mes («MM-DD»), sin año de nacimiento. */
+export const birthdaySchema = z.string().refine((v) => isValidBirthday(v), 'Indica un día y un mes que existan, por ejemplo, 26 de noviembre');
+
+/** Fecha completa que existe («AAAA-MM-DD»). */
+export const fullDateSchema = z.string().refine((v) => isValidDateKey(v), 'Indica una fecha completa que exista: día, mes y año');
+
+/** Datos que se piden al dar de alta un perfil: alimentan cumpleaños y aniversarios del calendario de empresa. */
+export const personalDatesSchema = z.object({ birthday: birthdaySchema, startDate: fullDateSchema });
+
 export const personSchema = z.object({
   id: nonEmpty('Id'),
   email: z.string().regex(/^[a-z0-9._%+-]+@flmexperts\.com$/, 'Correo corporativo @flmexperts.com obligatorio'),
@@ -367,6 +377,9 @@ export const personSchema = z.object({
   status: z.enum(['activa', 'inactiva']),
   fictional: z.boolean().optional(),
   publicSource: z.string().optional(),
+  // Opcionales en la ficha: los perfiles anteriores pueden no tenerlos todavía
+  birthday: birthdaySchema.optional(),
+  startDate: fullDateSchema.optional(),
 });
 
 /* Entradas de la API */

@@ -3,8 +3,9 @@
  *
  * - Los clientes son empresas INVENTADAS para la demo (marcadas como ficticias): nombre, sector,
  *   país de origen y el área de FLM que lleva el encargo.
- * - Las bienvenidas son a personas FICTICIAS de la plantilla de ejemplo. Solo el anuncio tiene
- *   fecha: las fichas de las personas no guardan fecha de incorporación.
+ * - Las bienvenidas son a personas REALES que se incorporaron a FLM el 1 de septiembre de 2026. El puesto,
+ *   la sede y el área a la que se suman los ha facilitado FLM; los mensajes se ciñen a esos datos. Solo
+ *   llevan la fecha del anuncio: la de incorporación es de la ficha.
  */
 import type { EditorialMeta, NewClient, Welcome } from '@flm/shared';
 
@@ -86,24 +87,24 @@ export const clients: NewClient[] = [
 
 export const welcomes: Welcome[] = [
   {
-    id: 'bv-noelia-fuentes',
-    personId: 'p-noelia-fuentes',
-    date: '2026-10-26',
-    message: 'Se suma al Área Contable en Barcelona para reforzar los cierres de fin de año.',
-    editorial: editorial('2026-10-26'),
+    id: 'bv-judith-calet',
+    personId: 'p-judith-calet',
+    date: '2026-09-01',
+    message: 'Se suma al Área Fiscal para trabajar con clientes internacionales.',
+    editorial: editorial('2026-09-01'),
   },
   {
-    id: 'bv-hector-gimenez',
-    personId: 'p-hector-gimenez',
-    date: '2026-10-19',
-    message: 'Refuerza el Área Laboral en Granollers: nóminas, contratos y trámites con la Seguridad Social.',
-    editorial: editorial('2026-10-19'),
+    id: 'bv-lluis-gomez',
+    personId: 'p-lluis-gomez',
+    date: '2026-09-01',
+    message: 'Se incorpora al equipo del Área Fiscal en Barcelona.',
+    editorial: editorial('2026-09-01'),
   },
   {
-    id: 'bv-pau-camps',
-    personId: 'p-pau-camps',
-    date: '2026-10-05',
-    message: 'Llega al Área Fiscal en Barcelona, con foco en IVA y facturación electrónica.',
-    editorial: editorial('2026-10-05'),
+    id: 'bv-christopher-raudales',
+    personId: 'p-christopher-raudales',
+    date: '2026-09-01',
+    message: 'Se incorpora al Área Fiscal para llevar la contabilidad de los clientes del área.',
+    editorial: editorial('2026-09-01'),
   },
 ];

@@ -91,6 +91,9 @@
   /* ── Calendario ────────────────────────────────────────────────────── */
   --cal-encuentro: var(--flm-marino);
   --cal-festivo: var(--flm-gris);
+  /* Cumpleaños y aniversarios: el rojo de texto y el ámbar del campus (el tema oscuro los aclara solo) */
+  --cal-cumpleanos: var(--accent-text);
+  --cal-aniversario: var(--warning);
 
   /* ── Superficies y texto (tema claro) ──────────────────────────────── */
   --paper: #f8f6f2;

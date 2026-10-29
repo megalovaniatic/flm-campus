@@ -3,7 +3,7 @@ import { banks, formations } from './formaciones';
 
 /**
  * «Pon a prueba tus conocimientos»: 10 preguntas de dificultad media por área (aprobado con 8),
- * compuestas a partir de los bancos de preguntas de las tres formaciones del área (4 + 3 + 3).
+ * compuestas a partir de los bancos de preguntas de las tres primeras formaciones del área (4 + 3 + 3).
  */
 function assemble(area: AreaId): QuizQuestion[] {
   const pools = formations.filter((f) => f.area === area).map((f) => banks[f.id] ?? []);

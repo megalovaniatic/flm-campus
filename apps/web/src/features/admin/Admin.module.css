@@ -22,6 +22,12 @@
   color: var(--ink-2);
 }
 
+.headText {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
 .count {
   font-size: var(--text-sm);
   color: var(--ink-2);
@@ -89,6 +95,7 @@
 }
 
 .filters4,
+.filters5,
 .filters3 {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -96,8 +103,44 @@
   align-items: end;
 }
 
+.filters5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
 .filters3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Perfiles con los datos del calendario incompletos: aviso que no bloquea, con su filtro */
+.datesNote {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--warning-soft);
+  border: 1px solid color-mix(in srgb, var(--warning) 35%, transparent);
+}
+
+.datesNoteIcon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--warning);
+}
+
+.datesNoteText {
+  font-size: var(--text-sm);
+  color: var(--ink);
+  line-height: 1.45;
+}
+
+.datesNoteText strong {
+  font-weight: 650;
 }
 
 /* Tablas */
@@ -341,6 +384,187 @@
 .dialogNote {
   font-size: var(--text-sm);
   color: var(--ink-2);
+}
+
+.dialogNote strong {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+/* Alta y edición de la ficha */
+.personForm {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.formGroup {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.formGroupTitle {
+  padding: 0 0 var(--space-2);
+  margin-bottom: var(--space-1);
+  width: 100%;
+  font-family: var(--font-serif);
+  font-weight: 460;
+  font-variation-settings: 'opsz' 30;
+  font-size: 1.2rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.formPair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+
+/* Para qué se piden el cumpleaños y la fecha de incorporación */
+.purpose {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.purpose svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--ink);
+}
+
+/* Cumpleaños: día y mes, sin año */
+.dateSet {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.dateLegend {
+  padding: 0;
+  margin-bottom: 0.4rem;
+}
+
+.dateParts {
+  display: grid;
+  grid-template-columns: minmax(6.5rem, 1fr) minmax(0, 2fr);
+  gap: var(--space-3);
+  max-width: 26rem;
+}
+
+.datePart {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.datePartLabel {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.dateInput {
+  max-width: 16rem;
+}
+
+/* Fecha de incorporación que ya consta (en el autoservicio solo la cambia administración) */
+.fixedDate {
+  display: grid;
+  gap: 0.3rem;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  border: 1px dashed var(--line-strong);
+}
+
+.fixedLabel {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.fixedValue {
+  font-size: var(--text-md);
+  font-weight: 650;
+}
+
+/* Autoservicio (perfil y ajustes) */
+.ownForm {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.ownActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* Resumen de errores al enviar */
+.formSummary {
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--danger);
+  background: var(--danger-soft);
+  outline: none;
+}
+
+.formSummary:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.formSummaryTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 650;
+  color: var(--danger);
+}
+
+.formSummaryList {
+  display: grid;
+  gap: 2px;
+  margin-top: var(--space-2);
+  padding-left: 1.6rem;
+}
+
+.formSummaryLink {
+  min-height: 32px;
+  text-align: left;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--danger);
+  text-underline-offset: 0.2em;
+}
+
+.formSummaryLink:hover {
+  text-decoration-thickness: 2px;
+}
+
+@media (pointer: coarse) {
+  .formSummaryLink {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 560px) {
+  .formPair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dateInput {
+    max-width: none;
+  }
 }
 
 /* Eliminar el perfil: a quién, qué pasará y la alternativa de desactivar */
@@ -852,11 +1076,25 @@
   .kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .filters5 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 760px) {
-  .filters4 {
+  .filters4,
+  .filters5 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .datesNote {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .datesNote > :last-child {
+    grid-column: 1 / -1;
+    justify-self: start;
   }
 
   .filters3 {

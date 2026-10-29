@@ -73,34 +73,46 @@ describe('herramientas de línea de órdenes (compiladas con esbuild)', () => {
   afterAll(() => rmSync(work, { recursive: true, force: true }));
 
   it('compila server.mjs, los CLI y copia las migraciones', () => {
-    const migrations = ['0001_esquema_inicial.sql', '0002_sin_cumpleanos_ni_incorporacion.sql', '0003_formaciones_voluntarias.sql'].map((m) => `migrations/${m}`);
+    const migrations = ['0001_esquema_inicial.sql', '0002_sin_cumpleanos_ni_incorporacion.sql', '0003_formaciones_voluntarias.sql', '0006_cumpleanos_e_incorporacion.sql'].map((m) => `migrations/${m}`);
     for (const file of ['server.mjs', 'create-admin.mjs', 'backup.mjs', 'seed.mjs', ...migrations]) {
       expect(existsSync(join(dist, file)), file).toBe(true);
     }
   });
 
-  it('create-admin crea la primera cuenta sin contraseña y muestra un enlace de activación', () => {
+  it('create-admin crea la primera cuenta sin contraseña, con cumpleaños e incorporación, y muestra un enlace de activación', () => {
     const usage = runCli('create-admin.mjs');
     expect(usage.status).toBe(1);
     expect(usage.stdout).toContain('Uso: npm run create-admin');
-    expect(usage.stdout).not.toContain('--incorporacion');
+    expect(usage.stdout).toContain('--cumpleanos');
+    expect(usage.stdout).toContain('--incorporacion');
 
-    const external = runCli('create-admin.mjs', ['--email', 'admin@gmail.com', '--nombre', 'Externa']);
+    const dates = ['--cumpleanos', '26/11', '--incorporacion', '01/09/2026'];
+    const external = runCli('create-admin.mjs', ['--email', 'admin@gmail.com', '--nombre', 'Externa', ...dates]);
     expect(external.status).toBe(1);
     expect(external.stderr).toContain('@flmexperts.com');
 
-    const ok = runCli('create-admin.mjs', ['--email', 'Direccion@flmexperts.com', '--nombre', 'Dirección FLM']);
+    // Los dos datos son obligatorios, como en el alta desde la administración; el año de nacimiento no se pide.
+    const withoutDates = runCli('create-admin.mjs', ['--email', 'direccion@flmexperts.com', '--nombre', 'Dirección FLM']);
+    expect(withoutDates.status).toBe(1);
+    expect(withoutDates.stderr).toContain('--cumpleanos: Indica el día y el mes del cumpleaños');
+    expect(withoutDates.stderr).toContain('--incorporacion: Indica la fecha completa de incorporación');
+    const wrongDay = runCli('create-admin.mjs', ['--email', 'direccion@flmexperts.com', '--nombre', 'Dirección FLM', '--cumpleanos', '31/11', '--incorporacion', '2026-09-01']);
+    expect(wrongDay.status).toBe(1);
+    expect(wrongDay.stderr).toContain('--cumpleanos');
+
+    const ok = runCli('create-admin.mjs', ['--email', 'Direccion@flmexperts.com', '--nombre', 'Dirección FLM', ...dates]);
     expect(ok.status, ok.stderr).toBe(0);
     expect(ok.stdout).toMatch(/https:\/\/campus\.test\/activar#token=[A-Za-z0-9_-]{43}/);
+    expect(ok.stdout).toContain('cumpleaños el 26 de noviembre; incorporación el 1 de septiembre de 2026');
     const db = openDatabase(env.DATABASE_PATH!);
-    const users = all<{ email: string; role: string; password_hash: string | null }>(db, 'SELECT email, role, password_hash FROM users');
-    // Las migraciones compiladas se aplican: la ficha no tiene cumpleaños ni fecha de incorporación.
+    const users = all<{ email: string; role: string; password_hash: string | null; birthday: string; start_date: string }>(db, 'SELECT email, role, password_hash, birthday, start_date FROM users');
+    // Las migraciones compiladas se aplican: vuelven las columnas de la 0006, sin el consentimiento de la versión 1.
     const columns = all<{ name: string }>(db, "SELECT name FROM pragma_table_info('users')").map((c) => c.name);
     db.close();
-    expect(users).toEqual([{ email: 'direccion@flmexperts.com', role: 'admin', password_hash: null }]);
-    expect(columns.filter((name) => ['birthday', 'show_birthday', 'start_date'].includes(name))).toEqual([]);
+    expect(users).toEqual([{ email: 'direccion@flmexperts.com', role: 'admin', password_hash: null, birthday: '11-26', start_date: '2026-09-01' }]);
+    expect(columns).not.toContain('show_birthday');
 
-    const again = runCli('create-admin.mjs', ['--email', 'direccion@flmexperts.com', '--nombre', 'Dirección FLM']);
+    const again = runCli('create-admin.mjs', ['--email', 'direccion@flmexperts.com', '--nombre', 'Dirección FLM', '--cumpleanos', '26/11', '--incorporacion', '2026-09-01']);
     expect(again.status).toBe(0);
     expect(again.stdout).toContain('Nuevo enlace de activación');
   });

@@ -598,7 +598,7 @@ export const formation: Formation = {
   verifiedAt: '2026-10-29',
   editorial: {
     status: 'publicado',
-    authorId: 'p-lorena-ortiz',
+    authorId: 'p-judith-calet',
     publishedAt: '2026-10-24T09:00:00+02:00',
     review: { state: 'pendiente', note: 'Borrador redactado para la revisión del área.' },
   },

@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import type { LucideIcon } from 'lucide-react';
-import { Clock, DatabaseBackup, KeyRound, ListChecks, MailCheck, RefreshCw, ScrollText, Timer, UserRoundMinus } from 'lucide-react';
+import { CalendarHeart, Clock, DatabaseBackup, KeyRound, ListChecks, MailCheck, RefreshCw, ScrollText, Timer, UserRoundMinus } from 'lucide-react';
 import { Link } from 'react-router';
 import { useDemo } from '@/data/store';
 import { useReducedMotionPref } from '@/lib/preferences';
@@ -116,7 +116,7 @@ export function RetentionSection() {
           <ol className={styles.steps}>
             <li>Lo hace administración cuando una persona deja la firma, a más tardar al revisar las cuentas desactivadas hace más de 1 año. Si solo se ausenta una temporada, basta con desactivar la cuenta.</li>
             <li>Exige una confirmación explícita: escribir el correo de la persona.</li>
-            <li>El perfil desaparece del campus: de Personas, de las búsquedas, de los informes y de «Ponte al día». Se retiran las bienvenidas que la anuncian, también las que están en borrador. Se cierran sus sesiones y se borran su fotografía, sus enlaces y sus lecturas.</li>
+            <li>El perfil desaparece del campus: de Personas, de las búsquedas, de los informes, de «Ponte al día» y del calendario de empresa. Se retiran las bienvenidas que la anuncian, también las que están en borrador. Se cierran sus sesiones y se borran su fotografía, su cumpleaños, su fecha de incorporación, sus enlaces y sus lecturas.</li>
             <li>Sus contenidos se conservan sin autoría: las formaciones y las evaluaciones firman «Área … de FLM»; las noticias, los eventos, los documentos y los anuncios, «FLM». Si era la persona de referencia de un área, el área deja de mostrarla.</li>
             <li>Los intentos de test se desvinculan y solo cuentan como agregados anónimos.</li>
             <li>Queda constancia en la auditoría, sin datos personales en el detalle. No se puede aplicar a la propia cuenta ni al último administrador activo, y en la versión interna no se puede deshacer.</li>
@@ -124,6 +124,17 @@ export function RetentionSection() {
           <Link to="/admin/personas" className="link-arrow">
             Ir a Personas
           </Link>
+        </article>
+        <article className={styles.retCard}>
+          <h3 className={styles.retTitle}>
+            <CalendarHeart size={18} aria-hidden="true" /> Cumpleaños y fecha de incorporación
+          </h3>
+          <ul className={styles.steps}>
+            <li>Qué: el día y el mes del cumpleaños (nunca el año de nacimiento) y la fecha completa de incorporación. Se piden en el alta; en los perfiles anteriores se completan después, sin inventarlos ni bloquear el acceso.</li>
+            <li>Para qué: el calendario de empresa muestra el cumpleaños cada año y el aniversario de incorporación desde que se cumple el primer año. Se calculan desde la ficha: no se guardan como eventos aparte.</li>
+            <li>Quién lo ve: todo el equipo, en el calendario. La persona los completa o corrige desde su perfil (la fecha de incorporación que ya consta solo la cambia administración).</li>
+            <li>Cuánto tiempo: mientras exista el perfil. Desactivar la cuenta los retira del calendario; eliminar el perfil los borra.</li>
+          </ul>
         </article>
         <article className={styles.retCard}>
           <h3 className={styles.retTitle}>

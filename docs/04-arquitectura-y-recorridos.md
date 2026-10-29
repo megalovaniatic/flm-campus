@@ -12,7 +12,7 @@ La navegación principal sigue los tres propósitos del campus más un punto de 
 | **Participar** | Agenda, calendario y aportaciones | «¿Qué está pasando en la firma?» · «Quiero aportar algo» |
 | Perfil (avatar) | Progreso, resultados, reconocimientos, ajustes | «¿Cómo voy?» |
 | Gestión (autoría y administración) | Crear contenidos, guardarlos como borrador y publicarlos | «Quiero aportar contenido» · «Necesito gestionar contenido» |
-| Administración | Personas, accesos, eliminación del perfil de quien deja FLM, informes agregados (sin nombres), auditoría | «Necesito gestionar accesos» · «¿Cómo va cada formación?» |
+| Administración | Personas (alta y ficha, con los datos del calendario), accesos, eliminación del perfil de quien deja FLM, informes agregados (sin nombres), auditoría | «Necesito gestionar accesos» · «¿Cómo va cada formación?» |
 
 La búsqueda global (Ctrl/⌘ K o «/») atraviesa todo: formaciones, novedades, notas, lecturas, agenda y secciones.
 
@@ -35,7 +35,7 @@ flowchart TD
   C --> CD[Notas informativas · PDF originales]
   C --> CL[Lecturas recomendadas]
   P --> PA[Agenda: Actuales y próximos · Histórico]
-  P --> PC[Calendario: encuentros de equipo · festivos]
+  P --> PC[Calendario: encuentros de equipo · festivos · cumpleaños · aniversarios en FLM]
   P --> PP[Participa: temas, mejoras, vídeos, LinkedIn, reseñas]
   PF --> PFA[Ajustes]
   PF -. autoría .-> G[Gestión de contenidos: Todo · Borradores · Publicado · Archivado]
@@ -127,7 +127,8 @@ Los errores de validación se listan en un resumen con enlace a cada campo y el 
 flowchart LR
   A[Gestión · Todo · Borradores · Publicado · Archivado] --> B[Editar o publicar cualquier contenido · Deshacer 10 s]
   A --> K[Archivar · Restaurar]
-  C[Administración · Personas] --> D[Alta con enlace de activación de 7 días]
+  C[Administración · Personas] --> D[Alta: ficha, cumpleaños día y mes y fecha de incorporación · enlace de activación de 7 días]
+  C --> M[Editar la ficha · completar los datos del calendario · filtro «Faltan datos»]
   C --> E[Desactivar = revoca sesiones]
   C --> F[Eliminar el perfil de quien deja FLM, con confirmación]
   F --> L[Su contenido se conserva sin autoría, con firma neutra · sus bienvenidas se borran]
@@ -137,12 +138,23 @@ flowchart LR
 
 Un contenido sin autoría (o cuya persona ya no está en el campus) se firma con la firma neutra: «Área Fiscal de FLM», con su área, en formaciones y evaluaciones, y «FLM» en el resto. En Gestión aparece como «Sin autoría» y solo administración lo edita; las evaluaciones del área, que nunca tienen autoría personal, también. El resumen de Administración enlaza al filtro «Autoría › Sin autoría» de Gestión con el mismo recuento que se ve al abrirlo, aparte del enlace a los borradores.
 
+### Calendario de empresa: cumpleaños y aniversarios desde la ficha
+
+El calendario (Participar › Calendario) muestra, además de los encuentros de equipo y los festivos, el cumpleaños de cada persona activa cada año y su aniversario de incorporación desde que se cumple el primer año (incorporación el 1 de septiembre de 2026 → primer aniversario el 1 de septiembre de 2027). Cada tipo lleva su icono, su color y su nombre en los filtros, en la cuadrícula, en el panel del día y en la lista móvil.
+
+- **No se guardan como eventos**: se calculan a partir de la ficha (`personalEntries`, en `@flm/shared`), con un id estable por persona, tipo y año. Editar la ficha mueve la fecha al momento y nunca la duplica; desactivar la cuenta la retira del calendario y eliminar el perfil borra los datos.
+- **Cumpleaños, solo día y mes**: nunca el año de nacimiento. El 29 de febrero se celebra el 28 en los años no bisiestos.
+- **Alta** (Administración › Personas › «Dar de alta a una persona»): el cumpleaños (dos selectores, día y mes, que no admiten fechas imposibles) y la fecha completa de incorporación (como mucho, un año vista: el mismo tope en la web y en la API, `startDateLimitIssue`) son obligatorios, con la explicación de para qué se usan. Se valida con los esquemas compartidos (`personSchema`, `birthdaySchema`, `fullDateSchema`), con un resumen de errores que lleva a cada campo.
+- **Perfiles anteriores sin estos datos**: se muestran «Sin indicar» y nunca se inventan. Nada se bloquea: la persona los completa desde su perfil o desde Ajustes › Calendario (corrige su cumpleaños cuando quiera; la fecha de incorporación que ya consta solo la cambia administración), y administración, con «Editar la ficha». Personas avisa de cuántos perfiles los tienen incompletos y los filtra («Calendario › Faltan datos»).
+- **Auditoría**: `persona.alta`, `persona.editar` (administración) y `perfil.fechas` (la propia persona; el mismo código que la API), con los nombres de los campos y nunca los valores.
+- **Demo**: las altas se guardan en este navegador (`extraPeople`) y los cambios de ficha en `peopleOverrides`; «Restablecer» los borra. En la versión interna, `POST /api/people`, `PATCH /api/people/:id` y `PATCH /api/me/personal-dates`.
+
 ## 4. Coherencia escritorio–móvil
 
 - Mismos destinos y en el mismo orden: cabecera en escritorio, barra inferior en móvil (Inicio, Aprender, Consultar, Participar, Perfil).
 - Búsqueda en la cabecera en ambos tamaños.
 - Paneles laterales en escritorio que pasan a hojas inferiores en móvil.
-- Calendario: cuadrícula en escritorio; tira semanal y lista en móvil.
+- Calendario: cuadrícula en escritorio; tira semanal y lista en móvil, con los cuatro tipos de fecha en ambos.
 - Lectura: índice y glosario al margen en escritorio; desplegables en línea en móvil.
 
 ## 5. Rutas directas

@@ -23,6 +23,7 @@ import { usePageTitle, useReducedMotionPref } from '@/lib/preferences';
 import { Rich, RichParagraphs, TermsProvider } from '@/lib/rich';
 import { Escalon } from '@/motion/Escalon';
 import { AreaDot } from './common/AreaMark';
+import { AuthorLine } from './common/AuthorLine';
 import { editorialDates, formationPath, photoOf, toSections, useLearnFormation, type ReadingSection } from './common/data';
 import { FormationCover } from './common/FormationCard';
 import { useMediaQuery } from './common/util';
@@ -85,13 +86,11 @@ function Header({ f, isSample, titleId }: { f: Formation; isSample: boolean; tit
           {byline.kind === 'persona' ? (
             <>
               <Avatar name={byline.person.name} photo={photoOf(byline.person)} size={44} decorative />
-              <span>
-                <span className={styles.authorName}>{byline.person.name}</span>
-                <span className={styles.authorRole}>{byline.person.position}</span>
-              </span>
+              {/* «Judith Calet — Asesora Contable»: nombre y puesto de la ficha, una sola vez */}
+              <AuthorLine person={byline.person} className={styles.authorLine} nameClassName={styles.authorName} roleClassName={styles.authorRole} />
             </>
           ) : (
-            <span>
+            <span className={styles.authorLine}>
               <span className={styles.authorName}>{byline.name}</span>
             </span>
           )}

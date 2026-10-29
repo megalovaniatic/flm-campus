@@ -5,6 +5,7 @@
  * - Errores traducidos a mensajes claros en castellano (MESSAGES).
  * En la demostración pública (__DEMO__) no se usa: las operaciones se simulan en el navegador.
  */
+import type { CalendarEntry, Department, Office, Person, PersonalDateField, Role } from '@flm/shared';
 import { MESSAGES } from '@/lib/messages';
 
 const BASE = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '');
@@ -23,9 +24,80 @@ export class ApiError extends Error {
 
 export interface SessionPayload {
   authenticated: true;
-  user: { id: string; email: string; name: string; role: 'empleado' | 'autor' | 'admin'; roleLabel: string; position: string; department: string; office: string; photo?: string };
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: 'empleado' | 'autor' | 'admin';
+    roleLabel: string;
+    position: string;
+    department: string;
+    office: string;
+    photo?: string;
+    /** Cumpleaños «MM-DD» (sin año) y fecha de incorporación «AAAA-MM-DD», si constan en la ficha. */
+    birthday?: string;
+    startDate?: string;
+    /**
+     * Datos del calendario de empresa que faltan en la ficha: la web los pide con `completeMyDates`
+     * sin bloquear el acceso (los perfiles anteriores a pedirlos no los tienen).
+     */
+    missingPersonalDates: PersonalDateField[];
+  };
   permissions: string[];
   csrfToken: string;
+}
+
+/** Ficha en la administración (`GET /people`, `/people/:id` y respuestas de alta y edición). */
+export interface ApiAdminPerson extends Person {
+  /** Datos del calendario que faltan («birthday», «startDate»): la ficha se puede completar al editarla. */
+  missingPersonalDates: PersonalDateField[];
+  accountState: 'pendiente-activacion' | 'activa' | 'desactivada' | 'anonimizada';
+  activatedAt: string | null;
+  deactivatedAt: string | null;
+  anonymizedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  retentionReviewDue: boolean;
+}
+
+/** Ficha del directorio interno (sin correo): lo necesario para el calendario, si consta. */
+export interface ApiDirectoryEntry {
+  id: string;
+  name: string;
+  position: string;
+  department: string;
+  office: string;
+  photo?: string;
+  birthday?: string;
+  startDate?: string;
+}
+
+/**
+ * Alta de una persona. `birthday` («MM-DD», sin año) y `startDate` («AAAA-MM-DD») son obligatorios
+ * (`personalDatesSchema` de @flm/shared): sin ellos, 400 `VALIDACION` con esos campos en `fields`.
+ */
+export interface ApiPersonInput {
+  email: string;
+  name: string;
+  position: string;
+  department: Department;
+  office: Office;
+  role: Role;
+  birthday: string;
+  startDate: string;
+}
+
+/**
+ * Edición: solo los campos que cambian. Un cumpleaños o una fecha de incorporación vacíos no se envían
+ * (se rechazan: los datos se completan, no se borran).
+ */
+export type ApiPersonPatch = Partial<ApiPersonInput>;
+
+/** Enlace de activación tras el alta: sin SMTP, `url` para entregarlo por un canal seguro. */
+export interface ApiActivation {
+  sent: boolean;
+  expiresAt: string;
+  url?: string;
 }
 
 /** Cuerpo de error de la API: `{ error: { code, message, details? } }`; en las validaciones, `details` lista los campos. */
@@ -68,13 +140,15 @@ function fieldsOf(details: unknown): Record<string, string> | undefined {
 /**
  * Conflictos entre contenidos (409) que se deben a un campo del formulario: el editor muestra el mensaje de
  * la API junto a ese campo. Una evaluación vigente por área; un solo espacio de slugs para eventos y
- * comunicados (comparten la dirección de la agenda); una bienvenida por persona. Los demás 409
+ * comunicados (comparten la dirección de la agenda); una bienvenida por persona; y, en la ficha propia,
+ * la fecha de incorporación que ya consta (la corrige administración). Los demás 409
  * (CONFLICTO_REVISION, REVISION_PENDIENTE, TRANSICION_NO_VALIDA…) se muestran como aviso.
  */
 const CONFLICT_FIELD: Record<string, string> = {
   EVALUACION_DUPLICADA: 'area',
   SLUG_DUPLICADO: 'slug',
   BIENVENIDA_DUPLICADA: 'personId',
+  INCORPORACION_YA_INDICADA: 'startDate',
 };
 
 /** Versión de un documento según la API (la de número más alto es la vigente). */
@@ -131,6 +205,8 @@ export interface RemovedProfile {
   welcomesDeleted: number;
   sessionsClosed: number;
   attemptsAnonymized: number;
+  /** Cumpleaños y fecha de incorporación borrados con la ficha (0, 1 o 2): salen del calendario. */
+  calendarDatesDeleted: number;
 }
 
 async function request<T>(method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE', path: string, body?: unknown): Promise<T> {
@@ -193,7 +269,32 @@ export const api = {
   myProgress: () => request<unknown>('GET', '/me/progress'),
   documents: () => request<unknown[]>('GET', '/documents'),
   events: () => request<unknown[]>('GET', '/events'),
-  calendar: (year: number, month: number) => request<unknown>('GET', `/calendar?year=${year}&month=${month}`),
+  /**
+   * Calendario del mes con `entriesForMonth()`: festivos, encuentros de equipo y los cumpleaños y aniversarios
+   * de las personas activas (calculados en el servidor a partir de cada ficha: una entrada por persona, tipo y año).
+   */
+  calendar: (year: number, month: number) => request<{ year: number; month: number; entries: CalendarEntry[] }>('GET', `/calendar?year=${year}&month=${month}`),
+  /** Perfil propio, con los datos del calendario que faltan. */
+  me: () => request<{ person: Person; missingPersonalDates: PersonalDateField[]; accountState: ApiAdminPerson['accountState']; permissions: string[] }>('GET', '/me'),
+  /**
+   * Completa los datos del calendario de la propia ficha: el cumpleaños («MM-DD», se puede corregir) y la
+   * fecha de incorporación (solo si aún no consta; si no, 409 `INCORPORACION_YA_INDICADA`). `changed`: los
+   * campos que han cambiado.
+   */
+  completeMyDates: (dates: { birthday?: string; startDate?: string }) =>
+    request<{ person: Person; missingPersonalDates: PersonalDateField[]; changed: PersonalDateField[] }>('PATCH', '/me/personal-dates', dates),
+  /** Directorio interno de las personas activas (sin correos). */
+  directory: () => request<{ items: ApiDirectoryEntry[] }>('GET', '/people/directory'),
+  /** Administración: listado de fichas (filtros opcionales). */
+  people: (filters: { status?: 'activa' | 'inactiva'; role?: Role; q?: string } = {}) => {
+    const qs = new URLSearchParams(Object.entries(filters).filter((e): e is [string, string] => !!e[1])).toString();
+    return request<{ items: ApiAdminPerson[] }>('GET', `/people${qs ? `?${qs}` : ''}`);
+  },
+  person: (id: string) => request<{ person: ApiAdminPerson }>('GET', `/people/${encodeURIComponent(id)}`),
+  /** Alta (con cumpleaños e incorporación obligatorios); la persona recibe el enlace de activación. */
+  createPerson: (input: ApiPersonInput) => request<{ person: ApiAdminPerson; activation: ApiActivation }>('POST', '/people', input),
+  /** Edición de la ficha; el calendario cambia con ella. Cambiar el rol cierra sus sesiones (`sessionsRevoked`). */
+  updatePerson: (id: string, patch: ApiPersonPatch) => request<{ person: ApiAdminPerson; sessionsRevoked: boolean }>('PATCH', `/people/${encodeURIComponent(id)}`, patch),
   contents: () => request<{ items: unknown[] }>('GET', '/contents'),
   /** Ficha editorial. Un borrador puede estar a medias: a `item` le pueden faltar campos obligatorios. */
   content: (id: string) => request<{ content: ApiContentDetail }>('GET', `/contents/${encodeURIComponent(id)}`),

@@ -143,7 +143,7 @@ export const TYPE_META: Record<ContentType, TypeMeta> = {
     plural: 'Bienvenidas',
     newLabel: 'Nueva bienvenida',
     icon: UserRoundPlus,
-    description: 'Anuncio de una persona que se suma al equipo, con un mensaje breve. Sin fecha de incorporación.',
+    description: 'Anuncio de una persona que se suma al equipo, con un mensaje breve. La fecha de incorporación va en su ficha.',
     destination: 'Inicio › Ponte al día',
     group: 'inicio',
   },

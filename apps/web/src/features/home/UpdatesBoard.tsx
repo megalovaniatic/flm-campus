@@ -10,9 +10,6 @@ import styles from './UpdatesBoard.module.css';
 
 const base = import.meta.env.BASE_URL;
 
-/** Días que una bienvenida sigue en el tablero (los ejemplos ficticios de la demo no caducan). */
-const WELCOME_DAYS = 60;
-
 /** Avisos internos que solo remiten a la agenda: ya salen en «Próximos eventos». */
 const isAgendaNotice = (n: NewsItem) => n.kind === 'aviso-interno' && n.source.url.startsWith('#/participar/agenda');
 
@@ -232,7 +229,8 @@ function ClientsTile({ today }: { today: string }) {
 
 function TeamTile({ today }: { today: string }) {
   const all = useWelcomes();
-  const welcomes = useMemo(() => all.filter((w) => w.date <= today && (w.person.fictional || diffDays(w.date, today) <= WELCOME_DAYS)).slice(0, 3), [all, today]);
+  // Las tres últimas ya anunciadas, sin caducidad: las nuevas desplazan a las anteriores (o se archivan en Gestión).
+  const welcomes = useMemo(() => all.filter((w) => w.date <= today).slice(0, 3), [all, today]);
   return (
     <Tile tile="team" kicker="La firma · Equipo" title="Nuevas incorporaciones" icon={<UserPlus size={18} />} create={{ type: 'bienvenida', label: 'Nueva bienvenida' }}>
       {welcomes.length === 0 ? (

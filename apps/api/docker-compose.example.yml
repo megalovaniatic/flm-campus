@@ -12,7 +12,7 @@
 # 3. El registro DNS del dominio debe apuntar a este servidor (puertos 80 y 443 abiertos).
 # 4. docker compose up -d --build
 # 5. Primera cuenta (siempre con -u campus):
-#      docker compose exec -u campus api node dist/create-admin.mjs --email … --nombre "…"
+#      docker compose exec -u campus api node dist/create-admin.mjs --email … --nombre "…" --cumpleanos <día/mes> --incorporacion <día/mes/año>
 # ─────────────────────────────────────────────────────────────────────────────
 name: flm-campus
 

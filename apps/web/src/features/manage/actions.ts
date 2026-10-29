@@ -32,7 +32,7 @@ import {
 } from '@flm/shared';
 import { seed } from '@flm/content';
 import { toast, useToasts } from '@/design';
-import { visiblePeople } from '@/data/selectors';
+import { demoPeople } from '@/data/selectors';
 import { useDemo, type CampusItem, type DraftRecord, type ExtraList } from '@/data/store';
 import { MESSAGES } from '@/lib/messages';
 import { formToItem, uniqueSlug, validateForm, type AnyForm, type FieldError } from './forms';
@@ -196,17 +196,20 @@ function slugBase(form: AnyForm): string {
 function contextProblem(actor: Actor, row: ContentRow, form: AnyForm): string | null {
   const st = useDemo.getState();
   if (form.type === 'bienvenida') {
-    const person = visiblePeople(seed.people, st.peopleOverrides, st.removedPeople).find((p) => p.id === form.personId);
+    const person = demoPeople(st).find((p) => p.id === form.personId);
     if (!person || person.status !== 'activa') return 'La persona de la bienvenida ya no está activa en el directorio. Elige a otra persona.';
-    if (__DEMO__ && !person.fictional) return 'En la demostración solo se da la bienvenida a personas ficticias: anunciar la llegada de una persona real sería inventar un hecho sobre ella.';
     const self = row.revisionOf ?? row.id;
-    const published = [...st.extraWelcomes, ...seed.welcomes].some((w) => w.id !== self && ((st.contentOverrides[w.id] as { personId?: string } | undefined) ?? w).personId === form.personId);
+    const welcomes = [...st.extraWelcomes, ...seed.welcomes].map((w) => ({ ...w, ...(st.contentOverrides[w.id] as Partial<typeof w> | undefined) }));
+    const published = welcomes.some((w) => w.id !== self && w.personId === form.personId);
     const drafted = Object.values(st.drafts).some((d) => {
       if (d.type !== 'bienvenida' || d.id === row.id || d.id === self) return false;
       const data = readDraft(d);
       return !!data && data.sourceId !== self && data.form.type === 'bienvenida' && data.form.personId === form.personId;
     });
     if (published || drafted) return 'Esta persona ya tiene una bienvenida. Edita la que existe en lugar de crear otra.';
+    // Las de las incorporaciones reales las ha facilitado FLM y se pueden retocar; una nueva sería inventar un hecho.
+    const editsOwn = welcomes.some((w) => w.id === self && w.personId === form.personId);
+    if (__DEMO__ && !person.fictional && !editsOwn) return 'En la demostración, las bienvenidas nuevas son para personas ficticias: anunciar la llegada de una persona real sería inventar un hecho sobre ella.';
   }
   if (form.type === 'documento' && row.revisionOf && form.upload && !can(actor.effectiveRole, 'documentos:reemplazar')) {
     return 'Solo administración puede sustituir el PDF de un documento publicado. Quita el archivo nuevo para publicar el resto de cambios.';

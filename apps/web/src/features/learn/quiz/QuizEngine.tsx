@@ -7,13 +7,18 @@ import { Avatar, Button, Dialog, type ButtonVariant } from '@/design';
 import { Rich } from '@/lib/rich';
 import { useReducedMotionPref } from '@/lib/preferences';
 import { AreaDot } from '../common/AreaMark';
+import { AuthorLine } from '../common/AuthorLine';
 import { letter, shuffle } from '../common/util';
 import { ProofDots } from './ProofDots';
 import styles from './QuizEngine.module.css';
 
-/** Quién firma las notas al margen: la autoría de la formación (o el área, en la evaluación). */
+/**
+ * Quién firma las notas al margen: la autoría de la formación (o el área, en la evaluación).
+ * Una persona firma en una línea con su puesto: «Judith Calet — Asesora Contable».
+ */
 export interface Signature {
   name: string;
+  /** Puesto de la persona autora (o, en la firma del área, la línea de debajo: «Evaluación sectorial»). */
   role?: string;
   photo?: string;
   /** Si no hay una persona autora, se firma con el área (punto + nombre). */
@@ -79,19 +84,25 @@ function markOf(q: QuizQuestion, optionId: string, chosen: string | undefined, c
 }
 
 function Signed({ signature }: { signature: Signature }) {
-  return (
-    <p className={styles.signature}>
-      {signature.area && !signature.photo ? (
+  // Firma del área (sin persona autora o en la evaluación): «— Área Fiscal de FLM», como siempre.
+  if (signature.area && !signature.photo) {
+    return (
+      <p className={styles.signature}>
         <span className={styles.sigDot}>
           <AreaDot area={signature.area} size={12} />
         </span>
-      ) : (
-        <Avatar name={signature.name} photo={signature.photo} size={30} decorative />
-      )}
-      <span>
-        <span className={styles.sigName}>— {signature.name}</span>
-        {signature.role && <span className={styles.sigRole}>{signature.role}</span>}
-      </span>
+        <span>
+          <span className={styles.sigName}>— {signature.name}</span>
+          {signature.role && <span className={styles.sigRole}>{signature.role}</span>}
+        </span>
+      </p>
+    );
+  }
+  // La persona autora: «Judith Calet — Asesora Contable», la misma firma que en la cabecera de la formación.
+  return (
+    <p className={styles.signature}>
+      <Avatar name={signature.name} photo={signature.photo} size={30} decorative />
+      <AuthorLine person={{ name: signature.name, position: signature.role }} className={styles.sigLine} nameClassName={styles.sigLineName} roleClassName={styles.sigLineRole} />
     </p>
   );
 }

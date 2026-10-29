@@ -3,7 +3,22 @@
  * Comprueba estructura, reglas del brief y referencias cruzadas antes de compilar.
  */
 import { describe, expect, it } from 'vitest';
-import { AREA_IDS, assessmentSchema, documentSchema, eventSchema, formationSchema, holidaySchema, newClientSchema, newsSchema, personSchema, readingSchema, welcomeSchema } from '@flm/shared';
+import {
+  AREA_IDS,
+  assessmentSchema,
+  documentSchema,
+  eventSchema,
+  formationSchema,
+  holidaySchema,
+  isValidBirthday,
+  isValidDateKey,
+  newClientSchema,
+  newsSchema,
+  personalDatesSchema,
+  personSchema,
+  readingSchema,
+  welcomeSchema,
+} from '@flm/shared';
 import { seed } from './index';
 
 const issues = (schema: { safeParse: (v: unknown) => { success: boolean; error?: { issues: { path: PropertyKey[]; message: string }[] } } }, items: { id?: string; date?: string }[]) =>
@@ -18,19 +33,54 @@ describe('contenido semilla', () => {
     expect(new Set(seed.people.map((p) => p.id)).size).toBe(seed.people.length);
   });
 
-  it('solo datos profesionales: sin cumpleaños ni fecha de incorporación, y el perfil de la demo sin foto', () => {
-    const retirados = ['birthday', 'showBirthday', 'startDate'];
-    expect(seed.people.filter((p) => retirados.some((k) => k in p)).map((p) => p.id)).toEqual([]);
-    expect(seed.people.find((p) => p.id === 'p-judith-calet')?.photo).toBeUndefined();
+  it('cumpleaños y fecha de incorporación solo los facilitados (Judith y las incorporaciones de septiembre), válidos y sin año de nacimiento; el perfil de la demo, sin foto', () => {
+    // Nadie más tiene fechas inventadas: quedan «sin indicar» hasta que se completen.
+    const conFechas = seed.people.filter((p) => ['birthday', 'showBirthday', 'startDate'].some((k) => k in p));
+    expect(conFechas.map((p) => p.id).sort()).toEqual(['p-christopher-raudales', 'p-judith-calet', 'p-lluis-gomez']);
+    expect(seed.people.filter((p) => p.birthday).map((p) => p.id)).toEqual(['p-judith-calet']);
+    for (const id of ['p-lluis-gomez', 'p-christopher-raudales']) expect(seed.people.find((p) => p.id === id), id).toMatchObject({ startDate: '2026-09-01', office: 'Barcelona' });
+    const judith = seed.people.find((p) => p.id === 'p-judith-calet')!;
+    expect(judith).toMatchObject({ name: 'Judith Calet', birthday: '11-26', startDate: '2026-09-01' });
+    expect(isValidBirthday(judith.birthday)).toBe(true);
+    expect(isValidDateKey(judith.startDate)).toBe(true);
+    expect(personalDatesSchema.safeParse({ birthday: judith.birthday, startDate: judith.startDate }).success).toBe(true);
+    expect('showBirthday' in judith).toBe(false);
+    expect(judith.photo).toBeUndefined();
   });
 
   it('formaciones válidas (resultados, ejemplo, test de 3 con aprobado 2)', () => {
     expect(issues(formationSchema, seed.formations)).toEqual([]);
   });
 
-  it('tres formaciones por área cuando el contenido está completo', () => {
+  it('al menos tres formaciones por área', () => {
     if (!seed.formations.length) return;
-    for (const area of AREA_IDS) expect(seed.formations.filter((f) => f.area === area).length, area).toBe(3);
+    for (const area of AREA_IDS) expect(seed.formations.filter((f) => f.area === area).length, area).toBeGreaterThanOrEqual(3);
+  });
+
+  it('Contabilidad: las tres de base y las de importaciones, amortizaciones, bienes de inversión y anticipos', () => {
+    if (!seed.formations.length) return;
+    const contable = seed.formations.filter((f) => f.area === 'contable').map((f) => `${f.id} ${f.slug}`);
+    expect(contable.sort()).toEqual([
+      'con-01 boicac-147',
+      'con-02 devengo-y-periodificacion',
+      'con-03 amortizacion-contable-y-fiscal',
+      'con-04 importaciones-y-dua',
+      'con-05 amortizaciones',
+      'con-06 bienes-de-inversion',
+      'con-07 facturas-de-anticipo',
+    ]);
+  });
+
+  it('los enlaces internos del contenido llevan a páginas que existen', () => {
+    const targets = new Set([
+      ...seed.formations.map((f) => `/aprender/${f.area}/${f.slug}`),
+      ...seed.events.map((e) => `/participar/agenda/${e.slug}`),
+      ...seed.documents.map((d) => `/consultar/notas/${d.id}`),
+    ]);
+    const text = JSON.stringify([seed.formations, seed.news, seed.documents, seed.events, seed.welcomes]);
+    const links = [...text.matchAll(/\]\(#(\/[^)\s]+)\)/g)].map((m) => m[1]!);
+    expect(links.length).toBeGreaterThan(0);
+    expect(links.filter((l) => !targets.has(l))).toEqual([]);
   });
 
   it('ids y slugs únicos', () => {
@@ -73,14 +123,20 @@ describe('contenido semilla', () => {
     expect(issues(holidaySchema, seed.holidays)).toEqual([]);
   });
 
-  it('«Ponte al día»: clientes ficticios y bienvenidas a personas de la plantilla de ejemplo', () => {
+  it('«Ponte al día»: clientes ficticios y bienvenidas a las incorporaciones reales del 1 de septiembre', () => {
     expect(issues(newClientSchema, seed.clients)).toEqual([]);
     expect(seed.clients.every((c) => c.fictional)).toBe(true);
     expect(issues(welcomeSchema, seed.welcomes)).toEqual([]);
     // Ninguna bienvenida puede llevar la fecha de incorporación de la persona
     expect(welcomeSchema.safeParse({ ...seed.welcomes[0], startDate: '2026-10-01' }).success).toBe(false);
-    const fictional = new Set(seed.people.filter((p) => p.fictional).map((p) => p.id));
-    expect(seed.welcomes.filter((w) => !fictional.has(w.personId)).map((w) => w.id)).toEqual([]);
+    // Solo personas reales, anunciadas el día en que se incorporaron (que es el de su ficha)
+    const byId = new Map(seed.people.map((p) => [p.id, p]));
+    expect(seed.welcomes.map((w) => w.personId)).toEqual(['p-judith-calet', 'p-lluis-gomez', 'p-christopher-raudales']);
+    for (const w of seed.welcomes) {
+      const person = byId.get(w.personId)!;
+      expect(person.fictional, w.id).toBeUndefined();
+      expect(w.date, w.id).toBe(person.startDate);
+    }
   });
 
   it('enlaces de ejemplo identificados', () => {

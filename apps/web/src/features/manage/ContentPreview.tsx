@@ -18,6 +18,7 @@ import { AreaTag, Avatar, Button, Chip, Notice, PhaseChip } from '@/design';
 import { useByline, useDocuments, usePeople } from '@/data/selectors';
 import { EventPhoto } from '@/features/community/EventParts';
 import { AreaDot } from '@/features/learn/common/AreaMark';
+import { AuthorLine } from '@/features/learn/common/AuthorLine';
 import { toSections } from '@/features/learn/common/data';
 import { FormationCover } from '@/features/learn/common/FormationCard';
 import { BlockView, ExternalAnchor, SOURCE_KIND } from '@/features/learn/reading/Blocks';
@@ -70,6 +71,9 @@ export interface PreviewMeta {
   reviewerName?: string;
 }
 
+/** Formaciones y tests firman como en Aprender: nombre y puesto en una línea («Judith Calet — Asesora Contable»). */
+const LEARNING_TYPES: ReadonlySet<ContentType> = new Set<ContentType>(['formacion', 'test']);
+
 /**
  * Firma, como en la página publicada: la persona autora o, sin autoría (perfil eliminado o contenido
  * institucional), la firma neutra «Área X de FLM» o «FLM».
@@ -78,6 +82,7 @@ function Byline({ meta, type, area }: { meta?: PreviewMeta; type: ContentType; a
   const byline = useByline(meta?.authorId, { type, area: area ?? undefined });
   const status = meta?.status ?? 'borrador';
   const state = status === 'borrador' ? 'Borrador: aún no se ve en el campus' : meta?.reviewerName ? `Revisado por ${meta.reviewerName}` : status === 'archivado' ? 'Archivado' : 'Publicado';
+  const learning = LEARNING_TYPES.has(type);
   return (
     <div className={styles.byline}>
       {byline.kind === 'persona' ? (
@@ -88,9 +93,13 @@ function Byline({ meta, type, area }: { meta?: PreviewMeta; type: ContentType; a
         </span>
       )}
       <p>
-        <span className={styles.bylineName}>{byline.kind === 'persona' ? byline.person.name : byline.name}</span>
+        {byline.kind === 'persona' && learning ? (
+          <AuthorLine person={byline.person} className={styles.bylineName} roleClassName={styles.bylineRole} />
+        ) : (
+          <span className={styles.bylineName}>{byline.kind === 'persona' ? byline.person.name : byline.name}</span>
+        )}
         <span className={styles.bylineRole}>
-          {byline.kind === 'persona' ? `${byline.person.position} · ` : ''}
+          {byline.kind === 'persona' && !learning ? `${byline.person.position} · ` : ''}
           {state}
         </span>
       </p>
@@ -751,7 +760,7 @@ function WelcomePreview({ form, meta }: { form: WelcomeForm; meta?: PreviewMeta 
           </div>
         </div>
       </div>
-      <p className={styles.small}>El anuncio solo lleva su fecha de publicación: la ficha de la persona no guarda la de incorporación.</p>
+      <p className={styles.small}>El anuncio solo lleva su fecha de publicación. La de incorporación está en la ficha de la persona y se usa para su aniversario en el calendario de empresa.</p>
       <Byline meta={meta} type="bienvenida" />
     </article>
   );

@@ -5,7 +5,7 @@
 Plataforma interna de FLM (asesoría fiscal, laboral, mercantil y contable · Barcelona, Vic y Granollers) para **aprender** (formaciones por área con test y evaluaciones sectoriales), **consultar** (actualidad, notas informativas originales y lecturas recomendadas) y **participar** (agenda, calendario y aportaciones), con perfiles, gestión de contenidos y administración.
 
 - **Demostración pública**: https://megalovaniatic.github.io/flm-campus/ — abre directamente con un perfil de demostración, sin iniciar sesión.
-- **Concepto creativo**: «Círculo de confianza» — *Lo que sabe uno, lo sabemos todos.*
+- **Concepto creativo**: «Círculo de confianza» — *Aprender juntos para asesorar mejor.*
 
 ## Estado: qué es operativo, qué es demostración y qué requiere configuración
 
@@ -65,7 +65,7 @@ Genera la demo estática en `apps/web/dist` (modo `demo`). Para la versión priv
 npm run check
 ```
 
-Ejecuta comprobación de tipos de todos los paquetes, pruebas unitarias (reglas compartidas, cálculos de los apoyos interactivos, datos guardados de la demo y API) y la validación del contenido (estructura, tres formaciones por área, tests de 3 preguntas con aprobado 2/3, evaluaciones de 10 con aprobado 8, cinco bloques en actualidad, enlaces de ejemplo identificados y fichas de personas sin cumpleaños ni fecha de incorporación). Procedimientos manuales en [`docs/09-informe-qa.md`](docs/09-informe-qa.md).
+Ejecuta comprobación de tipos de todos los paquetes, pruebas unitarias (reglas compartidas, cálculos de los apoyos interactivos, datos guardados de la demo y API) y la validación del contenido (estructura, al menos tres formaciones por área, tests de 3 preguntas con aprobado 2/3, evaluaciones de 10 con aprobado 8, cinco bloques en actualidad, enlaces de ejemplo identificados y fichas de personas con cumpleaños y fecha de incorporación solo cuando constan: el cumpleaños, solo de Judith Calet; la incorporación, de Judith Calet, Lluís Gómez y Christopher Raudales). Procedimientos manuales en [`docs/09-informe-qa.md`](docs/09-informe-qa.md).
 
 ## Despliegue
 

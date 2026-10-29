@@ -9,6 +9,16 @@
   --kind: var(--cal-festivo);
 }
 
+/* Cumpleaños y aniversarios (salen de la ficha de cada persona): el rojo de texto de la marca y el
+   ámbar de la paleta del campus, que se distinguen del marino y el gris. Siempre con icono y texto. */
+:where(.filter, .pill, .entry, .dot)[data-kind='cumpleanos'] {
+  --kind: var(--cal-cumpleanos, var(--accent-text));
+}
+
+:where(.filter, .pill, .entry, .dot)[data-kind='aniversario'] {
+  --kind: var(--cal-aniversario, var(--warning));
+}
+
 .emptyFilter {
   margin-bottom: var(--space-6);
 }
