@@ -175,7 +175,7 @@ Cada página es un fragmento propio. Las fotografías se sirven en AVIF o WebP c
 - La demo no tiene servidor: no contiene secretos ni claves, y todo lo que se hace se guarda solo en el navegador (`localStorage`). Se puede borrar con «Restablecer».
 - Solo se publican documentos de FLM aprobados para la demo. Los documentos de terceros (revista de AEDAF, presentación de la campaña de Sociedades y novedades de Cataluña) aparecen como fichas sin archivo.
 - Las personas reales aparecen con su nombre y área públicos y con la fuente anotada. Solo llevan fotografía cuando FLM la ha aportado; el perfil de la demostración aparece con sus iniciales, sin foto. Las personas ficticias de relleno están marcadas como tales en Administración, y a las reales no se les atribuye ningún dato inventado: las bienvenidas de Judith Calet, Lluís Gómez y Christopher Raudales llevan el puesto, la sede y la fecha de incorporación que ha facilitado FLM, y el único cumpleaños que consta es el de Judith Calet, que lo ha dado ella.
-- La única foto que no es de FLM es la de Aprender: un equipo en una oficina, de Unsplash (Licencia Unsplash), acreditada en «Sobre el campus».
+- Las cabeceras de Aprender, Consultar y Participar llevan ilustraciones de búhos aportadas por FLM, acreditadas en «Sobre el campus».
 - En la versión privada, la seguridad la cubren las 113 pruebas de la API (§2). Configuración y despliegue en [`apps/api/README.md`](../apps/api/README.md).
 
 ## 8. Qué no se ha probado

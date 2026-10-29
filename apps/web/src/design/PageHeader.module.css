@@ -1,11 +1,13 @@
 .header {
+  /* Margen bajo el contenido: el búho de la cabecera lo descuenta para apoyarse en la línea */
+  --header-pad: clamp(1.5rem, 1rem + 2vw, 2.75rem);
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
   gap: var(--space-8);
-  padding-bottom: clamp(1.5rem, 1rem + 2vw, 2.75rem);
-  margin-bottom: clamp(1.5rem, 1rem + 2vw, 2.75rem);
+  padding-bottom: var(--header-pad);
+  margin-bottom: var(--header-pad);
   border-bottom: 1px solid var(--line);
 }
 

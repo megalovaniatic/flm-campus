@@ -3,7 +3,7 @@ import { ArrowRight, BookOpen } from 'lucide-react';
 import { useId, useMemo, useRef, type KeyboardEvent } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { AREA_LIST, AREAS, formationStatus, isAreaId, type AreaId, type FormationStatus } from '@flm/shared';
-import { Avatar, ButtonLink, EmptyState, PageHeader, PhotoCapsule, ProgressRing, StatusGlyph } from '@/design';
+import { Avatar, ButtonLink, EmptyState, Mascot, PageHeader, ProgressRing, StatusGlyph } from '@/design';
 import { useAssessments, useFormations } from '@/data/selectors';
 import { useDemo } from '@/data/store';
 import { usePageTitle } from '@/lib/preferences';
@@ -274,7 +274,7 @@ export default function LearnHub() {
           </>
         }
         lede="Formaciones breves de las cuatro áreas de la firma. Lee cada una a tu ritmo, comprueba lo aprendido con un test de tres preguntas y completa tu itinerario."
-        aside={<PhotoCapsule name="equipo-reunion" aspect="12 / 5" width="clamp(15rem, 22vw, 20rem)" position="50% 45%" sizes="(min-width: 860px) 20rem, 1px" mobile="hide" />}
+        aside={<Mascot name="buho-leyendo" />}
       />
       {/* El anillo global va dentro del protagonista, en blanco */}
       <NextStepPanel context="aprender" progress={overall} className={styles.next} />

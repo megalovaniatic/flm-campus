@@ -36,13 +36,8 @@ const PHOTOS = {
   'libreta-mesa': { file: 'LIBRETA FLM 2.jpg', alt: 'Libreta de FLM sobre la mesa de una sala de reuniones', focus: 'center' },
   'desayuno-mercantil': { file: 'Desayuno Mercantil FLM.png', alt: 'Desayuno Mercantil en la Sala Biblioteca de FLM: el equipo sigue la presentación «La información es poder»', focus: 'center' },
   'web-nueva': { file: '../../dist/assets/company/new-flm-website.png', alt: 'Portada de la nueva web corporativa flmexperts.com', focus: 'top' },
-  // Única foto que no es de FLM: la de Aprender, a petición de FLM (29/10/2026). Vitaly Gariev en Unsplash, Licencia Unsplash
-  // (https://unsplash.com/photos/_4tpElFQemQ); descargada a 2400 px de ancho.
-  'equipo-reunion': { file: 'unsplash-_4tpElFQemQ.jpg', alt: 'Cuatro profesionales conversan alrededor de una mesa de trabajo en una oficina luminosa', focus: 'center' },
-  // Mitad derecha de BIBLIOTECA 1: sin el roll-up con el logotipo antiguo, para la cápsula ancha de Consultar.
+  // Mitad derecha de BIBLIOTECA 1: la sala y sus estanterías sin el roll-up con el logotipo antiguo.
   'biblioteca-estanterias': { file: 'BIBLIOTECA 1.jpg', crop: { left: 0.5, top: 0, width: 0.5, height: 1 }, alt: 'Estanterías de la biblioteca jurídica de FLM junto a la mesa de reuniones', focus: 'center' },
-  // Foto aportada por FLM para Participar (29/10/2026).
-  'equipo-puzle': { file: 'participar-equipo-puzle.jpg', alt: 'Manos de un equipo que unen piezas de un puzle de madera', focus: 'center' },
 };
 
 const WIDTHS = [480, 960, 1600, 2400];

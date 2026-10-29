@@ -8,10 +8,7 @@ import { DOC_KIND_LABEL } from '../forms';
 import styles from './Editor.module.css';
 
 /** Fotografías aprobadas para el campus (manifiesto de fotos de FLM). En la demo no se suben fotos. */
-export const PHOTOS = (Object.keys(manifest) as PhotoName[])
-  // Las de Aprender (Unsplash) y Participar no son del equipo de FLM: no pueden presentarse como foto de un evento.
-  .filter((name) => name !== 'equipo-reunion' && name !== 'equipo-puzle')
-  .map((name) => ({ name, alt: manifest[name].alt }));
+export const PHOTOS = (Object.keys(manifest) as PhotoName[]).map((name) => ({ name, alt: manifest[name].alt }));
 
 /**
  * Selector de fotografía: solo las fotos aprobadas del manifiesto, sin subida. Radios nativos con la

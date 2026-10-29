@@ -3,7 +3,7 @@ import { ArrowRight, BookOpen, FileText, Lock, Newspaper, SearchX } from 'lucide
 import { useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { AREAS, areaName, diffDays, fileSize, formatShortDate, madridDateKey, plainText, relativeDay, type LibraryDocument, type NewsItem, type Reading } from '@flm/shared';
-import { Button, EmptyState, PageHeader, PhotoCapsule } from '@/design';
+import { Button, EmptyState, Mascot, PageHeader } from '@/design';
 import { useDocuments, usePeople } from '@/data/selectors';
 import { MESSAGES } from '@/lib/messages';
 import { usePageTitle } from '@/lib/preferences';
@@ -90,10 +90,7 @@ export default function ConsultHub() {
           </>
         }
         lede="Novedades verificadas, documentos originales y lecturas de referencia: lo que necesitas para responder con criterio."
-        aside={
-          // Mismo óvalo que Aprender y Participar; la foto es la mitad derecha de la sala, sin el roll-up con el logotipo antiguo
-          <PhotoCapsule name="biblioteca-estanterias" aspect="12 / 5" width="clamp(15rem, 22vw, 20rem)" position="50% 32%" sizes="(min-width: 860px) 20rem, 1px" mobile="hide" decorative={false} />
-        }
+        aside={<Mascot name="buho-biblioteca" />}
       />
 
       {sample && <SampleNotice />}

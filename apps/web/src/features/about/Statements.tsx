@@ -66,7 +66,7 @@ const PRINCIPLES = [
     title: 'Datos profesionales y del calendario',
     text: 'Nombre, correo corporativo, puesto, departamento y sede. Para el calendario de empresa, el día y el mes del cumpleaños (nunca el año de nacimiento) y la fecha de incorporación: solo los que da la persona o administración, nunca inventados.',
   },
-  { icon: Image, title: 'Fotografías reales', text: 'Las aportadas por FLM con autorización, salvo la de Aprender (de Unsplash, acreditada en los créditos), que no muestra a personas de FLM. Quien no tiene foto aparece con sus iniciales.' },
+  { icon: Image, title: 'Fotografías reales', text: 'Solo las aportadas por FLM con autorización. Nunca fotos de stock de personas: quien no tiene foto aparece con sus iniciales.' },
   { icon: ShieldCheck, title: 'Personas de la demostración', text: 'Salvo las identificadas como reales (información profesional pública o autorización expresa), son ficticias y no tienen foto.' },
   { icon: Cookie, title: 'Sin seguimiento', text: 'Ni analítica ni cookies de terceros. Las tipografías se sirven desde el propio campus.' },
 ];
@@ -225,13 +225,11 @@ export function Credits() {
       <dl className={styles.credits}>
         <div>
           <dt>Fotografía</dt>
-          <dd>
-            Fotografías corporativas aportadas por FLM: sede de Barcelona (fachada, recepción y biblioteca), libretas, retrato de Ángel María Ceniceros y Desayuno Mercantil. La foto de Aprender es de{' '}
-            <a href="https://unsplash.com/photos/_4tpElFQemQ" target="_blank" rel="noreferrer">
-              Vitaly Gariev en Unsplash<span className="sr-only"> (se abre en una pestaña nueva)</span>
-            </a>
-            , con la Licencia Unsplash; la de Participar la ha aportado FLM.
-          </dd>
+          <dd>Fotografías corporativas aportadas por FLM: sede de Barcelona (fachada, recepción y biblioteca), libretas, retrato de Ángel María Ceniceros y Desayuno Mercantil.</dd>
+        </div>
+        <div>
+          <dt>Ilustraciones</dt>
+          <dd>Los búhos de las cabeceras de Aprender, Consultar y Participar, aportados por FLM.</dd>
         </div>
         <div>
           <dt>Logotipos</dt>
