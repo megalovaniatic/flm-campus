@@ -76,6 +76,7 @@ describe('contenido semilla', () => {
       ...seed.formations.map((f) => `/aprender/${f.area}/${f.slug}`),
       ...seed.events.map((e) => `/participar/agenda/${e.slug}`),
       ...seed.documents.map((d) => `/consultar/notas/${d.id}`),
+      ...seed.news.map((n) => `/consultar/actualidad/${n.slug}`),
     ]);
     const text = JSON.stringify([seed.formations, seed.news, seed.documents, seed.events, seed.welcomes]);
     const links = [...text.matchAll(/\]\(#(\/[^)\s]+)\)/g)].map((m) => m[1]!);

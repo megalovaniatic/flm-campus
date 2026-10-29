@@ -91,8 +91,8 @@ export default function ConsultHub() {
         }
         lede="Novedades verificadas, documentos originales y lecturas de referencia: lo que necesitas para responder con criterio."
         aside={
-          // Encuadre vertical a la derecha: deja fuera el roll-up con el logotipo antiguo
-          <PhotoCapsule name="biblioteca" aspect="5 / 7" width="clamp(7.5rem, 10vw, 10rem)" position="100% 50%" sizes="(min-width: 860px) 10rem, 1px" mobile="hide" decorative={false} />
+          // Mismo óvalo que Aprender y Participar; la foto es la mitad derecha de la sala, sin el roll-up con el logotipo antiguo
+          <PhotoCapsule name="biblioteca-estanterias" aspect="12 / 5" width="clamp(15rem, 22vw, 20rem)" position="50% 32%" sizes="(min-width: 860px) 20rem, 1px" mobile="hide" decorative={false} />
         }
       />
 

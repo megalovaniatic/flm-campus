@@ -138,5 +138,26 @@
       2400
     ],
     "placeholder": "data:image/webp;base64,UklGRmwAAABXRUJQVlA4IGAAAAAwBACdASoYAA0APu1iqU2ppaOiMAgBMB2JZwDKAB6XAng1LUtdMVj4GoAA/sT3/ZiJl/kX0UjvJZbNQJbrozvRgMaXz+y8klXDxlJTNf8AwKys8SQHlx4KQnznp80AAAA="
+  },
+  "biblioteca-estanterias": {
+    "alt": "Estanterías de la biblioteca jurídica de FLM junto a la mesa de reuniones",
+    "width": 1200,
+    "height": 1600,
+    "sizes": [
+      480,
+      960
+    ],
+    "placeholder": "data:image/webp;base64,UklGRpYAAABXRUJQVlA4IIoAAACwBQCdASoYACAAPt1cpU2opSOiN/qoARAbiWYAnTM0OWgpPN4mZUvnPJLGv5JElfqpOA97V1QA/rBordETq/BGPczs0cH8nXD+Qbrmik3Yt/6wbTCPqWwIIjcnm5Gc8TMvSvj9IOEqbhozxnrTEYdJ0bsLcDA5QNgRaaWtKxNwXtawtXh0HU00QAA="
+  },
+  "equipo-puzle": {
+    "alt": "Manos de un equipo que unen piezas de un puzle de madera",
+    "width": 1920,
+    "height": 1280,
+    "sizes": [
+      480,
+      960,
+      1600
+    ],
+    "placeholder": "data:image/webp;base64,UklGRnIAAABXRUJQVlA4IGYAAADQAwCdASoYABAAPu1kqk4ppaQiMAgBMB2JQBOmUGMAAMwuMNZp9AAA4UEVLuyupQyCHrknSM0vMZ0y7OcD7mm9aOLFEIZbawtmYMDdODHz1RJR9vc51ASIkB8vL3e9bAKN5TWFgAA="
   }
 }

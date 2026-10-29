@@ -435,7 +435,7 @@ export const formation: Formation = {
       },
     ],
   },
-  documentIds: ['doc-verifactu', 'doc-facturacion-b2b'],
+  documentIds: ['doc-verifactu-aplazamiento', 'doc-verifactu', 'doc-facturacion-b2b'],
   version: 1,
   verifiedAt: '2026-10-28',
   editorial: {

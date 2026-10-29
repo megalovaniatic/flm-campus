@@ -21,6 +21,27 @@ const editorial = (authorId: string, publishedAt: string, updatedAt?: string): E
 });
 
 export const news: NewsItem[] = [
+  /* ── Fiscal · nota de FLM sobre el aplazamiento de VERI*FACTU ──────── */
+  {
+    id: 'news-nota-verifactu-octubre-2028',
+    slug: 'nota-flm-verifactu-aplazamiento-octubre-2028',
+    area: 'fiscal',
+    kind: 'aviso-interno',
+    headline: 'VERI*FACTU se aplazaría a octubre de 2028: nota para clientes en castellano, catalán e inglés',
+    oneLiner:
+      'Ya está en Notas informativas la [nota de FLM sobre el aplazamiento de VERI*FACTU](#/consultar/notas/doc-verifactu-aplazamiento): Hacienda prevé trasladarlo a **octubre de 2028**, pero **aún no está aprobado** y siguen vigentes el **1/1/2027** (Impuesto sobre Sociedades) y el **1/7/2027** (resto de obligados).',
+    affects:
+      'A quien asesora a clientes que facturan con un programa informático: sociedades, autónomos y demás obligados por el reglamento de sistemas de facturación. También a quien atiende a clientes de habla catalana o inglesa, porque la nota está en los tres idiomas.',
+    action:
+      '**Envía la nota a los clientes que te pregunten por el aplazamiento**, en su idioma: castellano, catalán o inglés.\n\n**Mantén el mensaje de la nota: «anunciado, no aprobado».** Que sigan con la adaptación junto a su proveedor y revisen el calendario antes de cambiar nada.\n\nEl análisis completo, con lo que falta para que el aplazamiento rija, está en la noticia [del 5 de octubre](#/consultar/actualidad/verifactu-aplazamiento-anunciado-plazos-vigentes) y en la formación [Verifactu](#/aprender/fiscal/verifactu).',
+    example:
+      'Un cliente con una sociedad y oficinas en Londres pregunta si puede parar la adaptación de su ERP. Le envías la versión inglesa de la nota: el aplazamiento aún no se ha publicado en el BOE y, mientras tanto, su sociedad debe cumplir desde el 1/1/2027.',
+    source: { label: 'FLM · Área Fiscal: nota informativa «El aplazamiento de VERIFACTU a octubre de 2028 está pendiente de aprobación normativa» (29/10/2026)', url: '#/consultar/notas/doc-verifactu-aplazamiento', publishedOn: '2026-10-29' },
+    urgency: 'alta',
+    date: '2026-10-29',
+    editorial: editorial('p-judith-calet', '2026-10-29T20:00:00+01:00'),
+  },
+
   /* ── Aviso interno · nueva web ─────────────────────────────────────── */
   {
     id: 'news-aviso-nueva-web',
@@ -154,7 +175,7 @@ export const news: NewsItem[] = [
     affects:
       'Todos los clientes que facturan con un programa informático. Primero, las sociedades y demás contribuyentes del Impuesto sobre Sociedades; después, autónomos, entidades en atribución de rentas y no residentes con establecimiento permanente.\n\nQuedan fuera, entre otros, quienes llevan los libros registro del IVA por el SII ([art. 3.3 del reglamento](https://www.boe.es/buscar/act.php?id=BOE-A-2023-24840#a3)). Revisa en especial los encargos de implantación de software, los programas a medida y los comercios y restaurantes con TPV.',
     action:
-      '**No pares las adaptaciones.** Mientras no se publique la norma, el 1/1/2027 es una fecha legal vigente para las sociedades.\n\n**Pide a los proveedores la declaración responsable de cada programa** y confirma que podrán cumplir antes del 1/1/2027.\n\n**Avisa a los clientes con un mensaje claro: «anunciado, no aprobado».** Revisa cada semana el BOE y la sede de la AEAT y, si llega el aplazamiento, replanifica sin desmontar lo hecho: según la nota, las exigencias de integridad, conservación, accesibilidad, legibilidad, trazabilidad e inalterabilidad se mantendrán en términos «sustancialmente equivalentes».\n\nPara repasar quién está obligado y qué pedir al proveedor, tienes la formación [Verifactu](#/aprender/fiscal/verifactu).',
+      '**No pares las adaptaciones.** Mientras no se publique la norma, el 1/1/2027 es una fecha legal vigente para las sociedades.\n\n**Pide a los proveedores la declaración responsable de cada programa** y confirma que podrán cumplir antes del 1/1/2027.\n\n**Avisa a los clientes con un mensaje claro: «anunciado, no aprobado».** Revisa cada semana el BOE y la sede de la AEAT y, si llega el aplazamiento, replanifica sin desmontar lo hecho: según la nota, las exigencias de integridad, conservación, accesibilidad, legibilidad, trazabilidad e inalterabilidad se mantendrán en términos «sustancialmente equivalentes».\n\nPara repasar quién está obligado y qué pedir al proveedor, tienes la formación [Verifactu](#/aprender/fiscal/verifactu). Para los clientes, la [nota informativa de FLM](#/consultar/notas/doc-verifactu-aplazamiento) del 29/10/2026, en castellano, catalán e inglés.',
     example:
       'Una SL con ejercicio natural factura con un programa de gestión estándar. Si el 31/12/2026 aún no se ha publicado el aplazamiento, desde el 1/1/2027 su programa debe cumplir el reglamento; si se publica antes, tendrá margen hasta octubre de 2028, según lo anunciado.\n\nUna autónoma en estimación directa, con la norma vigente, debe tener su sistema adaptado antes del 1/7/2027.',
     source: {

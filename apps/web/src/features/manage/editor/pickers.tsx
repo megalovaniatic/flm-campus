@@ -9,8 +9,8 @@ import styles from './Editor.module.css';
 
 /** Fotografías aprobadas para el campus (manifiesto de fotos de FLM). En la demo no se suben fotos. */
 export const PHOTOS = (Object.keys(manifest) as PhotoName[])
-  // La de Aprender es de Unsplash: no puede presentarse como foto de un evento o del equipo de FLM.
-  .filter((name) => name !== 'equipo-reunion')
+  // Las de Aprender (Unsplash) y Participar no son del equipo de FLM: no pueden presentarse como foto de un evento.
+  .filter((name) => name !== 'equipo-reunion' && name !== 'equipo-puzle')
   .map((name) => ({ name, alt: manifest[name].alt }));
 
 /**

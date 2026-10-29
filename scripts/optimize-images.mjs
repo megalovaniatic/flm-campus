@@ -39,6 +39,10 @@ const PHOTOS = {
   // Única foto que no es de FLM: la de Aprender, a petición de FLM (29/10/2026). Vitaly Gariev en Unsplash, Licencia Unsplash
   // (https://unsplash.com/photos/_4tpElFQemQ); descargada a 2400 px de ancho.
   'equipo-reunion': { file: 'unsplash-_4tpElFQemQ.jpg', alt: 'Cuatro profesionales conversan alrededor de una mesa de trabajo en una oficina luminosa', focus: 'center' },
+  // Mitad derecha de BIBLIOTECA 1: sin el roll-up con el logotipo antiguo, para la cápsula ancha de Consultar.
+  'biblioteca-estanterias': { file: 'BIBLIOTECA 1.jpg', crop: { left: 0.5, top: 0, width: 0.5, height: 1 }, alt: 'Estanterías de la biblioteca jurídica de FLM junto a la mesa de reuniones', focus: 'center' },
+  // Foto aportada por FLM para Participar (29/10/2026).
+  'equipo-puzle': { file: 'participar-equipo-puzle.jpg', alt: 'Manos de un equipo que unen piezas de un puzle de madera', focus: 'center' },
 };
 
 const WIDTHS = [480, 960, 1600, 2400];
@@ -48,7 +52,15 @@ await mkdir(outDir, { recursive: true });
 const manifest = {};
 for (const [name, meta] of Object.entries(PHOTOS)) {
   const input = path.join(srcDir, meta.file);
-  const buf = await readFile(input);
+  let buf = await readFile(input);
+  if (meta.crop) {
+    // Recorte relativo (fracciones del original ya girado) antes de generar los anchos
+    const { data, info } = await sharp(buf).rotate().toBuffer({ resolveWithObject: true });
+    const c = meta.crop;
+    buf = await sharp(data)
+      .extract({ left: Math.round(info.width * c.left), top: Math.round(info.height * c.top), width: Math.round(info.width * c.width), height: Math.round(info.height * c.height) })
+      .toBuffer();
+  }
   const base = sharp(buf).rotate();
   const { width, height } = await base.metadata();
   const sizes = [];

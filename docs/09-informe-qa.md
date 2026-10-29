@@ -10,7 +10,7 @@
 |---|---|
 | Tipos (TypeScript, 4 paquetes) | Sin errores |
 | Pruebas automáticas (`npm run check`) | **370 de 370** superadas: reglas compartidas 47, API 111, web 198, contenido 14 |
-| Auditoría automática con axe-core 4.10.2 (WCAG 2.0, 2.1 y 2.2, niveles A y AA) | **0 incidencias reales** en 35 rutas (18 de empleado y 17 de Gestión y Administración) a 360 y 1440 px, en tema claro y oscuro: 140 pasadas. Quedan 3 falsos positivos explicados en §3.3. La pasada de la tarde (§3.5) añadió otras 173 sobre lo que ha cambiado: 0 incidencias y 0 px, más un falso positivo ya conocido |
+| Auditoría automática con axe-core 4.10.2 (WCAG 2.0, 2.1 y 2.2, niveles A y AA) | **0 incidencias reales** en 35 rutas (18 de empleado y 17 de Gestión y Administración) a 360 y 1440 px, en tema claro y oscuro: 140 pasadas. Quedan 3 falsos positivos explicados en §3.3. La pasada de la tarde (§3.5) añadió otras 201 sobre lo que ha cambiado: 0 incidencias y 0 px, más un falso positivo ya conocido |
 | Revisión cruzada de las siete formaciones de Contabilidad | 1 contradicción, 3 imprecisiones y 3 detalles entre formaciones: **todos corregidos**, con la norma y las instrucciones de la AEAT comprobadas (§3.5) |
 | Reajuste sin desplazamiento horizontal (360 px) | **0 px** en todas las rutas, después de corregir los 2 desbordamientos encontrados en esta pasada (§3.4) |
 | Revisión experta de diseño y accesibilidad | 33 hallazgos (1 crítico, 10 importantes y 22 menores): **29 corregidos**; quedan 4 menores, cada uno con su propuesta |
@@ -78,6 +78,7 @@ Cubre las cuatro formaciones nuevas de Contabilidad, la firma de todas las forma
 | Contabilidad (compilación de la demo) | `/aprender/contable`, `importaciones-y-dua`, `amortizaciones`, `bienes-de-inversion` y `facturas-de-anticipo` con dos de sus tests, `/aprender`, `/sobre`, el calendario del 26/11/2026 y `/perfil` | 44 | 0 incidencias · 0 px |
 | Enlaces internos (compilación de la demo, tras corregirlos) | Contabilidad y sus cuatro formaciones nuevas, dos tests, una noticia con enlaces a formaciones e Inicio | 36 | 0 incidencias · 0 px |
 | Incorporaciones, foto de Aprender, Consultar y pie (servidor de desarrollo) | `/`, `/aprender`, `/consultar`, `/participar` y `/sobre`; como administración, `/admin/personas`, `/gestion`, la edición de una bienvenida real y una bienvenida nueva | 29 | 0 incidencias · 0 px |
+| Nota de VERI*FACTU de octubre de 2028 y cabeceras (servidor de desarrollo) | `/consultar`, `/participar`, `/aprender` con el mismo óvalo, la ficha de la nota nueva, su noticia, `/consultar/actualidad` e Inicio | 28 | 0 incidencias · 0 px |
 | Pasada final (compilación de la demo) | `/`, `/aprender`, `/consultar`, `/participar`, `/participar/calendario`, `/sobre` y «Facturas de anticipo» | 28 | 0 incidencias · 0 px, más el falso positivo del término junto a un enlace (§3.3) en «Facturas de anticipo» a 1440 px |
 
 | Hallazgo | Corrección |

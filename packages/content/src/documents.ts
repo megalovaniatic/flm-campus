@@ -16,6 +16,20 @@ const v = (file: string, sizeKb: number, pages: number, uploadedAt: string, uplo
 
 export const documents: LibraryDocument[] = [
   {
+    id: 'doc-verifactu-aplazamiento',
+    title: 'El aplazamiento de VERI*FACTU a octubre de 2028 está pendiente de aprobación normativa',
+    area: 'fiscal',
+    issuer: 'FLM · Área Fiscal',
+    date: '2026-10-29',
+    summary:
+      'Explica la comunicación de Hacienda de 5 de octubre de 2026, que prevé trasladar a octubre de 2028 la adaptación de los programas de facturación para coordinarla con la factura electrónica de pymes y autónomos. Mientras no se publique en el BOE, siguen vigentes el 1 de enero de 2027 para el Impuesto sobre Sociedades y el 1 de julio de 2027 para el resto. Recomienda no parar la adaptación. En castellano, catalán e inglés.',
+    kind: 'nota-informativa',
+    versions: v('docs/nota-verifactu-aplazamiento-2028.pdf', 210, 6, '2026-10-29', 'p-judith-calet'),
+    tags: ['VERI*FACTU', 'aplazamiento', 'calendario', 'factura electrónica', 'castellano', 'català', 'English'],
+    publicDemo: true,
+    editorial: flm('p-judith-calet', '2026-10-29'),
+  },
+  {
     id: 'doc-facturacion-b2b',
     title: 'La facturación electrónica B2B: calendario y obligaciones tras la Orden HAC/1028/2026',
     area: 'fiscal',
@@ -55,7 +69,7 @@ export const documents: LibraryDocument[] = [
     versions: v('docs/nota-verifactu.pdf', 197, 2, '2026-10-01', 'p-angel-ceniceros'),
     tags: ['VERI*FACTU', 'facturación', 'SIF', 'calendario'],
     publicDemo: true,
-    notice: 'Nota fechada el 1 de octubre de 2026. Consulta la formación «Verifactu» y «Actualidad en tu sector» para el calendario vigente.',
+    notice: 'Nota fechada el 1 de octubre de 2026, antes del anuncio de Hacienda de aplazar VERI*FACTU a octubre de 2028 (pendiente de aprobación). Consulta la nota del 29 de octubre de 2026 y la formación «Verifactu» para el calendario vigente.',
     editorial: flm('p-angel-ceniceros', '2026-10-01'),
   },
   {

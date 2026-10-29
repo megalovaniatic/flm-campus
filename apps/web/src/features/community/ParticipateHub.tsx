@@ -114,7 +114,7 @@ export default function ParticipateHub() {
           </>
         }
         lede="«Aprender juntos para asesorar mejor.»"
-        aside={<PhotoCapsule name="recepcion" aspect="12 / 5" position="50% 58%" priority caption="Recepción de la oficina de FLM" mobile="full" />}
+        aside={<PhotoCapsule name="equipo-puzle" aspect="12 / 5" width="clamp(15rem, 22vw, 20rem)" position="50% 45%" sizes="(min-width: 860px) 20rem, 92vw" priority mobile="full" />}
       />
 
       <div className={styles.top}>

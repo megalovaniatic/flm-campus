@@ -230,7 +230,7 @@ export function Credits() {
             <a href="https://unsplash.com/photos/_4tpElFQemQ" target="_blank" rel="noreferrer">
               Vitaly Gariev en Unsplash<span className="sr-only"> (se abre en una pestaña nueva)</span>
             </a>
-            , con la Licencia Unsplash.
+            , con la Licencia Unsplash; la de Participar la ha aportado FLM.
           </dd>
         </div>
         <div>
