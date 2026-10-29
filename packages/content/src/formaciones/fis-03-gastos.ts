@@ -24,11 +24,11 @@ export const formation: Formation = {
   area: 'fiscal',
   title: 'Gastos deducibles en el IS y el IVA: lo que Hacienda revisa',
   intro:
-    'Una startup paga con la tarjeta de la sociedad la cena familiar del fundador, el renting del coche que este también usa los fines de semana y vino para regalar a clientes, y deduce todo el IVA. La Agencia Tributaria ha anunciado que en 2026 prestará especial atención al uso de sociedades para pagar gastos personales de los socios. Aprende a separar lo deducible antes de que llegue un requerimiento.',
+    'Una startup paga con la tarjeta de la sociedad la cena familiar del fundador, el renting del coche que este también usa los fines de semana y vino para regalar a clientes, y deduce todo el IVA. La Agencia Tributaria ha anunciado que en 2026 prestará especial atención al uso abusivo de sociedades instrumentales para pagar gastos personales de los socios. Aprende a separar lo deducible antes de que llegue un requerimiento.',
   summary:
     'Cuándo un gasto reduce el IS y cuándo se deduce su IVA: comidas, coches, portátiles, viajes y gastos de los socios, con un caso resuelto y los errores que Hacienda detecta.',
   coverTerm: '¿Deducible?',
-  readingMinutes: 11,
+  readingMinutes: 12,
   outcomes: [
     'Identificar si un gasto habitual (comida, vehículo, equipo o viaje) es deducible en el IS y si su IVA lo es, con la norma que lo justifica.',
     'Calcular el IVA deducible de un conjunto de gastos y el ajuste en el IS por el exceso de atenciones a clientes sobre el 1 % de la cifra de negocios.',
@@ -45,7 +45,7 @@ export const formation: Formation = {
       type: 'list',
       ordered: true,
       items: [
-        `**Contabilización:** debe figurar en la cuenta de pérdidas y ganancias, salvo amortizaciones libres o aceleradas ([art. 11.3.1.º LIS](${LIS}#a11)).`,
+        `**Contabilización:** debe figurar en la cuenta de pérdidas y ganancias (o en reservas, si una norma lo establece), salvo amortizaciones libres o aceleradas ([art. 11.3.1.º LIS](${LIS}#a11)).`,
         '**Imputación temporal:** se deduce en el ejercicio de su devengo; si se contabiliza en uno posterior, se admite en este, siempre que no resulte una tributación inferior (art. 11 LIS).',
         `**Justificación:** la factura es la prueba prioritaria, pero no privilegiada; si Hacienda cuestiona fundadamente la operación, hay que probar que es real ([art. 106.4 LGT](${LGT}#a106)).`,
         `**Correlación:** debe existir [[correlación con los ingresos]]; si no, es una [[liberalidad]] o un gasto personal ([art. 15.e LIS](${LIS}#a15)).`,
@@ -95,6 +95,7 @@ export const formation: Formation = {
     {
       type: 'list',
       items: [
+        'joyas y alhajas;',
         'alimentos, bebidas y tabaco;',
         'espectáculos y servicios recreativos;',
         'atenciones a clientes, asalariados o terceros, salvo muestras gratuitas y objetos publicitarios de escaso valor;',
@@ -107,13 +108,13 @@ export const formation: Formation = {
     },
     {
       type: 'paragraph',
-      text: `Además, hace falta una factura a nombre de la sociedad ([art. 97 LIVA](${LIVA}#a97)). Una factura simplificada (el antiguo tique) solo sirve si incluye el NIF y el domicilio de la sociedad y la cuota separada ([art. 7.2 del Reglamento de facturación](${RF}#a7)). Si falta un dato, pide la rectificación. El derecho a deducir caduca a los cuatro años ([art. 99.Tres LIVA](${LIVA}#a99)).`,
+      text: `Además, hace falta una factura a nombre de la sociedad ([art. 97 LIVA](${LIVA}#a97)). Una factura simplificada (el antiguo tique) solo sirve si incluye el NIF y el domicilio de la sociedad y la cuota separada ([art. 7.2 del Reglamento de facturación](${RF}#a7)). Si falta un dato, pide la rectificación. El derecho a deducir solo puede ejercerse en los cuatro años siguientes a su nacimiento ([arts. 99.Tres y 100 LIVA](${LIVA}#a99)).`,
     },
     {
       type: 'callout',
       tone: 'consejo',
       title: 'Hábitos que evitan regularizaciones',
-      text: `Pide la factura en el momento y anota en cada comida asistentes y motivo. Conserva los justificantes mientras Hacienda pueda comprobar el impuesto (cuatro años como regla general, [art. 66 LGT](${LGT}#a66)) y seis años desde el último asiento ([art. 30 CCom](${CCOM}#art30)).`,
+      text: `Pide la factura en el momento y anota en cada comida asistentes y motivo. Conserva los justificantes mientras Hacienda pueda comprobar el impuesto (cuatro años como regla general, [art. 66 LGT](${LGT}#a66); diez si sustentan bases negativas, [art. 66 bis LGT](${LGT}#a66bis)) y, como mínimo, seis años desde el último asiento ([art. 30 CCom](${CCOM}#art30)).`,
       refs: [
         { label: 'Ley 58/2003, General Tributaria, art. 66 (plazos de prescripción)', url: `${LGT}#a66`, date: CONSULTA, kind: 'norma' },
         { label: 'Código de Comercio, art. 30 (conservación de libros y justificantes)', url: `${CCOM}#art30`, date: CONSULTA, kind: 'norma' },
@@ -138,7 +139,7 @@ export const formation: Formation = {
     },
     {
       type: 'paragraph',
-      text: `En el IS no hay presunción: se deduce la parte vinculada a la actividad. El uso privado de un trabajador es deducible si se pacta como [[retribución en especie]], por la que tributará en su IRPF: el 20 % anual del coste del coche o, si no es de la empresa, de su valor de mercado como nuevo ([art. 43.1.1.º.b LIRPF](${LIRPF}#a43)). Si es el administrador, su cargo es gratuito salvo que los estatutos prevean retribución ([art. 217 LSC](${LSC}#a217)).`,
+      text: `En el IS no hay presunción: se deduce la parte vinculada a la actividad. El uso privado de un trabajador es deducible si se pacta como [[retribución en especie]], por la que tributará en su IRPF: el 20 % anual del coste del coche o, si no es de la empresa, de su valor de mercado como nuevo ([art. 43.1.1.º.b LIRPF](${LIRPF}#a43)). Si es el administrador, comprueba que los estatutos prevean la retribución: si no, el cargo es gratuito ([art. 217 LSC](${LSC}#a217)).`,
     },
     {
       type: 'paragraph',
@@ -182,7 +183,7 @@ export const formation: Formation = {
       type: 'example',
       title: 'Brisa Apps, S.L.: qué se deduce y cuánto cuesta',
       scenario:
-        'Brisa Apps (ficticia) es una startup de software con bases imponibles positivas desde 2022, así que ya no aplica el 15 % de nueva creación. INCN: 380.000 € en 2026 y 300.000 € en 2025. Base imponible antes de revisar la tabla: 62.000 €. Todo tiene factura completa a nombre de la sociedad, salvo el material (pagado con tarjeta) y la multa. El uso privado del coche no está pactado como retribución.',
+        'Brisa Apps (ficticia) es una startup de software con bases imponibles positivas desde 2022 y sin la condición de empresa emergente ([Ley 28/2022](https://www.boe.es/buscar/act.php?id=BOE-A-2022-21739#a7)): no aplica el 15 % de nueva creación ni el de las empresas emergentes. INCN: 380.000 € en 2026 y 300.000 € en 2025. Base imponible antes de revisar la tabla: 62.000 €. Todo tiene factura completa a nombre de la sociedad, salvo el material (pagado con tarjeta) y la multa. El uso privado del coche no está pactado como retribución. Se supone que el material se acredita por otros medios y que el IVA de su tique (21 €) es gasto, aunque sobre esto no hay criterio administrativo confirmado.',
       steps: [
         {
           label: '**IVA deducible:** solo el del portátil (afecto en exclusiva) y la mitad del del turismo; el resto son atenciones (art. 96.Uno LIVA), un gasto no afecto o un tique sin NIF.',
@@ -200,19 +201,20 @@ export const formation: Formation = {
           result: 'Ajuste positivo de 369,00 €',
         },
         {
-          label: '**Otros ajustes positivos:** cena familiar (art. 15.e LIS), mitad privada del turismo y multa (art. 15.c LIS).',
-          formula: '264,00 + 5.967,00 × 50 % + 200,00',
-          result: '3.447,50 €',
+          label:
+            '**Otros ajustes positivos:** cena familiar (art. 15.e LIS), multa (art. 15.c LIS) y mitad privada del turismo, con todo su IVA no deducible: es justo el que corresponde al uso privado.',
+          formula: '264,00 + (5.400,00 + 1.134,00) × 50 % + 200,00',
+          result: '3.731,00 €',
         },
         {
-          label: '**Gasto deducible en el IS.**',
-          formula: '12.671,00 − 369,00 − 3.447,50',
-          result: '8.854,50 € (ajustes: 3.816,50 €)',
+          label: '**Gasto deducible en el IS.** Del renting quedan 2.700,00 €: la mitad profesional de la base, cuyo IVA ya se ha deducido.',
+          formula: '12.671,00 − 369,00 − 3.731,00',
+          result: '8.571,00 € (ajustes: 4.100,00 €)',
         },
         {
           label: `**Coste fiscal:** con un INCN de 2025 inferior a 1 millón, Brisa tributa en 2026 al 19 % hasta 50.000 € de base y al 21 % el resto ([DT 44.ª.2 LIS](${LIS}#dt-6)): todo el ajuste tributa al 21 %.`,
-          formula: '3.816,50 × 21 %',
-          result: '801,47 € más de cuota',
+          formula: '4.100,00 × 21 %',
+          result: '861,00 € más de cuota',
         },
       ],
       conclusion:
@@ -242,7 +244,7 @@ export const formation: Formation = {
             explanation: 'Los vehículos mixtos de transporte de mercancías se presumen afectos al 100 % en el IVA (art. 95.Tres.2.ª LIVA).',
           },
           {
-            label: 'Comida con un cliente para negociar un contrato',
+            label: 'Comida con un cliente para negociar un contrato, dentro del límite del 1 %',
             answer: 'Deducible en IS, pero no su IVA',
             explanation: 'Atención a clientes: en el IS, hasta el 1 % del INCN; su IVA, nunca (art. 96.Uno.5.º LIVA).',
           },
@@ -341,6 +343,8 @@ export const formation: Formation = {
     { label: 'Ley 27/2014, del Impuesto sobre Sociedades, art. 12 (amortizaciones)', url: `${LIS}#a12`, date: CONSULTA, kind: 'norma' },
     { label: 'Ley 27/2014, del Impuesto sobre Sociedades, art. 15 (gastos no deducibles)', url: `${LIS}#a15`, date: CONSULTA, kind: 'norma' },
     { label: 'Ley 27/2014, del Impuesto sobre Sociedades, DT 44.ª (tipos de gravamen de 2025 a 2028)', url: `${LIS}#dt-6`, date: CONSULTA, kind: 'norma' },
+    { label: 'Ley 28/2022, de fomento del ecosistema de las empresas emergentes, art. 7 (tipo del 15 %)', url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2022-21739#a7', date: CONSULTA, kind: 'norma' },
+    { label: 'Plan General de Contabilidad (Real Decreto 1514/2007), norma de registro y valoración 12.ª (IVA no deducible)', url: `${PGC}#A12`, date: CONSULTA, kind: 'norma' },
     { label: 'Ley 37/1992, del IVA, art. 95 (limitaciones del derecho a deducir)', url: `${LIVA}#a95`, date: CONSULTA, kind: 'norma' },
     { label: 'Ley 37/1992, del IVA, art. 96 (exclusiones y restricciones del derecho a deducir)', url: `${LIVA}#a96`, date: CONSULTA, kind: 'norma' },
     { label: 'Ley 37/1992, del IVA, art. 97 (requisitos formales de la deducción)', url: `${LIVA}#a97`, date: CONSULTA, kind: 'norma' },
@@ -463,7 +467,7 @@ export const bank: QuizQuestion[] = [
   {
     id: 'fis-03-b1',
     prompt:
-      'El CTO de una startup, socio y empleado, usa el portátil de la empresa (1.200 € más IVA, factura a nombre de la sociedad) para trabajar y, de forma habitual, para uso familiar. ¿Puede la sociedad deducir el IVA soportado?',
+      'El CTO de una startup, socio y empleado, usa el portátil de la empresa (1.200 € más IVA, factura a nombre de la sociedad) para trabajar y, de forma habitual, para uso familiar. No se ha pactado ninguna retribución en especie. ¿Puede la sociedad deducir el IVA soportado?',
     options: [
       {
         id: 'a',

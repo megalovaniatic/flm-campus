@@ -19,6 +19,11 @@
   --area-fill: var(--area-contable-fill);
 }
 
+[data-area='general'] {
+  --area: var(--ink-2);
+  --area-fill: var(--flm-gradient);
+}
+
 .container {
   width: 100%;
   max-width: var(--content-max);

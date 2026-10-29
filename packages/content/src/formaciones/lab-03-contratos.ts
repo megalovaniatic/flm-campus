@@ -37,7 +37,7 @@ export const formation: Formation = {
       type: 'callout',
       tone: 'clave',
       title: 'causa de temporalidad',
-      text: 'Es lo que hace válido un temporal: el contrato debe precisar la **causa habilitante**, las **circunstancias concretas** que la justifican y su **conexión con la duración prevista**. «Necesidades de la producción» no basta; «refuerzo de mostrador por la venta de turrones del 21 al 24 de diciembre de 2026», sí.',
+      text: 'Es lo que hace válido un temporal: el contrato debe precisar la **causa habilitante**, las **circunstancias concretas** que la justifican y su **conexión con la duración prevista**. «Necesidades de la producción» no basta; «situación ocasional y previsible: refuerzo de mostrador por la venta de turrones del 21 al 24 de diciembre de 2026», sí.',
       refs: [{ label: 'Estatuto de los Trabajadores, art. 15.1', url: `${ET}#a15`, date: VERIFIED, kind: 'norma' }],
     },
     {
@@ -48,7 +48,7 @@ export const formation: Formation = {
       type: 'callout',
       tone: 'norma',
       title: 'Novedad desde el 5 de octubre de 2026',
-      text: `Si la relación dura más de cuatro semanas, la empresa debe informar por escrito, **antes del inicio**, de los elementos esenciales del contrato, incluida la causa en los temporales. Basta con que el contrato escrito lo recoja todo ([RD 723/2026, arts. 2.2, 3 y 7.1](${RD_723}#a3)).`,
+      text: `Si la relación dura más de cuatro semanas, la empresa debe informar por escrito, **antes del inicio**, de los elementos esenciales del contrato, incluida la causa en los temporales. Basta con que el contrato escrito lo recoja todo ([RD 723/2026, arts. 2.2, 3, 6.1 y 7.1](${RD_723}#a3)).`,
       refs: [{ label: 'Real Decreto 723/2026, de 9 de septiembre (BOE núm. 228, de 15/09/2026)', url: `${RD_723}#a3`, date: VERIFIED, kind: 'norma' }],
     },
     {
@@ -68,7 +68,7 @@ export const formation: Formation = {
           },
           {
             id: 'q2',
-            question: '¿Se repite cada año (temporada o intermitencia) o es una contrata previsible de la actividad ordinaria?',
+            question: '¿Es una temporada o una actividad intermitente que vuelve cada año (no unos pocos días punta), o una contrata previsible de la actividad ordinaria?',
             options: [
               { label: 'Sí', next: 'r-fijo-discontinuo' },
               { label: 'No', next: 'q3' },
@@ -219,7 +219,7 @@ export const formation: Formation = {
     { type: 'heading', text: 'Límites, costes y sanciones', id: 'limites-costes-y-sanciones' },
     {
       type: 'paragraph',
-      text: `La [[regla 18/24]] hace fija a la persona contratada **más de 18 meses en 24** con dos o más contratos por circunstancias de la producción, con o sin interrupciones, en el mismo o distinto puesto, en la empresa o el grupo, incluso a través de una empresa de trabajo temporal. También es fija la persona que ocupa un puesto cubierto así durante más de 18 meses en 24. La empresa debe acreditarlo por escrito en 10 días ([art. 15.5 y 15.9 ET](${ET}#a15)).`,
+      text: `La [[regla 18/24]] hace fija a la persona contratada **más de 18 meses en 24** con dos o más contratos por circunstancias de la producción, con o sin interrupciones, en el mismo o distinto puesto, en la empresa o el grupo, incluso a través de una empresa de trabajo temporal. También es fija la persona que ocupa un puesto cubierto así durante más de 18 meses en 24. En los 10 días siguientes, la empresa debe entregarle un documento escrito que acredite su condición de fija ([art. 15.5 y 15.9 ET](${ET}#a15)).`,
     },
     {
       type: 'paragraph',
@@ -597,7 +597,7 @@ export const bank: QuizQuestion[] = [
     ],
     correctOptionId: 'd',
     explanation:
-      'Está dentro de los 3 años siguientes a terminar los estudios y 9 meses queda entre la duración mínima (6 meses) y la máxima (1 año) del art. 11.3 ET. El periodo de prueba no puede superar 1 mes: el art. 24 del RD 1065/2025 solo permite al convenio fijar una duración inferior.',
+      'Está dentro de los 3 años siguientes a terminar los estudios y 9 meses queda entre la duración mínima (6 meses) y la máxima (1 año) del art. 11.3 ET. El art. 11.3.e ET fija un periodo de prueba de 1 mes como máximo, salvo lo dispuesto en convenio, y el art. 24 del RD 1065/2025 precisa que el convenio solo puede reducirlo.',
     ref: 'Fijo-discontinuo, sustitución y contratos formativos (art. 11.3 ET)',
   },
 ];

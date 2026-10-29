@@ -6,11 +6,11 @@ export const formation: Formation = {
   area: 'fiscal',
   title: 'Presentar fuera de plazo: recargo del art. 27, intereses y sanciones',
   intro:
-    'Septiembre: el nuevo responsable financiero de una *startup* cliente te avisa de que nadie presentó el modelo 303 del primer trimestre y hay 2.800 € de IVA pendientes. Si lo presentáis e ingresáis antes de cualquier [[requerimiento previo]], el coste añadido puede quedarse en 105 €; si la AEAT se adelanta, habrá intereses y una posible sanción de 588 € a 1.400 €. Saber en qué lado de esa línea estáis, y calcularlo bien, es asesoramiento de valor inmediato.',
+    'Septiembre: el nuevo responsable financiero de una *startup* cliente te avisa de que nadie presentó el modelo 303 del primer trimestre y hay 2.800 € de IVA pendientes. Si lo presentáis e ingresáis antes del día 20 y sin [[requerimiento previo]], el coste añadido puede quedarse en 105 €; si la AEAT se adelanta, habrá intereses y una posible sanción de hasta 1.400 €. Saber en qué lado de esa línea estáis, y calcularlo bien, es asesoramiento de valor inmediato.',
   summary:
     'Cuánto cuesta presentar tarde sin requerimiento, cómo conservar la reducción del 25 % y qué cambia si la AEAT se adelanta: intereses y posible sanción.',
   coverTerm: 'Art. 27',
-  readingMinutes: 10,
+  readingMinutes: 12,
   outcomes: [
     'Identificar si una actuación de la AEAT es un requerimiento previo y, con ello, si corresponde recargo o intereses y posible sanción.',
     'Calcular el recargo según los meses completos de retraso, su reducción del 25 % y, cuando proceda, los intereses de demora.',
@@ -175,18 +175,18 @@ export const formation: Formation = {
           result: '46,12 €',
         },
         {
-          label: 'Posible sanción leve del art. 191 (la cuota no supera 3.000 €): 50 %. Con pronto pago, 840 €; con conformidad y pronto pago, 588 €.',
+          label: 'Posible sanción leve del art. 191 (la cuota no supera 3.000 €): 50 %. Con pronto pago, 840 €; si además procede la reducción por conformidad, 588 €.',
           formula: '2.800,00 € × 50 % = 1.400,00 € → 1.400,00 € × 0,70 × 0,60 = 588,00 €',
           result: 'De 588,00 € a 1.400,00 €',
         },
         {
-          label: 'Coste añadido a la cuota en el mejor caso de cada escenario.',
+          label: 'Coste añadido a la cuota en el mejor caso de cada escenario (con requerimiento, si procede la conformidad).',
           formula: '46,12 € + 588,00 € = 634,12 € frente a 105,00 €',
           result: 'Unas 6 veces más',
         },
       ],
       conclusion:
-        'Presentar e ingresar el 15/09 sin requerimiento cuesta **105 €** (140 € sin la reducción); con requerimiento, el coste añadido iría de 634,12 € a 1.446,12 €. Días de interés con ambos extremos incluidos; el importe definitivo es el que liquide la AEAT.',
+        'Presentar e ingresar el 15/09 sin requerimiento cuesta **105 €** (140 € sin la reducción); con requerimiento, el coste añadido iría de 886,12 € a 1.446,12 €, o 634,12 € si además procediera la reducción por conformidad. Días de interés con ambos extremos incluidos; el importe definitivo es el que liquide la AEAT.',
     },
 
     /* ── 5 ─────────────────────────────────────────────────────────────── */
@@ -208,7 +208,7 @@ export const formation: Formation = {
             claim: 'La reducción del 25 % se aplica siempre: presento ahora y ya pagaré cuando pueda.',
             verdict: 'falso',
             explanation:
-              'Exige ingresar la deuda al presentar (o aplazarla con aval o seguro de caución pedido en ese momento) y pagar el recargo en el plazo del art. 62.2. Sin ingreso, además, se abre el periodo ejecutivo ([art. 27.3 y 27.5 LGT](https://www.boe.es/buscar/act.php?id=BOE-A-2003-23186#a27)).',
+              'Exige ingresar la deuda al presentar (o aplazarla con aval o seguro de caución pedido en ese momento) y pagar el recargo en el plazo del art. 62.2. Sin ingreso ni solicitud de aplazamiento, además, se abre el periodo ejecutivo ([art. 27.3 y 27.5 LGT](https://www.boe.es/buscar/act.php?id=BOE-A-2003-23186#a27)).',
           },
           {
             claim: 'Si el cliente no abre la notificación de la AEAT, todavía no hay requerimiento.',
@@ -277,11 +277,11 @@ export const formation: Formation = {
     {
       term: 'periodo ejecutivo',
       definition:
-        'Fase de cobro que se abre cuando la deuda no se ingresa en plazo; si presentas tarde sin ingresar, empieza al día siguiente de la presentación. Lleva recargos del 5 %, 10 % o 20 %.',
+        'Fase de cobro que se abre cuando la deuda no se ingresa en plazo; si presentas tarde sin ingresar ni pedir aplazamiento, empieza al día siguiente de la presentación. Lleva recargos del 5 %, 10 % o 20 %.',
     },
   ],
   takeaway:
-    'Sin requerimiento previo, presentar tarde cuesta un 1 % más un 1 % por mes completo (15 % con intereses pasado el año), sin sanción y con un 25 % de rebaja si pagas a tiempo; con requerimiento, hay intereses y una posible sanción de al menos el 50 % de la cuota, antes de reducciones. Ante un olvido, revisa las notificaciones y presenta e ingresa cuanto antes.',
+    'Sin requerimiento previo, presentar tarde cuesta un 1 % más un 1 % por mes completo (15 % con intereses pasado el año), sin sanción y con un 25 % de rebaja si pagas a tiempo; con requerimiento, hay intereses y una posible sanción de al menos el 50 % de lo no ingresado, antes de reducciones. Ante un olvido, revisa las notificaciones y presenta e ingresa cuanto antes.',
   sources: [
     { label: 'Ley 58/2003, General Tributaria, art. 27: recargos por declaración extemporánea', url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2003-23186#a27', date: '2026-10-28', kind: 'norma' },
     { label: 'Ley 58/2003, General Tributaria, art. 26: interés de demora', url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2003-23186#a26', date: '2026-10-28', kind: 'norma' },
@@ -380,11 +380,11 @@ export const formation: Formation = {
             text: 'Un recargo del 20 % más intereses de demora.',
             feedback: 'El 20 % pertenecía a la escala anterior a la Ley 11/2021, que no se aplica a las presentaciones realizadas desde el 11/07/2021.',
           },
-          { id: 'd', text: 'Un recargo del 15 % (1.500 €) e intereses del 31/01/2026 al 15/06/2026: 10.000 × 4,0625 % × 136 / 365 = 151,37 €.' },
+          { id: 'd', text: 'Un recargo del 15 % (1.500 €) e intereses solo del 31/01/2026 al 15/06/2026: unos 151 €.' },
         ],
         correctOptionId: 'd',
         explanation:
-          'Han transcurrido más de 12 meses desde el fin del plazo (se cumplieron el 30/01/2026), así que el recargo es del 15 % y los intereses se exigen solo desde el día siguiente al final de esos 12 meses hasta la presentación (art. 27.2 LGT), al 4,0625 % que se aplica en 2026.',
+          'Han transcurrido más de 12 meses desde el fin del plazo (se cumplieron el 30/01/2026), así que el recargo es del 15 % y los intereses se exigen solo desde el día siguiente al final de esos 12 meses hasta la presentación (art. 27.2 LGT), al 4,0625 % que se aplica en 2026: 10.000 × 4,0625 % × 136 / 365 = 151,37 €, con ambos extremos incluidos.',
         ref: 'apartado 2, «Cuánto cuesta: la escala del recargo»',
       },
     ],

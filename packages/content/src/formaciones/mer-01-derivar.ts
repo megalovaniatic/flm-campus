@@ -1,6 +1,7 @@
 import type { Formation, QuizQuestion } from '@flm/shared';
 
-/* Textos consolidados del BOE (artículos y anclas comprobados el 28/10/2026). */
+/* Textos consolidados del BOE (artículos y anclas comprobados el 28/10/2026; vigencia de la LSC, el TRLC
+ * y el art. 30 del RDL 7/2026 revisada de nuevo el 29/10/2026). */
 const LSC = 'https://www.boe.es/buscar/act.php?id=BOE-A-2010-10544';
 const TRLC = 'https://www.boe.es/buscar/act.php?id=BOE-A-2020-4859';
 const ET = 'https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430';
@@ -8,6 +9,7 @@ const AGENCIA = 'https://www.boe.es/buscar/act.php?id=BOE-A-1992-12347';
 const RDL_7_1996 = 'https://www.boe.es/buscar/act.php?id=BOE-A-1996-13002';
 const ICAC_2019 = 'https://www.boe.es/buscar/act.php?id=BOE-A-2019-3422';
 const RDL_7_2026 = 'https://www.boe.es/buscar/act.php?id=BOE-A-2026-6544';
+const RDL_1_2025 = 'https://www.boe.es/buscar/act.php?id=BOE-A-2025-1560';
 const CONSULTA = '2026-10-28';
 
 export const formation: Formation = {
@@ -20,7 +22,7 @@ export const formation: Formation = {
   summary:
     'Qué frases de clientes de Fiscal, Laboral y Contabilidad piden a Mercantil, por qué, qué plazos marcan la urgencia y cómo derivar con lo necesario.',
   coverTerm: '¿A Mercantil?',
-  readingMinutes: 11,
+  readingMinutes: 12,
   outcomes: [
     'Identificar en una conversación de Fiscal, Laboral o Contabilidad las señales que piden a Mercantil y explicar por qué cada una es un asunto mercantil.',
     'Calcular, con el balance que ya tienes, si hay una posible causa de disolución por pérdidas y cómo cambia el control de la sociedad tras una operación.',
@@ -95,7 +97,7 @@ export const formation: Formation = {
           {
             label: '«Fichamos a un director general» o «el administrador va a cobrar»',
             values: [
-              `Al administrador lo nombra la junta, el nombramiento se presenta a inscripción en diez días y solo cobra por el cargo si los estatutos lo prevén ([arts. 214](${LSC}#a214), [215](${LSC}#a215) y [217 LSC](${LSC}#a217)).`,
+              `Si va a ser administrador, lo nombra la junta, el nombramiento se presenta a inscripción en diez días y solo cobra por el cargo si los estatutos lo prevén ([arts. 214](${LSC}#a214), [215](${LSC}#a215) y [217 LSC](${LSC}#a217)); si no, actuará con poderes de la sociedad.`,
               'Nombramiento, poderes y contrato coordinado con Laboral.',
             ],
           },
@@ -109,7 +111,7 @@ export const formation: Formation = {
           {
             label: '«Vamos a vender la empresa» o «compramos otra con su plantilla»',
             values: [
-              `Comprar o vender activos esenciales requiere acuerdo de la junta ([art. 160 LSC](${LSC}#a160)), y quien adquiere una empresa o unidad productiva autónoma se subroga en sus relaciones laborales ([art. 44 ET](${ET}#a44)).`,
+              `Comprar o vender activos esenciales requiere acuerdo de la junta ([art. 160 LSC](${LSC}#a160)), y quien adquiere el negocio (no las participaciones) se subroga en sus relaciones laborales ([art. 44 ET](${ET}#a44)).`,
               'Revisión previa (*due diligence*), contrato de compraventa y garantías.',
             ],
           },
@@ -137,7 +139,7 @@ export const formation: Formation = {
           {
             label: '«No llegamos a pagar la Seguridad Social»',
             values: [
-              `Si no puede pagar con regularidad, está en insolvencia actual y debe pedir el concurso en dos meses ([arts. 2](${TRLC}#a2) y [5 TRLC](${TRLC}#a5)).`,
+              `Si no puede pagar con regularidad, está en insolvencia actual y debe pedir el concurso en los dos meses siguientes a conocerla ([arts. 2](${TRLC}#a2) y [5 TRLC](${TRLC}#a5)).`,
               'Área concursal: negociación con acreedores, reestructuración o concurso.',
             ],
           },
@@ -182,11 +184,12 @@ export const formation: Formation = {
       type: 'callout',
       tone: 'atencion',
       title: 'Antes de dar por buena la cifra',
-      text: `Para este cálculo, los préstamos participativos cuentan como patrimonio neto ([art. 20.Uno.d RDL 7/1996](${RDL_7_1996}#a20); [art. 3.1 Res. ICAC de 5/3/2019](${ICAC_2019}#ar-3)), y las pérdidas de 2020 y 2021 no computan hasta el cierre del ejercicio que se inicie en 2026 ([art. 30 RDL 7/2026](${RDL_7_2026}#a3-2)). Esa norma transitoria cuenta los dos meses desde el cierre del ejercicio para las pérdidas de 2022 a 2026; la LSC, desde que concurre la causa. Cómo se combinan lo valora Mercantil: tú no esperes al cierre para derivar.`,
+      text: `Para este cálculo, los préstamos participativos cuentan como patrimonio neto ([art. 20.Uno.d RDL 7/1996](${RDL_7_1996}#a20); [art. 3.1 Res. ICAC de 5/3/2019](${ICAC_2019}#ar-3)), y hasta el cierre del ejercicio que se inicie en 2026 no computan las pérdidas de 2020 y 2021 ([art. 30 RDL 7/2026](${RDL_7_2026}#a3-2)) ni, en las sociedades afectadas, las de la DANA de 2024 ([art. 2 RDL 1/2025](${RDL_1_2025}#a2)). Cuando se aplican, esas normas cuentan los dos meses desde el cierre del ejercicio; la LSC, desde que concurre la causa. Cómo se combinan lo valora Mercantil: tú no esperes al cierre para derivar.`,
       refs: [
         { label: 'Art. 20 RDL 7/1996 · Préstamos participativos', url: `${RDL_7_1996}#a20`, date: CONSULTA, kind: 'norma' },
         { label: 'Art. 3 Resolución del ICAC de 5 de marzo de 2019 · Patrimonio neto', url: `${ICAC_2019}#ar-3`, date: CONSULTA, kind: 'norma' },
-        { label: 'Art. 30 RDL 7/2026 · Pérdidas de 2020 y 2021', url: `${RDL_7_2026}#a3-2`, date: CONSULTA, kind: 'norma' },
+        { label: 'Art. 30 RDL 7/2026 · Pérdidas de 2020 y 2021', url: `${RDL_7_2026}#a3-2`, date: '2026-10-29', kind: 'norma' },
+        { label: 'Art. 2 RDL 1/2025 · Pérdidas de la DANA de 2024', url: `${RDL_1_2025}#a2`, date: CONSULTA, kind: 'norma' },
       ],
     },
 
@@ -298,7 +301,7 @@ export const formation: Formation = {
             id: 'fin-concurso',
             outcome: {
               title: 'Deriva hoy al área concursal',
-              text: `El concurso debe pedirse en los dos meses siguientes a conocer la insolvencia actual ([art. 5 TRLC](${TRLC}#a5)).`,
+              text: `El concurso debe pedirse en los dos meses siguientes a conocer, o deber conocer, la insolvencia actual ([art. 5 TRLC](${TRLC}#a5)).`,
               tone: 'derivar',
             },
           },
@@ -444,18 +447,24 @@ export const formation: Formation = {
     {
       label: 'Real Decreto Legislativo 1/2010, de 2 de julio, texto refundido de la Ley de Sociedades de Capital (texto consolidado)',
       url: LSC,
-      date: CONSULTA,
+      date: '2026-10-29',
       kind: 'norma',
     },
     {
       label: 'Real Decreto Legislativo 1/2020, de 5 de mayo, texto refundido de la Ley Concursal (texto consolidado)',
       url: TRLC,
-      date: CONSULTA,
+      date: '2026-10-29',
       kind: 'norma',
     },
     {
       label: 'Real Decreto-ley 7/2026, de 20 de marzo, art. 30: suspensión de la causa de disolución por pérdidas',
       url: `${RDL_7_2026}#a3-2`,
+      date: '2026-10-29',
+      kind: 'norma',
+    },
+    {
+      label: 'Real Decreto-ley 1/2025, de 28 de enero, art. 2: pérdidas derivadas de la DANA de 2024',
+      url: `${RDL_1_2025}#a2`,
       date: CONSULTA,
       kind: 'norma',
     },
@@ -478,7 +487,7 @@ export const formation: Formation = {
       kind: 'norma',
     },
     {
-      label: 'Ley 12/1992, de 27 de mayo, sobre Contrato de Agencia, arts. 25 y 28',
+      label: 'Ley 12/1992, de 27 de mayo, sobre Contrato de Agencia, arts. 3, 25 y 28',
       url: `${AGENCIA}#a25`,
       date: CONSULTA,
       kind: 'norma',
@@ -527,7 +536,7 @@ export const formation: Formation = {
       {
         id: 'mer-01-q2',
         prompt:
-          'Contabilidad revisa el balance trimestral de una S.L.: capital social, 60.000 €; patrimonio neto, 26.000 €. No hay préstamos participativos ni pérdidas de 2020 o 2021, y la sociedad paga con normalidad. ¿Qué es correcto?',
+          'Contabilidad revisa el balance trimestral de una S.L.: capital social, 60.000 €; patrimonio neto, 26.000 €. No hay préstamos participativos ni pérdidas excluidas por normas temporales (como las de 2020 y 2021), y la sociedad paga con normalidad. ¿Qué es correcto?',
         options: [
           {
             id: 'a',
@@ -586,7 +595,7 @@ export const formation: Formation = {
   },
   documentIds: ['doc-radar-mercantil'],
   version: 1,
-  verifiedAt: '2026-10-28',
+  verifiedAt: '2026-10-29',
   editorial: {
     status: 'publicado',
     authorId: 'p-lorena-ortiz',

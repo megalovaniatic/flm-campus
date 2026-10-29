@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { AREAS, type AreaId, type EditorialStatus, type EventPhase, type FormationStatus } from '@flm/shared';
+import { areaName, type EditorialStatus, type EventPhase, type FormationStatus, type Scope } from '@flm/shared';
 import { Archive, BookOpenCheck, CircleCheck, CircleDashed, CircleDot, Clock3, Eye, FilePen, Send } from 'lucide-react';
 import styles from './Chip.module.css';
 
@@ -14,12 +14,12 @@ export function Chip({ tone = 'neutral', icon, children, size = 'md' }: { tone?:
   );
 }
 
-/** Etiqueta de área: punto de color + nombre (el color nunca va solo). */
-export function AreaTag({ area, size = 'md', solid = false }: { area: AreaId; size?: 'sm' | 'md'; solid?: boolean }) {
+/** Etiqueta de área: punto de color + nombre (el color nunca va solo). «general» = toda la firma. */
+export function AreaTag({ area, size = 'md', solid = false }: { area: Scope; size?: 'sm' | 'md'; solid?: boolean }) {
   return (
     <span className={[styles.area, styles[size], solid ? styles.areaSolid : ''].join(' ')} data-area={area}>
       <span className={styles.dot} aria-hidden="true" />
-      {AREAS[area].name}
+      {areaName(area)}
     </span>
   );
 }

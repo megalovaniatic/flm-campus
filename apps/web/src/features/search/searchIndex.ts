@@ -1,4 +1,4 @@
-import { AREAS, normalize, plainText } from '@flm/shared';
+import { AREAS, areaName, normalize, plainText } from '@flm/shared';
 import { seed } from '@flm/content';
 
 export type ResultGroup = 'Formaciones' | 'Actualidad' | 'Notas informativas' | 'Lecturas' | 'Agenda' | 'Personas' | 'Secciones';
@@ -47,7 +47,7 @@ export function buildIndex(): SearchItem[] {
     });
   }
   for (const n of seed.news) {
-    items.push({ id: n.id, group: 'Actualidad', title: n.headline, subtitle: `${AREAS[n.area].name} · ${n.date}`, href: `/consultar/actualidad/${n.slug}`, haystack: normalize([n.headline, plainText(n.oneLiner), n.source.label].join(' ')), weight: 4 });
+    items.push({ id: n.id, group: 'Actualidad', title: n.headline, subtitle: `${areaName(n.area)} · ${n.date}`, href: `/consultar/actualidad/${n.slug}`, haystack: normalize([n.headline, plainText(n.oneLiner), n.source.label].join(' ')), weight: 4 });
   }
   for (const d of seed.documents) {
     items.push({ id: d.id, group: 'Notas informativas', title: d.title, subtitle: d.issuer, href: `/consultar/notas/${d.id}`, haystack: normalize([d.title, d.summary, d.issuer, ...d.tags].join(' ')), weight: 3 });

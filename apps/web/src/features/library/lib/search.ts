@@ -4,7 +4,7 @@
  * descarta la puntuación, para que «verifactu» encuentre «VERI*FACTU» y «v5484» encuentre «V5484-26».
  * Todas las palabras deben aparecer (Y lógico); tolera una errata en palabras largas.
  */
-import { AREAS, normalize, plainText, type LibraryDocument, type NewsItem, type Person, type Reading } from '@flm/shared';
+import { AREAS, areaName, normalize, plainText, type LibraryDocument, type NewsItem, type Person, type Reading } from '@flm/shared';
 import { areaLabel, DOC_KIND, NEWS_KIND } from './labels';
 
 const WORD = /[\p{L}\p{N}]/u;
@@ -140,7 +140,7 @@ export function newsFields(n: NewsItem, author?: Person): SearchField[] {
   return [
     field(n.headline, 5),
     field(plainText(n.oneLiner), 2.5),
-    field([n.source.label, AREAS[n.area].name, NEWS_KIND[n.kind].label].join(' '), 2),
+    field([n.source.label, areaName(n.area), NEWS_KIND[n.kind].label].join(' '), 2),
     field([plainText(n.affects), plainText(n.action), plainText(n.example), plainText(n.nuance ?? ''), author?.name ?? ''].join(' '), 1),
   ];
 }

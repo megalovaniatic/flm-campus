@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { ArrowRight, BookOpen, FileText, Lock, Newspaper, SearchX } from 'lucide-react';
 import { useMemo, useRef, type CSSProperties, type ReactNode } from 'react';
 import { Link } from 'react-router';
-import { AREAS, diffDays, fileSize, formatShortDate, madridDateKey, plainText, relativeDay, type LibraryDocument, type NewsItem, type Reading } from '@flm/shared';
+import { AREAS, areaName, diffDays, fileSize, formatShortDate, madridDateKey, plainText, relativeDay, type LibraryDocument, type NewsItem, type Reading } from '@flm/shared';
 import { Button, ButtonLink, EmptyState, PageHeader } from '@/design';
 import { useDocuments, usePeople } from '@/data/selectors';
 import { MESSAGES } from '@/lib/messages';
@@ -238,7 +238,7 @@ function NewsResult({ item, tokens, to }: { item: NewsItem; tokens: string[]; to
       </Link>
       <p className={styles.resultMeta}>
         <KindLabel kind={item.kind} size="sm" />
-        <span>{AREAS[item.area].name}</span>
+        <span>{areaName(item.area)}</span>
         <time dateTime={item.date}>{formatShortDate(item.date)}</time>
       </p>
       <p className={styles.resultText}>
@@ -276,7 +276,7 @@ function ReadingResult({ item, tokens, to }: { item: Reading; tokens: string[]; 
         <span>
           <Highlight text={shortAuthors(item.authors)} tokens={tokens} />
         </span>
-        <span>{AREAS[item.area].name}</span>
+        <span>{areaName(item.area)}</span>
       </p>
       <p className={styles.resultText}>
         <Highlight text={excerpt(item.summary, tokens, 130)} tokens={tokens} />

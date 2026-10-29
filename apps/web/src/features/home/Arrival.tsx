@@ -81,6 +81,9 @@ export function Arrival({ firstName, aside }: { firstName: string; aside?: React
       ['.a-card', { opacity: [0, 1], y: [16, 0] }, { duration: 0.34, delay: stagger(0.07), ease: [0.22, 1, 0.36, 1], at: 0.82 }],
     ]);
     const finish = () => seq.complete();
+    // Red de seguridad: si el navegador no anima (pestaña en segundo plano, capturas, rendimiento),
+    // la composición final aparece igualmente; nunca queda texto oculto.
+    const safety = window.setTimeout(finish, 2600);
     const opts = { once: true, passive: true } as const;
     window.addEventListener('keydown', finish, opts);
     window.addEventListener('pointerdown', finish, opts);
@@ -88,6 +91,7 @@ export function Arrival({ firstName, aside }: { firstName: string; aside?: React
     window.addEventListener('touchmove', finish, opts);
     setArrivalDay(today);
     return () => {
+      window.clearTimeout(safety);
       seq.stop();
       window.removeEventListener('keydown', finish);
       window.removeEventListener('pointerdown', finish);

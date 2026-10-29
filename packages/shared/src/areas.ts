@@ -50,6 +50,14 @@ export const AREAS: Record<AreaId, AreaInfo> = {
 
 export const AREA_LIST: AreaInfo[] = AREA_IDS.map((id) => AREAS[id]);
 
+/** Ámbito de un contenido: un área o «toda la firma» (avisos internos, documentos generales). */
+export type Scope = AreaId | 'general';
+
+/** Nombre visible de un ámbito («Fiscal», «Toda la firma»…). */
+export function areaName(scope: Scope): string {
+  return scope === 'general' ? 'Toda la firma' : AREAS[scope].name;
+}
+
 export function isAreaId(value: unknown): value is AreaId {
   return typeof value === 'string' && (AREA_IDS as readonly string[]).includes(value);
 }

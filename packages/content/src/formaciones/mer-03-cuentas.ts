@@ -4,7 +4,8 @@ import type { Formation, QuizQuestion } from '@flm/shared';
  * mer-03 · Cuentas anuales: formular, aprobar y depositar a tiempo.
  * Preceptos comprobados el 28/10/2026 en los textos consolidados del BOE (LSC, RRM, Ley 14/2013,
  * RD 1515/2007, RD 2/2021, TRLC y Código Civil), en la Instrucción de la DGRN de 12/02/2015 y en
- * el texto oficial de la Directiva Delegada (UE) 2023/2775. El caso resuelto es ficticio.
+ * el texto oficial de la Directiva Delegada (UE) 2023/2775. Vigencia de la LSC, el RRM y el
+ * RD 1515/2007 revisada de nuevo el 29/10/2026. El caso resuelto es ficticio.
  */
 export const formation: Formation = {
   id: 'mer-03',
@@ -31,7 +32,7 @@ export const formation: Formation = {
     },
     {
       type: 'paragraph',
-      text: 'Antes de que pasen cuatro meses desde el cierre toca la [[legalización de libros]]: todos los libros obligatorios (Diario, Inventarios y Cuentas anuales, actas y registro de socios o de acciones nominativas) se llevan en soporte electrónico y se presentan por vía telemática en el Registro Mercantil ([art. 18 Ley 14/2013](https://www.boe.es/buscar/act.php?id=BOE-A-2013-10074#a18)). Si llegan tarde, el registrador los legaliza, pero hace constar que se pidió fuera del plazo legal ([regla 21.ª de la Instrucción de la DGRN de 12/02/2015](https://www.boe.es/diario_boe/txt.php?id=BOE-A-2015-1481)).',
+      text: 'Antes de que pasen cuatro meses desde el cierre toca la [[legalización de libros]]: los libros obligatorios se llevan en soporte electrónico y se presentan por vía telemática en el Registro Mercantil ([art. 18 Ley 14/2013](https://www.boe.es/buscar/act.php?id=BOE-A-2013-10074#a18)). Cada año se legalizan el Diario, el de Inventarios y Cuentas anuales y el de actas; el registro de socios o de acciones nominativas, solo si en el ejercicio ha cambiado la titularidad o se han constituido gravámenes. Si llegan tarde, el registrador los legaliza, pero hace constar que se pidió fuera del plazo legal ([reglas 8.ª, 10.ª y 21.ª de la Instrucción de la DGRN de 12/02/2015](https://www.boe.es/diario_boe/txt.php?id=BOE-A-2015-1481)).',
     },
     {
       type: 'paragraph',
@@ -84,13 +85,13 @@ export const formation: Formation = {
       type: 'callout',
       tone: 'clave',
       title: 'regla de 2 de 3',
-      text: 'La facultad se obtiene si, al cierre de dos ejercicios seguidos, no se superan al menos dos de los tres límites, y solo se pierde tras **dos ejercicios consecutivos** sin cumplirlos: un año aislado no cambia el modelo. En el primer ejercicio desde la constitución basta con cumplirlos al cierre. Para el PGC de Pymes, si la sociedad forma parte de un grupo, se suman las magnitudes de todo el grupo.',
+      text: 'La facultad se obtiene si, al cierre de dos ejercicios seguidos, no se superan al menos dos de los tres límites, y solo se pierde tras **dos ejercicios consecutivos** sin cumplirlos: un año aislado no cambia el modelo. En el primer ejercicio tras la constitución (y, según la LSC, tras una transformación o fusión) basta con cumplirlos al cierre. Para el PGC de Pymes, si la sociedad forma parte de un grupo, se suman las magnitudes de todo el grupo.',
     },
     {
       type: 'widget',
       widget: {
         kind: 'comparativa',
-        title: 'Límites vigentes a 28/10/2026',
+        title: 'Límites vigentes a 29/10/2026',
         columns: ['Total activo', 'INCN', 'Plantilla media'],
         rows: [
           { label: 'Balance, ECPN y memoria abreviados', values: ['≤ 4.000.000 €', '≤ 8.000.000 €', '≤ 50'] },
@@ -104,20 +105,20 @@ export const formation: Formation = {
     },
     {
       type: 'paragraph',
-      text: 'Quien puede formular balance abreviado no está obligado a presentar el estado de cambios en el patrimonio neto (ECPN) ni el estado de flujos de efectivo (EFE) ([art. 257.3 LSC](https://www.boe.es/buscar/act.php?id=BOE-A-2010-10544#a257)) y, si lo formula abreviado, tampoco necesita informe de gestión ([art. 262.3 LSC](https://www.boe.es/buscar/act.php?id=BOE-A-2010-10544#a262)). La opción por el PGC de Pymes se mantiene al menos tres ejercicios, salvo que antes se pierda la facultad, y no pueden aplicarlo, entre otras, las entidades de interés público ni las sociedades de un grupo que formule o deba formular cuentas consolidadas ([art. 2 RD 1515/2007](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19966#a2)).',
+      text: 'Quien puede formular balance abreviado no está obligado a presentar el estado de cambios en el patrimonio neto (ECPN) ni el estado de flujos de efectivo (EFE) ([art. 257.3 LSC](https://www.boe.es/buscar/act.php?id=BOE-A-2010-10544#a257)) y, si formula balance y ECPN abreviados, tampoco el informe de gestión ([art. 262.3 LSC](https://www.boe.es/buscar/act.php?id=BOE-A-2010-10544#a262)). La opción por el PGC de Pymes se mantiene al menos tres ejercicios, salvo que antes se pierda la facultad, y no pueden aplicarlo, entre otras, las entidades de interés público ni las sociedades de un grupo que formule o deba formular cuentas consolidadas ([art. 2 RD 1515/2007](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19966#a2)).',
     },
     {
       type: 'paragraph',
-      text: 'Ojo con la plantilla media: no es la plantilla a 31 de diciembre, sino la media de todas las personas con relación laboral durante el ejercicio, según el tiempo trabajado ([norma 10.ª de elaboración de las cuentas anuales del PGC de Pymes](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19966#inormasdeelaboracion-2)). La fila de microempresas solo da acceso a criterios simplificados dentro del PGC de Pymes ([art. 4 RD 1515/2007](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19966#a4)).',
+      text: 'Ojo con la plantilla media: no es la plantilla al cierre, sino la media de todas las personas con relación laboral durante el ejercicio, según el tiempo trabajado ([norma 10.ª de elaboración de las cuentas anuales del PGC de Pymes](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19966#inormasdeelaboracion-2)). La fila de microempresas solo da acceso a criterios simplificados dentro del PGC de Pymes ([art. 4 RD 1515/2007](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19966#a4)).',
     },
     {
       type: 'callout',
       tone: 'atencion',
       title: 'Los 5 y 10 millones de la UE aún no se aplican en España',
-      text: 'La Directiva Delegada (UE) 2023/2775 elevó los umbrales de la pequeña empresa a 5.000.000 € de activo y 10.000.000 € de cifra de negocios, con plazo de incorporación hasta el 24/12/2024. España no lo ha hecho: a 28/10/2026, la LSC y el RD 1515/2007 mantienen los importes de la tabla. Revisa el BOE antes de cada campaña de cierre.',
+      text: 'La Directiva Delegada (UE) 2023/2775 elevó los umbrales de la pequeña empresa a 5.000.000 € de activo y 10.000.000 € de cifra de negocios, con plazo de incorporación hasta el 24/12/2024. España no lo ha hecho: a 29/10/2026, la LSC y el RD 1515/2007 mantienen los importes de la tabla. Revisa el BOE antes de cada campaña de cierre.',
       refs: [
         { label: 'Directiva Delegada (UE) 2023/2775, arts. 1 y 2', url: 'https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32023L2775', date: '2026-10-28', kind: 'norma' },
-        { label: 'Ley de Sociedades de Capital, art. 257 (texto consolidado)', url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2010-10544#a257', date: '2026-10-28', kind: 'norma' },
+        { label: 'Ley de Sociedades de Capital, art. 257 (texto consolidado)', url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2010-10544#a257', date: '2026-10-29', kind: 'norma' },
       ],
     },
 
@@ -146,7 +147,7 @@ export const formation: Formation = {
     { type: 'heading', text: 'Si las cuentas no llegan al Registro', id: 'consecuencias' },
     {
       type: 'paragraph',
-      text: 'La falta de depósito provoca el [[cierre registral]]: mientras persista, el Registro Mercantil no inscribe ningún documento de la sociedad ([art. 282 LSC](https://www.boe.es/buscar/act.php?id=BOE-A-2010-10544#a282)). El Reglamento lo concreta: afecta a los documentos presentados cuando ha pasado un año desde el cierre del ejercicio sin depósito y dura hasta que se depositan las cuentas pendientes ([art. 378 RRM](https://www.boe.es/buscar/act.php?id=BOE-A-1996-17533#a378)). Solo se exceptúan algunos títulos, como el cese o la dimisión de administradores, la revocación o renuncia de poderes, la disolución y el nombramiento de liquidadores.',
+      text: 'La falta de depósito provoca el [[cierre registral]]: mientras persista, el Registro Mercantil no inscribe ningún documento de la sociedad ([art. 282 LSC](https://www.boe.es/buscar/act.php?id=BOE-A-2010-10544#a282)). El Reglamento lo concreta: afecta a los documentos presentados cuando ha pasado un año desde el cierre del ejercicio sin depósito y dura hasta que se depositan las cuentas pendientes o se acredita que no se aprobaron ([art. 378 RRM](https://www.boe.es/buscar/act.php?id=BOE-A-1996-17533#a378)). Solo se exceptúan algunos títulos, como el cese o la dimisión de administradores, la revocación o renuncia de poderes, la disolución y el nombramiento de liquidadores.',
     },
     {
       type: 'callout',
@@ -251,13 +252,13 @@ export const formation: Formation = {
     {
       label: 'Real Decreto Legislativo 1/2010, texto refundido de la Ley de Sociedades de Capital (texto consolidado): arts. 164, 176, 178, 253, 257, 258, 262 a 265, 270, 272, 279, 280, 282 y 283',
       url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2010-10544',
-      date: '2026-10-28',
+      date: '2026-10-29',
       kind: 'norma',
     },
     {
       label: 'Real Decreto 1784/1996, Reglamento del Registro Mercantil (texto consolidado): arts. 94, 350, 366 y 378',
       url: 'https://www.boe.es/buscar/act.php?id=BOE-A-1996-17533',
-      date: '2026-10-28',
+      date: '2026-10-29',
       kind: 'norma',
     },
     {
@@ -267,7 +268,7 @@ export const formation: Formation = {
       kind: 'norma',
     },
     {
-      label: 'Instrucción de la DGRN de 12 de febrero de 2015, sobre legalización de libros (reglas 3.ª, 7.ª y 21.ª)',
+      label: 'Instrucción de la DGRN de 12 de febrero de 2015, sobre legalización de libros (reglas 3.ª, 7.ª, 8.ª, 10.ª y 21.ª)',
       url: 'https://www.boe.es/diario_boe/txt.php?id=BOE-A-2015-1481',
       date: '2026-10-28',
       kind: 'criterio',
@@ -275,7 +276,7 @@ export const formation: Formation = {
     {
       label: 'Real Decreto 1515/2007, PGC de Pymes y criterios de microempresas (texto consolidado): arts. 2 y 4 y norma 10.ª de elaboración de las cuentas anuales',
       url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2007-19966',
-      date: '2026-10-28',
+      date: '2026-10-29',
       kind: 'norma',
     },
     {
@@ -341,7 +342,7 @@ export const formation: Formation = {
       {
         id: 'mer-03-q2',
         prompt:
-          'Una SL formula balance abreviado desde hace años. Al cierre de 2025 tenía un activo de 3.900.000 €, un INCN de 8.300.000 € y una plantilla media de 52; al cierre de 2026, 4.200.000 €, 7.800.000 € y 49. ¿Puede formular balance abreviado en 2026?',
+          'Una SL formula balance abreviado desde hace años y, hasta 2024 inclusive, cumplió cada año al menos dos de los tres límites del art. 257 LSC. Al cierre de 2025 tenía un activo de 3.900.000 €, un INCN de 8.300.000 € y una plantilla media de 52; al cierre de 2026, 4.200.000 €, 7.800.000 € y 49. ¿Puede formular balance abreviado en 2026?',
         options: [
           {
             id: 'a',
@@ -360,12 +361,12 @@ export const formation: Formation = {
           {
             id: 'd',
             text: 'Sí, porque desde 2024 se aplican los límites de 5.000.000 € y 10.000.000 € de la Directiva Delegada (UE) 2023/2775.',
-            feedback: 'España no ha incorporado esos importes: a 28/10/2026, el art. 257 LSC mantiene 4.000.000 €, 8.000.000 € y 50 trabajadores.',
+            feedback: 'España no ha incorporado esos importes: a 29/10/2026, el art. 257 LSC mantiene 4.000.000 €, 8.000.000 € y 50 trabajadores.',
           },
         ],
         correctOptionId: 'c',
         explanation:
-          'En 2025 cumple 1 de 3 (solo el activo) y en 2026, 2 de 3 (INCN y plantilla). Solo hay un ejercicio sin cumplir, y la facultad se pierde si se dejan de cumplir dos límites «durante dos ejercicios consecutivos» (art. 257.1 LSC).',
+          'En 2025 cumple 1 de 3 (solo el activo) y en 2026, 2 de 3 (INCN y plantilla). Como 2024 sí cumplía, solo hay un ejercicio sin cumplir (2025), y la facultad se pierde si se dejan de cumplir dos límites «durante dos ejercicios consecutivos» (art. 257.1 LSC).',
         ref: 'Apartado 2 · Modelo abreviado, PGC de Pymes y auditoría: la regla de 2 de 3',
       },
       {
@@ -407,7 +408,7 @@ export const formation: Formation = {
     publishedAt: '2026-10-16T09:00:00+02:00',
     review: { state: 'pendiente', note: 'Borrador redactado para la revisión del área.' },
   },
-  verifiedAt: '2026-10-28',
+  verifiedAt: '2026-10-29',
 };
 
 /** Banco de 4 preguntas adicionales para la evaluación sectorial «Pon a prueba tus conocimientos». */
@@ -441,22 +442,22 @@ export const bank: QuizQuestion[] = [
   {
     id: 'mer-03-b2',
     prompt:
-      'Una SL con cierre a 31 de diciembre superó en 2025 dos de los tres límites de exención de auditoría, y su previsión de 2026 también los supera. Nunca se ha auditado. ¿Hasta cuándo puede su junta general nombrar auditor para las cuentas de 2026?',
+      'Una SL con cierre a 31 de diciembre superó en 2025 dos de los tres límites de exención de auditoría, y su previsión de 2026 también los supera. Nunca se ha auditado. ¿Qué fecha límite fija la ley para que su junta general nombre auditor para las cuentas de 2026?',
     options: [
-      { id: 'a', text: 'Hasta el 31/12/2026: el auditor se nombra antes de que termine el ejercicio que se va a auditar.' },
+      { id: 'a', text: 'El 31/12/2026: el auditor se nombra antes de que termine el ejercicio que se va a auditar.' },
       {
         id: 'b',
-        text: 'Hasta el 31/03/2027, fecha límite para formular las cuentas.',
+        text: 'El 31/03/2027, fecha límite para formular las cuentas.',
         feedback: 'La formulación no marca este plazo. Cerrado el ejercicio sin nombramiento, la designación corresponde al registrador mercantil (art. 265.1 LSC y art. 350 RRM).',
       },
       {
         id: 'c',
-        text: 'Hasta la junta ordinaria de junio de 2027, que puede nombrar al auditor y aprobar las cuentas en la misma sesión.',
+        text: 'La fecha de la junta ordinaria de junio de 2027, que puede nombrar al auditor y aprobar las cuentas en la misma sesión.',
         feedback: 'Llega tarde: la junta debe nombrar al auditor antes de que acabe el ejercicio a auditar (art. 264.1 LSC), y las cuentas que aprueba deben estar ya auditadas.',
       },
       {
         id: 'd',
-        text: 'No tiene que nombrarlo: el Registro Mercantil asigna de oficio un auditor a las sociedades obligadas.',
+        text: 'Ninguna: no tiene que nombrarlo, porque el Registro Mercantil asigna de oficio un auditor a las sociedades obligadas.',
         feedback: 'El registrador no actúa de oficio: designa auditor a petición de los administradores o de cualquier socio cuando la junta no lo ha nombrado (art. 265.1 LSC).',
       },
     ],
@@ -482,7 +483,7 @@ export const bank: QuizQuestion[] = [
       },
       {
         id: 'c',
-        text: 'Acreditar en el Registro Mercantil, antes del 31/12/2026, la falta de aprobación y su causa (certificación con firmas legitimadas o copia del acta notarial) y reiterarlo cada seis meses.',
+        text: 'Acreditar en el Registro Mercantil, antes de que se cumpla un año desde el cierre (31/12/2026), la falta de aprobación y su causa (certificación con firmas legitimadas o copia del acta notarial) y reiterarlo cada seis meses.',
       },
       {
         id: 'd',
@@ -497,7 +498,7 @@ export const bank: QuizQuestion[] = [
   },
   {
     id: 'mer-03-b4',
-    prompt: 'Una SA celebra su junta ordinaria el martes 22/06/2027 y aprueba las cuentas de 2026. ¿Cuándo vence el plazo para presentarlas a depósito?',
+    prompt: 'Una SA cuyo ejercicio coincide con el año natural celebra su junta ordinaria el martes 22/06/2027 y aprueba las cuentas de 2026. ¿Cuándo vence el plazo para presentarlas a depósito?',
     options: [
       {
         id: 'a',

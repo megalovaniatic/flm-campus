@@ -1,6 +1,7 @@
 import type { Formation, QuizQuestion } from '@flm/shared';
 
-/* Fuentes primarias (BOE consolidado; anclas comprobadas el 28/10/2026). */
+/* Fuentes primarias (BOE consolidado; anclas comprobadas el 28/10/2026; vigencia de la LSC, el TRLC
+ * y el art. 30 del RDL 7/2026 revisada de nuevo el 29/10/2026). */
 const LSC = 'https://www.boe.es/buscar/act.php?id=BOE-A-2010-10544';
 const TRLC = 'https://www.boe.es/buscar/act.php?id=BOE-A-2020-4859';
 const CCOM_36 = 'https://www.boe.es/buscar/act.php?id=BOE-A-1885-6627#art36';
@@ -12,7 +13,10 @@ const CONVALIDACION_RDL_7_2026 = 'https://www.boe.es/buscar/doc.php?id=BOE-A-202
 const RDL_1_2025 = 'https://www.boe.es/buscar/act.php?id=BOE-A-2025-1560#a2';
 const LEY_28_2022 = 'https://www.boe.es/buscar/act.php?id=BOE-A-2022-21739#a1-5';
 const LEY_3_2020 = 'https://www.boe.es/buscar/act.php?id=BOE-A-2020-10923#a1-5';
+const RDL_16_2020 = 'https://www.boe.es/buscar/act.php?id=BOE-A-2020-4705#a1-10';
 const PGC_118 = 'https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#grupo1-2';
+/* Buscador del CENDOJ: las sentencias se localizan por su Roj o su ECLI. */
+const CENDOJ = 'https://www.poderjudicial.es/search/indexAN.jsp';
 
 const CONSULTA = '2026-10-28';
 
@@ -26,7 +30,7 @@ export const formation: Formation = {
   summary:
     'Cuándo obligan las pérdidas a disolver, qué patrimonio neto cuenta, qué plazos corren para el administrador y cómo sacar a la sociedad de la causa a tiempo.',
   coverTerm: '½ capital',
-  readingMinutes: 11,
+  readingMinutes: 12,
   outcomes: [
     'Calcular el patrimonio neto a efectos de disolución, con préstamos participativos y exclusiones vigentes, y determinar si la sociedad está en causa y cuánto le falta para salir.',
     'Identificar los plazos para convocar la junta y pedir la disolución judicial, la responsabilidad del administrador que no los cumple y cuándo la vía es el concurso.',
@@ -86,8 +90,8 @@ export const formation: Formation = {
       title: 'Prepara ya a los clientes afectados',
       text: 'Si un cliente solo está fuera de la causa gracias a la exclusión, simula ya su patrimonio neto con esas pérdidas y planifica antes del cierre cómo cubrir el déficit.\n\nOjo con los huecos: el Congreso no convalidó tres prórrogas (RDL 9/2024, 16/2025 y 2/2026), lo que dejó periodos sin cobertura en 2025 y 2026. Si en ellos un cliente estuvo en causa solo por esas pérdidas, consúltalo con el área.',
       refs: [
-        { label: 'Art. 30 del RDL 7/2026 (exclusión vigente)', url: RDL_7_2026, date: CONSULTA, kind: 'norma' },
-        { label: 'Art. 13 de la Ley 3/2020 (origen de la medida)', url: LEY_3_2020, date: CONSULTA, kind: 'norma' },
+        { label: 'Art. 30 del RDL 7/2026 (exclusión vigente)', url: RDL_7_2026, date: '2026-10-29', kind: 'norma' },
+        { label: 'Art. 18 del RDL 16/2020 (origen de la medida)', url: RDL_16_2020, date: CONSULTA, kind: 'norma' },
       ],
     },
 
@@ -95,7 +99,7 @@ export const formation: Formation = {
     { type: 'heading', text: 'Plazos y responsabilidad de los administradores', id: 'plazos-y-responsabilidad' },
     {
       type: 'paragraph',
-      text: `Cuando concurre la causa, los administradores deben convocar la junta en dos meses para que acuerde la disolución ([art. 365.1 LSC](${LSC}#a365)). El plazo corre desde que acaece la causa o, si el administrador se nombra después, desde que acepta el cargo ([art. 367.1 LSC](${LSC}#a367)), y se cuenta de fecha a fecha ([art. 5.1 del Código Civil](${CC_5})).`,
+      text: `Cuando concurre la causa, los administradores deben convocar la junta en dos meses para que acuerde la disolución ([art. 365.1 LSC](${LSC}#a365)). El plazo corre desde que acaece la causa (para el Tribunal Supremo, desde que el administrador la conoció o debió conocerla) o, si el administrador se nombra después, desde que acepta el cargo ([art. 367.1 LSC](${LSC}#a367)), y se cuenta de fecha a fecha ([art. 5.1 del Código Civil](${CC_5})).`,
     },
     {
       type: 'paragraph',
@@ -109,8 +113,11 @@ export const formation: Formation = {
       type: 'callout',
       tone: 'norma',
       title: 'Qué deudas alcanza el art. 367 LSC',
-      text: 'Quien incumple cualquiera de los dos plazos responde **solidariamente** con la sociedad de las obligaciones sociales posteriores a la causa, incluidas las nacidas mientras corren los dos meses. Las reclamadas judicialmente se presumen posteriores, «salvo prueba en contrario». Esta [[responsabilidad solidaria del administrador]] no requiere que la sociedad esté en concurso.',
-      refs: [{ label: 'Art. 367 LSC (redacción de la Ley 16/2022)', url: `${LSC}#a367`, date: CONSULTA, kind: 'norma' }],
+      text: 'Quien incumple cualquiera de los dos plazos responde **solidariamente** con la sociedad de las obligaciones sociales posteriores a la causa, incluidas las nacidas mientras corren los dos meses: cuenta la fecha en que nace cada obligación, no su vencimiento. Las reclamadas judicialmente se presumen posteriores, «salvo prueba en contrario». Esta [[responsabilidad solidaria del administrador]] no requiere que la sociedad esté en concurso, y sanear la sociedad fuera de plazo solo evita responder de las deudas que nazcan después.',
+      refs: [
+        { label: 'Art. 367 LSC (redacción de la Ley 16/2022)', url: `${LSC}#a367`, date: '2026-10-29', kind: 'norma' },
+        { label: 'STS 1477/2026, de 22 de septiembre (ECLI:ES:TS:2026:3838), en el buscador del CENDOJ', url: CENDOJ, date: '2026-09-22', kind: 'jurisprudencia' },
+      ],
     },
     {
       type: 'callout',
@@ -128,7 +135,7 @@ export const formation: Formation = {
           {
             date: '2026-09-30',
             title: 'Acaece la causa (como tarde)',
-            text: 'Patrimonio neto de 24.000 €, inferior a 30.000 €. Pudo surgir antes: revisa los cierres mensuales.',
+            text: 'Patrimonio neto de 24.000 €, inferior a 30.000 € (a 30/06 era de 31.000 €). Si los cierres mensuales muestran que bajó antes, el plazo corre desde entonces.',
             tone: 'hito',
           },
           { date: '2026-11-02', title: 'Convocatoria recomendada (sin apurar el plazo)', tone: 'hito' },
@@ -169,7 +176,7 @@ export const formation: Formation = {
     },
     {
       type: 'paragraph',
-      text: `Con probabilidad de insolvencia (horizonte de dos años), insolvencia inminente (tres meses) o actual, mientras no se admita un concurso necesario, el órgano de administración puede comunicar al juzgado negociaciones con los acreedores ([arts. 584](${TRLC}#a5-96) y [585 TRLC](${TRLC}#a5-97)). Mientras duren sus efectos (tres meses, prorrogables hasta otros tres; [art. 607 TRLC](${TRLC}#a6-19)), queda en suspenso el deber de acordar la disolución por pérdidas ([art. 613 TRLC](${TRLC}#a6-25)).`,
+      text: `Con probabilidad de insolvencia (horizonte de dos años), insolvencia inminente (tres meses) o incluso actual, mientras no se haya admitido a trámite un concurso necesario, el órgano de administración puede comunicar al juzgado negociaciones con los acreedores ([arts. 584](${TRLC}#a5-96) y [585 TRLC](${TRLC}#a5-97)). Mientras duren sus efectos (tres meses, prorrogables hasta otros tres; [art. 607 TRLC](${TRLC}#a6-19)), queda en suspenso el deber de acordar la disolución por pérdidas ([art. 613 TRLC](${TRLC}#a6-25)).`,
     },
     {
       type: 'paragraph',
@@ -206,7 +213,7 @@ export const formation: Formation = {
       type: 'example',
       title: 'Caso resuelto: ALFA, S.L., a 30/09/2026',
       scenario:
-        'ALFA, S.L. (sociedad ficticia) fabrica mobiliario. Capital: 60.000 €. Socias: A (70 %), administradora única, y B (30 %). Ejercicio natural, sin pérdidas en 2020 y 2021, fuera de la zona de la DANA y no es empresa emergente. Balance a 30/09/2026: capital, 60.000 €; reserva legal, 4.000 €; resultados negativos de 2024 y 2025, −28.000 €; pérdida de 2026 hasta septiembre, −15.000 €, y subvenciones de capital no reintegrables, 3.000 €. En el pasivo figura un préstamo ordinario de A de 10.000 € (interés fijo, vence en 2029). Paga sus deudas a su vencimiento.',
+        'ALFA, S.L. (sociedad ficticia) fabrica mobiliario. Capital: 60.000 €. Socias: A (70 %), administradora única, y B (30 %). Ejercicio natural, sin pérdidas en 2020 y 2021, fuera de la zona de la DANA y no es empresa emergente. Balance a 30/09/2026: capital, 60.000 €; reserva legal, 4.000 €; resultados negativos de 2024 y 2025, −28.000 €; pérdida de 2026 hasta septiembre, −15.000 € (−3.000, −5.000 y −7.000 por trimestre; a 30/06 el patrimonio neto era de 31.000 €), y subvenciones de capital no reintegrables, 3.000 €. En el pasivo figura un préstamo ordinario de A de 10.000 € (interés fijo, vence en 2029). Paga sus deudas a su vencimiento.',
       steps: [
         { label: 'Umbral: la mitad del capital', formula: '60.000 × 50 %', result: '30.000 €' },
         { label: 'Patrimonio neto contable', formula: '60.000 + 4.000 − 28.000 − 15.000 + 3.000', result: '24.000 €' },
@@ -220,17 +227,17 @@ export const formation: Formation = {
         { label: 'Último día para convocar la junta', formula: '30/09/2026 + 2 meses, de fecha a fecha', result: '30/11/2026' },
         { label: 'Medida 1: novar el préstamo de A como participativo', formula: '24.000 + 10.000 = 34.000 ≥ 30.000', result: 'Sale de la causa (margen: 4.000 €)' },
         {
-          label: 'Previsión a 31/12/2026 con 5.000 € de pérdida por trimestre (15.000 / 3)',
+          label: 'Previsión a 31/12/2026 con la pérdida media trimestral (15.000 / 3 = 5.000 €)',
           formula: '24.000 − 5.000 + 10.000 = 29.000 < 30.000',
           result: 'Solo con el participativo, vuelve a la causa',
         },
         {
           label: 'Medida 2: aportación de 6.000 € a la cuenta 118, en proporción a la participación (A, 4.200 €; B, 1.800 €)',
           formula: '29.000 + 6.000 = 35.000 ≥ 30.000',
-          result: 'Margen previsto al cierre: 5.000 €',
+          result: 'Margen previsto al cierre: 5.000 € (3.000 € si el cuarto trimestre repite la pérdida de 7.000 €)',
         },
       ],
-      conclusion: `Propón convocar ya la junta (antes del 30/11/2026) con la disolución y, como alternativa, las dos medidas. Como A es administradora única y prestamista, debe comunicar el conflicto de interés a la junta, y conviene que esta autorice la novación ([arts. 229.3](${LSC}#a229) y [230.2 LSC](${LSC}#a230)). Con ambas medidas, el patrimonio neto a efectos de disolución sería de 40.000 € a 30/09/2026 y de unos 35.000 € al cierre. Vigílalo cada mes: a este ritmo, el margen se agota en el primer trimestre de 2027.`,
+      conclusion: `Propón convocar ya la junta (como tarde, el 30/11/2026) con la disolución y, como alternativa, las dos medidas. Como A es administradora única y prestamista, debe comunicar el conflicto de interés a la junta, y conviene que esta autorice la novación; en ese acuerdo A no vota y decide B ([arts. 190](${LSC}#a190), [229.3](${LSC}#a229) y [230.2 LSC](${LSC}#a230)). Con ambas medidas, el patrimonio neto a efectos de disolución sería de 40.000 € a 30/09/2026 y de unos 35.000 € al cierre. Vigílalo cada mes: a este ritmo, el margen se agota en el primer trimestre de 2027.`,
     },
     {
       type: 'table',
@@ -285,16 +292,18 @@ export const formation: Formation = {
   takeaway:
     'Calcula en cada cierre, también en los trimestrales, el patrimonio neto a efectos de disolución: si no llega a la mitad del capital, el administrador tiene dos meses para convocar la junta con la disolución y medidas que cubran el déficit con margen; si además la sociedad no puede pagar, la vía es el concurso. Y prepara 2027: salvo nueva prórroga, volverán a computar las pérdidas de 2020 y 2021.',
   sources: [
-    { label: 'Texto refundido de la Ley de Sociedades de Capital (RDLeg 1/2010), arts. 363 a 367', url: `${LSC}#a363`, date: CONSULTA, kind: 'norma' },
+    { label: 'Texto refundido de la Ley de Sociedades de Capital (RDLeg 1/2010), en especial arts. 363 a 367', url: `${LSC}#a363`, date: '2026-10-29', kind: 'norma' },
     { label: 'Código de Comercio, art. 36.1.c) (patrimonio neto a efectos mercantiles)', url: CCOM_36, date: CONSULTA, kind: 'norma' },
     { label: 'Real Decreto-ley 7/1996, art. 20 (préstamos participativos)', url: RDL_7_1996, date: CONSULTA, kind: 'norma' },
     { label: 'Resolución del ICAC de 5 de marzo de 2019, arts. 3, 9, 28 y 37', url: `${ICAC_2019}#ar-3`, date: CONSULTA, kind: 'norma' },
-    { label: 'Real Decreto-ley 7/2026, art. 30 (pérdidas de 2020 y 2021)', url: RDL_7_2026, date: CONSULTA, kind: 'norma' },
+    { label: 'Real Decreto-ley 7/2026, art. 30 (pérdidas de 2020 y 2021)', url: RDL_7_2026, date: '2026-10-29', kind: 'norma' },
     { label: 'Resolución de 26 de marzo de 2026, del Congreso de los Diputados, de convalidación del Real Decreto-ley 7/2026', url: CONVALIDACION_RDL_7_2026, date: CONSULTA, kind: 'documento' },
     { label: 'Real Decreto-ley 1/2025, art. 2 (pérdidas por la DANA)', url: RDL_1_2025, date: CONSULTA, kind: 'norma' },
     { label: 'Ley 28/2022, de fomento del ecosistema de las empresas emergentes, art. 13', url: LEY_28_2022, date: CONSULTA, kind: 'norma' },
-    { label: 'Ley 3/2020, art. 13 (origen de la exclusión de las pérdidas de 2020 y 2021)', url: LEY_3_2020, date: CONSULTA, kind: 'norma' },
-    { label: 'Texto refundido de la Ley Concursal (RDLeg 1/2020), arts. 2, 5, 444, 456, 584, 585, 607 y 613', url: `${TRLC}#a5`, date: CONSULTA, kind: 'norma' },
+    { label: 'Real Decreto-ley 16/2020, art. 18 (origen de la exclusión de las pérdidas de 2020)', url: RDL_16_2020, date: CONSULTA, kind: 'norma' },
+    { label: 'Ley 3/2020, art. 13 (prórrogas de la exclusión hasta el ejercicio iniciado en 2024)', url: LEY_3_2020, date: CONSULTA, kind: 'norma' },
+    { label: 'Texto refundido de la Ley Concursal (RDLeg 1/2020), arts. 2, 5, 444, 456, 584, 585, 607 y 613', url: `${TRLC}#a5`, date: '2026-10-29', kind: 'norma' },
+    { label: 'Tribunal Supremo, Sala 1.ª, STS 1477/2026, de 22 de septiembre (ECLI:ES:TS:2026:3838), art. 367 LSC', url: CENDOJ, date: '2026-09-22', kind: 'jurisprudencia' },
     { label: 'Plan General de Contabilidad, quinta parte: cuenta 118', url: PGC_118, date: CONSULTA, kind: 'norma' },
     { label: 'Código Civil, art. 5 (cómputo de plazos)', url: CC_5, date: CONSULTA, kind: 'norma' },
   ],
@@ -322,7 +331,7 @@ export const formation: Formation = {
           {
             id: 'd',
             text: 'No: mientras el patrimonio neto sea positivo, no hay causa de disolución.',
-            feedback: 'La ley no exige un patrimonio neto negativo, sino inferior a la mitad del capital: con 20.000 € positivos, esta sociedad estaría en causa.',
+            feedback: 'La ley no exige que el patrimonio neto sea negativo, sino inferior a la mitad del capital: con 60.000 € de capital, un patrimonio neto positivo de 20.000 € ya sería causa.',
           },
         ],
         correctOptionId: 'c',
@@ -354,7 +363,7 @@ export const formation: Formation = {
         ],
         correctOptionId: 'a',
         explanation:
-          'Quien no convoca la junta en los dos meses siguientes a la causa responde solidariamente de las obligaciones sociales posteriores a ella (art. 367.1 LSC), y las reclamadas judicialmente se presumen posteriores, salvo prueba en contrario (art. 367.2 LSC). La deuda nació el 20/10/2026, después de la causa.',
+          'Quien no convoca la junta en los dos meses siguientes a la causa responde solidariamente de las obligaciones sociales posteriores a ella (art. 367.1 LSC), y las reclamadas judicialmente se presumen posteriores, salvo prueba en contrario (art. 367.2 LSC). La deuda nació el 20/10/2026, después de la causa, y lo que cuenta es esa fecha, no la de la reclamación (STS 1477/2026, de 22 de septiembre).',
         ref: 'Plazos y responsabilidad de los administradores',
       },
       {
@@ -387,7 +396,7 @@ export const formation: Formation = {
     ],
   },
   version: 1,
-  verifiedAt: '2026-10-28',
+  verifiedAt: '2026-10-29',
   editorial: {
     status: 'publicado',
     authorId: 'p-joan-navarro',
@@ -428,7 +437,7 @@ export const bank: QuizQuestion[] = [
   {
     id: 'mer-02-b2',
     prompt:
-      'Hoy, 28/10/2026, revisas el balance de una S.L. con ejercicio natural que arrastra 8.000 € de pérdidas de 2020. Un compañero sostiene que deben computarse en la causa de disolución porque «la moratoria COVID terminó en 2024». ¿Qué le respondes?',
+      'En octubre de 2026 revisas el balance de una S.L. con ejercicio natural que arrastra 8.000 € de pérdidas de 2020. Un compañero sostiene que deben computarse en la causa de disolución porque «la moratoria COVID terminó en 2024». ¿Qué le respondes?',
     options: [
       {
         id: 'a',

@@ -49,7 +49,7 @@ export const formation: Formation = {
       type: 'callout',
       tone: 'consejo',
       title: 'Meses o días: elige y mantén el criterio',
-      text: 'El PGC no fija cómo repartir: meses y días son criterios habituales (en este seguro, 2,47 € de diferencia). Lo exigible es mantener siempre el mismo método, por el principio de uniformidad, y en los intereses aplicar la convención de días del contrato. Para importes mínimos, la importancia relativa permite no periodificar.',
+      text: 'El PGC no fija cómo repartir: meses y días son criterios habituales (en este seguro, 2,47 € de diferencia). Por el principio de uniformidad, mantén el método elegido mientras no cambien los supuestos que motivaron su elección, y en los intereses aplica la convención de días del contrato. Para importes escasamente significativos, la importancia relativa permite no periodificar.',
       refs: [
         { label: 'Plan General de Contabilidad, Marco Conceptual, 3.º Principios contables', url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#A3', date: '2026-10-28', kind: 'norma' },
       ],
@@ -59,17 +59,17 @@ export const formation: Formation = {
     { type: 'heading', text: 'Lo devengado sin factura o sin vencer: 4009, 4109, 4309 y 527', id: 'devengado-pendiente' },
     {
       type: 'paragraph',
-      text: 'El caso inverso: el gasto o el ingreso ya se ha devengado, pero falta la factura o el vencimiento. Se reconoce igualmente, con las subcuentas de [[facturas pendientes de recibir o de formalizar]]: la 4009 para proveedores de bienes del grupo 3 (y de servicios del proceso productivo); la 4109 para servicios y suministros del subgrupo 62, como la luz o una reparación, y la 4309 para ventas o servicios ya realizados que aún no has facturado.',
+      text: 'El caso inverso: el gasto o el ingreso ya se ha devengado, pero falta la factura o el vencimiento. Se reconoce igualmente, con las subcuentas de [[facturas pendientes de recibir o de formalizar]]: la 4009 para proveedores de bienes del grupo 3 (y de servicios del proceso productivo); con carácter general, la 4109 para servicios y suministros del subgrupo 62, como la luz o una reparación, y la 4309 para ventas o servicios ya realizados que aún no has facturado.',
     },
     {
       type: 'paragraph',
-      text: 'Con los préstamos ocurre lo mismo: los [[intereses devengados no vencidos]] se cargan en la 662 «Intereses de deudas» con abono a la 527 si el prestamista es una entidad de crédito, o a la 528 en los demás casos; el PGC precisa que estas cuentas recogen los intereses del ejercicio, «incluidos los no vencidos». Si tu cliente es el acreedor, usa la 546, la 547 o, en las imposiciones a plazo, una subcuenta de la 548.',
+      text: 'Con los préstamos ocurre lo mismo: los [[intereses devengados no vencidos]] se cargan en la 662 «Intereses de deudas» con abono a la 527 si el prestamista es una entidad de crédito, o a la 528 en las demás deudas del subgrupo 52 (con partes vinculadas, la 514); el PGC precisa que estas cuentas recogen los intereses del ejercicio, «incluidos los no vencidos». Si tu cliente es el acreedor, usa la 546, la 547 o, en las imposiciones a plazo, una subcuenta de la 548 (con partes vinculadas, la 533 o la 534).',
     },
     {
       type: 'callout',
       tone: 'atencion',
       title: 'El IVA no se periodifica',
-      text: 'Periodifica bases, no cuotas: el IVA tiene su propio devengo ([art. 75 LIVA](https://www.boe.es/buscar/act.php?id=BOE-A-1992-28740#a75)). En un alquiler cobrado por adelantado se devenga al cobrar y se declara entero en ese periodo. En una factura pendiente de recibir, la cuota solo se deduce cuando tienes la factura ([arts. 97](https://www.boe.es/buscar/act.php?id=BOE-A-1992-28740#a97) y [99 LIVA](https://www.boe.es/buscar/act.php?id=BOE-A-1992-28740#a99)). Y al revés: un servicio terminado en diciembre y facturado en enero devengó el IVA en diciembre; si el cliente es empresario o profesional, la factura debe expedirse antes del día 16 de enero ([art. 11.1 RD 1619/2012](https://www.boe.es/buscar/act.php?id=BOE-A-2012-14696#a11)).',
+      text: 'Periodifica bases, no cuotas: el IVA tiene su propio devengo ([art. 75 LIVA](https://www.boe.es/buscar/act.php?id=BOE-A-1992-28740#a75)). En un alquiler cobrado por adelantado se devenga al cobrar y se declara entero en ese periodo. En una factura pendiente de recibir, la cuota no se deduce hasta que tienes la factura: en ese periodo o en los siguientes, dentro de cuatro años ([arts. 97](https://www.boe.es/buscar/act.php?id=BOE-A-1992-28740#a97) y [99 LIVA](https://www.boe.es/buscar/act.php?id=BOE-A-1992-28740#a99)). Y al revés: un servicio terminado en diciembre y facturado en enero devengó el IVA en diciembre; si el cliente es empresario o profesional, la factura debe expedirse antes del día 16 de enero ([art. 11.1 RD 1619/2012](https://www.boe.es/buscar/act.php?id=BOE-A-2012-14696#a11)).',
       refs: [
         { label: 'Ley 37/1992, del Impuesto sobre el Valor Añadido, arts. 75, 97 y 99', url: 'https://www.boe.es/buscar/act.php?id=BOE-A-1992-28740#a75', date: '2026-10-28', kind: 'norma' },
         { label: 'Real Decreto 1619/2012, Reglamento de facturación, art. 11', url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2012-14696#a11', date: '2026-10-28', kind: 'norma' },
@@ -77,7 +77,7 @@ export const formation: Formation = {
     },
     {
       type: 'paragraph',
-      text: 'Si falta la factura, estima el importe con datos razonables (lecturas, consumo medio, contrato). Si llega antes de formular las cuentas (en las sociedades de capital, como máximo tres meses después del cierre: [art. 253.1 LSC](https://www.boe.es/buscar/act.php?id=BOE-A-2010-10544#a253)), confirma una condición que ya existía al cierre, así que ajusta la estimación ([NRV 23.ª PGC](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#A23); [22.ª PGC de Pymes](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19966#A22)). Si llega después y la estimación era razonable, la diferencia es un **cambio de estimación** y va al resultado del ejercicio en que se conoce. Solo hay **error**, que se corrige contra reservas y reexpresando las cifras comparativas, si al formular no se usó información fiable que estaba disponible ([NRV 22.ª PGC](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#A22); [21.ª PGC de Pymes](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19966#A21)). La nota de FLM vinculada explica el efecto fiscal de esas correcciones.',
+      text: 'Si falta la factura, estima el importe con datos razonables (lecturas, consumo medio, contrato). Si llega antes de formular las cuentas (en las sociedades de capital, como máximo tres meses después del cierre: [art. 253.1 LSC](https://www.boe.es/buscar/act.php?id=BOE-A-2010-10544#a253)), confirma una condición que ya existía al cierre, así que ajusta la estimación ([NRV 23.ª PGC](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#A23); [22.ª PGC de Pymes](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19966#A22)). Si llega después y la estimación era razonable, la diferencia es un **cambio de estimación** y va al resultado del ejercicio en que se conoce. Solo hay **error**, que se corrige contra reservas y reexpresando las cifras comparativas, si al formular no se usó información fiable que estaba disponible o podía obtenerse ([NRV 22.ª PGC](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#A22); [21.ª PGC de Pymes](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19966#A21)). La nota de FLM vinculada resume una consulta de la DGT sobre el efecto fiscal de una corrección contra reservas.',
     },
     {
       type: 'table',
@@ -95,7 +95,7 @@ export const formation: Formation = {
       type: 'example',
       title: 'Cierre de 2026 de un taller de calderería',
       scenario:
-        'Sociedad limitada ficticia que aplica el PGC de Pymes y cierra el 31/12/2026; preparas los ajustes el 25/01/2027. Operaciones abiertas: (1) seguro de 1.200 €, exento de IVA, pagado el 01/10/2026 por doce meses y cargado entero en la 625; (2) local alquilado a otra empresa por 800 €/mes más IVA, cobrado el 01/11/2026 por adelantado hasta abril, con retención del 19 % y 4.800 € abonados en la 752; (3) luz de diciembre, con factura recibida el 14/01/2027 (base imponible de 462,00 €), y (4) préstamo bancario de 60.000 € recibido el 01/09/2026, al 5 % fijo, base 30/360, sin comisiones y con intereses semestrales el 01/03 y el 01/09.',
+        'Sociedad limitada ficticia que aplica el PGC de Pymes, con 2,4 M€ de cifra de negocios en 2025, y cierra el 31/12/2026; preparas los ajustes el 25/01/2027. Operaciones abiertas: (1) seguro de 1.200 €, exento de IVA, pagado el 01/10/2026 por doce meses y cargado entero en la 625; (2) local alquilado a otra empresa por 800 €/mes más IVA, cobrado el 01/11/2026 por adelantado hasta abril, con retención del 19 % y 4.800 € abonados en la 752; (3) luz de diciembre, con factura recibida el 14/01/2027 (base imponible de 462,00 €), y (4) préstamo bancario de 60.000 € recibido el 01/09/2026, al 5 % fijo, base 30/360, sin comisiones y con intereses semestrales el 01/03 y el 01/09.',
       steps: [
         {
           label: 'Seguro: nueve de los doce meses de cobertura son de 2027 y pasan a la 480.',
@@ -135,7 +135,7 @@ export const formation: Formation = {
       type: 'widget',
       widget: {
         kind: 'cuentas-t',
-        title: 'Ajustes de cierre del taller a 31/12/2026',
+        title: 'Registro y ajustes de cierre del taller (2026)',
         entries: [
           {
             date: '2026-10-01',
@@ -221,7 +221,7 @@ export const formation: Formation = {
     },
     {
       type: 'paragraph',
-      text: 'Aplícalo al taller: es [entidad de reducida dimensión](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a101), porque su cifra de negocios del ejercicio anterior no llega a 10 millones de euros, y tributa al 23 % en 2026 y al 22 % en 2027 ([DT 44.ª LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#dt-6)). Sin los ajustes, ocurriría esto:',
+      text: 'Aplícalo al taller: es [entidad de reducida dimensión](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a101), porque no es entidad patrimonial y su cifra de negocios de 2025 (2,4 millones de euros) no llega a 10 millones. Como supera 1 millón, no le corresponde la escala de las entidades más pequeñas: tributa al 23 % en 2026 y, si sigue siendo de reducida dimensión, al 22 % en 2027 ([DT 44.ª LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#dt-6)). Sin los ajustes, ocurriría esto:',
     },
     {
       type: 'table',
@@ -268,11 +268,11 @@ export const formation: Formation = {
     },
     {
       term: 'intereses devengados no vencidos',
-      definition: 'Intereses del ejercicio que se pagarán o cobrarán después del cierre: a pagar, en la 527 (entidades de crédito) o la 528, con cargo a la 662; a cobrar, en la 546, la 547 o la 548.',
+      definition: 'Intereses del ejercicio que se pagarán o cobrarán después del cierre: a pagar, en la 527 (entidades de crédito) o la 528 (otras deudas del subgrupo 52), con cargo a la 662; a cobrar, en la 546, la 547 o una subcuenta de la 548. Con partes vinculadas, la 514 o la 533 y la 534.',
     },
     {
       term: 'tributación inferior',
-      definition: 'Límite del art. 11.3.1.º LIS: un gasto contabilizado después de su devengo, o un ingreso contabilizado antes, tributa donde se contabilizó solo si así no se paga menos impuesto.',
+      definition: 'Límite del art. 11.3.1.º LIS: un gasto contabilizado después de su devengo, o un ingreso contabilizado antes, se imputa al ejercicio en que se contabilizó solo si de ello no resulta pagar menos impuesto del que correspondería.',
     },
   ],
   takeaway:
@@ -337,7 +337,7 @@ export const formation: Formation = {
           {
             id: 'b',
             text: 'Cargo en la 628 por 462,00 € y en la 472 «Hacienda Pública, IVA soportado» por la cuota, con abono a la 4109 por el total.',
-            feedback: 'La cuota soportada solo se deduce en el periodo en que se recibe la factura (arts. 97 y 99 LIVA): se registra en enero de 2027. El ajuste de cierre va por la base.',
+            feedback: 'La cuota soportada no puede deducirse antes del periodo en que se recibe la factura (arts. 97 y 99 LIVA): se registra con ella, en enero de 2027. El ajuste de cierre va por la base.',
           },
           {
             id: 'c',
@@ -446,7 +446,7 @@ export const bank: QuizQuestion[] = [
       {
         id: 'a',
         text: 'Como un error contable: se corrigen contra reservas y se reexpresan las cifras de 2026.',
-        feedback: 'Solo hay error cuando al formular no se usó información fiable que estaba disponible; la factura llegó después de formular.',
+        feedback: 'Solo hay error cuando al formular no se usó información fiable que estaba disponible o podía obtenerse; la factura llegó después de formular.',
       },
       { id: 'b', text: 'Como un cambio de estimación: mayor gasto en la 628 de 2027.' },
       {

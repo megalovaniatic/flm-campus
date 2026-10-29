@@ -86,6 +86,10 @@
   --area: var(--area-contable);
 }
 
+.area[data-area='general'] {
+  --area: var(--ink-2);
+}
+
 .dot {
   width: 8px;
   height: 8px;

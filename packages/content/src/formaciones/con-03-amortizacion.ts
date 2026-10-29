@@ -20,13 +20,13 @@ export const formation: Formation = {
     { type: 'heading', text: 'Contabilidad: manda la vida útil', id: 'vida-util' },
     {
       type: 'paragraph',
-      text: 'En contabilidad, la amortización reparte el coste del bien «de manera sistemática y racional» en función de su [[vida útil]] y de su valor residual, atendiendo a la depreciación por funcionamiento, uso y disfrute y a la obsolescencia técnica o comercial ([NRV 2.ª.2.1 PGC](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#A2-2)). La base amortizable es el precio de adquisición, sin el IVA deducible, menos el valor residual, que se ignora si no es significativo. El método se elige con un criterio técnico-económico, «con independencia de consideraciones fiscales» ([Resolución del ICAC de 1 de marzo de 2013](https://www.boe.es/diario_boe/txt.php?id=BOE-A-2013-2557), norma segunda, apartado 3).',
+      text: 'En contabilidad, la amortización reparte el coste del bien «de manera sistemática y racional» en función de su [[vida útil]] y de su valor residual, atendiendo a la depreciación por funcionamiento, uso y disfrute y a la obsolescencia técnica o comercial ([NRV 2.ª.2.1 PGC](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#A2-2)). La base amortizable es el precio de adquisición, sin el IVA deducible, menos el valor residual, que se ignora si no es significativo. El método se elige con un criterio técnico-económico, «con independencia de consideraciones fiscales» ([Resolución del ICAC de 1 de marzo de 2013](https://www.boe.es/diario_boe/txt.php?id=BOE-A-2013-2557), norma segunda, apartado 3.5).',
     },
     {
       type: 'list',
       items: [
         'Empieza a amortizar cuando el bien está en condiciones de funcionamiento, no en la fecha de la factura.',
-        'No detengas la amortización porque el bien esté inactivo: solo cesa cuando está totalmente amortizado o se clasifica como mantenido para la venta.',
+        'No detengas la amortización porque el bien esté parado: mientras siga en el balance, solo se interrumpe si ya está totalmente amortizado o se clasifica como mantenido para la venta (norma segunda, apartado 3.7, de la Resolución de 2013).',
         'Revisa vida útil, valor residual y método, como mínimo, al cierre de cada ejercicio. Si cambian, es un cambio de estimación y se aplica de forma prospectiva ([NRV 22.ª PGC](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#A22)).',
         'Registra la dotación con cargo a la 681 y abono a la 281 (la 2817, en equipos para procesos de información).',
       ],
@@ -34,8 +34,8 @@ export const formation: Formation = {
     {
       type: 'callout',
       tone: 'clave',
-      title: 'vida útil',
-      text: 'Es el periodo durante el cual la empresa espera utilizar el activo, o las unidades de producción que espera obtener de él ([Marco Conceptual del PGC, 6.º](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#A6)). Es una estimación propia, basada en el uso y el desgaste esperados, la obsolescencia y los límites legales, que debe poder justificarse: política de renovación, experiencia con bienes similares o informe técnico. Nunca se fija copiando la tabla fiscal.',
+      title: 'Vida útil',
+      text: 'Es el periodo durante el cual la empresa espera utilizar el activo, o las unidades de producción que espera obtener de él ([Marco Conceptual del PGC, 6.º.10](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#A6)). Es una estimación propia, basada en el uso y el desgaste esperados, la obsolescencia y los límites legales, que debe poder justificarse: política de renovación, experiencia con bienes similares o informe técnico. No la fijes copiando la tabla fiscal: puede coincidir con ella, pero solo si refleja el uso real.',
       refs: [
         { label: 'Resolución del ICAC de 1 de marzo de 2013, norma segunda, apartados 3.3 y 3.5', url: 'https://www.boe.es/diario_boe/txt.php?id=BOE-A-2013-2557', date: '2026-10-28', kind: 'norma' },
       ],
@@ -45,7 +45,7 @@ export const formation: Formation = {
     { type: 'heading', text: 'La tabla fiscal: cuándo coinciden y cuándo no', id: 'tabla-fiscal' },
     {
       type: 'paragraph',
-      text: 'El Impuesto sobre Sociedades parte del resultado contable y lo corrige ([art. 10.3 LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a10)). La amortización es deducible si responde a la depreciación efectiva, que normalmente se acredita con la tabla del [art. 12.1.a) LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a12): para cada tipo de elemento fija un [[coeficiente lineal máximo]] y un periodo máximo. Sirve cualquier coeficiente entre el máximo y el que resulta del periodo máximo ([art. 4.1 RIS](https://www.boe.es/buscar/act.php?id=BOE-A-2015-7771#a4)): en equipos para procesos de información, entre el 12,5 % (100 / 8 años) y el 25 %.',
+      text: 'El Impuesto sobre Sociedades parte del resultado contable y lo corrige ([art. 10.3 LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a10)). La amortización es deducible si responde a la depreciación efectiva. Lo habitual es acreditarla con la tabla del [art. 12.1.a) LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a12), aunque la ley admite otros métodos (porcentaje constante, números dígitos, plan aceptado por la Administración). Para cada tipo de elemento, la tabla fija un [[coeficiente lineal máximo]] y un periodo máximo. Sirve cualquier coeficiente entre el máximo y el que resulta del periodo máximo ([art. 4.1 RIS](https://www.boe.es/buscar/act.php?id=BOE-A-2015-7771#a4)): en equipos para procesos de información, entre el 12,5 % (100 / 8 años) y el 25 %.',
     },
     {
       type: 'table',
@@ -63,7 +63,7 @@ export const formation: Formation = {
     },
     {
       type: 'paragraph',
-      text: 'Ambas amortizaciones coinciden cuando la cuota contable cae dentro de esa horquilla. Un equipo informático de 1.500 € con 4 años de vida útil se amortiza a 375 € anuales, justo el 25 %: lo que registras como gasto es lo que deduces, sin ajustes ni impuestos diferidos. Si el bien se compra usado, el límite fiscal es el doble del coeficiente máximo aplicado a su precio ([art. 4.3 RIS](https://www.boe.es/buscar/act.php?id=BOE-A-2015-7771#a4)).',
+      text: 'Ambas amortizaciones coinciden cuando la cuota contable cae dentro de esa horquilla. Un equipo informático de 1.500 € con 4 años de vida útil se amortiza a 375 € anuales, justo el 25 %: lo que registras como gasto es lo que deduces, sin ajustes ni impuestos diferidos. Si el bien se compra usado, el límite es, en general, el doble del coeficiente máximo aplicado a su precio de adquisición; si procede de una entidad del grupo, hay reglas propias ([art. 4.3 RIS](https://www.boe.es/buscar/act.php?id=BOE-A-2015-7771#a4)).',
     },
     {
       type: 'widget',
@@ -74,7 +74,7 @@ export const formation: Formation = {
     {
       type: 'list',
       items: [
-        '**Vida útil más corta que la de la tabla.** La cuota contable supera el máximo fiscal: sumas el exceso a la base imponible y lo restas cuando el bien ya esté amortizado en contabilidad (casillas 00303 y 00304 del modelo 200 de 2025, según el [Manual práctico de Sociedades 2025](https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/manual-sociedades-2025/capitulo-05-liquidacion-is-determinacion-imponible/bi-antes-reserva-capitalizac-compensac-00550/detalle-correcc-result-cuenta-perdidas-is/amortizaciones/diferencias-amortizacion-contable-fiscal.html)).',
+        '**Vida útil más corta que la que admite el coeficiente máximo** (en equipos informáticos, menos de 4 años: 100 / 25 %). La cuota contable supera el máximo fiscal: sumas el exceso a la base imponible y lo restas cuando el bien ya esté amortizado en contabilidad (casillas 00303 y 00304 del modelo 200 de 2025, según el [Manual práctico de Sociedades 2025](https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/manual-sociedades-2025/capitulo-05-liquidacion-is-determinacion-imponible/bi-antes-reserva-capitalizac-compensac-00550/detalle-correcc-result-cuenta-perdidas-is/amortizaciones/diferencias-amortizacion-contable-fiscal.html)).',
         '**Un incentivo permite deducir más de lo contabilizado.** Restas la diferencia hoy y la sumas después, a medida que la contabilidad registra un gasto ya deducido.',
         '**Límites propios.** El fondo de comercio, cuya vida útil se presume de diez años salvo prueba en contrario ([art. 39.4 CCom](https://www.boe.es/buscar/act.php?id=BOE-A-1885-6627#art39)), solo deduce un 5 % anual ([art. 12.2 LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a12)).',
       ],
@@ -83,10 +83,16 @@ export const formation: Formation = {
       type: 'callout',
       tone: 'atencion',
       title: 'El exceso no se pierde',
-      text: 'Un exceso de amortización contable sobre el máximo fiscal no es una diferencia permanente: se deduce en el periodo que corresponda ([art. 11.3.1.º LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a11)). Cuidado también por abajo: si un año dotas menos de lo que resulta del periodo máximo, el exceso posterior sobre el máximo se entiende correspondiente a aquel ejercicio ([art. 4.1 RIS](https://www.boe.es/buscar/act.php?id=BOE-A-2015-7771#a4)). Dota la amortización todos los años.',
+      text: 'Un exceso de amortización contable sobre el máximo fiscal no es una diferencia permanente: se suma a la base mientras se produce y se resta cuando el bien ya está amortizado en contabilidad, al ritmo que permita la tabla, hasta deducir todo el coste ([art. 12.1 LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a12) y Manual práctico de Sociedades 2025 de la AEAT). Cuidado también por abajo: si un año dotas menos de lo que resulta del periodo máximo, el exceso posterior sobre el máximo se entiende correspondiente a aquel ejercicio, hasta esa cuota mínima, a efectos de la imputación temporal del art. 11.3.1.º LIS ([art. 4.1 RIS](https://www.boe.es/buscar/act.php?id=BOE-A-2015-7771#a4)). Dota la amortización todos los años.',
       refs: [
-        { label: 'Ley 27/2014, del Impuesto sobre Sociedades, art. 11.3', url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a11', date: '2026-10-28', kind: 'norma' },
-        { label: 'Reglamento del Impuesto sobre Sociedades, art. 4.1', url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2015-7771#a4', date: '2026-10-28', kind: 'norma' },
+        { label: 'Ley 27/2014, del Impuesto sobre Sociedades, art. 12.1', url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a12', date: '2026-10-28', kind: 'norma' },
+        { label: 'Reglamento del Impuesto sobre Sociedades, art. 4.1', url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2015-7771#a4', date: '2026-10-29', kind: 'norma' },
+        {
+          label: 'AEAT, Manual práctico de Sociedades 2025: diferencias entre amortización contable y fiscal',
+          url: 'https://sede.agenciatributaria.gob.es/Sede/ayuda/manuales-videos-folletos/manuales-practicos/manual-sociedades-2025/capitulo-05-liquidacion-is-determinacion-imponible/bi-antes-reserva-capitalizac-compensac-00550/detalle-correcc-result-cuenta-perdidas-is/amortizaciones/diferencias-amortizacion-contable-fiscal.html',
+          date: '2026-10-28',
+          kind: 'criterio',
+        },
       ],
     },
 
@@ -94,15 +100,15 @@ export const formation: Formation = {
     { type: 'heading', text: 'Incentivos que adelantan el gasto fiscal', id: 'incentivos' },
     {
       type: 'paragraph',
-      text: 'Para deducir un gasto hay que contabilizarlo, salvo en los elementos que pueden amortizarse libremente o de forma acelerada ([art. 11.3.1.º LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a11)). Estos incentivos se aplican, por tanto, con una disminución extracontable, y la contabilidad sigue reflejando la vida útil real. Varios están reservados a la [[empresa de reducida dimensión]] (ERD), la que tuvo en el periodo impositivo anterior una cifra de negocios inferior a 10 millones de euros, computando el grupo, y no es entidad patrimonial ([art. 101 LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a101)).',
+      text: 'Para deducir un gasto hay que contabilizarlo, salvo en los elementos que pueden amortizarse libremente o de forma acelerada ([art. 11.3.1.º LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a11)). Estos incentivos se aplican, por tanto, con una disminución extracontable, y la contabilidad sigue reflejando la vida útil real. Varios están reservados a la [[entidad de reducida dimensión]] (ERD): la que no es entidad patrimonial y tuvo en el periodo impositivo anterior una cifra de negocios inferior a 10 millones de euros, computando el grupo. Si alcanza esa cifra tras haber sido ERD en ese periodo y en los dos anteriores, conserva el régimen tres periodos más ([art. 101 LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a101)).',
     },
     {
       type: 'list',
       items: [
         '**Elementos de escaso valor** ([art. 12.3.e) LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a12)): cualquier entidad, sea o no ERD, puede amortizar libremente los elementos del inmovilizado material nuevos de hasta 300 € por unidad, sin IVA deducible, con un límite de 25.000 € por periodo impositivo.',
-        '**Coeficiente doble** ([art. 103 LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a103)): la ERD puede amortizar los elementos nuevos del inmovilizado material, las inversiones inmobiliarias y el inmovilizado intangible con el doble del coeficiente máximo de la tabla: 50 % en equipos informáticos, 24 % en maquinaria.',
-        '**Creación de empleo** ([art. 102 LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a102)): si la ERD aumenta su plantilla media en los 24 meses siguientes al inicio del periodo en que entran en funcionamiento los elementos nuevos, y mantiene el aumento otros 24 meses, aplica la [[libertad de amortización]] hasta 120.000 € por persona de incremento.',
-        '**Vehículos eléctricos y puntos de recarga** ([DA 18.ª LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#da-3)): libertad de amortización para vehículos nuevos FCV, FCHV, BEV, REEV o PHEV e infraestructuras de recarga nuevas, afectos a la actividad, que entren en funcionamiento en periodos impositivos iniciados en 2024, 2025 y 2026 (Real Decreto-ley 7/2026, convalidado). A 28 de octubre de 2026, el texto consolidado no recoge prórroga para 2027.',
+        '**Coeficiente doble** ([art. 103 LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a103)): la ERD puede amortizar los elementos nuevos del inmovilizado material y de las inversiones inmobiliarias, y los del inmovilizado intangible, afectos a actividades económicas, con el doble del coeficiente máximo de la tabla: 50 % en equipos informáticos, 24 % en maquinaria.',
+        '**Creación de empleo** ([art. 102 LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#a102)): si la ERD aumenta su plantilla media en los 24 meses siguientes al inicio del periodo en que entran en funcionamiento los elementos nuevos, respecto de los 12 meses anteriores, y mantiene el aumento otros 24 meses, aplica la [[libertad de amortización]] hasta 120.000 € por persona de incremento.',
+        '**Vehículos eléctricos y puntos de recarga** ([DA 18.ª LIS](https://www.boe.es/buscar/act.php?id=BOE-A-2014-12328#da-3)): libertad de amortización para vehículos nuevos FCV, FCHV, BEV, REEV o PHEV e infraestructuras de recarga nuevas, afectos a actividades económicas, que entren en funcionamiento en periodos impositivos iniciados en 2024, 2025 y 2026 (redacción del Real Decreto-ley 7/2026, convalidado). En el BOE publicado hasta el 28 de octubre de 2026 no hay prórroga para 2027.',
       ],
     },
     {
@@ -119,12 +125,12 @@ export const formation: Formation = {
     { type: 'heading', text: 'Del ajuste al impuesto diferido', id: 'impuesto-diferido' },
     {
       type: 'paragraph',
-      text: 'Cuando las dos amortizaciones difieren, el [[valor neto contable]] del bien y su valor fiscal se separan. Esa brecha es una [[diferencia temporaria]] ([NRV 13.ª PGC](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#A13)), y su efecto impositivo se registra contra la cuenta 6301, valorado al tipo esperado en el ejercicio de reversión. El activo por impuesto diferido solo se reconoce si su recuperación es probable; salvo prueba en contrario, no lo es a más de diez años del cierre ([art. 5.3 de la Resolución del ICAC de 9 de febrero de 2016](https://www.boe.es/diario_boe/txt.php?id=BOE-A-2016-1564)).',
+      text: 'Cuando las dos amortizaciones difieren, el [[valor neto contable]] del bien y su valor fiscal se separan. Esa brecha es una [[diferencia temporaria]] ([NRV 13.ª PGC](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#A13)), y su efecto impositivo se registra contra la cuenta 6301, valorado al tipo esperado en el ejercicio de reversión. El activo por impuesto diferido solo se reconoce si su recuperación es probable; salvo prueba en contrario, se presume que no lo es si se prevé recuperarlo en más de diez años desde el cierre ([art. 5.3 de la Resolución del ICAC de 9 de febrero de 2016](https://www.boe.es/diario_boe/txt.php?id=BOE-A-2016-1564)).',
     },
     {
       type: 'callout',
       tone: 'clave',
-      title: 'diferencia temporaria',
+      title: 'Diferencia temporaria',
       text: 'Compara al cierre el valor neto contable con el valor fiscal, es decir, el coste menos lo ya deducido. Si el fiscal es mayor, has deducido menos de lo contabilizado: la diferencia es deducible y genera un activo (4740). Si es menor porque un incentivo te dejó deducir más, es imponible y genera un pasivo (479). Registras la diferencia multiplicada por el tipo esperado cuando revierta.',
       refs: [
         { label: 'Plan General de Contabilidad, NRV 13.ª, apartados 2 y 3', url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#A13', date: '2026-10-28', kind: 'norma' },
@@ -134,7 +140,7 @@ export const formation: Formation = {
       type: 'example',
       title: 'Portátil de 1.500 € amortizado en 3 años por una sociedad que no es ERD',
       scenario:
-        'Sociedad de servicios con ejercicio natural y 14 M€ de cifra de negocios en 2025: no es ERD y tributa al 25 %. Pone en funcionamiento el 1 de enero de 2026 un equipo informático de 1.500 € (más IVA deducible) y, por su política de renovación, le asigna 3 años de vida útil, sin valor residual. Resultado contable antes de impuestos: 200.000 € cada año, sin otras diferencias; la recuperación del activo diferido es probable.',
+        'Sociedad de servicios con ejercicio natural y 14 M€ de cifra de negocios en 2025: no es ERD (tampoco por la prórroga del art. 101.4 LIS) y tributa al 25 %. Pone en funcionamiento el 1 de enero de 2026 un equipo informático de 1.500 € (más IVA deducible) y, por su política de renovación, le asigna 3 años de vida útil, sin valor residual. Fiscalmente acredita la depreciación con la tabla del art. 12.1.a) LIS. Resultado contable antes de impuestos: 200.000 € cada año, sin otras diferencias; la recuperación del activo diferido es probable.',
       steps: [
         { label: 'Cuota contable anual (lineal)', formula: '1.500 € / 3 años', result: '500 € al año (33,33 %)' },
         { label: 'Máximo fiscal (equipos para procesos de información)', formula: '1.500 € × 25 %', result: '375 € al año' },
@@ -155,27 +161,27 @@ export const formation: Formation = {
           type: 'lineas',
           title: 'Valor neto contable frente a valor fiscal del portátil',
           unit: '€',
-          xLabel: 'Fecha',
+          xLabel: 'Momento (alta el 1 de enero de 2026; cierres a 31 de diciembre)',
           yLabel: 'Importe (€)',
           series: [
             {
               name: 'Valor neto contable (vida útil de 3 años)',
               values: [
-                { x: '01/01/2026', y: 1500 },
-                { x: '31/12/2026', y: 1000 },
-                { x: '31/12/2027', y: 500 },
-                { x: '31/12/2028', y: 0 },
-                { x: '31/12/2029', y: 0 },
+                { x: 'Alta', y: 1500 },
+                { x: 'Cierre 2026', y: 1000 },
+                { x: 'Cierre 2027', y: 500 },
+                { x: 'Cierre 2028', y: 0 },
+                { x: 'Cierre 2029', y: 0 },
               ],
             },
             {
               name: 'Valor fiscal pendiente (25 % anual)',
               values: [
-                { x: '01/01/2026', y: 1500 },
-                { x: '31/12/2026', y: 1125 },
-                { x: '31/12/2027', y: 750 },
-                { x: '31/12/2028', y: 375 },
-                { x: '31/12/2029', y: 0 },
+                { x: 'Alta', y: 1500 },
+                { x: 'Cierre 2026', y: 1125 },
+                { x: 'Cierre 2027', y: 750 },
+                { x: 'Cierre 2028', y: 375 },
+                { x: 'Cierre 2029', y: 0 },
               ],
             },
           ],
@@ -268,7 +274,7 @@ export const formation: Formation = {
     { type: 'heading', text: 'Quién registra diferidos: microempresas y autónomos', id: 'quien-registra' },
     {
       type: 'paragraph',
-      text: 'Quien aplica el PGC o el PGC de Pymes registra los impuestos diferidos con estos criterios ([NRV 15.ª del PGC de Pymes](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19966#A15)). Antes de proponer el asiento, descarta estos dos supuestos:',
+      text: 'Quien aplica el PGC o el PGC de Pymes registra los impuestos diferidos con estos criterios ([NRV 13.ª del PGC](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#A13); [NRV 15.ª del PGC de Pymes](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19966#A15)). Antes de proponer el asiento, descarta estos dos supuestos:',
     },
     {
       type: 'list',
@@ -302,8 +308,8 @@ export const formation: Formation = {
       definition: 'Diferencia entre el valor contable y el fiscal de un activo o pasivo que revertirá en el futuro: deducible (activo, cuenta 4740) o imponible (pasivo, cuenta 479).',
     },
     {
-      term: 'empresa de reducida dimensión',
-      definition: 'Entidad no patrimonial cuya cifra de negocios del periodo impositivo anterior, computando el grupo, es inferior a 10 millones de euros (art. 101 LIS).',
+      term: 'entidad de reducida dimensión',
+      definition: 'Entidad no patrimonial cuya cifra de negocios del periodo impositivo anterior, computando el grupo, es inferior a 10 millones de euros. Conserva el régimen tres periodos más tras alcanzar esa cifra si cumplía las condiciones en ese periodo y en los dos anteriores (art. 101 LIS).',
     },
     {
       term: 'libertad de amortización',
@@ -342,7 +348,7 @@ export const formation: Formation = {
       {
         id: 'con-03-q1',
         prompt:
-          'Una sociedad que no es ERD (14 M€ de cifra de negocios en 2025) pone en funcionamiento el 1 de enero de 2026 un portátil de 1.500 € y, por su política de renovación, lo amortiza en 3 años (lineal, sin valor residual). ¿Qué ajuste practica en el Impuesto sobre Sociedades de 2026?',
+          'Una sociedad que no es ERD (14 M€ de cifra de negocios en 2025) pone en funcionamiento el 1 de enero de 2026 un portátil de 1.500 € y, por su política de renovación, lo amortiza en 3 años (lineal, sin valor residual). Fiscalmente acredita la depreciación con la tabla del art. 12.1.a) LIS. ¿Qué ajuste practica en el Impuesto sobre Sociedades de 2026?',
         options: [
           {
             id: 'a',
@@ -368,7 +374,7 @@ export const formation: Formation = {
       },
       {
         id: 'con-03-q2',
-        prompt: 'En el caso anterior, con un tipo de gravamen del 25 % y recuperación probable, ¿cómo registras al cierre de 2026 el efecto impositivo de esa diferencia?',
+        prompt: 'En el caso anterior, la sociedad aplica el PGC, tributa al 25 % y la recuperación es probable. ¿Cómo registras al cierre de 2026 el efecto impositivo de esa diferencia?',
         options: [
           {
             id: 'a',
@@ -395,7 +401,7 @@ export const formation: Formation = {
       {
         id: 'con-03-q3',
         prompt:
-          'Un cliente ERD (3 M€ de cifra de negocios en 2025) pone en funcionamiento el 1 de enero de 2026 una máquina nueva de 60.000 € y la amortiza en contabilidad en 12 años (5.000 € anuales). Quiere aplicar el art. 103 LIS. ¿Qué es correcto para 2026?',
+          'Un cliente ERD (3 M€ de cifra de negocios en 2025) pone en funcionamiento el 1 de enero de 2026 una máquina nueva de 60.000 €, afecta a su actividad, y la amortiza en contabilidad en 12 años (5.000 € anuales). Quiere aplicar el art. 103 LIS. ¿Qué es correcto para 2026?',
         options: [
           {
             id: 'a',
@@ -434,6 +440,7 @@ export const formation: Formation = {
   },
 };
 
+/** Banco de 4 preguntas adicionales para «Pon a prueba tus conocimientos». */
 export const bank: QuizQuestion[] = [
   {
     id: 'con-03-b1',
@@ -454,7 +461,7 @@ export const bank: QuizQuestion[] = [
       {
         id: 'd',
         text: 'Aplicar la libertad de amortización solo si fuera empresa de reducida dimensión.',
-        feedback: 'El art. 12.3.e) LIS no exige ser ERD: lo puede aplicar cualquier entidad. Los incentivos exclusivos de las ERD son los de los arts. 102 y 103.',
+        feedback: 'El art. 12.3.e) LIS no exige ser ERD: lo puede aplicar cualquier entidad. Los incentivos de amortización propios de las ERD son los de los arts. 102 y 103.',
       },
     ],
     correctOptionId: 'c',
@@ -492,7 +499,7 @@ export const bank: QuizQuestion[] = [
   {
     id: 'con-03-b3',
     prompt:
-      'Una sociedad amortiza desde el 1 de enero de 2022 una máquina de 100.000 € en 10 años, sin valor residual. A 1 de enero de 2026, una revisión técnica concluye que solo podrá usarla 3 años más. ¿Cómo la amortiza en contabilidad desde 2026?',
+      'Una sociedad amortiza desde el 1 de enero de 2022 una máquina de 100.000 € en 10 años, sin valor residual. A 1 de enero de 2026, una revisión técnica basada en información nueva, no en un error anterior, concluye que solo podrá usarla 3 años más. ¿Cómo la amortiza en contabilidad desde 2026?',
     options: [
       {
         id: 'a',
@@ -513,13 +520,13 @@ export const bank: QuizQuestion[] = [
     ],
     correctOptionId: 'd',
     explanation:
-      'El cambio de vida útil es un cambio de estimación contable y se aplica de forma prospectiva (NRV 22.ª PGC): valor neto contable = 100.000 − 4 × 10.000 = 60.000 €; 60.000 / 3 = 20.000 € anuales. Fiscalmente, si no es ERD, el máximo para maquinaria es 12 % × 100.000 = 12.000 €: aumento de 8.000 € en 2026, 2027 y 2028, y reversión posterior.',
+      'El cambio de vida útil es un cambio de estimación contable y se aplica de forma prospectiva (NRV 22.ª PGC): valor neto contable = 100.000 − 4 × 10.000 = 60.000 €; 60.000 / 3 = 20.000 € anuales. Fiscalmente, si no es ERD, el máximo para maquinaria es 12 % × 100.000 = 12.000 €: aumento de 8.000 € en 2026, 2027 y 2028, y los 24.000 € pendientes se deducen después (12.000 € en 2029 y 12.000 € en 2030).',
     ref: 'Formación «Amortización contable y fiscal», apartado 1 · Contabilidad: manda la vida útil',
   },
   {
     id: 'con-03-b4',
     prompt:
-      'Una empresa de reparto que no es ERD pone en funcionamiento en enero de 2026 una furgoneta eléctrica (BEV) nueva de 45.000 €, afecta a su actividad, y la amortiza en contabilidad en 6 años (7.500 € anuales). ¿Qué opción tiene en el Impuesto sobre Sociedades de 2026?',
+      'Una empresa de reparto que no es ERD, con ejercicio coincidente con el año natural, pone en funcionamiento en enero de 2026 una furgoneta eléctrica (BEV) nueva de 45.000 €, afecta a su actividad, y la amortiza en contabilidad en 6 años (7.500 € anuales). ¿Qué opción tiene en el Impuesto sobre Sociedades de 2026?',
     options: [
       {
         id: 'a',

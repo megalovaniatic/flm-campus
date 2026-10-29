@@ -14,14 +14,14 @@ export const formation: Formation = {
   outcomes: [
     'Identificar si un cliente está obligado con la regla de los 4 NO y asignarle su fecha vigente: antes del 1/1/2027 o antes del 1/7/2027.',
     'Decidir con el cliente entre la modalidad VERI*FACTU y la no verificable, y comprobar qué debe entregarle su proveedor de software.',
-    'Calcular la sanción por usar un sistema no adaptado y distinguir Verifactu de la factura electrónica B2B.',
+    'Calcular la sanción por tener un sistema no adaptado y distinguir Verifactu de la factura electrónica B2B.',
   ],
   blocks: [
     /* ── 1 ─────────────────────────────────────────────────────────────── */
     { type: 'heading', text: 'Qué es Verifactu y qué exige', id: 'que-es-verifactu' },
     {
       type: 'paragraph',
-      text: '«Verifactu» es el nombre popular del Reglamento de sistemas informáticos de facturación (RRSIF), aprobado por el [Real Decreto 1007/2023](https://www.boe.es/buscar/act.php?id=BOE-A-2023-24840). Desarrolla el [art. 29.2.j) LGT](https://www.boe.es/buscar/act.php?id=BOE-A-2003-23186#a29), vigente desde el 11/10/2021: los programas de facturación deben garantizar la integridad, conservación, accesibilidad, legibilidad, trazabilidad e inalterabilidad de los registros. La [Orden HAC/1177/2024](https://www.boe.es/buscar/act.php?id=BOE-A-2024-22138) fija los detalles técnicos.',
+      text: '«Verifactu» es el nombre popular del Reglamento de sistemas informáticos de facturación (RRSIF), aprobado por el [Real Decreto 1007/2023](https://www.boe.es/buscar/act.php?id=BOE-A-2023-24840). Desarrolla, solo para la facturación, el [art. 29.2.j) LGT](https://www.boe.es/buscar/act.php?id=BOE-A-2003-23186#a29), vigente desde el 11/10/2021, que exige a los sistemas contables, de facturación y de gestión garantizar la integridad, conservación, accesibilidad, legibilidad, trazabilidad e inalterabilidad de los registros. La [Orden HAC/1177/2024](https://www.boe.es/buscar/act.php?id=BOE-A-2024-22138) fija los detalles técnicos.',
     },
     {
       type: 'paragraph',
@@ -80,7 +80,15 @@ export const formation: Formation = {
           { id: 'q3', question: '¿Lleva los libros del IVA por el SII?', options: [{ label: 'Sí', next: 'o-sii' }, { label: 'No', next: 'q4' }] },
           { id: 'q4', question: '¿Tiene el domicilio fiscal en el País Vasco o en Navarra?', options: [{ label: 'Sí', next: 'o-foral' }, { label: 'No', next: 'q5' }] },
           { id: 'q5', question: '¿Tiene una resolución de no aplicación?', options: [{ label: 'Sí', next: 'o-resolucion' }, { label: 'No', next: 'q6' }] },
-          { id: 'q6', question: '¿Tributa por el Impuesto sobre Sociedades?', options: [{ label: 'Sí', next: 'o-sociedades' }, { label: 'No', next: 'o-resto' }] },
+          {
+            id: 'q6',
+            question: '¿Qué tipo de contribuyente es?',
+            options: [
+              { label: 'Del Impuesto sobre Sociedades', next: 'o-sociedades' },
+              { label: 'Autónomo, entidad en atribución de rentas con actividad o no residente con establecimiento permanente', next: 'o-resto' },
+              { label: 'Ninguno de los anteriores', next: 'o-otro' },
+            ],
+          },
           { id: 'o-sin-facturas', outcome: { title: 'No le afecta', text: 'Sin facturas no hay sistema que adaptar.', tone: 'resolver' } },
           { id: 'o-manual', outcome: { title: 'Fuera, mientras facture a mano', text: 'Si empieza a usar un programa, entra.', tone: 'atencion' } },
           { id: 'o-sii', outcome: { title: 'Excluido por el SII', text: 'Art. 3.3 RRSIF. Si deja el SII, pasa a estar obligado.', tone: 'resolver' } },
@@ -90,6 +98,14 @@ export const formation: Formation = {
           {
             id: 'o-resto',
             outcome: { title: 'Obligado antes del 1/7/2027', text: 'Autónomos, no residentes con establecimiento permanente y entidades en atribución. Aplazamiento anunciado, sin publicar.', tone: 'atencion' },
+          },
+          {
+            id: 'o-otro',
+            outcome: {
+              title: 'Comprueba si está obligado',
+              text: 'El art. 3.1 RRSIF solo incluye a contribuyentes del IS, personas físicas y entidades en atribución de rentas con actividad económica y no residentes con establecimiento permanente. Consúltalo con el área.',
+              tone: 'derivar',
+            },
           },
         ],
       },
@@ -114,7 +130,7 @@ export const formation: Formation = {
     },
     {
       type: 'paragraph',
-      text: 'El 5/10/2026, el Ministerio de Hacienda publicó una [nota informativa](https://www.hacienda.gob.es/sgt/gabsehacienda/nota-informativa-verifactu.pdf) con la «previsión» de aplazar las obligaciones pendientes del RD 1007/2023 «hasta octubre de 2028», para hacerlas coincidir con la factura electrónica obligatoria de quienes facturan hasta 8 millones de euros. Después prevé otra reforma para adaptar el reglamento a ViDA (el IVA en la era digital).',
+      text: 'El 5/10/2026, el Ministerio de Hacienda publicó una [nota informativa](https://www.hacienda.gob.es/sgt/gabsehacienda/nota-informativa-verifactu.pdf) con la «previsión» de aplazar las obligaciones pendientes del RD 1007/2023 «hasta octubre de 2028», para hacerlas coincidir con la factura electrónica obligatoria de quienes facturan hasta 8 millones de euros. Después prevé otra reforma para adaptar el reglamento a ViDA (el IVA en la era digital), aunque, según la nota, las exigencias técnicas de fondo (integridad, inalterabilidad, trazabilidad, etc.) se mantendrán «en términos sustancialmente equivalentes».',
     },
     {
       type: 'paragraph',
@@ -124,7 +140,7 @@ export const formation: Formation = {
       type: 'callout',
       tone: 'norma',
       title: 'Qué falta para que el aplazamiento rija',
-      text: 'Una norma publicada en el BOE que modifique la disposición final cuarta del RD 1007/2023. Basta un real decreto, porque el RDL 15/2025 mantuvo su rango reglamentario, así que no depende de las Cortes, disueltas por el RD 806/2026. A 28/10/2026 no hay ningún proyecto en audiencia pública.',
+      text: 'Una norma publicada en el BOE que modifique la disposición final cuarta del RD 1007/2023. Bastaría un real decreto, porque el RDL 15/2025 mantuvo su rango reglamentario; por eso no depende de las Cortes, disueltas por el RD 806/2026. A 28/10/2026 no hay ningún proyecto en audiencia pública.',
       refs: [
         { label: 'Ministerio de Hacienda: nota informativa de 5 de octubre de 2026', url: 'https://www.hacienda.gob.es/sgt/gabsehacienda/nota-informativa-verifactu.pdf', date: '2026-10-28', kind: 'documento' },
         { label: 'Real Decreto-ley 15/2025, de 2 de diciembre (disposiciones finales primera y segunda)', url: 'https://www.boe.es/buscar/doc.php?id=BOE-A-2025-24446', date: '2026-10-28', kind: 'norma' },
@@ -157,7 +173,7 @@ export const formation: Formation = {
         kind: 'linea-tiempo',
         title: 'Calendario de Verifactu y de la factura electrónica B2B',
         items: [
-          { date: '2025-07-29', title: 'Productores: software adaptado', text: 'Nueve meses desde la Orden HAC/1177/2024.', tone: 'plazo' },
+          { date: '2025-07-29', title: 'Productores: software adaptado', text: 'Nueve meses desde la entrada en vigor de la Orden HAC/1177/2024.', tone: 'plazo' },
           { date: '2025-12-04', title: 'Entra en vigor el RDL 15/2025', text: 'Fija las fechas de 2027.', tone: 'hito' },
           { date: '2026-10-05', title: 'Hacienda anuncia el aplazamiento a octubre de 2028', text: 'Previsión sin norma publicada a 28/10/2026.', tone: 'pendiente' },
           { date: '2026-10-06', title: 'Entra en vigor la Orden HAC/1028/2026', text: 'Arrancan los plazos de la factura electrónica B2B.', tone: 'hito' },
@@ -174,7 +190,7 @@ export const formation: Formation = {
     { type: 'heading', text: 'Modalidad VERI*FACTU o no verificable', id: 'modalidades' },
     {
       type: 'paragraph',
-      text: 'Todos los sistemas cumplen los mismos requisitos de fondo ([art. 8 RRSIF](https://www.boe.es/buscar/act.php?id=BOE-A-2023-24840#a8)), pero el cliente elige la modalidad. En [[VERI*FACTU]], el programa envía a la AEAT cada registro de forma automática y continua, y se presume que cumple por diseño. En la modalidad no verificable, el cliente conserva y firma los registros, lleva un [[registro de eventos]] y los entrega a requerimiento de la AEAT ([art. 14.2 RRSIF](https://www.boe.es/buscar/act.php?id=BOE-A-2023-24840#a1-6)).',
+      text: 'Todos los sistemas cumplen los mismos requisitos de fondo ([art. 8 RRSIF](https://www.boe.es/buscar/act.php?id=BOE-A-2023-24840#a8)), pero el cliente elige la modalidad. En [[VERI*FACTU]], el programa envía a la AEAT cada registro de forma automática y continua, y se presume que cumple por diseño ([art. 16 RRSIF](https://www.boe.es/buscar/act.php?id=BOE-A-2023-24840#a1-8)). En la modalidad no verificable, el sistema firma los registros y lleva un [[registro de eventos]], y el cliente los conserva y los entrega cuando la AEAT los requiere ([art. 14.2 RRSIF](https://www.boe.es/buscar/act.php?id=BOE-A-2023-24840#a1-6)).',
     },
     {
       type: 'widget',
@@ -190,7 +206,7 @@ export const formation: Formation = {
           { label: 'Conservar y exportar registros', values: ['No: ya están en la AEAT', 'Sí, aunque cambie de programa (art. 8 de la Orden)'] },
           { label: 'Código QR', values: ['Sí', 'Sí'] },
           { label: 'Frase en la factura', values: ['«VERI*FACTU» o «Factura verificable en la sede electrónica de la AEAT»', 'No'] },
-          { label: 'Permanencia', values: ['Hasta el 31/12 del año del primer envío', 'No aplica'] },
+          { label: 'Permanencia', values: ['Al menos hasta el 31/12 del año del primer envío (art. 16.5 RRSIF)', 'No aplica'] },
         ],
       },
       caption: 'La huella y el QR son comunes a las dos modalidades.',
@@ -214,7 +230,7 @@ export const formation: Formation = {
       type: 'callout',
       tone: 'atencion',
       title: 'Permanencia e incidencias',
-      text: 'Quien elige la modalidad VERI*FACTU debe mantenerla hasta el 31 de diciembre del año del primer envío ([art. 17 de la Orden](https://www.boe.es/buscar/act.php?id=BOE-A-2024-22138#a1-9)), salvo durante el periodo de pruebas. Si falla la conexión, no se deja de facturar: los registros se envían en cuanto sea posible ([art. 16.4 de la Orden](https://www.boe.es/buscar/act.php?id=BOE-A-2024-22138#a1-8)).',
+      text: 'Quien elige la modalidad VERI*FACTU debe mantenerla, al menos, hasta el 31 de diciembre del año del primer envío ([art. 16.5 RRSIF](https://www.boe.es/buscar/act.php?id=BOE-A-2023-24840#a1-8)), salvo durante el periodo de pruebas. Si falla la conexión, no se deja de facturar: el sistema reintenta el envío al menos cada hora y remite los registros en cuanto sea posible ([art. 16.4 de la Orden](https://www.boe.es/buscar/act.php?id=BOE-A-2024-22138#a1-8)).',
       refs: [
         {
           label: 'AEAT: preguntas frecuentes sobre los sistemas VERI*FACTU',
@@ -258,9 +274,9 @@ export const formation: Formation = {
       steps: [
         { label: '¿Lleva el SII? Comparamos su volumen con el umbral del art. 71.3 RIVA.', formula: '6.010.121,04 € − 2.400.000,00 € = 3.610.121,04 €', result: 'Por debajo: no lleva SII' },
         { label: 'Regla de los 4 NO: usa sistemas, sin SII, territorio común y sin resolución.', formula: '4 NO → art. 3.1.a RRSIF', result: 'Obligada' },
-        { label: 'Fecha vigente: antes del 1/1/2027. Días que quedan desde el 28/10/2026:', formula: '3 (oct.) + 30 (nov.) + 31 (dic.) + 1 = 65 días', result: '65 días; pruebas hasta el 31/12/2026' },
+        { label: 'Fecha vigente: antes del 1/1/2027. Días naturales hasta esa fecha desde el 28/10/2026:', formula: '1/1/2027 − 28/10/2026 = 3 (oct.) + 30 (nov.) + 31 (dic.) + 1 = 65 días', result: '65 días; pruebas hasta el 31/12/2026' },
         { label: 'Una declaración responsable por sistema; los tiques del TPV también llevarán QR.', formula: 'ERP + TPV = 2 sistemas', result: '2 declaraciones responsables' },
-        { label: 'Riesgo si el TPV no se adapta y sigue facturando en 2027 y 2028 (art. 201 bis.4 LGT):', formula: '2 × 50.000 € = 100.000 €', result: '100.000 €' },
+        { label: 'Riesgo si la sociedad mantiene el TPV sin adaptar durante 2027 y 2028 (art. 201 bis.4 LGT):', formula: '2 × 50.000 € = 100.000 €', result: '100.000 €' },
         { label: 'Con pago en periodo voluntario y sin recurso, reducción del 40 % (art. 188.3 LGT):', formula: '100.000 € × (1 − 0,40) = 60.000 €', result: '60.000 €' },
         {
           label: 'Factura electrónica B2B: al no superar 8 millones (se supone que en 2026 tampoco), tiene 24 meses desde la Orden HAC/1028/2026. Los tiques quedan fuera, salvo las simplificadas cualificadas.',
@@ -269,7 +285,7 @@ export const formation: Formation = {
         },
       ],
       conclusion:
-        'Los dos sistemas deben estar adaptados **el 31/12/2026**: pide ya las declaraciones, decide la modalidad y aprovecha las pruebas. El aplazamiento anunciado hoy no tiene efecto jurídico; la factura electrónica B2B llegará después, con su propia fecha.',
+        'Los dos sistemas deben estar adaptados **antes del 1/1/2027**: pide ya las declaraciones, decide la modalidad y aprovecha las pruebas. El aplazamiento anunciado no tendrá efecto jurídico hasta que se publique; la factura electrónica B2B llegará después, con su propia fecha.',
     },
   ],
   keyTerms: [

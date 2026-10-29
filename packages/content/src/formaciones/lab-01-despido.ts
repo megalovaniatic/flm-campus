@@ -32,7 +32,7 @@ export const formation: Formation = {
       items: [
         '**Procedente**: se acreditan la causa y la forma. El disciplinario no genera indemnización; en el objetivo, la persona conserva los 20 días por año ([arts. 55.7](https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a55) y [53.5 ET](https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a53)).',
         '**Improcedente**: no se prueba la causa o falla la forma. La empresa elige entre readmitir o indemnizar.',
-        '**Nulo**: es discriminatorio, vulnera derechos fundamentales o afecta a una situación protegida, como el embarazo o los permisos de cuidado. Obliga a readmitir de inmediato con los salarios dejados de percibir ([art. 55.5 y 55.6 ET](https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a55)).',
+        '**Nulo**: es discriminatorio, vulnera derechos fundamentales o afecta a una situación protegida, como el embarazo o los permisos de cuidado, salvo que se declare procedente por motivos ajenos a ella. Obliga a readmitir de inmediato con los salarios dejados de percibir ([art. 55.5 y 55.6 ET](https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a55)).',
       ],
     },
     {
@@ -73,7 +73,7 @@ export const formation: Formation = {
       type: 'callout',
       tone: 'norma',
       title: 'Audiencia previa en el despido disciplinario',
-      text: 'Desde noviembre de 2024, el Pleno de la Sala de lo Social del Tribunal Supremo aplica directamente el art. 7 del Convenio 158 de la OIT: antes de despedir por conducta o rendimiento, hay que ofrecer a la persona la posibilidad de defenderse de los cargos, «a menos que no pueda pedirse razonablemente al empleador». Rige para los despidos posteriores a su sentencia. Hazlo por escrito y guarda la prueba.',
+      text: 'Desde noviembre de 2024, el Pleno de la Sala de lo Social del Tribunal Supremo aplica directamente el art. 7 del Convenio 158 de la OIT: antes de despedir por conducta o rendimiento, hay que ofrecer a la persona la posibilidad de defenderse de los cargos, «a menos que no pueda pedirse razonablemente al empleador». Rige para los despidos posteriores a su sentencia. Hazlo por escrito, con un plazo razonable para responder, y guarda la prueba.',
       refs: [
         { label: 'Convenio n.º 158 de la OIT, art. 7 (BOE de 29/06/1985)', url: 'https://www.boe.es/buscar/doc.php?id=BOE-A-1985-12535', date: '2026-10-28', kind: 'norma' },
         {
@@ -96,7 +96,7 @@ export const formation: Formation = {
       type: 'callout',
       tone: 'atencion',
       title: '¿Vale un WhatsApp o un correo electrónico?',
-      text: 'El Estatuto exige una comunicación **escrita** con un contenido mínimo, pero no regula el canal. Un correo o un WhatsApp solo vale si recoge los hechos y la fecha de efectos (la causa, en el objetivo) y la empresa puede probar que llegó y qué decía. «Desde mañana no vengas» no describe ningún hecho: el despido sería improcedente.\n\nPara no depender de capturas, entrega la carta en mano con firma de recibí (ante testigos si no firma) o por burofax con certificación de texto.',
+      text: 'El Estatuto exige una comunicación **escrita** con un contenido mínimo, pero no regula el canal. Un correo o un WhatsApp solo vale si recoge los hechos y la fecha de efectos (la causa, en el objetivo) y la empresa puede probar que llegó y qué decía. «Desde mañana no vengas» no describe ningún hecho: el despido sería, como mínimo, improcedente.\n\nPara no depender de capturas, entrega la carta en mano con firma de recibí (ante testigos si no firma) o por burofax con certificación de texto.',
       refs: [
         { label: 'Estatuto de los Trabajadores, arts. 53.1 y 55.1', url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a55', date: '2026-10-28', kind: 'norma' },
         { label: 'Ley reguladora de la jurisdicción social, art. 105.2', url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a105', date: '2026-10-28', kind: 'norma' },
@@ -107,11 +107,11 @@ export const formation: Formation = {
     { type: 'heading', text: 'Cómo se calcula la indemnización', id: 'calculo' },
     {
       type: 'paragraph',
-      text: 'Parte del [[salario regulador]]: el salario bruto anual al despedir, con todos los conceptos salariales, en dinero o en especie, y la prorrata de pagas extra, sin percepciones extrasalariales como dietas o suplidos ([art. 26 ET](https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a26)). Divídelo entre 365.\n\nDespués, cuenta la antigüedad hasta la fecha de efectos. Los periodos inferiores al año se prorratean por meses ([arts. 53.1.b](https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a53) y [56.1 ET](https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a56)), y el criterio habitual es contar como mes completo los días sueltos. No redondees los días: solo el importe final.',
+      text: 'Parte del [[salario regulador]]: el salario bruto anual al despedir, con todos los conceptos salariales, en dinero o en especie, y la prorrata de pagas extra, sin percepciones extrasalariales como dietas o suplidos ([art. 26 ET](https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a26)). Divídelo entre 365, que es el criterio habitual.\n\nDespués, cuenta la antigüedad hasta la fecha de efectos. Los periodos inferiores al año se prorratean por meses ([arts. 53.1.b](https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a53) y [56.1 ET](https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a56)), y el criterio habitual es contar como mes completo los días sueltos. No redondees los días: solo el importe final.',
     },
     {
       type: 'table',
-      caption: 'Días de salario por año de servicio y topes',
+      caption: 'Días de salario por año de servicio y topes (en días, con la convención habitual de 30 días por mensualidad)',
       columns: ['Supuesto', 'Días por año', 'Tope'],
       rows: [
         ['Objetivo procedente', '20', '12 mensualidades (360 días)'],
@@ -184,7 +184,7 @@ export const formation: Formation = {
     { type: 'heading', text: 'Plazo para impugnar y siguientes pasos', id: 'plazos' },
     {
       type: 'paragraph',
-      text: 'La persona despedida puede reclamar en los **20 días hábiles** siguientes al despido. Es un plazo de [[caducidad]]: si vence, pierde la acción. No cuentan los sábados, los domingos ni los festivos de la sede del juzgado, y en los procesos de despido agosto no es inhábil ([art. 59.3 ET](https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a59); [arts. 43.4](https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a43) y [103.1 LRJS](https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a103)).',
+      text: 'La persona despedida puede reclamar en los **20 días hábiles** siguientes al despido. Es un plazo de [[caducidad]]: si vence, pierde la acción. No cuentan los sábados, los domingos ni los festivos de la sede del juzgado; en cambio, en el despido sí cuentan agosto y los días del 24 de diciembre al 6 de enero que no sean festivos ([art. 59.3 ET](https://www.boe.es/buscar/act.php?id=BOE-A-2015-11430#a59); [arts. 43.4](https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a43) y [103.1 LRJS](https://www.boe.es/buscar/act.php?id=BOE-A-2011-15936#a103)).',
     },
     {
       type: 'paragraph',
@@ -198,7 +198,7 @@ export const formation: Formation = {
       type: 'callout',
       tone: 'atencion',
       title: '¿Va a cambiar la indemnización?',
-      text: 'La Sala de lo Social del Tribunal Supremo, en Pleno, ha rechazado que los jueces aumenten la indemnización del art. 56 ET, también cuando se invoca la Carta Social Europea.\n\nEl Plan Anual Normativo 2026, aprobado el 05/05/2026, prevé reformar el despido y su indemnización, pero a 28/10/2026 no se ha publicado ningún cambio y las Cortes están disueltas, con elecciones el 29/11/2026. Hoy rigen las reglas de esta formación.',
+      text: 'La Sala de lo Social del Tribunal Supremo, en Pleno, ha rechazado que los jueces aumenten la indemnización del art. 56 ET, también cuando se invoca la Carta Social Europea.\n\nEl Plan Anual Normativo 2026, aprobado el 05/05/2026, prevé reformar el despido y su indemnización, pero a 28/10/2026 no se ha publicado ningún cambio y las Cortes están disueltas, con elecciones el 29/11/2026: hasta la nueva legislatura, solo un real decreto-ley podría cambiarlo. Hoy rigen las reglas de esta formación.',
       refs: [
         {
           label: 'Tribunal Supremo, Pleno de la Sala de lo Social: sentencia ECLI:ES:TS:2024:6112 (nota de 20/12/2024)',
@@ -236,7 +236,7 @@ export const formation: Formation = {
           {
             claim: 'Un WhatsApp que dice «desde mañana no vengas» es un despido.',
             verdict: 'verdadero',
-            explanation: 'Expresa la voluntad de extinguir el contrato: será improcedente por no recoger los hechos (art. 55.4 ET), pero hay que impugnarlo en 20 días hábiles.',
+            explanation: 'Expresa la voluntad de extinguir el contrato. Al no recoger los hechos, será como mínimo improcedente (art. 55.4 ET), pero hay que impugnarlo en 20 días hábiles.',
           },
           {
             claim: 'Si la carta no detalla los hechos, el despido no produce efectos.',
@@ -265,7 +265,7 @@ export const formation: Formation = {
     },
     {
       term: 'despido nulo',
-      definition: 'El discriminatorio, el que vulnera derechos fundamentales o el que afecta a una situación protegida del art. 55.5 ET. Obliga a readmitir con los salarios dejados de percibir.',
+      definition: 'El discriminatorio, el que vulnera derechos fundamentales o el que afecta a una situación protegida del art. 55.5 ET, salvo que se declare procedente por motivos ajenos a ella. Obliga a readmitir con los salarios dejados de percibir.',
     },
     {
       term: 'puesta a disposición',
@@ -273,7 +273,7 @@ export const formation: Formation = {
     },
     {
       term: 'salario regulador',
-      definition: 'Salario bruto anual al despedir, con todos los conceptos salariales y la prorrata de pagas extra, sin percepciones extrasalariales. Entre 365, da el salario diario.',
+      definition: 'Salario bruto anual al despedir, con todos los conceptos salariales y la prorrata de pagas extra, sin percepciones extrasalariales. Dividido entre 365 (criterio habitual), da el salario diario.',
     },
     {
       term: 'salarios de tramitación',
@@ -285,7 +285,7 @@ export const formation: Formation = {
     },
   ],
   takeaway:
-    'Antes de calcular, califica: la forma (carta, puesta a disposición, preaviso y audiencia previa) y el móvil deciden si el despido se sostiene. Después, calcula con el salario diario, el prorrateo por meses y, en contratos anteriores al 12/02/2012, los dos tramos con sus topes.',
+    'Antes de calcular, califica: la causa, la forma (carta, puesta a disposición y audiencia previa) y el móvil deciden si el despido se sostiene; el preaviso omitido solo se paga. Después, calcula con el salario diario, el prorrateo por meses y, en contratos anteriores al 12/02/2012, los dos tramos con sus topes.',
   sources: [
     {
       label: 'Real Decreto Legislativo 2/2015, texto refundido de la Ley del Estatuto de los Trabajadores (arts. 26, 52 a 56 y 59 y DT 11.ª)',
@@ -386,7 +386,7 @@ export const formation: Formation = {
       },
       {
         id: 'lab-01-q2',
-        prompt: 'Un contrato indefinido se firmó el 12/03/2010. El despido, con efectos del 11/05/2026, se declara improcedente y la empresa opta por indemnizar. El salario diario es de 100 €. ¿Qué indemnización corresponde?',
+        prompt: 'Un contrato indefinido comenzó el 12/03/2010. El despido, con efectos del 11/05/2026, se declara improcedente y la empresa opta por indemnizar. El salario diario es de 100 €. ¿Qué indemnización corresponde?',
         options: [
           {
             id: 'a',
@@ -397,7 +397,7 @@ export const formation: Formation = {
           {
             id: 'c',
             text: '72.750,00 €',
-            feedback: 'Aplica 45 días a toda la antigüedad (727,5 días). El tiempo posterior al 12/02/2012 se paga a 33 días y, además, esa cifra superaría el tope de 720 días.',
+            feedback: 'Aplica 45 días a toda la antigüedad (727,5 días). El tiempo trabajado desde el 12/02/2012 se paga a 33 días y, además, esa cifra superaría el tope de 720 días.',
           },
           {
             id: 'd',
@@ -411,7 +411,7 @@ export const formation: Formation = {
       },
       {
         id: 'lab-01-q3',
-        prompt: 'Una trabajadora de baja por una lumbalgia recibe, dos días después de enviar el parte, una carta de despido por «bajo rendimiento» sin hechos concretos. Con la Ley 15/2022 en vigor, ¿qué afirmación es correcta?',
+        prompt: 'Una trabajadora de baja por una lumbalgia recibe, dos días después de que la empresa conozca su baja, una carta de despido por «bajo rendimiento» sin hechos concretos. Con la Ley 15/2022 en vigor, ¿qué afirmación es correcta?',
         options: [
           {
             id: 'a',
@@ -430,7 +430,7 @@ export const formation: Formation = {
           },
           {
             id: 'd',
-            text: 'Si ella aporta indicios de que la baja fue el motivo, la empresa debe probar una justificación objetiva y razonable; si no lo consigue, el despido puede declararse nulo.',
+            text: 'Si ella aporta indicios fundados de que su enfermedad fue el motivo, la empresa debe probar una justificación objetiva y razonable; si no lo consigue, el despido puede declararse nulo.',
           },
         ],
         correctOptionId: 'd',
@@ -452,7 +452,7 @@ export const formation: Formation = {
 export const bank: QuizQuestion[] = [
   {
     id: 'lab-01-b1',
-    prompt: 'Una trabajadora despedida presenta la papeleta de conciliación cuando ya han transcurrido íntegros 12 de los 20 días hábiles de caducidad. El acto se celebra sin avenencia. ¿De qué plazo dispone para presentar la demanda?',
+    prompt: 'Una trabajadora despedida presenta la papeleta de conciliación cuando ya han transcurrido íntegros 12 de los 20 días hábiles de caducidad. El acto se celebra sin avenencia 10 días hábiles después de presentarla. ¿De qué plazo dispone para presentar la demanda?',
     options: [
       {
         id: 'a',
@@ -472,12 +472,12 @@ export const bank: QuizQuestion[] = [
       },
     ],
     correctOptionId: 'c',
-    explanation: 'La presentación de la papeleta suspende la caducidad, y el cómputo se reanuda al día siguiente de intentada la conciliación, o a los 15 días hábiles de la presentación si no se ha celebrado (art. 65.1 LRJS). Le quedan, por tanto, los 8 días hábiles no consumidos.',
+    explanation: 'La presentación de la papeleta suspende la caducidad, y el cómputo se reanuda al día siguiente de intentada la conciliación, o a los 15 días hábiles de la presentación si no se ha celebrado (art. 65.1 LRJS). Como el acto se celebró antes de esos 15 días, el plazo se reanuda al día siguiente del acto con los 8 días hábiles no consumidos.',
     ref: 'Despido disciplinario y objetivo, apartado 5: Plazo para impugnar y siguientes pasos',
   },
   {
     id: 'lab-01-b2',
-    prompt: 'Una sentencia declara improcedente el despido de un trabajador que no es representante legal ni delegado sindical. En los 5 días siguientes a la notificación, la empresa no manifiesta nada. ¿Qué ocurre?',
+    prompt: 'Una sentencia declara improcedente el despido de un trabajador que no es representante legal ni delegado sindical; su convenio no le atribuye la opción. En los 5 días siguientes a la notificación, la empresa no manifiesta nada. ¿Qué ocurre?',
     options: [
       {
         id: 'a',
@@ -492,7 +492,7 @@ export const bank: QuizQuestion[] = [
       {
         id: 'c',
         text: 'La opción pasa automáticamente al trabajador.',
-        feedback: 'La opción solo corresponde a la persona despedida cuando es representante legal o delegado sindical (art. 56.4 ET).',
+        feedback: 'La ley solo da la opción a la persona despedida si es representante legal o delegado sindical (art. 56.4 ET), y el convenio puede atribuírsela en otros casos; pero el silencio de la empresa nunca se la traslada.',
       },
       { id: 'd', text: 'Se entiende que opta por la readmisión, con abono de los salarios de tramitación.' },
     ],
@@ -542,12 +542,12 @@ export const bank: QuizQuestion[] = [
       },
       {
         id: 'd',
-        text: '1.260 días, es decir, 42 mensualidades en todo caso.',
-        feedback: 'Las 42 mensualidades (1.260 días) son un límite absoluto, no una cifra que se aplique siempre.',
+        text: '42 mensualidades en todo caso, porque el contrato es anterior a 2012.',
+        feedback: 'Las 42 mensualidades son un límite absoluto que no puede superarse, no una cifra que se aplique siempre.',
       },
     ],
     correctOptionId: 'a',
-    explanation: 'Del 12/06/1995 al 11/02/2012 hay 16 años y 8 meses: 45 × 200 ÷ 12 = 750 días. Como superan 720, esa cifra es el importe máximo (DT 11.ª.2 ET), por debajo del límite absoluto de 1.260 días.',
+    explanation: 'Del 12/06/1995 al 11/02/2012 hay 16 años y 8 meses: 45 × 200 ÷ 12 = 750 días. Como superan 720, esa cifra es el importe máximo (DT 11.ª.2 ET), por debajo del límite absoluto de 42 mensualidades.',
     ref: 'Despido disciplinario y objetivo, apartado 3: Cómo se calcula la indemnización',
   },
 ];

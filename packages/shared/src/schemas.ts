@@ -178,14 +178,15 @@ export const assessmentSchema = z
 export const newsSchema = z.object({
   id: nonEmpty('Id'),
   slug: z.string().regex(/^[a-z0-9-]+$/),
-  area: areaSchema,
+  area: z.union([areaSchema, z.literal('general')]),
   kind: z.enum(['legislacion', 'jurisprudencia', 'criterio', 'aviso-interno']),
   headline: nonEmpty('Titular').max(110, 'Titular de 110 caracteres como máximo'),
   oneLiner: nonEmpty('La novedad, en una frase'),
   affects: nonEmpty('A quién afecta'),
   action: nonEmpty('Qué debemos hacer'),
   example: nonEmpty('Un ejemplo sencillo'),
-  source: z.object({ label: nonEmpty('Fuente'), url: httpsUrl, publishedOn: dateKey, effectiveOn: dateKey.optional() }),
+  /** Fuente primaria (https) o, en avisos internos, la ruta interna del campus («#/…»). */
+  source: z.object({ label: nonEmpty('Fuente'), url: z.string().regex(/^(https:\/\/[^\s]+|#\/[^\s]*)$/, 'Fuente https o ruta interna «#/…»'), publishedOn: dateKey, effectiveOn: dateKey.optional() }),
   nuance: z.string().optional(),
   urgency: z.enum(['alta', 'media', 'informativa']),
   date: dateKey,

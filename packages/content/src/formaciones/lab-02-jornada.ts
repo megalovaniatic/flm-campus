@@ -13,6 +13,8 @@ const BARBULESCU = 'https://hudoc.echr.coe.int/eng?i=001-177082';
 const STC_170 = 'https://www.boe.es/buscar/doc.php?id=BOE-A-2013-11681';
 const GUIA = 'https://www.mites.gob.es/ficheros/ministerio/GuiaRegistroJornada.pdf';
 const PARTICIPA = 'https://expinterweb.mites.gob.es/participa/listado?tramite=1&estado=2';
+const RGPD = 'https://www.boe.es/buscar/doc.php?id=DOUE-L-2016-80807';
+const VOTACION_37_5 = 'https://www.congreso.es/webpublica/opendata/votaciones/Leg15/Sesion130/20250910/Votacion010/VOT_20250910213533.pdf';
 const VERIFIED = '2026-10-28';
 
 export const formation: Formation = {
@@ -21,7 +23,7 @@ export const formation: Formation = {
   area: 'laboral',
   title: 'Registro de jornada, horas extra y desconexión digital: qué exige hoy la ley',
   intro:
-    'Una startup de seis personas recibe un requerimiento de la Inspección de Trabajo para que aporte sus registros de jornada: solo tiene una hoja que la gerente rellena a fin de mes. Además, dos personas encadenan horas extra «cuando hace falta», el equipo comercial contesta mensajes a las once de la noche y el socio quiere leer el correo de un desarrollador. Tienes que separar lo que la ley exige hoy de lo que aún es un proyecto.',
+    'Una startup de seis personas recibe un requerimiento de la Inspección de Trabajo para que aporte sus registros de jornada: solo tiene una hoja que la gerente rellena a fin de mes. Además, dos personas encadenan horas extra «cuando hace falta», el equipo contesta mensajes a las once de la noche y el socio quiere leer el correo de una desarrolladora. Tienes que separar lo que la ley exige hoy de lo que aún es un proyecto.',
   summary:
     'Qué exige hoy el registro de jornada, cómo se computa el tope de 80 horas extra y qué límites tienen la desconexión digital y el control del correo corporativo.',
   coverTerm: 'Art. 34.9',
@@ -36,7 +38,7 @@ export const formation: Formation = {
     { type: 'heading', text: 'Registro diario: qué exige hoy el art. 34.9 ET', id: 'registro-diario' },
     {
       type: 'paragraph',
-      text: `Desde el 12 de mayo de 2019, la empresa debe garantizar el [[registro diario de jornada]] de cada persona trabajadora, con la hora concreta de inicio y de fin ([art. 34.9 ET](${ET}#a34); [RDL 8/2019, disp. final 6.ª](${RDL_8_2019}#df-6)). Alcanza a quien teletrabaja, a los comerciales, a quien tiene horario flexible y a los mandos intermedios; solo queda fuera la alta dirección ([Guía del Ministerio de Trabajo](${GUIA})).`,
+      text: `Desde el 12 de mayo de 2019, la empresa debe garantizar el [[registro diario de jornada]] de cada persona trabajadora, con la hora concreta de inicio y de fin ([art. 34.9 ET](${ET}#a34); [RDL 8/2019, disp. final 6.ª](${RDL_8_2019}#df-6)). Alcanza a quien teletrabaja, a los comerciales, a quien tiene horario flexible y a los mandos intermedios; queda fuera la alta dirección, y las relaciones laborales especiales siguen su propia normativa ([Guía del Ministerio de Trabajo](${GUIA})).`,
     },
     {
       type: 'callout',
@@ -79,13 +81,13 @@ export const formation: Formation = {
     { type: 'heading', text: 'Horas extraordinarias: tope, voluntariedad y cómputo', id: 'horas-extra' },
     {
       type: 'paragraph',
-      text: `Son [[horas extraordinarias]] las que superan la duración máxima de la jornada ordinaria, que sigue siendo de 40 horas semanales de promedio en cómputo anual ([art. 34.1 ET](${ET}#a34)). El convenio o, en su defecto, el contrato decide si se pagan (nunca por debajo del valor de la hora ordinaria) o se compensan con descanso retribuido; sin pacto, se compensan con descanso en los cuatro meses siguientes ([art. 35.1 ET](${ET}#a35)).`,
+      text: `Son [[horas extraordinarias]] las que superan la duración máxima de la jornada ordinaria, que fija el convenio o el contrato sin pasar del límite legal: 40 horas semanales de promedio en cómputo anual ([arts. 34.1](${ET}#a34) y [35.1 ET](${ET}#a35)). El convenio o, en su defecto, el contrato decide si se pagan (nunca por debajo del valor de la hora ordinaria) o se compensan con descanso retribuido; sin pacto, se compensan con descanso en los cuatro meses siguientes ([art. 35.1 ET](${ET}#a35)).`,
     },
     {
       type: 'list',
       items: [
         `**Tope de 80 al año**, reducido en la misma proporción si la jornada anual del contrato es inferior a la general de la empresa ([art. 35.2 ET](${ET}#a35)).`,
-        '**No computan** las compensadas con descanso en los cuatro meses siguientes ni las trabajadas para prevenir o reparar siniestros y otros daños extraordinarios y urgentes, que se pagan igualmente como extra (art. 35.3).',
+        '**No computan** las compensadas con descanso en los cuatro meses siguientes ni las trabajadas para prevenir o reparar siniestros y otros daños extraordinarios y urgentes, que se compensan igualmente como extra (art. 35.2 y 35.3).',
         '**Son voluntarias**, salvo pacto en convenio o contrato y siempre dentro del tope (art. 35.4). Según el Ministerio, las de fuerza mayor sí pueden exigirse.',
         `**Control.** Resumen con la nómina (art. 35.5) e información mensual a la representación legal ([RD 1561/1995, disp. adicional 3.ª](${RD_1561}#datercera)).`,
         `**Tiempo parcial.** No caben, salvo siniestros: se usan [[horas complementarias]] ([art. 12.4.c y 12.5 ET](${ET}#a12)).`,
@@ -105,20 +107,20 @@ export const formation: Formation = {
     },
     {
       type: 'paragraph',
-      text: `Ambas se pagan como ordinarias ([art. 12.5.i ET](${ET}#a12)), y la suma con las horas ordinarias debe quedar por debajo de la jornada a tiempo completo comparable.`,
+      text: `Ambas se pagan como ordinarias ([art. 12.5.i ET](${ET}#a12)), y la suma con las horas ordinarias debe quedar por debajo de la jornada a tiempo completo comparable ([art. 12.4.c ET](${ET}#a12)).`,
     },
 
     /* ── 3 ─────────────────────────────────────────────────────────────── */
     { type: 'heading', text: 'Desconexión digital y control de dispositivos', id: 'desconexion-dispositivos' },
     {
       type: 'paragraph',
-      text: `Toda la plantilla, no solo quien teletrabaja, tiene derecho a la [[desconexión digital]] ([art. 20 bis ET](${ET}#a2-2); [art. 88 LOPDGDD](${LOPDGDD}#a8-10)). Sus modalidades se pactan en el convenio o con la representación legal, y la empresa debe aprobar, previa audiencia de esta, una política interna que incluya a los directivos y prevea formación frente a la fatiga informática.`,
+      text: `Toda la plantilla, no solo quien teletrabaja, tiene derecho a la [[desconexión digital]] ([art. 20 bis ET](${ET}#a2-2); [art. 88 LOPDGDD](${LOPDGDD}#a8-10)). Sus modalidades se pactan en el convenio o con la representación legal, y la empresa debe elaborar, previa audiencia de esta, una política interna que incluya a los directivos y prevea formación frente a la fatiga informática.`,
     },
     {
       type: 'callout',
       tone: 'clave',
       title: 'desconexión digital',
-      text: 'Es el derecho a que, fuera del tiempo de trabajo, se respeten el descanso, los permisos, las vacaciones y la intimidad personal y familiar. La ley **no prohíbe enviar un mensaje**, pero nadie está obligado a atenderlo fuera de su jornada. Si la persona contesta y trabaja, ese tiempo es jornada: se registra y puede dar lugar a horas extra.',
+      text: 'Es el derecho a que, fuera del tiempo de trabajo, se respeten el descanso, los permisos, las vacaciones y la intimidad personal y familiar. La ley **no prohíbe enviar un mensaje**, pero la persona tiene derecho a no atenderlo fuera de su jornada. Si contesta y trabaja, ese tiempo es jornada: se registra y puede dar lugar a horas extra.',
       refs: [{ label: 'Ley Orgánica 3/2018 (LOPDGDD), art. 88', url: `${LOPDGDD}#a8-10`, date: VERIFIED, kind: 'norma' }],
     },
     {
@@ -127,7 +129,7 @@ export const formation: Formation = {
     },
     {
       type: 'paragraph',
-      text: `Con el correo y el ordenador, la empresa solo puede acceder al contenido para controlar el cumplimiento laboral o la integridad de los equipos. Antes debe fijar unos [[criterios de utilización]], con participación de la representación legal, e informar de ellos a la plantilla ([art. 87 LOPDGDD](${LOPDGDD}#a8-9)). Además, el TEDH pide ponderar los factores del [[test Bărbulescu]] ([STEDH de 5/9/2017, § 121](${BARBULESCU})). El Constitucional avaló el control cuando el convenio prohibía el uso extralaboral del correo ([STC 170/2013](${STC_170})), y la prueba obtenida vulnerando derechos fundamentales no se admite ([art. 90.2 LRJS](${LRJS}#a90)).`,
+      text: `Con el correo y el ordenador, la empresa solo puede acceder al contenido para controlar el cumplimiento laboral o la integridad de los equipos. Antes debe fijar unos [[criterios de utilización]], con participación de la representación legal, e informar de ellos a la plantilla ([art. 87 LOPDGDD](${LOPDGDD}#a8-9)). Además, el TEDH pide ponderar los factores del [[test Bărbulescu]] ([STEDH de 5/9/2017, § 121](${BARBULESCU})). El Constitucional avaló el control cuando el convenio sancionaba el uso extralaboral del correo ([STC 170/2013](${STC_170})), y la prueba obtenida vulnerando derechos fundamentales no se admite ([art. 90.2 LRJS](${LRJS}#a90)).`,
     },
     { type: 'paragraph', text: 'Antes de abrir un buzón corporativo, comprueba:' },
     {
@@ -145,11 +147,12 @@ export const formation: Formation = {
       type: 'callout',
       tone: 'atencion',
       title: 'Sin criterios previos, no abras el contenido',
-      text: `Un acceso desproporcionado puede invalidar la prueba y constituir una infracción muy grave, con multa de 7.501 a 225.018 € ([arts. 8.11 y 40.1.c LISOS](${LISOS}#a8)). Preserva las evidencias técnicas y aprueba e informa ya los criterios de uso.`,
+      text: `Un acceso desproporcionado puede invalidar la prueba y constituir una infracción muy grave, con multa de 7.501 a 225.018 € ([arts. 8.11 y 40.1.c LISOS](${LISOS}#a8)), además de una posible sanción de la Agencia Española de Protección de Datos. Preserva las evidencias técnicas y aprueba e informa ya los criterios de uso.`,
       refs: [
         { label: 'Ley Orgánica 3/2018 (LOPDGDD), art. 87', url: `${LOPDGDD}#a8-9`, date: VERIFIED, kind: 'norma' },
         { label: 'STEDH (Gran Sala) Bărbulescu c. Rumanía, de 5 de septiembre de 2017, n.º 61496/08', url: BARBULESCU, date: VERIFIED, kind: 'jurisprudencia' },
         { label: 'LISOS, arts. 8.11 y 40.1', url: `${LISOS}#a40`, date: VERIFIED, kind: 'norma' },
+        { label: 'Reglamento (UE) 2016/679 (RGPD), art. 83.5', url: RGPD, date: '2026-10-29', kind: 'norma' },
       ],
     },
     {
@@ -166,7 +169,7 @@ export const formation: Formation = {
           {
             claim: 'La empresa puede cambiar el horario habitual de una persona de un día para otro.',
             verdict: 'depende',
-            explanation: 'Un cambio sustancial exige causas probadas y 15 días de preaviso si es individual (art. 41 ET); la distribución irregular, 5 días (art. 34.2 ET). En contratos de más de cuatro semanas, además, se comunica por escrito (RD 723/2026, art. 5).',
+            explanation: 'Un ajuste menor puede entrar en el poder de dirección. Un cambio sustancial exige causas probadas y, si es individual, 15 días de preaviso (art. 41 ET), y la distribución irregular, 5 días (art. 34.2 ET). En relaciones de más de cuatro semanas, el cambio se comunica además por escrito, a más tardar el día en que surte efecto (RD 723/2026, arts. 5 y 7.3).',
           },
           {
             claim: 'La empresa puede leer el correo profesional de una persona trabajadora.',
@@ -176,7 +179,7 @@ export const formation: Formation = {
           {
             claim: 'Escribir a la plantilla fuera de horario está prohibido por la ley.',
             verdict: 'falso',
-            explanation: 'Ninguna norma vigente lo prohíbe. La ley garantiza que, fuera de su jornada, la persona no está obligada a atender el mensaje (art. 88 LOPDGDD); si contesta y trabaja, ese tiempo se registra.',
+            explanation: 'La ley no lo prohíbe con carácter general, aunque el convenio o la política interna pueden limitarlo. Lo que garantiza es el derecho a no atender el mensaje fuera de la jornada (art. 88 LOPDGDD); si la persona contesta y trabaja, ese tiempo se registra.',
           },
         ],
       },
@@ -201,7 +204,7 @@ export const formation: Formation = {
     },
     {
       type: 'paragraph',
-      text: `El grado depende, entre otros criterios, de la intencionalidad, de las advertencias previas de la Inspección y del número de afectados ([art. 39.2](${LISOS}#a39)). A diferencia de la contratación temporal en fraude ([art. 7.2](${LISOS}#a7)), el art. 7.5 no cuenta una infracción por persona: no registrar a seis personas es una sola infracción.`,
+      text: `El grado depende, entre otros criterios, de la intencionalidad, de las advertencias previas de la Inspección y del número de afectados ([art. 39.2](${LISOS}#a39)). A diferencia de la contratación temporal en fraude ([art. 7.2](${LISOS}#a7)), el art. 7.5 no cuenta una infracción por persona: no registrar a seis personas no supone seis infracciones, y el número de afectados sirve para graduar la multa.`,
     },
     {
       type: 'widget',
@@ -214,6 +217,7 @@ export const formation: Formation = {
           { date: '2019-05-12', title: 'Registro diario obligatorio', text: 'Art. 34.9 ET, añadido por el RDL 8/2019.', tone: 'hito' },
           { date: '2019-05-14', title: 'STJUE C-55/18', text: 'Sistema objetivo, fiable y accesible.', tone: 'hito' },
           { date: '2021-07-11', title: 'Entra en vigor la Ley 10/2021', text: 'Desconexión en el trabajo a distancia.', tone: 'hito' },
+          { date: '2025-09-10', title: 'El Congreso devuelve al Gobierno el proyecto de 37,5 horas', text: 'La jornada máxima legal sigue siendo de 40 horas semanales.', tone: 'hito' },
           { date: '2025-10-09', title: 'Proyecto de RD de registro de jornada', text: 'Audiencia pública hasta el 20/10/2025.', tone: 'pendiente' },
           { date: '2026-10-05', title: 'Entra en vigor el RD 723/2026', text: 'Información escrita sobre jornada y horas extra.', tone: 'hito' },
           { date: '2026-10-28', title: 'Fecha de esta formación', text: 'El registro digital sigue sin publicarse en el BOE.', tone: 'pendiente' },
@@ -229,7 +233,7 @@ export const formation: Formation = {
       type: 'example',
       title: 'NubeÁgil, S.L.: registro, horas extra y desconexión',
       scenario:
-        'Startup de software con seis personas y sin representación legal (caso ficticio); su convenio no modifica las reglas legales. Jornada completa: 40 h semanales; jornada anual general: 1.760 h. **Bruno** ha hecho 95 horas extra en 2026: cobró 60 y descansó 35, pero 8 de ellas, trabajadas el 15 de junio, las descansó el 20 de octubre. **Carla** tiene un temporal de seis meses a jornada completa (880 h). **Fran** trabaja 20 h semanales con contrato indefinido. **David** teletrabaja tres de cinco días y recibe mensajes a las 22:30. El socio quiere leer el correo de **Ana** y no hay criterios de uso.',
+        'Startup de software con seis personas y sin representación legal (caso ficticio); su convenio no modifica las reglas legales. Jornada completa: 40 h semanales; jornada anual general: 1.760 h. **Bruno**, indefinido a jornada completa, ha hecho 95 horas extra en 2026: cobró 60 y descansó 35, pero 8 de ellas, trabajadas el 15 de junio, las descansó el 20 de octubre. **Carla** tiene un temporal de seis meses a jornada completa (880 h). **Fran** trabaja 20 h semanales con contrato indefinido. **David** teletrabaja tres de cinco días y recibe mensajes a las 22:30. El socio quiere leer el correo de **Ana** y no hay criterios de uso.',
       steps: [
         {
           label: '**Registro.** Sustituye la hoja mensual por un registro diario de las seis personas, con el sistema documentado.',
@@ -263,7 +267,7 @@ export const formation: Formation = {
         },
         {
           label: '**Ana.** Aplica la lista de comprobación antes de abrir su buzón.',
-          formula: 'Criterios previos: no · Motivo concreto: sí · Medida menos invasiva: sí',
+          formula: 'Criterios previos: no · Motivo concreto: sí · ¿Hay una medida menos invasiva?: sí',
           result: 'No abrir el contenido todavía',
         },
       ],
@@ -278,7 +282,7 @@ export const formation: Formation = {
     },
     {
       term: 'horas extraordinarias',
-      definition: `Las trabajadas por encima de la jornada máxima ordinaria; tope de 80 al año ([art. 35 ET](${ET}#a35)).`,
+      definition: `Las trabajadas por encima de la duración máxima de la jornada ordinaria; tope general de 80 al año ([art. 35 ET](${ET}#a35)).`,
     },
     {
       term: 'horas complementarias',
@@ -317,6 +321,8 @@ export const formation: Formation = {
     { label: 'STC 170/2013, de 7 de octubre', url: STC_170, date: VERIFIED, kind: 'jurisprudencia' },
     { label: 'Ministerio de Trabajo: Guía sobre el registro de jornada', url: GUIA, date: VERIFIED, kind: 'criterio' },
     { label: 'Ministerio de Trabajo: audiencia pública del proyecto de RD de registro de jornada (octubre de 2025)', url: PARTICIPA, date: VERIFIED, kind: 'documento' },
+    { label: 'Congreso de los Diputados: votación de 10/09/2025 de las enmiendas de totalidad de devolución al proyecto de ley de reducción de la jornada (178 votos a favor y 170 en contra)', url: VOTACION_37_5, date: '2026-10-29', kind: 'documento' },
+    { label: 'Reglamento (UE) 2016/679, general de protección de datos (RGPD), art. 83.5', url: RGPD, date: '2026-10-29', kind: 'norma' },
   ],
   quiz: {
     id: 'lab-02-test',
@@ -354,7 +360,7 @@ export const formation: Formation = {
       },
       {
         id: 'lab-02-q2',
-        prompt: 'Laia, a jornada completa, ha hecho 90 horas extra en 2026: se le han pagado 70 y las otras 20 se han compensado con descanso dentro de los cuatro meses siguientes. No ha habido siniestros. ¿Ha superado el tope legal?',
+        prompt: 'Laia, con contrato indefinido a jornada completa desde 2020, ha hecho 90 horas extra en 2026: se le han pagado 70 y las otras 20 se han compensado con descanso dentro de los cuatro meses siguientes. No ha habido siniestros. ¿Ha superado el tope legal?',
         options: [
           {
             id: 'a',
@@ -423,11 +429,11 @@ export const formation: Formation = {
 export const bank: QuizQuestion[] = [
   {
     id: 'lab-02-b1',
-    prompt: 'Fran trabaja 20 horas semanales con contrato indefinido y la empresa necesita más horas suyas en campaña. ¿Qué vía es legal?',
+    prompt: 'Fran trabaja 20 horas semanales con contrato indefinido y la empresa necesita más horas suyas en campaña. Ningún convenio modifica las reglas legales. ¿Qué vía es legal?',
     options: [
       {
         id: 'a',
-        text: 'Horas complementarias: pactadas por escrito, hasta el 30 % de sus horas ordinarias y con 3 días de preaviso, y además voluntarias, hasta el 15 %.',
+        text: 'Horas complementarias: las pactadas por escrito, hasta el 30 % de sus horas ordinarias y con 3 días de preaviso como mínimo, y además las voluntarias, hasta el 15 %.',
       },
       {
         id: 'b',
@@ -436,8 +442,8 @@ export const bank: QuizQuestion[] = [
       },
       {
         id: 'c',
-        text: 'Horas complementarias sin pacto escrito, siempre que se paguen con el valor de las horas extra.',
-        feedback: 'El pacto debe formalizarse por escrito (art. 12.5.a ET) y las complementarias se pagan como horas ordinarias (art. 12.5.i ET).',
+        text: 'Exigirle horas complementarias sin pacto escrito, siempre que se le paguen con el recargo de las horas extra.',
+        feedback: 'Solo pueden exigirse las complementarias pactadas por escrito (art. 12.5.a ET), y un recargo no suple el pacto. Las voluntarias no necesitan pacto, pero Fran puede rechazarlas sin sanción (art. 12.5.g ET).',
       },
       {
         id: 'd',
@@ -447,7 +453,7 @@ export const bank: QuizQuestion[] = [
     ],
     correctOptionId: 'a',
     explanation:
-      'A tiempo parcial, la ampliación se hace con horas complementarias (art. 12.5 ET). Como Fran es indefinido y trabaja al menos 10 horas semanales, caben las pactadas (el convenio puede subir el límite hasta el 60 %) y las voluntarias (hasta el 30 % por convenio). Ambas se pagan como ordinarias.',
+      'A tiempo parcial, la ampliación se hace con horas complementarias (art. 12.5 ET). Como Fran es indefinido y trabaja al menos 10 horas semanales, caben las pactadas y las voluntarias; sin convenio que lo modifique, rigen el 30 %, el 15 % y el preaviso de 3 días. Ambas se pagan como ordinarias, y la suma con sus horas ordinarias no puede alcanzar la jornada completa (art. 12.4.c ET).',
     ref: 'Apartado 2, «Horas extraordinarias: tope, voluntariedad y cómputo»',
   },
   {

@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { ArrowLeft, ArrowRight, Check, Copy, ExternalLink, FileText, Info } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { Link, useLocation, useParams } from 'react-router';
-import { AREAS, formatLongDate, formatShortDate, type NewsItem } from '@flm/shared';
+import { areaName, formatLongDate, formatShortDate, type NewsItem } from '@flm/shared';
 import { AreaTag, Avatar, Button, ButtonLink, Notice, PageHeader, toast } from '@/design';
 import { useDocuments, usePeople } from '@/data/selectors';
 import { asset } from '@/lib/download';
@@ -78,7 +78,7 @@ export default function NewsDetail() {
             <Icon size={15} strokeWidth={2} aria-hidden="true" />
             {kindLabel}
             <span aria-hidden="true">·</span>
-            {AREAS[item.area].name}
+            {areaName(item.area)}
           </span>
         }
         title={item.headline}
@@ -259,6 +259,10 @@ function FiveBlocks({ item }: { item: NewsItem }) {
                       <ExternalLink size={15} aria-hidden="true" />
                       <span className="sr-only"> (se abre en una pestaña nueva)</span>
                     </a>
+                  ) : source.url.startsWith('#/') ? (
+                    <Link to={source.url.slice(1)} className={styles.sourceLink}>
+                      {source.label}
+                    </Link>
                   ) : (
                     source.label
                   )}
@@ -416,7 +420,7 @@ function Aside({ item }: { item: NewsItem }) {
       {related.length > 0 && (
         <section className={styles.panel} aria-labelledby="h-ampliar">
           <h2 id="h-ampliar" className={styles.panelTitle}>
-            Para ampliar · {AREAS[item.area].name}
+            Para ampliar · {areaName(item.area)}
           </h2>
           <ul role="list" className={styles.related}>
             {related.map((d) => {

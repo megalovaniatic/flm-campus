@@ -440,7 +440,8 @@ export function quizToForm(q: Quiz, formationId: string): TestForm {
 export function newsToForm(n: NewsItem): NewsForm {
   return {
     type: 'noticia',
-    area: n.area,
+    // Los avisos para toda la firma se editan como Fiscal hasta que el formulario admita «general».
+    area: n.area === 'general' ? 'fiscal' : n.area,
     kind: n.kind,
     urgency: n.urgency,
     headline: n.headline,

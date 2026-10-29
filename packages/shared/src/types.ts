@@ -283,7 +283,8 @@ export type NewsKind = 'legislacion' | 'jurisprudencia' | 'criterio' | 'aviso-in
 export interface NewsItem {
   id: string;
   slug: string;
-  area: AreaId;
+  /** Área de la novedad o «general» (toda la firma) para avisos internos. */
+  area: AreaId | 'general';
   kind: NewsKind;
   headline: string;
   /** 1. La novedad, en una frase. */

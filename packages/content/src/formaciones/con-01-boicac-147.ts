@@ -40,7 +40,7 @@ export const formation: Formation = {
     { type: 'heading', text: 'Consulta 2: mantenimiento con cuota fija', id: 'consulta-2-mantenimiento' },
     {
       type: 'paragraph',
-      text: 'Un mayorista de vehículos industriales vende contratos de mantenimiento de 36 meses con cuota fija mensual (revisiones y sustitución de piezas desgastadas no cubiertas por la garantía, en cualquier taller oficial). Registraba los cobros como pasivo hasta la primera visita al taller y, después, imputaba ingresos según el uso estimado del vehículo. Según su histórico, los costes se reparten, de media, un 15 %, un 34 % y un 51 % entre los tres años de servicio. Preguntaba si podía aplicar el porcentaje de realización de la adaptación del PGC a las empresas constructoras.',
+      text: 'Un mayorista de vehículos industriales vende contratos de mantenimiento de 36 meses con cuota fija mensual (revisiones y sustitución de piezas desgastadas no cubiertas por la garantía, en cualquier taller oficial). Registraba los cobros como pasivo hasta la primera visita al taller y, después, imputaba ingresos según el uso estimado del vehículo. Según su histórico, los costes se reparten, de media, un 15 %, un 34 % y un 51 % entre los tres años de servicio. Preguntaba si podía aplicar el porcentaje de realización de la norma de valoración 18.ª de la adaptación del PGC a las empresas constructoras.',
     },
     {
       type: 'paragraph',
@@ -54,7 +54,7 @@ export const formation: Formation = {
         'El servicio está disponible de forma continua durante tres años a precio fijo: la obligación se cumple a lo largo del tiempo ([art. 9](https://www.boe.es/buscar/act.php?id=BOE-A-2021-2155#a9)).',
         'El ingreso se reconoce, por tanto, según el [[grado de avance]] ([art. 8.3](https://www.boe.es/buscar/act.php?id=BOE-A-2021-2155#a8)).',
         'Como método, el ICAC apunta al [[método de recursos]]: costes incurridos al final de cada año frente a costes totales estimados con el histórico ([art. 11.5](https://www.boe.es/buscar/act.php?id=BOE-A-2021-2155#a1-3)).',
-        'Las estimaciones deben obtenerse de carteras de contratos homogéneos, siempre que el resultado no difiera significativamente del cálculo contrato a contrato, y se revisan si las previsiones cambian de forma significativa ([art. 1.4](https://www.boe.es/buscar/act.php?id=BOE-A-2021-2155#a1)).',
+        'Las estimaciones deben obtenerse de carteras de contratos homogéneos, siempre que se espere razonablemente que el resultado no difiera significativamente del cálculo contrato a contrato, y se revisan si las previsiones cambian de forma significativa ([art. 1.4](https://www.boe.es/buscar/act.php?id=BOE-A-2021-2155#a1)).',
       ],
     },
     {
@@ -67,7 +67,7 @@ export const formation: Formation = {
       type: 'callout',
       tone: 'atencion',
       title: 'La factura no es el ingreso',
-      text: 'Si registras cada cuota como ingreso del mes, adelantas margen a los primeros años y dejas pérdidas para el último: el reparto lineal solo es apropiado si el esfuerzo es uniforme. Lo cobrado o exigible antes de prestar el servicio es un [[pasivo del contrato]], que se presenta en «Anticipos de clientes» (cuenta 438) si se aplicará a corto plazo, o en «Periodificaciones a largo plazo» (cuenta 181) si es a largo.',
+      text: 'Si registras cada cuota como ingreso del mes, adelantas margen a los primeros años y dejas pérdidas para el último. El reparto lineal puede ser apropiado cuando el esfuerzo es uniforme, y aquí no lo es. Lo cobrado o exigible antes de prestar el servicio es un [[pasivo del contrato]], que se presenta en «Anticipos de clientes» (cuenta 438) si se aplicará a corto plazo, o en «Periodificaciones a largo plazo» (cuenta 181) si es a largo.',
       refs: [
         { label: 'Resolución del ICAC de 10/02/2021, art. 11.5 (método de recursos)', url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2021-2155#a1-3', date: '2026-10-28', kind: 'norma' },
         { label: 'Resolución del ICAC de 10/02/2021, art. 33.3 (pasivo del contrato)', url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2021-2155#a3-5', date: '2026-10-28', kind: 'norma' },
@@ -170,7 +170,7 @@ export const formation: Formation = {
       type: 'callout',
       tone: 'norma',
       title: 'Qué dice la norma y qué concluye el ICAC',
-      text: 'El apartado 2.3 de la norma 13.ª de la Resolución del ICAC de 14 de abril de 2015 valora los bienes recibidos por el cobro de créditos por el importe por el que figura en cuentas el crédito, más los gastos de la operación, o por su valor razonable si es menor.\n\nEl ICAC concluye que la maquinaria se reconoce por el [[valor en libros]] del crédito cancelado, salvo clara evidencia de que su valor razonable en la fecha de adjudicación es inferior; en ese caso, se usa este.',
+      text: 'El apartado 2.3 de la norma 13.ª de la Resolución del ICAC de 14 de abril de 2015 (entre las normas para empresas inmobiliarias) valora los bienes recibidos por el cobro de créditos por el importe por el que figura en cuentas el crédito, más los gastos que ocasione la operación, o por su valor razonable si es menor. Su segundo párrafo, para bienes vendidos antes por la empresa, remite al coste de producción o al precio de adquisición; el ICAC lo transcribe, pero no lo aplica.\n\nEl ICAC concluye que la maquinaria se reconoce por el [[valor en libros]] del crédito cancelado, salvo clara evidencia de que su valor razonable en la fecha de adjudicación es inferior; en ese caso, se usa este.',
       refs: [
         { label: 'Resolución del ICAC de 14/04/2015, norma 13.ª, apartado 2.3', url: 'https://www.boe.es/buscar/act.php?id=BOE-A-2015-4394#decimotercera', date: '2026-10-28', kind: 'norma' },
         { label: 'ICAC · BOICAC n.º 147, consulta 3', url: 'https://www.icac.gob.es/node/26676', date: '2026-10-28', kind: 'criterio' },
@@ -179,9 +179,9 @@ export const formation: Formation = {
     {
       type: 'list',
       items: [
-        '**No deshaces la venta**: recibes el bien en pago del crédito, y la pérdida de 20X2 no se revierte.',
+        '**No deshaces la venta**: el bien se recibe en pago del crédito, así que no recupera su valor contable anterior ni se revierte la pérdida de 20X2.',
         '**Parte del crédito neto**: su [[valor en libros]] es el nominal pendiente menos el deterioro registrado.',
-        '**Suma los gastos de la operación**, como el transporte o la formalización.',
+        '**Suma los gastos que ocasione la operación**, como el transporte o la formalización: los añade la norma, aunque la conclusión del ICAC no los menciona.',
         '**Compara con el valor razonable** en la fecha de adjudicación: si hay clara evidencia de que es menor que esa suma (por ejemplo, por una tasación independiente), entra por ese importe y la diferencia es pérdida; si es mayor, no hay beneficio.',
       ],
     },
@@ -216,7 +216,7 @@ export const formation: Formation = {
     },
     {
       type: 'paragraph',
-      text: 'Con un valor razonable de 32.000 €, la máquina entra por 25.000 € y no hay pérdida. El ICAC no fija cuentas: la propuesta sigue las [definiciones del PGC](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#grupo5-2), que llevan a la cuenta 667 la pérdida en la baja de estos créditos.',
+      text: 'Con un valor razonable de 32.000 €, la máquina entra por 25.000 € y no hay pérdida. El ICAC no fija cuentas: la propuesta sigue las [definiciones del PGC](https://www.boe.es/buscar/act.php?id=BOE-A-2007-19884#grupo6-2), que reservan la cuenta 667 a las pérdidas por insolvencias firmes de créditos no comerciales, como el de la venta de inmovilizado.',
     },
     {
       type: 'callout',
@@ -262,7 +262,7 @@ export const formation: Formation = {
           {
             claim: 'Si cobro una cuota fija cada mes, el ingreso del mes es la cuota.',
             verdict: 'depende',
-            explanation: 'Solo si el esfuerzo es uniforme. Con costes del 15 %, el 34 % y el 51 %, el ingreso sigue al grado de avance medido con costes (consulta 2).',
+            explanation: 'El reparto lineal puede encajar si el esfuerzo es uniforme. Con costes del 15 %, el 34 % y el 51 %, el ingreso sigue al grado de avance medido con costes (consulta 2).',
           },
           {
             claim: 'Los recambios y la mano de obra del contrato se reconocen por separado.',
@@ -349,7 +349,7 @@ export const formation: Formation = {
             id: 'a',
             text: 'Por la cuota facturada cada mes, porque el precio es fijo.',
             feedback:
-              'La factura no mide el servicio prestado. El reparto lineal solo es apropiado si el esfuerzo es uniforme (art. 11.5 de la Resolución de 2021), y con costes del 15 %, el 34 % y el 51 % no lo es.',
+              'La factura no mide el servicio prestado. El reparto lineal puede ser apropiado cuando el esfuerzo es uniforme (art. 11.5 de la Resolución de 2021), pero aquí los costes se reparten un 15 %, un 34 % y un 51 %, y el ICAC mide el avance con ellos.',
           },
           { id: 'b', text: 'A lo largo del tiempo, según el grado de avance: coste incurrido acumulado entre coste total estimado.' },
           {
@@ -399,7 +399,7 @@ export const formation: Formation = {
       {
         id: 'con-01-q3',
         prompt:
-          'En 20X5 tu cliente recupera, por impago, la máquina que vendió a plazos en 20X2. Crédito pendiente: 30.000 €; deterioro registrado: 6.000 €; gastos de la operación: 1.000 €; una tasación independiente fija su valor razonable en 32.000 €. ¿Por qué importe registra la máquina?',
+          'En 20X5 tu cliente recupera, por impago, la máquina que vendió a plazos en 20X2. Crédito pendiente: 30.000 €; deterioro registrado: 6.000 €; gastos que ocasiona la operación: 1.000 €; una tasación independiente fija su valor razonable en 32.000 €. Según la consulta 3 y la norma que aplica, ¿por qué importe registra la máquina?',
         options: [
           {
             id: 'a',
@@ -420,7 +420,7 @@ export const formation: Formation = {
         ],
         correctOptionId: 'c',
         explanation:
-          'El bien recibido se valora por el importe por el que figura en cuentas el crédito, más los gastos de la operación, o por su valor razonable si es menor (norma 13.ª, apartado 2.3, de la Resolución del ICAC de 14 de abril de 2015, que aplica la consulta 3). Como 32.000 € supera 25.000 €, la máquina entra por 25.000 € y no hay beneficio.',
+          'El ICAC parte del valor en libros del crédito cancelado (30.000 − 6.000 = 24.000 €), y la norma que aplica le suma los gastos que ocasiona la operación, con el límite del valor razonable si es menor (norma 13.ª, apartado 2.3, de la Resolución del ICAC de 14 de abril de 2015). Como 32.000 € supera 25.000 €, la máquina entra por 25.000 € y no hay beneficio.',
         ref: 'Apartado 3 · Consulta 3: el bien vendido que vuelve por impago',
       },
     ],
@@ -430,7 +430,7 @@ export const formation: Formation = {
   editorial: {
     status: 'publicado',
     authorId: 'p-judith-calet',
-    publishedAt: '2026-10-27T09:00:00+02:00',
+    publishedAt: '2026-10-27T09:00:00+01:00',
     review: { state: 'pendiente', note: 'Borrador redactado para la revisión del área.' },
   },
   verifiedAt: '2026-10-28',

@@ -55,7 +55,7 @@ export function useNotices(): Notice[] {
         });
       }
     }
-    const areaNews = news.filter((n) => n.area.toLowerCase() === me.department.toLowerCase()).slice(0, 2);
+    const areaNews = news.filter((n) => n.area === 'general' || n.area.toLowerCase() === me.department.toLowerCase()).slice(0, 2);
     for (const n of areaNews) {
       out.push({ id: `news-${n.id}`, icon: Newspaper, title: n.headline, body: `Novedad de tu área · ${formatShortDate(n.date)}`, href: `/consultar/actualidad/${n.slug}` });
     }
